@@ -8,7 +8,7 @@ const App = () => {
     <>
       <div className='fixed inset-0 bg-black z-0 text-white'>
         <StarsCanvas/>
-        {/* <Menu /> */}
+        <Menu />
         <Routes>
         <Route index element={<Index />} />
         

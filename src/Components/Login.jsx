@@ -47,7 +47,7 @@ const LoginForm = () => {
         <form action="" onSubmit={handleLogin} className="w-full sm:w-auto flex px-3 flex-col space-y-3 sm:space-y-5 text-black">
           <input type="email" placeholder="E-mail" name="email" className="py-2 px-3 rounded-xl w-full sm:w-[400px]" />
           <input type="password" placeholder="Password"name="password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
-          <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white hover:bg-[rgba(135,206,235,0.3)]">Login</button>
+          <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white text-white hover:bg-[rgba(135,206,235,0.3)]">Login</button>
         </form>
         </>
   )
