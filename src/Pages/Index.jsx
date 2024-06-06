@@ -1,11 +1,12 @@
 import React from 'react'
-import StarsCanvas from '../Components/Canvas/Stars'
-
+import Welcome from '../Components/Welcome'
+import Header from '../Components/Header'
 const Index = () => {
   return (
-    <div className=''>
-      {/* <StarsCanvas/> */}
-    </div>
+    <>
+      <Header />
+      <Welcome />
+    </>
   )
 }
 

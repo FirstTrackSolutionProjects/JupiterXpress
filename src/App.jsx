@@ -5,10 +5,13 @@ import StarsCanvas from './Components/Canvas/Stars'
 const App = () => {
   return (
     <>
-      <div className='absolute inset-0 bg-black z-0'>
+      <div className='fixed inset-0 bg-black z-0 text-white'>
         <StarsCanvas/>
+        <Index />
       </div>
-      
+      <Routes>
+        <Route path='/elele' element={null} />
+      </Routes>
     </>
   )
 }
