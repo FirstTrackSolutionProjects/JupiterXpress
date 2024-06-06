@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
     });
-    const [rows] = await connection.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const [rows] = await connection.execute('SELECT * FROM Users WHERE email = ?', [email]);
     if (rows.length === 0) {
       return {
         statusCode: 401,
