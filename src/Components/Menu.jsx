@@ -13,7 +13,7 @@ const Menu = ( ) => {
     <>
       
       <div className={`fixed block md:hidden top-0 right-0 ${isMenu?"md:w-96 w-full":"w-0"} h-full transition-all duration-300 ease-in-out z-50 overflow-hidden`}>
-      <button onClick={toggleMenu} className={`fixed block md:hidden z-50 top-3 right-4 px-4 py-2 bg-blue-600 text-black font-bold rounded-md`}>
+      <button onClick={toggleMenu} className={`fixed block md:hidden z-50 top-3 right-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-md`}>
         {isMenu ? 'X' : '☰'}
       </button>
       <div className="flex flex-col justify-center p-4 bg-[rgba(0,0,0,0.7)] h-screen text-white items-center">
