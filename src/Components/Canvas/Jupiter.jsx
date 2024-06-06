@@ -14,11 +14,15 @@ const Jupiter = ({isMobile, authMode}) => {
   const earth = useGLTF('3d/scene.gltf') 
 
   useEffect(() => {
-    if (authMode){
+    
       // Define the start and end positions
-    const startPosition = { x: 0, y: 0, z: 0, scale: 1 };
-    const endPosition = { x: 0, y: 0, z: 0, scale: 1.35 };
+    let startPosition = { x: 0, y: 0, z: 0, scale: 1 };
+    let endPosition = { x: 0, y: 0, z: 0, scale: 1.35 };
 
+    if (!authMode){
+       startPosition = { x: 0, y: 0, z: 0, scale: 1.35 };
+       endPosition = { x: 0, y: 0, z: 0, scale: 1 };
+    }
     // Create the tween
     const tween = new TWEEN.Tween(startPosition)
       .to(endPosition, 2000) // 2 seconds duration
@@ -38,7 +42,7 @@ const Jupiter = ({isMobile, authMode}) => {
     };
 
     animate();
-    }
+    
   }, [authMode]);
 
   useFrame(({ clock }) => {

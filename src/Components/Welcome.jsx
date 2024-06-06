@@ -6,7 +6,7 @@ const Welcome = () => {
   const [authMode, setAuthMode] = useState(0)
   return (
     <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center'>
-      <Login authMode={authMode} />
+      <Login authMode={authMode} setAuthMode={setAuthMode} />
           <div className={` transition-all -mt-10 md:-mt-0 md:h-auto ${authMode?"sm:w-0 h-0  overflow-hidden":"sm:w-1/2 h-96"} duration-500  w-full flex flex-col justify-center items-center`}>
             <div className='relative flex flex-col justify-center items-center py-6'>
               <div className=' text-left md:text-7xl text-5xl  font-bold italic'>JUPITER</div>
