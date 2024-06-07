@@ -11,7 +11,7 @@ const Welcome = () => {
             <div className='relative flex flex-col justify-center items-center py-6'>
               <div className=' text-left lg:text-7xl  text-5xl  font-bold italic'>JUPITER</div>
               <div className='flex items-center my-3'>
-              <img src="logo.png" alt="" className='lg:w-[200px] lg:h-[60px]  w-[150px] h-[45px]' />
+              <img src="logo.webp" alt="" className='lg:w-[200px] lg:h-[60px]  w-[150px] h-[45px]' />
               <div className='lg:text-[75px] text-5xl font-bold -ml-8 -mt-2 text-blue-400 italic'>PRESS</div>
             </div>
             <div className="lg:text-xl text-center">SEAMLESS SHIPPING • UNIVERSAL REACH</div>

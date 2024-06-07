@@ -11,7 +11,7 @@ const Jupiter = ({isMobile, authMode}) => {
     return new Promise( res => setTimeout(res, delay) );
   }
   const rotateMesh = useRef()
-  const earth = useGLTF('3d/scene.gltf') 
+  const earth = useGLTF('3d/jupiter/scene.glb') 
 
   useEffect(() => {
     
