@@ -7,7 +7,7 @@ const Contact = () => {
   return (
     <>
     
-    <div className='lg:h-screen  bg-center  bg-no-repeat bg-fixed bg-[url("ContactBg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className='lg:h-screen  bg-center  bg-no-repeat bg-fixed bg-[url("contactbg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
     <Header />
         
       <div className='flex flex-col items-center justify-center space-y-4 py-24'>

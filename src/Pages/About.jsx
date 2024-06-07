@@ -8,7 +8,7 @@ const About = () => {
   return (
     <>
     
-    <div className=' space-y-10 min-h-screen px-6 md:px-12 py-32 bg-center  bg-no-repeat bg-fixed bg-[url("ContactBg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className=' space-y-10 min-h-screen px-6 md:px-12 py-32 bg-center  bg-no-repeat bg-fixed bg-[url("contactbg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
     <Header />
      <div className="w-full space-y-5 max-w-[1024px] border p-4 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Who we are?</div>
