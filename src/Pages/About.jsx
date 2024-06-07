@@ -3,7 +3,7 @@ import Header from "../Components/Header"
 import Footer from "../Components/Footer"
 import ServiceCard from "../Components/ServiceCard"
 import ReasonCard from "../Components/ReasonCard"
-import Carousel from "../Components/Carousel"
+
 const About = () => {
   return (
     <>
@@ -28,10 +28,10 @@ const About = () => {
      <div className="w-full space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Our Services</div>
             <div className="w-full flex justify-evenly">
-                <ServiceCard/>
-                <ServiceCard/>
-                <ServiceCard/>
-                <ServiceCard/>
+                <ServiceCard color={'blue-600'}/>
+                <ServiceCard color={'blue-600'}/>
+                <ServiceCard color={'blue-600'}/>
+                <ServiceCard color={'blue-600'}/>
             </div>
      </div>
      <div className="w-full space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
