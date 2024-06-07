@@ -16,10 +16,10 @@ const Menu = ( ) => {
       <button onClick={toggleMenu} className={`fixed block md:hidden z-50 top-3 right-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-md`}>
         {isMenu ? 'X' : '☰'}
       </button>
-      <div className="flex flex-col justify-center p-4 bg-[rgba(0,0,0,0.7)] h-screen text-white items-center">
-      
+      <div className="flex flex-col justify-center p-4 space-y-6 bg-white text-black h-screen items-center">
+        <img src="logo.webp" alt="" className='w-48' />
         {navItems.map((item, index) =>(
-          <div onClick={()=>toggleMenu()} className='w-full p-3 text-3xl text-medium text-center'>
+          <div onClick={()=>toggleMenu()} className='w-full text-3xl text-medium text-center'>
             <NavItem key={index} name={item.name} url={item.url}  />
           </div>
         ))}

@@ -1,19 +1,20 @@
 import {Route, Routes} from 'react-router-dom'
 import Index from './Pages/Index'
-import StarsCanvas from './Components/Canvas/Stars'
 import Menu from './Components/Menu'
-
+import Contact from './Pages/Contact'
+import About from './Pages/About'
 const App = () => {
   return (
     <>
-      <div className='fixed inset-0 bg-black z-0 text-white'>
-        <StarsCanvas/>
+      
         <Menu />
+        
         <Routes>
         <Route index element={<Index />} />
-        
+        <Route path='/contact-send' element={<Contact/>} />
+        <Route path='/about-us' element={<About/>} />
       </Routes>
-      </div>
+      
       
     </>
   )
