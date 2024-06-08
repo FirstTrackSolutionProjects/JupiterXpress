@@ -5,7 +5,7 @@ const ReasonCard = ({color}) => {
         max:45,
         scale:1,
         speed:450
-      }} className={`w-80 h-32 rounded-2xl flex  items-center ${color} p-1`}>
+      }} className={`w-80 h-32 rounded-2xl flex  items-center ${color} p-1 rcsm:mb-3`}>
         <div className="w-[120px] h-[120px] rounded-2xl bg-white flex justify-center items-center">\
             <img src="icons/timely.webp" alt="" />
             

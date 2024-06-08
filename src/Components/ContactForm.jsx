@@ -1,7 +1,7 @@
 
 const ContactForm = () => {
   return (
-    <div className="flex flex-col w-full space-y-6 items-center text-black my-12 font-medium">
+    <div className="flex flex-col w-full lg:w-auto space-y-6 items-center text-black my-12 font-medium">
       <form action="" className="flex flex-col space-y-2 w-full sm:w-[500px]">
         <input type="text" name="name" placeholder="Full Name" className="py-2 px-4 rounded-3xl" />
         <input type="email" name="email" placeholder="E-mail Address" className="py-2 px-4 rounded-3xl"/>

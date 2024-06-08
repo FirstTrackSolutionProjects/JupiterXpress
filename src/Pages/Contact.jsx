@@ -12,9 +12,9 @@ const Contact = () => {
 
     </div>
         
-      <div className='relative z-20 flex flex-col items-center justify-center space-y-4 py-24'>
+      <div className='relative z-20 flex flex-col items-center justify-center w-full space-y-4 py-24'>
       <div className="text-2xl text-center font-medium ">CONTACT US</div>
-        <div className='flex flex-col lg:flex-row justify-center items-center md:space-x-4 space-x-0 w-full'>
+        <div className='flex flex-col lg:flex-row px-4 sm:px-0 justify-center items-center md:space-x-4 space-x-0 w-full'>
         <ContactForm />
         <ContactDetails/>
         </div>

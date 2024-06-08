@@ -16,7 +16,7 @@ const About = () => {
      <div className="w-full relative z-20 space-y-5 max-w-[1024px] border p-4 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Who we are?</div>
             <div>
-                Jupiter Xpress Delivery is a leading provider of efficient and reliable delivery services, committed to simplifying logistics for businesses and individuals. Our mission is to ensure swift and secure delivery of a wide range of products, including electronics, clothing, documents, perishables, and more. 
+                Jupiter Xpress Delivery is a leading provider of efficient and reliable delivery services since 1st Mar 2022 and committed to simplifying logistics for businesses and individuals. Our mission is to ensure swift and secure delivery of a wide range of products, including electronics, clothing, documents, perishables, and more. 
             </div>
             <div>
                 With a focus on customer satisfaction, we offer flexible delivery options such as same-day delivery, standard shipping, and international shipping, tailored to meet diverse needs. Our advanced tracking systems enable real-time monitoring of shipments, providing transparency and peace of mind to our clients.
@@ -28,24 +28,28 @@ const About = () => {
                 Experience convenience and efficiency with Jupiter Xpress Delivery - your reliable partner in logistics solutions.
             </div>
      </div>
-     <div className="w-full relative z-20 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
+     <div className="w-full relative z-20 space-y-10 max-w-[1024px] border px-4 py-10 flex flex-col items-center rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Our Services</div>
-            <div className="w-full flex justify-evenly">
+            <div className="w-full flex flex-wrap justify-center space-y-4 scxl:space-x-4 scxl:space-y-0">
+                <div className="flex flex-wrap justify-evenly space-y-4 scsm:space-y-0 scsm:space-x-4 scxl:space-y-0" >
                 <ServiceCard color={'bg-purple-600'}/>
                 <ServiceCard color={'bg-blue-600'}/>
+                </div>
+                <div className="flex flex-wrap justify-evenly space-y-4 scsm:space-y-0 scsm:space-x-4 scxl:space-y-0" >
                 <ServiceCard color={'bg-green-600'}/>
                 <ServiceCard color={'bg-cyan-500'}/>
+                </div>
             </div>
      </div>
      <div className="w-full relative z-20 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Why Jupiter Xpress</div>
             <div className="space-y-3">
-            <div className="w-full flex justify-evenly">
+            <div className="w-full flex justify-evenly flex-wrap space-y-3 rcsm:space-y-0 ">
                 <ReasonCard color={'bg-purple-600'}/>
                 <ReasonCard color={'bg-blue-600'}/>
                 <ReasonCard color={'bg-green-600'}/>
             </div>
-            <div className="w-full flex justify-evenly">
+            <div className="w-full flex justify-evenly flex-wrap space-y-3 rcsm:space-y-0">
                 <ReasonCard color={'bg-cyan-500'}/>
                 <ReasonCard color={'bg-yellow-500'}/>
                 <ReasonCard color={'bg-orange-600'}/>

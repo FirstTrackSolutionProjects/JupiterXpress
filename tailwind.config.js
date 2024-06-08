@@ -41,6 +41,11 @@ export default {
         'lg': '3px 3px 6px rgba(0, 0, 0, 0.25)',
         'xl': '4px 4px 8px rgba(255, 255, 255, 0.25)',
         'none': 'none',
+      },
+      screens: {
+        scxl: '1073px',
+        scsm: '529px',
+        rcsm: '721px'
       }
     },
   },

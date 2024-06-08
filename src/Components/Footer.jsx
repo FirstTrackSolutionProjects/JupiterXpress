@@ -13,12 +13,12 @@ const Footer = () => {
                 <div className='text-[37px] font-bold -ml-8 -mt-2 text-blue-400 italic'>PRESS</div>
               </div>
         </div>
-        <div>
+        <div className='text-center sm:text-left'>
             Fastest platform with all courier service features. Help you start, run and grow your courier service.
         </div>
         </div>
         </div>
-        <div className='w-[300px] flex flex-col items-center space-y-3 '>
+        <div className='w-[300px] flex flex-col  space-y-3 '>
 
             <div>
             <div className='font-medium text-xl mb-3'>Available Services</div>
@@ -30,7 +30,7 @@ const Footer = () => {
         </div>
       </div>
       <div className='flex my-8 flex-wrap md:space-y-0 space-y-10 justify-center'>
-        <div className='w-[300px] xl:w-[200px] flex flex-col justify-center '>
+        <div className='w-[300px] xl:w-[200px] flex flex-col  '>
             <div>
         <div className='font-medium text-xl mb-4'>About</div>
             <div>FAQ</div>
