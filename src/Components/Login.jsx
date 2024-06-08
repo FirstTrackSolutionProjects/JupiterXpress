@@ -1,7 +1,8 @@
 
-
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({authMode}) => {
+  const navigate = useNavigate()
   const handleLogin = (event) => {
     event.preventDefault();  // Prevent the default form submission
 
