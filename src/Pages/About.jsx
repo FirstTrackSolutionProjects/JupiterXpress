@@ -9,11 +9,11 @@ const About = () => {
     <>
     <Header />
     
-    <div className='relative space-y-10 min-h-screen px-6 md:px-12 py-32 z-[-1] bg-center  bg-no-repeat bg-fixed bg-[url("contactbg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
-    <div className="absolute z-0 h-full w-full bg-[rgba(0,0,255,0.1)]">
+    <div className='relative space-y-10 min-h-screen px-6 md:px-12 py-32 z-0 bg-center  bg-no-repeat bg-fixed bg-[url("bg/contactbg.jpg")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className="absolute z-10 h-full w-full bg-[rgba(146,169,228,0.59)]">
 
     </div>
-     <div className="w-full z-10 space-y-5 max-w-[1024px] border p-4 rounded-xl bg-[rgba(255,255,255,0.7)]">
+     <div className="w-full relative z-20 space-y-5 max-w-[1024px] border p-4 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Who we are?</div>
             <div>
                 Jupiter Xpress Delivery is a leading provider of efficient and reliable delivery services, committed to simplifying logistics for businesses and individuals. Our mission is to ensure swift and secure delivery of a wide range of products, including electronics, clothing, documents, perishables, and more. 
@@ -28,27 +28,27 @@ const About = () => {
                 Experience convenience and efficiency with Jupiter Xpress Delivery - your reliable partner in logistics solutions.
             </div>
      </div>
-     <div className="w-full z-10 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
+     <div className="w-full relative z-20 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Our Services</div>
             <div className="w-full flex justify-evenly">
-                <ServiceCard color={'blue-600'}/>
-                <ServiceCard color={'blue-600'}/>
-                <ServiceCard color={'blue-600'}/>
-                <ServiceCard color={'blue-600'}/>
+                <ServiceCard color={'bg-purple-600'}/>
+                <ServiceCard color={'bg-blue-600'}/>
+                <ServiceCard color={'bg-green-600'}/>
+                <ServiceCard color={'bg-cyan-500'}/>
             </div>
      </div>
-     <div className="w-full z-10 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
+     <div className="w-full relative z-20 space-y-10 max-w-[1024px] border px-4 py-10 rounded-xl bg-[rgba(255,255,255,0.7)]">
             <div className="font-medium text-2xl text-center">Why Jupiter Xpress</div>
             <div className="space-y-3">
             <div className="w-full flex justify-evenly">
-                <ReasonCard/>
-                <ReasonCard/>
-                <ReasonCard/>
+                <ReasonCard color={'bg-purple-600'}/>
+                <ReasonCard color={'bg-blue-600'}/>
+                <ReasonCard color={'bg-green-600'}/>
             </div>
             <div className="w-full flex justify-evenly">
-                <ReasonCard/>
-                <ReasonCard/>
-                <ReasonCard/>
+                <ReasonCard color={'bg-cyan-500'}/>
+                <ReasonCard color={'bg-yellow-500'}/>
+                <ReasonCard color={'bg-orange-600'}/>
             </div>
             </div>
      </div>
