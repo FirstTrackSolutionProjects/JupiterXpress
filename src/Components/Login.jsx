@@ -75,8 +75,8 @@ const RegisterForm = ({authMode}) => {
           </div>
           
           <input type="text" placeholder="Mobile" name="mobile" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
-          <input type="email" placeholder="Your E-mail Address" name="email" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
-          <input type="password" name="password" placeholder="Password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
+          <input type="email" placeholder="Your E-mail Address" name="regEmail" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
+          <input type="password" name="regpassword" placeholder="Password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
           <textarea name="address" placeholder="Address" id="" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
           <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white text-white hover:bg-[rgba(135,206,235,0.3)]">Register</button>
         </form>
