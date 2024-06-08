@@ -6,11 +6,13 @@ import Footer from '../Components/Footer'
 const Contact = () => {
   return (
     <>
-    
-    <div className='lg:h-screen  bg-center  bg-no-repeat bg-fixed bg-[url("logo.webp")] bg-cover flex flex-col justify-center items-center overflow-auto'>
     <Header />
+    <div className='relative lg:h-screen z-0 bg-center  bg-no-repeat bg-fixed bg-[url("bg/contactbg.webp")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className="absolute z-10 h-full w-full bg-[rgba(146,169,228,0.59)]">
+
+    </div>
         
-      <div className='flex flex-col items-center justify-center space-y-4 py-24'>
+      <div className='relative z-20 flex flex-col items-center justify-center space-y-4 py-24'>
       <div className="text-2xl text-center font-medium ">CONTACT US</div>
         <div className='flex flex-col lg:flex-row justify-center items-center md:space-x-4 space-x-0 w-full'>
         <ContactForm />
