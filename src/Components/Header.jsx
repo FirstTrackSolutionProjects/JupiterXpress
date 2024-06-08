@@ -6,7 +6,13 @@ const Header = () => {
     <div className="fixed bg-gradient-to-b from-white to-[rgba(146,169,228,0.89)] z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
         
       <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-700 items-center h-16">
-      <Link to='/'><img src="logo.webp" alt="" className="h-8" /></Link>
+      <Link to='/' className="flex items-center">
+        <img src="logo.webp" alt="" className="h-8" />
+        <div className="flex flex-col justify-evenly leading-4 -ml-6">
+          <div className="font-bold text-blue-800">JUPITER</div>
+          <div className="font-bold text-blue-600">XPRESS</div>
+        </div>
+      </Link>
         {
           navItems.map((item,index) =>(
             <NavItem key = {index} name={item.name} url={item.url} />
