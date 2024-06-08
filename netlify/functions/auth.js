@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
   if (!email || !password) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Email and Password are required' }),
+      body: JSON.stringify({ message: 'Email and Password are required' + email + password }),
     };
   }
   try {
