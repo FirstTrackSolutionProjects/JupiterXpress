@@ -5,12 +5,12 @@ const ReasonCard = ({color}) => {
         max:45,
         scale:1,
         speed:450
-      }} className={`w-80 h-32 rounded-2xl flex  items-center ${color} p-1 rcsm:mb-3`}>
-        <div className="w-[120px] h-[120px] rounded-2xl bg-white flex justify-center items-center">\
-            <img src="icons/timely.webp" alt="" />
+      }} className={`rcxs:w-80 w-60 rcxs:h-32 h-24 rounded-2xl flex  items-center ${color} p-1 rcsm:mb-3`}>
+        <div className="rcxs:w-[120px] w-[90px] rcxs:h-[120px] h-[90px] rounded-2xl bg-white flex justify-center items-center">\
+            <img src="icons/timely.webp" alt="" className="w-[60px] rcxs:w-auto" />
             
         </div>
-        <div className="w-48 font-medium text-white text-xl h-[120px] flex items-center justify-center">
+        <div className="rcxs:w-48 w-36 font-medium text-white rcxs:text-xl rcxs:h-[120px] h-[90px] flex items-center justify-center">
             FAST DELIVERY
         </div>
     </Tilt>

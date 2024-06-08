@@ -45,7 +45,8 @@ export default {
       screens: {
         scxl: '1073px',
         scsm: '529px',
-        rcsm: '721px'
+        rcsm: '721px',
+        rcxs: '400px'
       }
     },
   },
