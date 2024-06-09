@@ -12,7 +12,7 @@ const About = () => {
     
     <div className={`relative space-y-10 min-h-screen p-6 md:p-12  z-0 bg-center  bg-no-repeat bg-fixed bg-[url('/src/assets/about.jpg')] bg-cover flex flex-col justify-center items-center overflow-auto`}>
 
-     <div className="w-full relative z-20 space-y-5 max-w-[1024px] border p-4 sm:mt-16 rounded-xl bg-[rgba(255,255,255,0.9)]">
+     <div className="w-full relative z-20 space-y-5 max-w-[1024px] border p-4 mt-12 sm:mt-16 rounded-xl bg-[rgba(255,255,255,0.9)]">
             <div className="font-medium text-2xl text-center">Who we are?</div>
             <div>
                 Jupiter Xpress Delivery is a leading provider of efficient and reliable delivery services since 1st Mar 2022 and committed to simplifying logistics for businesses and individuals. Our mission is to ensure swift and secure delivery of a wide range of products, including electronics, clothing, documents, perishables, and more. 
