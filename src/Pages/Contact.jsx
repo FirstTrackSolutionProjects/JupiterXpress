@@ -7,7 +7,7 @@ const Contact = () => {
   return (
     <>
     <Header />
-    <div className='relative lg:h-screen z-0 bg-center  bg-no-repeat bg-fixed bg-[url("bg/contactbg.webp")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className='relative lg:h-screen z-0 bg-center  bg-no-repeat bg-fixed bg-heroBg bg-cover flex flex-col justify-center items-center overflow-auto'>
     <div className="absolute z-10 h-full w-full bg-[rgba(146,169,228,0.59)]">
 
     </div>

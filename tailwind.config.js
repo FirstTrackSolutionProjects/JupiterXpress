@@ -47,7 +47,10 @@ export default {
         scsm: '529px',
         rcsm: '721px',
         rcxs: '400px'
-      }
+      },
+      backgroundImage: {
+        "heroBg": "url('/src/assets/contactbg.webp')",
+      },
     },
   },
   plugins: [

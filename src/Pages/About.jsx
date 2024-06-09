@@ -4,12 +4,13 @@ import Footer from "../Components/Footer"
 import ServiceCard from "../Components/ServiceCard"
 import ReasonCard from "../Components/ReasonCard"
 
+
 const About = () => {
   return (
     <>
     <Header />
     
-    <div className='relative space-y-10 min-h-screen px-6 md:px-12 py-32 z-0 bg-center  bg-no-repeat bg-fixed bg-[url("bg/contactbg.webp")] bg-cover flex flex-col justify-center items-center overflow-auto'>
+    <div className={`relative space-y-10 min-h-screen px-6 md:px-12 py-32 z-0 bg-center  bg-no-repeat bg-fixed bg-heroBg bg-cover flex flex-col justify-center items-center overflow-auto`}>
     <div className="absolute z-10 h-full w-full bg-[rgba(146,169,228,0.59)]">
 
     </div>
