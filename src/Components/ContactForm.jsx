@@ -24,7 +24,7 @@ const ContactForm = () => {
       mobile :formData.mobile,
       subject :formData.subject,
     };
-
+    alert(data.name, data.email, data.message, data.mobile, data.subject)
     // Make the API call
     fetch('/.netlify/functions/contact', {
       method: 'POST',
@@ -45,7 +45,7 @@ const ContactForm = () => {
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred during Email'+data.email +data.message +data.name);
+        alert('An error occurred during Email'+data.email +data.message +data.name + data.mobile + data.subject);
       });
     }
   return (
