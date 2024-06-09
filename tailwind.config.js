@@ -90,6 +90,22 @@ export default {
         '.text-shadow-none': {
           textShadow: 'none',
         },
+        '.scrollbar-thin': {
+          '::-webkit-scrollbar': {
+            width: '6px',
+            height: '4px',
+          },
+          '::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+          '::-webkit-scrollbar-thumb': {
+            background: '#aaa',
+            borderRadius: '8px',
+          },
+          '::-webkit-scrollbar-thumb:hover': {
+            background: '#777',
+          },
+        },
       };
 
       addUtilities(newUtilities, ['responsive', 'hover']);

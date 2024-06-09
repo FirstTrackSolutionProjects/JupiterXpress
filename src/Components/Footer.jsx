@@ -2,6 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
+    <>
     <div className='w-full  sm:p-4 px-4 py-8 justify-center flex flex-wrap bg-gray-900 text-white'>
       <div className=' flex my-8 flex-wrap space-y-10 md:space-y-0 justify-center'>
         <div className=' flex flex-col w-[300px] justify-center '>
@@ -50,6 +51,10 @@ const Footer = () => {
         </div>
       </div>
     </div>
+    <div className='bg-black text-white w-full flex flex-col sm:flex-row justify-center items-center text-xs sm:text-md md:text-lg text-center py-3'>
+      Copyright @ 2024, Developed by &nbsp; <p><a href="https://firsttracksolution.tech">First Track Solution Technologies</a></p>
+    </div>
+    </>
   )
 }
 

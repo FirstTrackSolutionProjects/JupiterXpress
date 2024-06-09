@@ -8,7 +8,7 @@ const ContactForm = () => {
         <input type="text" name="mobile" placeholder="Mobile Number" className="py-2 px-4 rounded-3xl"/>
         <input type="subject" name="subject" placeholder="Subject" className="py-2 px-4 rounded-3xl"/>
         <textarea name="message" placeholder="Message" className="py-2 px-4 h-32 rounded-3xl"/>
-        <button type="submit" className="px-4 py-2 border border-black rounded-3xl">Send</button>
+        <button type="submit" className="px-4 py-2 border border-white text-white rounded-3xl">Send</button>
       </form>
     </div>
   )

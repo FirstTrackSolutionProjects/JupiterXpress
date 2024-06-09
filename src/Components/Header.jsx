@@ -3,7 +3,7 @@ import { navItems } from "../Constants"
 import { Link } from "react-router-dom"
 const Header = () => {
   return (
-    <div className="fixed bg-gradient-to-b from-white to-[rgba(146,169,228,0.89)] z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
+    <div className="fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
         
       <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-700 items-center h-16">
       <Link to='/' className="flex items-center">
