@@ -17,15 +17,18 @@ exports.handler = async (event, context) => {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER, // replace with your email
-            pass: process.env.EMAIL_PASS  // replace with your email password or app password
+            user: "azureaditya5155@gmail.com", // replace with your email
+            pass: "ygpgjcojjhhipbco"
+            // replace with your email password or app password
         }
     });
     // Setup email data
     let mailOptions = {
-        from: process.env.EMAIL_USER,
+        // from: process.env.EMAIL_USER,
+        from : "azureaditya5155@gmail.com",
         // to: 'info@firsttracksolution.tech', // replace with the recipient's email
-        to: process.env.CONTACT_SERVICE_EMAIL, // replace with the recipient's email
+        // to: process.env.CONTACT_SERVICE_EMAIL, // replace with the recipient's email
+        to : "adityakumar5155@gmail.com",
         subject: subject,
         text: "Name: " + name + '\n' + "E-mail: " + email + '\n' + "Mobile: " + mobile + '\n'+ "Message: " + message
     };
