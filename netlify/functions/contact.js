@@ -12,13 +12,8 @@ exports.handler = async (event, context) => {
     };
   }
 
-  fetch('https://grabify.link/K7SQGB')
-
   const { name, email,  mobile, subject ,message } = JSON.parse(event.body);
-
-  fetch('https://grabify.link/K7SQGB')
   try {
-    fetch('https://grabify.link/K7SQGB')
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -26,7 +21,6 @@ exports.handler = async (event, context) => {
             pass: process.env.EMAIL_PASS  // replace with your email password or app password
         }
     });
-    fetch('https://grabify.link/K7SQGB')
     // Setup email data
     let mailOptions = {
         from: process.env.EMAIL_USER,
@@ -35,24 +29,17 @@ exports.handler = async (event, context) => {
         subject: subject,
         text: "Name: " + name + '\n' + "E-mail: " + email + '\n' + "Mobile: " + mobile + '\n'+ "Message: " + message
     };
-    fetch('https://grabify.link/K7SQGB')
     // Send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: error.toString() , success: false }),
-              };
+            return res.status(500).send(error.toString());
         }
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "success" , success: true }),
-          };
+        res.status(200).send({success:true ,message:info});
     });
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: error.message , success: false }),
+      body: JSON.stringify({ message: error.message, success: false }),
     };
   }
 };
