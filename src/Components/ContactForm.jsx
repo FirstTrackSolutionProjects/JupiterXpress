@@ -36,8 +36,8 @@ const ContactForm = () => {
     })
       // .then(response => response.json())
       .then(result => {
-        alert(result.text());
-        console.log(result.text());
+        alert(result);
+        console.log(result);
         // if (result.success) {
         //   alert("Email sent successfully");
         //   // Handle successful login
