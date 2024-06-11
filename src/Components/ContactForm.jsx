@@ -25,7 +25,7 @@ const ContactForm = () => {
       subject :formData.subject,
     };
     // Make the API call
-    fetch('/.netlify/functions/contact', {
+    fetch('http://35.154.100.196:3001/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
