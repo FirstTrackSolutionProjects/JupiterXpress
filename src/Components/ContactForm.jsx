@@ -47,7 +47,7 @@ const ContactForm = () => {
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred during Email');
+        alert('An error occurred during Email' + error);
       });
     }
   return (
