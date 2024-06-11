@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import emailjs from 'emailjs-com';
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -18,38 +18,27 @@ const ContactForm = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = {
-      "name" : formData.name,
-      "email" : formData.email,
-      "message" : formData.message,
-      "mobile" :formData.mobile,
-      "subject" :formData.subject
+    const templateParams = {
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+      name : formData.name,
+      mobile : formData.mobile
     };
-
-    // Make the API call
-    fetch("/.netlify/functions/contact", {
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": JSON.stringify(data),
-    })
-      // .then(response => response.json())
-      .then(result => {
-        alert(result);
-        console.log(result);
-        // if (result.success) {
-        //   alert("Email sent successfully");
-        //   // Handle successful login
-        // } else {
-        //   alert('Email failed: ' + result.message);
-        //   // Handle login failure
-        // }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred during Email" + error);
+    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const userID = import.meta.env.VITE_EMAILJS_USER_ID
+    emailjs.send(serviceID, templateID, templateParams, userID)
+      .then((response) => {
+        console.log('Email sent successfully!', response.status, response.text);
+        alert('Email sent successfully!');
+        setIsSending(false);
+      }, (error) => {
+        console.error('Failed to send email.', error);
+        alert('Error sending email. Please try again.');
+        setIsSending(false);
       });
+    
     }
   return (
     <div className="flex flex-col w-full lg:w-auto space-y-6 items-center text-black my-12 font-medium">
