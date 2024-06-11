@@ -11,11 +11,11 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ message: 'Method Not Allowed' }),
     };
   }
+  const { name, email,  mobile, subject ,message } = JSON.parse(event.body);
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: 'I can reach this mf backend', success:true }),
+    body: JSON.stringify({ message: process.env.EMAIL_USER + process.env.EMAIL_PASS + process.env.CONTACT_SERVICE_EMAIL + name+email+mobile+subject+message, success:true }),
   };
-  const { name, email,  mobile, subject ,message } = JSON.parse(event.body);
   try {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
