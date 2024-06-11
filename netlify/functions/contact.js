@@ -35,14 +35,14 @@ exports.handler = async (event, context) => {
     // Send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return res.status(500).send(error.toString());
+            return res.status(500).send({message: 'sendMail:'+error.toString()});
         }
         res.status(200).send({success:true ,message:info});
     });
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: error.message, success: false }),
+      body: JSON.stringify({ message: 'error::'+error.message, success: false }),
     };
   }
 };
