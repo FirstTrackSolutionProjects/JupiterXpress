@@ -34,7 +34,7 @@ const ContactForm = () => {
       },
       "body": JSON.stringify(data),
     })
-      .then(response => alert(response))
+      .then(response => console.log(response))
       // .then(result => {
       //   alert(result.message);
         // if (result.success) {
