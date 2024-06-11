@@ -8,17 +8,17 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ message: 'Method Not Allowed' }),
+      body: JSON.stringify({ "message": 'Method Not Allowed' }),
     };
   }
   const { name, email,  mobile, subject ,message } = JSON.parse(event.body);
   
   try {
     let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: "azureaditya5155@gmail.com", // replace with your email
-            pass: "ygpgjcojjhhipbco"
+        "service": "gmail",
+        "auth": {
+            "user": "azureaditya5155@gmail.com", // replace with your email
+            "pass": "ygpgjcojjhhipbco"
             // replace with your email password or app password
         }
     });
@@ -30,19 +30,19 @@ exports.handler = async (event, context) => {
         // to: process.env.CONTACT_SERVICE_EMAIL, // replace with the recipient's email
         "to" : "adityakumar5155@gmail.com",
         "subject": subject,
-        "text": "Name: " + name + '\n' + "E-mail: " + email + '\n' + "Mobile: " + mobile + '\n'+ "Message: " + message
+        "text": "Name: " + name + "\n" + "E-mail: " + email + "\n" + "Mobile: " + mobile + "\n"+ "Message: " + message
     };
     // Send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return res.status(500).send({message: 'sendMail:'+error.toString()});
+            return res.status(500).send({"message": "sendMail:"+error.toString()});
         }
-        res.status(200).send({success:true ,message:info});
+        res.status(200).send({"success":true ,"message":info});
     });
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'error::'+error.message, success: false }),
+      body: JSON.stringify({ "message": "error::"+error, "success": false }),
     };
   }
 };

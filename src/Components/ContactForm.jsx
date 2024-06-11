@@ -27,12 +27,12 @@ const ContactForm = () => {
     };
 
     // Make the API call
-    fetch('/.netlify/functions/contact', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    fetch("/.netlify/functions/contact", {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(data),
+      "body": JSON.stringify(data),
     })
       .then(response => response.json())
       .then(result => {
@@ -46,8 +46,8 @@ const ContactForm = () => {
         // }
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during Email' + error);
+        // console.error("Error:", error);
+        alert("An error occurred during Email" + error);
       });
     }
   return (
