@@ -12,10 +12,7 @@ exports.handler = async (event, context) => {
     };
   }
   const { name, email,  mobile, subject ,message } = JSON.parse(event.body);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: process.env.EMAIL_USER + process.env.EMAIL_PASS + process.env.CONTACT_SERVICE_EMAIL + name+email+mobile+subject+message, success:true }),
-  };
+  
   try {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
