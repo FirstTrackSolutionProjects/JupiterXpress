@@ -19,11 +19,11 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = {
-      name : formData.name,
-      email : formData.email,
-      message : formData.message,
-      mobile :formData.mobile,
-      subject :formData.subject,
+      "name" : formData.name,
+      "email" : formData.email,
+      "message" : formData.message,
+      "mobile" :formData.mobile,
+      "subject" :formData.subject
     };
 
     // Make the API call

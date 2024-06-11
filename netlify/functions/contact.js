@@ -25,12 +25,12 @@ exports.handler = async (event, context) => {
     // Setup email data
     let mailOptions = {
         // from: process.env.EMAIL_USER,
-        from : "azureaditya5155@gmail.com",
+        "from" : "azureaditya5155@gmail.com",
         // to: 'info@firsttracksolution.tech', // replace with the recipient's email
         // to: process.env.CONTACT_SERVICE_EMAIL, // replace with the recipient's email
-        to : "adityakumar5155@gmail.com",
-        subject: subject,
-        text: "Name: " + name + '\n' + "E-mail: " + email + '\n' + "Mobile: " + mobile + '\n'+ "Message: " + message
+        "to" : "adityakumar5155@gmail.com",
+        "subject": subject,
+        "text": "Name: " + name + '\n' + "E-mail: " + email + '\n' + "Mobile: " + mobile + '\n'+ "Message: " + message
     };
     // Send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
