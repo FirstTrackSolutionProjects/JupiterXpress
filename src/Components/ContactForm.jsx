@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -24,30 +25,38 @@ const ContactForm = () => {
       mobile :formData.mobile,
       subject :formData.subject,
     };
+
+    try {
+      await axios.post('http://35.154.100.196:3001/send-email', data);
+      alert('Email sent successfully');
+    } catch (error) {
+      alert('Error sending email');
+    }
+
     // Make the API call
-    fetch('http://35.154.100.196:3001/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => response.json())
-      .then(result => {
-        if (result.success) {
-          alert("Email sent successfully");
-          // Handle successful login
-        } else {
-          alert('Email failed: ' + result.message);
-          // Handle login failure
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during Email');
-      });
+    // fetch('http://35.154.100.196:3001/send-email', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Access-Control-Allow-Origin': '*',
+    //     'Access-Control-Allow-Credentials': true,
+    //   },
+    //   body: JSON.stringify(data),
+    // })
+    //   .then(response => response.json())
+    //   .then(result => {
+    //     if (result.success) {
+    //       alert("Email sent successfully");
+    //       // Handle successful login
+    //     } else {
+    //       alert('Email failed: ' + result.message);
+    //       // Handle login failure
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error('Error:', error);
+    //     alert('An error occurred during Email');
+    //   });
     }
   return (
     <div className="flex flex-col w-full lg:w-auto space-y-6 items-center text-black my-12 font-medium">
