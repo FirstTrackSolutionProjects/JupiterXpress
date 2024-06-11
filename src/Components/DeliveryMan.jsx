@@ -1,22 +1,28 @@
+
 import {useState} from 'react'
 
 const Card = (profile) => {
-    const [isEdit, setIsEdit] = useState(0)
+    
+    const [mode, setMode] = useState(0)
     return (
         <>
-            <div className="w-full py-4 space-x-4 border relative flex items-center px-3">
+            <div className="w-full py-4 border relative flex items-center px-3">
+                        <div onClick={()=>setMode(1)} className='flex flex-1 items-center space-x-4 cursor-pointer'>
                         <img src="user.webp" alt="" className="h-14 w-14 rounded-full overflow-hidden border" />
                         <div>
                             <p>{profile.name}</p>
                             <p>{profile.email}</p>
                             <p>{profile.hub}</p>
                         </div>
+                        </div>
                         <div className='absolute right-3 flex flex-col justify-evenly'>
-                            <button onClick={()=>setIsEdit(1)} className="px-2 py-0 border rounded-3xl bg-blue-500 text-white">Edit</button>
-                            <button onClick={()=>setIsEdit(1)} className="px-2 py-0 border rounded-3xl bg-red-500 text-white">Delete</button>
+                            <button onClick={()=>setMode(2)} className="px-2 py-0 border rounded-3xl bg-blue-500 text-white">Edit</button>
+                            <button onClick={()=>setMode(1)} className="px-2 py-0 border rounded-3xl bg-red-500 text-white">Delete</button>
                         </div>
                     </div>
-                <EditForm isEdit={isEdit} setIsEdit={setIsEdit} profile={profile} />
+                    <Viewer mode={mode} setMode={setMode} profile={profile} />
+                <EditForm mode={mode} setMode={setMode} profile={profile} />
+                
         </>
     )
 }
@@ -130,12 +136,12 @@ const AddForm = ({isAdd, setIsAdd}) => {
     )
 }
 
-const EditForm = ({isEdit, setIsEdit, profile}, ) => {
+const EditForm = ({mode, setMode, profile}, ) => {
     return (
         <>
-            <div className={`absolute ${isEdit?"":"hidden"} inset-0 p-4 bg-gray-100 rounded-xl z-20`}>
+            <div className={`absolute ${mode==2?"":"hidden"} inset-0 p-4 bg-gray-100 rounded-xl z-20`}>
             <div className="w-full h-16 font-medium  relative flex text-3xl bg-white p-4 items-center">
-                Create Delivery Man
+                Edit Delivery Man
             </div>
             <form action="" className="w-full flex flex-col bg-white pt-8 px-4">
                 <div className="w-full flex mb-2 flex-wrap ">
@@ -215,9 +221,21 @@ const EditForm = ({isEdit, setIsEdit, profile}, ) => {
                 </div>
                 <div className="px-2 space-x-4 mb-4">
                 <button className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Submit</button>
-                <button onClick={(e)=>{e.preventDefault(); setIsEdit(0)}} className="px-5 py-1 border rounded-3xl bg-red-500 text-white">Cancel</button>
+                <button onClick={(e)=>{e.preventDefault(); setMode(0)}} className="px-5 py-1 border rounded-3xl bg-red-500 text-white">Cancel</button>
                 </div>
             </form>
+            </div>
+        </>
+    )
+}
+
+const Viewer = ({mode, setMode, profile}) => {
+    return (
+        <>
+            <div onClick={()=>setMode(0)} className={`absolute ${mode==1?"":"hidden"} inset-0 p-4 bg-gray-100 rounded-xl z-20`}>
+                <div>
+                    
+                </div>
             </div>
         </>
     )
@@ -249,6 +267,8 @@ const DeliveryManData = () => {
         </>
     )
 }
+
+
 
 const DeliveryMan = () => {
     
