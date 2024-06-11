@@ -34,9 +34,9 @@ const ContactForm = () => {
       },
       "body": JSON.stringify(data),
     })
-      .then(response => console.log(response))
-      // .then(result => {
-      //   alert(result.message);
+      .then(response => response.json())
+      .then(result => {
+        alert(result.message);
         // if (result.success) {
         //   alert("Email sent successfully");
         //   // Handle successful login
@@ -44,9 +44,9 @@ const ContactForm = () => {
         //   alert('Email failed: ' + result.message);
         //   // Handle login failure
         // }
-      // })
+      })
       .catch(error => {
-        // console.error("Error:", error);
+        console.error("Error:", error);
         alert("An error occurred during Email" + error);
       });
     }
