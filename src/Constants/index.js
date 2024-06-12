@@ -8,10 +8,6 @@ export const navItems = [
         url : '/#pricing'
     },
     {
-        name : 'Tracking',
-        url : '/tracking'
-    },
-    {
         name : 'Blogs',
         url : '/get-blogs'
     },
