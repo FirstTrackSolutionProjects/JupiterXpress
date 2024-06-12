@@ -31,12 +31,12 @@ const About = () => {
             <div className="font-medium text-2xl text-center">Our Services</div>
             <div className="w-full flex flex-wrap justify-center space-y-4 scxl:space-x-4 scxl:space-y-0">
                 <div className="flex flex-wrap justify-evenly space-y-4 scsm:space-y-0 scsm:space-x-4 scxl:space-y-0" >
-                <ServiceCard color={'bg-purple-600'}/>
-                <ServiceCard color={'bg-blue-600'}/>
+                <ServiceCard color={'bg-purple-600'} title={"E-Commerce delivery"} icon={"truck.webp"}/>
+                <ServiceCard color={'bg-blue-600'} title={"Pick & Drop"} icon={"pick-drop.webp"}/>
                 </div>
                 <div className="flex flex-wrap justify-evenly space-y-4 scsm:space-y-0 scsm:space-x-4 scxl:space-y-0" >
-                <ServiceCard color={'bg-green-600'}/>
-                <ServiceCard color={'bg-cyan-500'}/>
+                <ServiceCard color={'bg-green-600'} title={"Packaging"} icon={"packaging.webp"}/>
+                <ServiceCard color={'bg-cyan-500'} title={"International & Domestic"} icon={"warehouse.webp"}/>
                 </div>
             </div>
      </div>
@@ -44,14 +44,14 @@ const About = () => {
             <div className="font-medium text-2xl text-center">Why Jupiter Xpress</div>
             <div className="space-y-3">
             <div className="w-full flex justify-evenly flex-wrap space-y-3 rcsm:space-y-0 ">
-                <ReasonCard color={'bg-purple-600'}/>
-                <ReasonCard color={'bg-blue-600'}/>
-                <ReasonCard color={'bg-green-600'}/>
+                <ReasonCard color={'bg-purple-600'} title={"Timely Delivery"} icon={"timely.webp"}/>
+                <ReasonCard color={'bg-blue-600'} title={"Limitless Pickup"} icon={"limitless.webp"}/>
+                <ReasonCard color={'bg-green-600'} title={"Cash on delivery (COD)"} icon={"cod.webp"}/>
             </div>
             <div className="w-full flex justify-evenly flex-wrap space-y-3 rcsm:space-y-0">
-                <ReasonCard color={'bg-cyan-500'}/>
-                <ReasonCard color={'bg-yellow-500'}/>
-                <ReasonCard color={'bg-orange-600'}/>
+                <ReasonCard color={'bg-cyan-500'} title={"Get Payment Any Time"} icon={"GPAT.webp"}/>
+                <ReasonCard color={'bg-yellow-500'} title={"Secure Handling"} icon={"secure.webp"}/>
+                <ReasonCard color={'bg-orange-600'} title={"Live Tracking Update"} icon={"tracking.webp"}/>
             </div>
             </div>
      </div>

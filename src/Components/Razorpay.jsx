@@ -25,7 +25,7 @@ const RazorpayPayment = () => {
       currency: 'INR',
       name: 'Your Company Name',
       description: 'Test Transaction',
-      image: 'https://your-logo-url.com/logo.png',
+      image: 'logo.webp',
       handler: function (response) {
         alert(response.razorpay_payment_id);
         alert(response.razorpay_order_id);
