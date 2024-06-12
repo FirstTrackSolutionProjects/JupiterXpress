@@ -4,6 +4,7 @@ import Menu from './Components/Menu'
 import Contact from './Pages/Contact'
 import About from './Pages/About'
 import Dashboard from './Pages/Dashboard'
+import Blogs from './Pages/Blogs'
 const App = () => {
   return (
     <>
@@ -15,6 +16,7 @@ const App = () => {
         <Route path='/contact-send' element={<Contact/>} />
         <Route path='/about-us' element={<About/>} />
         <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/get-blogs' element={<Blogs/>} />
       </Routes>
       
       
