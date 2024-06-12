@@ -21,7 +21,7 @@ const RazorpayPayment = () => {
 
     const options = {
       key: 'rzp_live_hWF0TsqlRvUGoy', // Replace with your Razorpay key ID
-      amount: 50000, // Amount is in paise (50000 paise = INR 500)
+      amount: 100, // Amount is in paise (50000 paise = INR 500)
       currency: 'INR',
       name: 'Your Company Name',
       description: 'Test Transaction',
