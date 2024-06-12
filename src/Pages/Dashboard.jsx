@@ -4,6 +4,8 @@ import Header from "../Components/Header"
 import MenuItem from "../Components/MenuItem"
 import { menuItems } from "../Constants"
 import DeliveryMan from "../Components/DeliveryMan"
+import BranchManage_Branch from "../Components/BranchManage_Branch"
+import BranchManage_Payments from "../Components/BranchManage_Payments"
 const Dashboard = () => {
   const [menuID, setMenuID] = useState([0])
   return (
@@ -19,8 +21,8 @@ const Dashboard = () => {
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
                 {menuID[0] == 0 && <DashboardMain/>}
                 {menuID[0] == 1 && <DeliveryMan/>}
-                {(menuID[0] == 2 && menuID[1] == 0) && <DashboardMain/>}
-                {(menuID[0] == 2 && menuID[1] == 1) && <DashboardMain/>}
+                {(menuID[0] == 2 && menuID[1] == 0) && <BranchManage_Branch/>}
+                {(menuID[0] == 2 && menuID[1] == 1) && <BranchManage_Payments/>}
                 {(menuID[0] == 3 && menuID[1] == 0) && <DashboardMain/>}
                 {(menuID[0] == 3 && menuID[1] == 1) && <DashboardMain/>}
                 {(menuID[0] == 4) && <DashboardMain/>}

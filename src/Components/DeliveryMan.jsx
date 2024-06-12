@@ -30,7 +30,7 @@ const Card = (profile) => {
 const Filter  = () => {
     return (
         <>
-            <form className="w-full min-h-16 bg-white flex px-8 py-16  items-center rounded-xl flex-wrap">
+            <form className="w-full min-h-16 bg-white flex px-8 py-8  items-center rounded-xl flex-wrap">
                 <input type="text" className="border px-4 py-2 rounded-3xl flex-1 mx-2 mb-2" placeholder="Name"/>
                 <input type="text" className="border px-4 py-2 rounded-3xl flex-1 mx-2 mb-2" placeholder="Email"/>
                 <input type="text" className="border px-4 py-2 rounded-3xl flex-1 mx-2 mb-2" placeholder="Phone"/>
@@ -232,9 +232,12 @@ const EditForm = ({mode, setMode, profile}, ) => {
 const Viewer = ({mode, setMode, profile}) => {
     return (
         <>
-            <div onClick={()=>setMode(0)} className={`absolute ${mode==1?"":"hidden"} inset-0 p-4 bg-gray-100 rounded-xl z-20`}>
-                <div>
-                    
+            <div onClick={()=>setMode(0)} className={`absolute ${mode==1?"":"hidden"} inset-0 p-4 bg-white rounded-xl z-20`}>
+                <div className="w-full h-16 font-medium  relative flex text-3xl bg-white p-4 items-center">
+                    Delivery Man
+                </div>
+                <div className=''>
+
                 </div>
             </div>
         </>
