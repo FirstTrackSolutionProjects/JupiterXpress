@@ -7,12 +7,22 @@ import { menuItems } from "../Constants"
 import DeliveryMan from "../Components/DeliveryMan"
 import BranchManage_Branch from "../Components/BranchManage_Branch"
 import BranchManage_Payments from "../Components/BranchManage_Payments"
-import useAuth from '../hooks/useAuth';
+import { jwtDecode } from "jwt-decode"
 const Dashboard = () => {
   const [menuID, setMenuID] = useState([0])
   const navigate = useNavigate()
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    try {
+      const decoded = jwtDecode(token);
+      return decoded.exp * 1000 > Date.now(); // Check if token is expired
+    } catch (error) {
+      return false;
+    }
+  };
   useEffect(() => {
-    const { isAuthenticated } = useAuth();
+    
     if (!isAuthenticated()) {
       navigate('/')
     }
