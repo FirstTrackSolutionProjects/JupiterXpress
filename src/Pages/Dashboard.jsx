@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect} from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardMain from "../Components/DashboardMain"
 import Header from "../Components/Header"
@@ -7,13 +7,12 @@ import { menuItems } from "../Constants"
 import DeliveryMan from "../Components/DeliveryMan"
 import BranchManage_Branch from "../Components/BranchManage_Branch"
 import BranchManage_Payments from "../Components/BranchManage_Payments"
-import { AuthContext } from '../context/AuthContext';
-
+import useAuth from '../hooks/useAuth';
 const Dashboard = () => {
   const [menuID, setMenuID] = useState([0])
-  const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate()
   useEffect(() => {
+    const { isAuthenticated } = useAuth();
     if (!isAuthenticated()) {
       navigate('/')
     }
