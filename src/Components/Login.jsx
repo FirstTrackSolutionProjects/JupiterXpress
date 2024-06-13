@@ -1,22 +1,24 @@
 
 import { useNavigate } from "react-router-dom";
-
+import { AuthContext } from '../context/AuthContext';
 const LoginForm = ({authMode}) => {
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate()
+  
   const handleLogin = (event) => {
     event.preventDefault();  // Prevent the default form submission
 
     // Manually collect form data
-    const email = (document.querySelector('input[name="email"]')).value;
+    const username = (document.querySelector('input[name="email"]')).value;
     const password = (document.querySelector('input[name="password"]')).value;
 
     const data = {
-      email,
+      username,
       password,
     };
 
     // Make the API call
-    fetch('/.netlify/functions/auth', {
+    fetch('/.netlify/functions/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,6 +29,8 @@ const LoginForm = ({authMode}) => {
       .then(result => {
         if (result.success) {
           alert('Login successful')
+          login(username, result.token);
+          alert('token successfully')
           navigate('/dashboard');
           
           // Handle successful login
