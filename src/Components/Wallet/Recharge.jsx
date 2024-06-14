@@ -7,48 +7,67 @@ const Recharge = () => {
   const token = localStorage.getItem('token'); 
   const decoded = jwtDecode(token);
   const username = decoded.username
-  const handlePayment = async () => {
-    const response = await fetch('/.netlify/functions/createOrder', {
-      method: 'POST',
-      body: JSON.stringify({ amount }),
-    });
-    const data = await response.json();
-    setOrder(data);
 
-    const options = {
-      key: import.meta.env.VITE_APP_RAZORPAY_API_ID,
-      amount: data.amount,
-      currency: data.currency,
-      name: 'Your App',
-      description: 'Wallet Recharge',
-      order_id: data.id,
-      handler: async function (response) {
-        const verifyResponse = await fetch('/.netlify/functions/verifyPayment', {
-          method: 'POST',
-          body: JSON.stringify({
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_signature: response.razorpay_signature,
-            username: username,
-            amount: amount,
-          }),
-        });
-        const verifyData = await verifyResponse.json();
-        if (verifyData.success) {
-          setPaymentId(response.razorpay_payment_id);
-        } else {
-          alert('Payment verification failed');
-        }
-      },
-      prefill: {
-        name: 'Your Name',
-        email: 'email@example.com',
-        contact: '9999999999',
-      },
+    const loadRazorpayScript = () => {
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
     };
-    const rzp = new Razorpay(options);
-    rzp.open();
-  };
+
+    const displayRazorpay = async () => {
+      const res = await loadRazorpayScript();
+  
+      if (!res) {
+        alert('Razorpay SDK failed to load. Are you online?');
+        return;
+      }
+  
+      const options = {
+        key: import.meta.env.VITE_APP_RAZORPAY_API_ID, // Replace with your Razorpay key ID
+        amount: amount*100, // Amount is in paise (50000 paise = INR 500)
+        currency: 'INR',
+        name: 'Your Company Name',
+        description: 'Test Transaction',
+        image: 'logo.webp',
+        handler: async function (response) {
+          const verifyResponse = await fetch('/.netlify/functions/verifyPayment', {
+            method: 'POST',
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              username: username,
+              amount: amount,
+            }),
+          });
+          const verifyData = await verifyResponse.json();
+          if (verifyData.success) {
+            setPaymentId(response.razorpay_payment_id);
+            setOrder(response.razorpay_order_id);
+          } else {
+            alert('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: 'Your Name',
+          email: 'youremail@example.com',
+          contact: '9999999999',
+        },
+        notes: {
+          address: 'Corporate Office',
+        },
+        theme: {
+          color: '#3399cc',
+        },
+      };
+  
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    };
 
   return (
     <div>
@@ -58,8 +77,8 @@ const Recharge = () => {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
-      <button onClick={handlePayment}>Recharge Wallet</button>
-      {order && <div>Order ID: {order.id}</div>}
+      <button onClick={displayRazorpay}>Recharge Wallet</button>
+      {order && <div>Order ID: {order}</div>}
       {paymentId && <div>Payment Successful: {paymentId}</div>}
     </div>
   );
