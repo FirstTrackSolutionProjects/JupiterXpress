@@ -9,20 +9,21 @@ import { useNavigate } from 'react-router-dom';
 const Header = () => {
   const navigate = useNavigate()
   const {logout} = useContext(AuthContext)
-  const [username,setUsername] = useState(null)
+  const [username,setUsername] = useState("")
   const [balance, setBalance] = useState(0);
-  const isAuthenticated = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-    try {
-      const decoded = jwtDecode(token);
-      setUsername(decoded.username)
-      return decoded.exp * 1000 > Date.now(); // Check if token is expired
-    } catch (error) {
-      return false;
-    }
-  };
   useEffect(() => {
+    const isAuthenticated = () => {
+      const token = localStorage.getItem('token');
+      if (!token) return false;
+      try {
+        const decoded = jwtDecode(token);
+        alert(decoded.username)
+        setUsername(decoded.username)
+        return decoded.exp * 1000 > Date.now(); // Check if token is expired
+      } catch (error) {
+        return false;
+      }
+    };
     const fetchBalance = async () => {
       const response = await fetch(`/.netlify/functions/getBalance?username=${username}`);
       const data = await response.json();
@@ -33,7 +34,7 @@ const Header = () => {
       }
     };
     const auth = isAuthenticated()
-    if (!auth) setUsername(null)
+    if (!auth) setUsername("")
     else {
       fetchBalance();
     }
