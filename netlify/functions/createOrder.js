@@ -1,18 +1,16 @@
-// netlify/functions/createOrder.js
 const Razorpay = require('razorpay');
 
 exports.handler = async (event, context) => {
   const { amount } = JSON.parse(event.body);
 
   const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
+    key_id: process.env.VITE_APP_RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
   });
 
   const options = {
-    amount: amount * 100, // Amount in paisa
+    amount: amount * 100, // Amount in paise
     currency: 'INR',
-    receipt: `receipt_${Date.now()}`,
   };
 
   try {
