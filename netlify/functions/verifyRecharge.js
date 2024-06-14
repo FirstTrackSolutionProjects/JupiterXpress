@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 const mysql = require('mysql2/promise');
-
+const crypto = require('crypto');
 exports.handler = async (event, context) => {
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature, username, amount } = JSON.parse(event.body);
 
@@ -10,18 +10,16 @@ exports.handler = async (event, context) => {
   });
 
   // Verify the payment signature
-  const isValid = razorpay.validateWebhookSignature(
-    event.body,
-    razorpay_signature,
-    process.env.RAZORPAY_KEY_SECRET
-  );
+  const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest('hex');
 
-  if (!isValid) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid payment signature' }),
-    };
-  }
+    if (generatedSignature !== razorpay_signature) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: 'Invalid payment signature' }),
+        };
+      }
 
   // Connect to MySQL database
   const connection = await mysql.createConnection({
