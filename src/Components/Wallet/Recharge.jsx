@@ -19,6 +19,13 @@ const Recharge = () => {
     };
 
     const displayRazorpay = async () => {
+      const response = await fetch('/.netlify/functions/createOrder', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+      });
+      const data = await response.json();
+      setOrder(data);
+      
       const res = await loadRazorpayScript();
   
       if (!res) {
@@ -26,6 +33,7 @@ const Recharge = () => {
         return;
       }
   
+
       const options = {
         key: import.meta.env.VITE_APP_RAZORPAY_API_ID, // Replace with your Razorpay key ID
         amount: amount*100, // Amount is in paise (50000 paise = INR 500)
@@ -33,6 +41,7 @@ const Recharge = () => {
         name: 'Your Company Name',
         description: 'Test Transaction',
         image: 'logo.webp',
+        order_id: data.id,
         handler: function (response) {
           alert(response.razorpay_payment_id);
           alert(response.razorpay_order_id);
