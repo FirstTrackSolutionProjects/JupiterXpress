@@ -24,7 +24,7 @@ const Header = () => {
   };
   useEffect(() => {
     const fetchBalance = async () => {
-      const response = await fetch(`/.netlify/functions/getBalance?userId=${userId}`);
+      const response = await fetch(`/.netlify/functions/getBalance?username=${username}`);
       const data = await response.json();
       if (data.balance !== undefined) {
         setBalance(data.balance);
