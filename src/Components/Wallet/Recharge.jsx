@@ -33,25 +33,30 @@ const Recharge = () => {
         name: 'Your Company Name',
         description: 'Test Transaction',
         image: 'logo.webp',
-        handler: async function (response) {
-          const verifyResponse = await fetch('/.netlify/functions/verifyRecharge', {
-            method: 'POST',
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-              username: username,
-              amount: amount,
-            }),
-          });
-          const verifyData = await verifyResponse.json();
-          if (verifyData.success) {
-            setPaymentId(response.razorpay_payment_id);
-            setOrder(response.razorpay_order_id);
-          } else {
-            alert('Payment verification failed');
-          }
+        handler: function (response) {
+          alert(response.razorpay_payment_id);
+          alert(response.razorpay_order_id);
+          alert(response.razorpay_signature);
         },
+        // handler: async function (response) {
+        //   const verifyResponse = await fetch('/.netlify/functions/verifyRecharge', {
+        //     method: 'POST',
+        //     body: JSON.stringify({
+        //       razorpay_payment_id: response.razorpay_payment_id,
+        //       razorpay_order_id: response.razorpay_order_id,
+        //       razorpay_signature: response.razorpay_signature,
+        //       username: username,
+        //       amount: amount,
+        //     }),
+        //   });
+        //   const verifyData = await verifyResponse.json();
+        //   if (verifyData.success) {
+        //     setPaymentId(response.razorpay_payment_id);
+        //     setOrder(response.razorpay_order_id);
+        //   } else {
+        //     alert('Payment verification failed');
+        //   }
+        // },
         prefill: {
           name: 'Your Name',
           email: 'youremail@example.com',
