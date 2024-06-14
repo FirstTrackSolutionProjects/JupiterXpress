@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import React from 'react'
 
 const Footer = () => {
@@ -34,11 +35,11 @@ const Footer = () => {
         <div className='w-[300px] xl:w-[200px] flex flex-col  '>
             <div>
         <div className='font-medium text-xl mb-4'>About</div>
-            <div>FAQ</div>
-            <div>About Us</div>
-            <div>Contact us</div>
-            <div>Privacy And Policy</div>
-            <div>Terms of Use</div>
+            <Link to='/faq'><div>FAQ</div></Link>
+            <Link to={'/about-us'}><div>About Us</div></Link>
+            <Link to={'/contact-send'}><div>Contact us</div> </Link>
+            <Link to="/privacy"><div>Privacy And Policy</div></Link>
+            <Link to={'/tnc'}><div>Terms of Use</div></Link>
             </div>
         </div>
         <div className='w-[300px] space-y-3 flex flex-col justify-center '>

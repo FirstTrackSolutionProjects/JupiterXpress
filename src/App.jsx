@@ -5,6 +5,9 @@ import Contact from './Pages/Contact'
 import About from './Pages/About'
 import Dashboard from './Pages/Dashboard'
 import Blogs from './Pages/Blogs'
+import Privacy from './Pages/Privacy'
+import TnC from './Pages/TnC'
+import FAQ from './Pages/FAQ'
 const App = () => {
   return (
     <>
@@ -17,6 +20,10 @@ const App = () => {
         <Route path='/about-us' element={<About/>} />
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/get-blogs' element={<Blogs/>} />
+        <Route path='/privacy' element={<Privacy/>} />
+        <Route path='/tnc' element={<TnC/>} />
+        <Route path='/faq' element={<FAQ/>} />
+        
       </Routes>
       
       

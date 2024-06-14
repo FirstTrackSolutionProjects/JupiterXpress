@@ -10,7 +10,7 @@ const ReasonCard = ({color, title, icon}) => {
             <img src={`icons/${icon}`} alt="" className="w-[60px] rcxs:w-auto" />
             
         </div>
-        <div className="rcxs:w-48 w-36 font-medium text-white rcxs:h-[120px] h-[90px] flex items-center justify-center">
+        <div className="rcxs:w-48 w-36 text-center p-2 font-medium text-white rcxs:h-[120px] h-[90px] flex items-center justify-center">
             {title}
         </div>
     </Tilt>
