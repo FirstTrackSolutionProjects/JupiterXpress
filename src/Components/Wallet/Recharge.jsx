@@ -34,7 +34,7 @@ const Recharge = () => {
         description: 'Test Transaction',
         image: 'logo.webp',
         handler: async function (response) {
-          const verifyResponse = await fetch('/.netlify/functions/verifyPayment', {
+          const verifyResponse = await fetch('/.netlify/functions/verifyRecharge', {
             method: 'POST',
             body: JSON.stringify({
               razorpay_payment_id: response.razorpay_payment_id,
