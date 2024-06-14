@@ -33,7 +33,7 @@ exports.handler = async (event, context) => {
 
   try {
     // Update user's wallet balance in database
-    await connection.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
+    await connection.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, username]);
 
     // Insert transaction record
     const transactionDetails = {
