@@ -25,7 +25,7 @@ const Header = () => {
       }
     };
     const fetchBalance = async () => {
-      const response = await fetch(`/.netlify/functions/getBalance?username=${username}`);
+      const response = await fetch(`/.netlify/functions/getBalance?username=${localStorage.getItem('username')}`);
       const data = await response.json();
       if (data.balance !== undefined) {
         setBalance(data.balance);
