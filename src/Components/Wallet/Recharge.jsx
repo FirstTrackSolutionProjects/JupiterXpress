@@ -25,7 +25,7 @@ const Recharge = () => {
       });
       const data = await response.json();
       setOrder(data);
-      
+
       const res = await loadRazorpayScript();
   
       if (!res) {
@@ -92,7 +92,7 @@ const Recharge = () => {
         onChange={(e) => setAmount(e.target.value)}
       />
       <button onClick={displayRazorpay}>Recharge Wallet</button>
-      {order && <div>Order ID: {order}</div>}
+      {order && <div>Order ID: {order.id}</div>}
       {paymentId && <div>Payment Successful: {paymentId}</div>}
     </div>
   );
