@@ -13,9 +13,10 @@ exports.handler = async (event, context) => {
       }
     });
     const data = await response.json();
+    const price = data[0]['total_amount']
     return {
       statusCode: 200,
-      body: JSON.stringify({data}),
+      body: JSON.stringify({price}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
