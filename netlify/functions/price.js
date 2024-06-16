@@ -1,6 +1,6 @@
 // netlify/functions/fetchData.js
 
-const fetch = require('node-fetch');
+
 
 exports.handler = async (event, context) => {
     const {method, status, origin, dest, weight, payMode, codAmount} = JSON.parse(event.body)
