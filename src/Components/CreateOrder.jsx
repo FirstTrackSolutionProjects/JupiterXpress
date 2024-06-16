@@ -13,9 +13,10 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
           'Content-Type': 'application/json',
           'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
           "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+        },
           body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount}),
-        }
+        
       }).then(response => response.json()).then(result => {console.log(result.price); setPrice(result.price)}).catch(error => console.log(error))
     }  
     data()
