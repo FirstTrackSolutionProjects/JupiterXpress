@@ -3,7 +3,7 @@
 
 
 exports.handler = async (event, context) => {
-    const {method, status, origin, dest, weight, payMode, codAmount} = JSON.parse(event.body)
+    const {method, status, origin, dest, weight, payMode, codAmount} = JSON.parse(event.queryStringParameters);
   try {
     const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${weight}&pt=${payMode}&cod=${codAmount}`, {
       headers: {
