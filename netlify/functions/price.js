@@ -5,7 +5,13 @@
 exports.handler = async (event, context) => {
     const {method, status, origin, dest, weight, payMode, codAmount} = JSON.parse(event.body)
   try {
-    const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${weight}&pt=${payMode}&cod=${codAmount}`);
+    const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${weight}&pt=${payMode}&cod=${codAmount}`, {
+      headers: {
+        'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
+        'Content-Type': 'application/json',
+        'Accept': '*/*'
+      }
+    });
     const data = await response.json();
     return {
       statusCode: 200,
@@ -13,7 +19,7 @@ exports.handler = async (event, context) => {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
-        'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138'
+        
       },
     };
   } catch (error) {
