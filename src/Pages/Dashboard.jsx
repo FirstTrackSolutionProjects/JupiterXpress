@@ -8,6 +8,7 @@ import DeliveryMan from "../Components/DeliveryMan"
 import BranchManage_Branch from "../Components/BranchManage_Branch"
 import BranchManage_Payments from "../Components/BranchManage_Payments"
 import { jwtDecode } from "jwt-decode"
+import CreateOrder from "../Components/CreateOrder"
 const Dashboard = () => {
   const [menuID, setMenuID] = useState([0])
   const navigate = useNavigate()
@@ -21,12 +22,12 @@ const Dashboard = () => {
       return false;
     }
   };
-  useEffect(() => {
+  // useEffect(() => {
     
-    if (!isAuthenticated()) {
-      navigate('/')
-    }
-  }, [])
+  //   if (!isAuthenticated()) {
+  //     navigate('/')
+  //   }
+  // }, [])
   return (
     <>
         <>
@@ -44,7 +45,7 @@ const Dashboard = () => {
                 {(menuID[0] == 2 && menuID[1] == 1) && <BranchManage_Payments/>}
                 {(menuID[0] == 3 && menuID[1] == 0) && <DashboardMain/>}
                 {(menuID[0] == 3 && menuID[1] == 1) && <DashboardMain/>}
-                {(menuID[0] == 4) && <DashboardMain/>}
+                {(menuID[0] == 4) && <CreateOrder/>}
                 {(menuID[0] == 5) && <DashboardMain/>}
                 {(menuID[0] == 6) && <DashboardMain/>}
                 {(menuID[0] == 7) && <DashboardMain/>}

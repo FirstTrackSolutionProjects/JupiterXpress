@@ -8,6 +8,7 @@ import Blogs from './Pages/Blogs'
 import Privacy from './Pages/Privacy'
 import TnC from './Pages/TnC'
 import FAQ from './Pages/FAQ'
+import Price from './Pages/Price'
 const App = () => {
   return (
     <>
@@ -23,7 +24,7 @@ const App = () => {
         <Route path='/privacy' element={<Privacy/>} />
         <Route path='/tnc' element={<TnC/>} />
         <Route path='/faq' element={<FAQ/>} />
-        
+        <Route path='/pricing' element={<Price />} />
       </Routes>
       
       
