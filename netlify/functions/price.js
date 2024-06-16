@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch data' }),
+      body: JSON.stringify({ error: 'Failed to fetch data' + error }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
