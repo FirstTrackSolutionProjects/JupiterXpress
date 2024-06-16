@@ -7,14 +7,14 @@ const ComparePrices = ({method , status, origin, dest, weight, payMode, codAmoun
   const [price,setPrice] = useState(null)
   useEffect(()=>{
     const data = async () => {
-      await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${weight}&pt=${payMode}&cod=${codAmount}`, {
+      await fetch(`/.netlify/functions/price`, {
         headers: { 'Accept': '*/*',
           'Content-Type': 'application/json',
           'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         }
-      }).then(response => response.json()).then(result => console.log(result)).catch(error => console.log(error))
+      }).then(response => response.json()).then(result => console.log(result.price)).catch(error => console.log(error))
     }  
     data()
   }, []) 
@@ -35,7 +35,7 @@ const ComparePrices = ({method , status, origin, dest, weight, payMode, codAmoun
   )
 }
 
-const InitialDetails = (setData) => {
+const InitialDetails = () => {
   
   const [formData, setFormData] = useState({
     method : '',
