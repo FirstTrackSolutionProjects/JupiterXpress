@@ -3,17 +3,18 @@ import React, { useEffect, useState } from "react";
 
 
 
-const ComparePrices = ({formData}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount}) => {
   const [price,setPrice] = useState(null)
   useEffect(()=>{
     const data = async () => {
       await fetch(`/.netlify/functions/price`, {
+        method: 'GET',
         headers: { 'Accept': '*/*',
           'Content-Type': 'application/json',
           'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept",
-          body : JSON.stringify(formData)
+          body : JSON.stringify({method, status, origin, dest, weight, payMode, codAmount})
         }
       }).then(response => response.json()).then(result => {console.log(result.price); setPrice(result.price)}).catch(error => console.log(error))
     }  
@@ -61,7 +62,7 @@ const InitialDetails = () => {
   }
   return (
     <>
-      {showCompare && <ComparePrices formData={formData} />}
+      {showCompare && <ComparePrices {...formData} />}
       <div className="w-full p-4 flex flex-col items-center space-y-6">
         <div className="text-center text-3xl font-medium">
           Enter your Shipment Details
