@@ -13,6 +13,7 @@ exports.handler = async (event, context) => {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+        'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138'
       },
     };
   } catch (error) {
