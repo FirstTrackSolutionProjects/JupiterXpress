@@ -25,7 +25,7 @@ exports.handler = async (event, context) => {
     };
   } catch (error) {
     return {
-      statusCode: 500,
+      statusCode: 501,
       body: JSON.stringify({ error: 'Failed to fetch data' + error }),
       headers: {
         'Content-Type': 'application/json',

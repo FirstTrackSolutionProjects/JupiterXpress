@@ -1,53 +1,14 @@
-import { Result } from "postcss";
 import React, { useEffect, useState } from "react";
 
-
-
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount}) => {
-  const [price,setPrice] = useState(null)
-  useEffect(()=>{
-    const data = async () => {
-      await fetch(`/.netlify/functions/price`, {
-        method: 'POST',
-        headers: { 'Accept': '*/*',
-          'Content-Type': 'application/json',
-          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
-          "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
-        },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount}),
-        
-      }).then(response => response.json()).then(result => {console.log(result.price); setPrice(result.price)}).catch(error => console.log(error))
-    }  
-    data()
-  }, []) 
-  return (
-    <>
-      <div className="w-full inset-0 absolute p-4 flex flex-col bg-gray-100 items-center space-y-6">
-        <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR SERVICE
-        </div>
-        <div className="w-full p-4 ">
-          <div className="w-full h-16 bg-white relative items-center px-4 flex border-b">
-            <div>Delhivery</div>
-            <div className="absolute right-4">{price}</div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
-
-const InitialDetails = () => {
-  
+const FullDetails = () => {
   const [formData, setFormData] = useState({
-    method : '',
-    status: '',
+    method : 'S',
+    status: 'DTO',
     origin : '',
     dest : '',
     weight : '',
-    payMode : '',
-    codAmount : '',
+    payMode : 'COD',
+    codAmount : '0',
   })
   const [showCompare, setShowCompare] = useState(false)
   const handleChange = (e) => {
@@ -63,7 +24,428 @@ const InitialDetails = () => {
   }
   return (
     <>
-      {showCompare && <ComparePrices {...formData} />}
+      <div className="w-full p-4 flex flex-col items-center">
+        <div className="text-3xl font-medium text-center">Enter Shipping Details</div>
+        <form action="">
+        <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Address</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Country</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Pincode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Phone</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Phone</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Address</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Pincode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">City</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">State</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Country</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Address Type</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Payment Mode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Order Id</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Shipment Mode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Product Description</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">HSN Code</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">COD Amount</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Order Date</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Seller Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Seller Address</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Seller Inv</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Seller GST TIN</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Total Amount</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value={formData.weight}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+        </form>
+      </div>
+    </>
+  )
+}
+
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, setStep}) => {
+  const [price,setPrice] = useState(null)
+  useEffect(()=>{
+    console.log({method, status, origin, dest, weight, payMode, codAmount})
+    const data = async () => {
+      await fetch(`/.netlify/functions/price`, {
+        method: 'POST',
+        headers: { 'Accept': '*/*',
+          'Content-Type': 'application/json',
+          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
+          "Access-Control-Allow-Origin" : "*",
+          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+        },
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount}),
+        
+      }).then(response => response.json()).then(result => {console.log(result); setPrice(result.price)}).catch(error => console.log(error + " " + error.message))
+    }  
+    data()
+  }, []) 
+  return (
+    <>
+      <div className="w-full inset-0 absolute p-4 flex flex-col bg-gray-100 items-center space-y-6">
+        <div className="text-center text-3xl font-medium">
+          CHOOSE YOUR SERVICE
+        </div>
+        <div className="w-full p-4 ">
+          <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" onClick={()=>setStep(1)}>
+            <div>Delhivery</div>
+            <div className="absolute right-4">{`${Math.round(price)}    >`}</div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+const InitialDetails = ({setStep}) => {
+  
+  const [formData, setFormData] = useState({
+    method : 'S',
+    status: 'DTO',
+    origin : '',
+    dest : '',
+    weight : '',
+    payMode : 'COD',
+    codAmount : '0',
+  })
+  const [showCompare, setShowCompare] = useState(false)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowCompare(true)
+  }
+  return (
+    <>
+      {showCompare && <ComparePrices {...formData} setStep={setStep} />}
       <div className="w-full p-4 flex flex-col items-center space-y-6">
         <div className="text-center text-3xl font-medium">
           Enter your Shipment Details
@@ -180,7 +562,8 @@ const CreateOrder = () => {
   const [step, setStep] = useState(0)
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      {step==0 && <InitialDetails />}
+      {step==0 && <InitialDetails setStep={setStep} />}
+      {step==1 && <FullDetails />}
     </div>
   );
 };

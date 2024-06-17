@@ -22,12 +22,12 @@ const Dashboard = () => {
       return false;
     }
   };
-  // useEffect(() => {
+  useEffect(() => {
     
-  //   if (!isAuthenticated()) {
-  //     navigate('/')
-  //   }
-  // }, [])
+    if (!isAuthenticated()) {
+      navigate('/')
+    }
+  }, [])
   return (
     <>
         <>
