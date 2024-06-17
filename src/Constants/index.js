@@ -80,7 +80,7 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
-        name : "Todo List",
+        name : "Create Shipment",
         isDropdown : false,
         menuID : [4],
         dropDownOptions : [{}]
