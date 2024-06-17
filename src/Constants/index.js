@@ -87,7 +87,7 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
-        name : "Ticket",
+        name : "Warehouse",
         isDropdown : false,
         menuID : [5],
         dropDownOptions : [{}]

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 
 const FullDetails = () => {
   const [formData, setFormData] = useState({
-    method : 'S',
-    status: 'DTO',
-    origin : '',
+    whName : '',
+    address: 'DTO',
+    country : '',
     dest : '',
     weight : '',
     payMode : 'COD',
@@ -29,19 +29,35 @@ const FullDetails = () => {
         <form action="">
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Name</label>
+              <label htmlFor="whName">Pickup Warehouse Name</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="weight"
-                name="weight"
+                id="whName"
+                name="whName"
+                placeholder="Ex. Patna Warehouse"
+                value={formData.whName}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+         
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="name">Buyer's Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="name"
+                name="name"
                 placeholder="Ex. 1500"
-                value={formData.weight}
+                value={formData.name}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Address</label>
+              <label htmlFor="weight">Buyer's Phone</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -56,7 +72,7 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Country</label>
+              <label htmlFor="weight">Buyer's Address</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -68,34 +84,7 @@ const FullDetails = () => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Name</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Pincode</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Phone</label>
+              <label htmlFor="weight">Buyer's Pincode</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -110,7 +99,7 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Name</label>
+              <label htmlFor="weight">Buyer's City</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -122,34 +111,7 @@ const FullDetails = () => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Phone</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Pincode</label>
+              <label htmlFor="weight">Buyer's State</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -164,34 +126,7 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">City</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">State</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Country</label>
+              <label htmlFor="weight">Buyer's Country</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"

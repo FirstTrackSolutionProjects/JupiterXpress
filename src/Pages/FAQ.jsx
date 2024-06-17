@@ -29,6 +29,11 @@ const FAQ = () => {
             <p>Merchants can track their parcel deliveries through a variety of methods. Here are some common ways like Tracking Number, Customer Service, SMS Notifications, Email Notifications, Mobile Apps, and Merchant Portal etc. Using these methods, merchants can efficiently monitor the status of their parcels and ensure timely delivery.</p>
         </details>
         <details className='py-2'>
+            <summary className='font-medium border-b-2 border-gray-300 py-2'>Will i get full refund on cancellation of order?</summary>
+            <br />
+            <p>Yes, Full amount will be Refundable</p>
+        </details>
+        <details className='py-2'>
             <summary className='font-medium border-b-2 border-gray-300 py-2'>How do I send a product/ courier via wecourier Delivery?</summary>
             <br />
             <p>To send a product or courier via Jupiter Xpress Delivery, you'll likely follow a process similar to other delivery services. Here's a step-by-step guides are Prepare Your Package, Visit the Jupiter Xpress Delivery Website, Enter Shipment Details, Choose Delivery Options, Generate Shipping Label, Schedule Pickup or Drop Off, Payment and Track your Shipment.</p>

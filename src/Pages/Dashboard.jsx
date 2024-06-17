@@ -9,6 +9,7 @@ import BranchManage_Branch from "../Components/BranchManage_Branch"
 import BranchManage_Payments from "../Components/BranchManage_Payments"
 import { jwtDecode } from "jwt-decode"
 import CreateOrder from "../Components/CreateOrder"
+import Warehouse from "../Components/Warehouse"
 const Dashboard = () => {
   const [menuID, setMenuID] = useState([0])
   const navigate = useNavigate()
@@ -46,7 +47,7 @@ const Dashboard = () => {
                 {(menuID[0] == 3 && menuID[1] == 0) && <DashboardMain/>}
                 {(menuID[0] == 3 && menuID[1] == 1) && <DashboardMain/>}
                 {(menuID[0] == 4) && <CreateOrder/>}
-                {(menuID[0] == 5) && <DashboardMain/>}
+                {(menuID[0] == 5) && <Warehouse/>}
                 {(menuID[0] == 6) && <DashboardMain/>}
                 {(menuID[0] == 7) && <DashboardMain/>}
                 {(menuID[0] == 8) && <DashboardMain/>}

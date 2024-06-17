@@ -27,6 +27,8 @@ const TnC = () => {
       <br />
       <p>2.3 Risk of Loss: All items purchased from us are made pursuant to a shipment contract. This means that the risk of loss and title for such items pass to you upon our delivery to the carrier.</p>
       <br />
+      <p>2.4 If the parcel got lost, actual amount of product will be refunded upto Rs.2000.</p>
+      <br />
       <p>3. Pricing and Payment</p>
       <br />
       <p>3.1 Pricing: All prices are listed in USD and are subject to change without notice. We are not responsible for typographical errors in pricing.</p>

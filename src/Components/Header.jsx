@@ -17,7 +17,7 @@ const Header = () => {
       if (!token) return false;
       try {
         const decoded = jwtDecode(token);
-        alert(decoded.username)
+        // alert(decoded.username)
         setUsername(decoded.username)
         return decoded.exp * 1000 > Date.now(); // Check if token is expired
       } catch (error) {
@@ -57,7 +57,7 @@ const Header = () => {
           ))
         }
        
-          {username && <div><p>{username}</p><p onClick={()=>{logout(); navigate('/')}}>logout</p><p>{`Wallet Balance : ${balance}`}</p><Recharge/></div>}
+          {username && <div className="h-16 flex space-x-4"><div><p>{username}</p><p onClick={()=>{logout(); navigate('/')}}>logout</p></div><div><p>{`Wallet Balance : ${balance}`}</p><Recharge/></div></div>}
       </nav>
     </div>
   )

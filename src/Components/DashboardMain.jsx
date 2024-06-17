@@ -1,12 +1,12 @@
 import DashboardStatement from "./DashboardStatement"
 import DashboardSummary from "./DashboardSummary"
-import RazorpayPayment from "./Razorpay"
+// import RazorpayPayment from "./Razorpay"
 const DashboardMain = () => {
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <DashboardSummary />
       <DashboardStatement />
-      <RazorpayPayment/>
+      {/* <RazorpayPayment/> */}
     </div>
   )
 }
