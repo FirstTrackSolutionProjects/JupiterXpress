@@ -22,17 +22,20 @@ exports.handler = async (event) => {
     };
   }
 
-  const { username, password } = JSON.parse(event.body);
+  const { email, password } = JSON.parse(event.body);
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM users WHERE username = ?', [username]);
+    const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [email]);
     if (rows.length > 0 && await bcrypt.compare(password, rows[0].password)) {
-      const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+      const id = rows[0].id;
+      const name = rows[0].name;
+      const verified = rows[0].verified;
+      const token = jwt.sign({  email, verified, name, id }, SECRET_KEY, { expiresIn: '1h' });
       return {
         statusCode: 200,
-        body: JSON.stringify({ token : token, success:true }),
+        body: JSON.stringify({ token : token, success:true, verified: verified }),
       };
     } else {
       return {

@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 
 exports.handler = async (event, context) => {
-  const username = event.queryStringParameters.username;
+  const id = event.queryStringParameters.id;
 
   // Connect to MySQL database
   const connection = await mysql.createConnection({
@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
   });
 
   try {
-    const [rows] = await connection.execute('SELECT balance FROM users WHERE username = ?', [username]);
+    const [rows] = await connection.execute('SELECT * FROM WALLET WHERE id = ?', [id]);
 
     if (rows.length === 0) {
       return {

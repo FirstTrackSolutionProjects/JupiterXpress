@@ -18,18 +18,19 @@ const Header = () => {
       try {
         const decoded = jwtDecode(token);
         // alert(decoded.username)
-        setUsername(decoded.username)
+        setUsername(decoded.name)
         return decoded.exp * 1000 > Date.now(); // Check if token is expired
       } catch (error) {
         return false;
       }
     };
     const fetchBalance = async () => {
-      const response = await fetch(`/.netlify/functions/getBalance?username=${localStorage.getItem('username')}`);
-      const data = await response.json();
-      if (data.balance !== undefined) {
+      const balance = await fetch(`/.netlify/functions/getBalance?id=${jwtDecode(localStorage.getItem('token')).id}`)
+      .then((response)=>response.json())
+      .then(result => result.balance);
+      if (balance) {
         
-        setBalance(data.balance);
+        setBalance(balance)
       } else {
         alert('Failed to fetch balance');
       }

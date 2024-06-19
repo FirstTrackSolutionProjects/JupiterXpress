@@ -9,6 +9,7 @@ import Privacy from './Pages/Privacy'
 import TnC from './Pages/TnC'
 import FAQ from './Pages/FAQ'
 import Price from './Pages/Price'
+import Verify from './Pages/Verify'
 const App = () => {
   return (
     <>
@@ -25,6 +26,7 @@ const App = () => {
         <Route path='/tnc' element={<TnC/>} />
         <Route path='/faq' element={<FAQ/>} />
         <Route path='/pricing' element={<Price />} />
+        <Route path='/verify' element={<Verify/>} />
       </Routes>
       
       
