@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react"
+import { useState, useEffect, useContext} from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardMain from "../Components/DashboardMain"
 import Header from "../Components/Header"
@@ -10,7 +10,10 @@ import BranchManage_Payments from "../Components/BranchManage_Payments"
 import { jwtDecode } from "jwt-decode"
 import CreateOrder from "../Components/CreateOrder"
 import Warehouse from "../Components/Warehouse"
+import { AuthContext } from "../context/AuthContext"
+import UpdateOrder from "../Components/UpdateOrder"
 const Dashboard = () => {
+  const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
   const navigate = useNavigate()
   const isAuthenticated = () => {
@@ -18,7 +21,15 @@ const Dashboard = () => {
     if (!token) return false;
     try {
       const decoded = jwtDecode(token);
-      return decoded.exp * 1000 > Date.now(); // Check if token is expired
+      if (decoded.exp * 1000 < Date.now()){
+        logout();
+        return false;
+      } // Check if token is expired
+      if (!(decoded.verified)){
+        navigate('/verify')
+        return true;
+      }
+      return true;
     } catch (error) {
       return false;
     }
@@ -48,7 +59,7 @@ const Dashboard = () => {
                 {(menuID[0] == 3 && menuID[1] == 1) && <DashboardMain/>}
                 {(menuID[0] == 4) && <CreateOrder/>}
                 {(menuID[0] == 5) && <Warehouse/>}
-                {(menuID[0] == 6) && <DashboardMain/>}
+                {(menuID[0] == 6) && <UpdateOrder/>}
                 {(menuID[0] == 7) && <DashboardMain/>}
                 {(menuID[0] == 8) && <DashboardMain/>}
                 {(menuID[0] == 9) && <DashboardMain/>}

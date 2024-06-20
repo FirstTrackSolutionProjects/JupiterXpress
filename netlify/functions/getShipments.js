@@ -22,25 +22,21 @@ exports.handler = async (event) => {
     };
   }
 
-  const { email, password } = JSON.parse(event.body);
+  const { id } = JSON.parse(event.body);
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [email]);
-    if (rows.length > 0 && await bcrypt.compare(password, rows[0].password)) {
-      const id = rows[0].id;
-      const name = rows[0].name;
-      const verified = rows[0].verified;
-      const token = jwt.sign({  email, verified, name, id }, SECRET_KEY, { expiresIn: '12h' });
+    const [rows] = await connection.execute('SELECT * FROM SHIPMENTS WHERE id = ?', [id]);
+    if (rows.length > 0) {
       return {
         statusCode: 200,
-        body: JSON.stringify({ token : token, success:true, verified: verified }),
+        body: JSON.stringify({success:true, order : rows }),
       };
     } else {
       return {
         statusCode: 401,
-        body: JSON.stringify({ message: 'Invalid credentials' }),
+        body: JSON.stringify({ message: 'Invalid id' }),
       };
     }
   } catch (error) {

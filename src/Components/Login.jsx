@@ -34,9 +34,9 @@ const LoginForm = ({authMode}) => {
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          alert('Login successful')
+          // alert('Login successful')
           login(formData.email, result.token);
-          alert('token set')
+          // alert('token set')
           if (result.verified)
             navigate('/dashboard');
           else
@@ -70,6 +70,7 @@ const LoginForm = ({authMode}) => {
 }
 
 const RegisterForm = ({authMode}) => {
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name : '',
@@ -103,6 +104,7 @@ const RegisterForm = ({authMode}) => {
       .then(response => response.json())
       .then(result => {
         if (result.success) {
+          login(formData.reg_email, result.token)
           navigate('/verify');
         } else {
           alert('Register failed: ' + result.message)

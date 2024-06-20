@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Database connection
@@ -10,12 +11,14 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
+const SECRET_KEY = process.env.JWT_SECRET;
+
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       body: JSON.stringify({ message: 'Method Not Allowed' }),
-
     };
   }
 
@@ -28,10 +31,11 @@ exports.handler = async (event) => {
     await connection.execute('INSERT INTO USERS (email, password, name, mobile ) VALUES (?, ?, ?, ?)', [reg_email, hashedPassword, name, mobile]);
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [reg_email]);
     const id = rows[0].id
+    const token = jwt.sign({  email : reg_email , verified : 0, name, id }, SECRET_KEY, { expiresIn: '12h' });
     await connection.execute('INSERT INTO WALLET (id, balance ) VALUES (?, ?)', [id, 0.00]);
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'User registered', success: true }),
+      body: JSON.stringify({ token : token ,message: 'User registered', success: true }),
     };
   } catch (error) {
     return {
