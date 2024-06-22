@@ -126,6 +126,20 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             alert('An error occurred during Order');
           });
       }
+      const ndr = () => {
+        const waybill = '67566';
+        const act = 'RE-ATTEMPT';
+        const date = Date.now();
+        fetch('/.netlify/functions/ndr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({waybill, act, date})
+        }).then(response => response.json()).then(result => console.log(result.data));
+
+      }
     return (
       <>
         <div
@@ -144,6 +158,15 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             >
               X
             </div>
+          </div>
+          <div>
+            NDR ACTIONS
+          </div>
+          <div onClick={()=>ndr()}>
+            Re-Attempt
+          </div>
+          <div>
+            Deferred Delivery
           </div>
           <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
@@ -172,6 +195,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 name="order"
                 placeholder="Ex. ORDER123456"
                 value={formData.order}
+                readOnly
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -680,12 +704,25 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
 
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
+    const ship = (order) => {
+      fetch('/.netlify/functions/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({order})
+      }).then(response => response.json()).then(result => alert(result.response.rmk));
+    }
     return (
       <>
         <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} />
         <div className="w-full h-16 bg-white relative items-center px-8 flex border-b">
           <div>{shipment.ord_id}</div>
-          <div className="absolute right-8 cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
+          <div className="absolute right-8 flex space-x-4">
+          <div className="cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
+          <div className="cursor-pointer" onClick={()=>ship(shipment.ord_id)}>Ship</div>
+          </div>
         </div>
       </>
     );
@@ -706,9 +743,7 @@ const Listing = ({ step, setStep }) => {
             .then(response => response.json())
             .then(result => {
               if (result.success) {
-                console.log(result.order)
                 setShipments(result.order);
-                
               } else {
                 alert('Order failed: ' + result.message)
               }

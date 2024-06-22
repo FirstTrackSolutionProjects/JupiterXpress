@@ -10,6 +10,7 @@ import TnC from './Pages/TnC'
 import FAQ from './Pages/FAQ'
 import Price from './Pages/Price'
 import Verify from './Pages/Verify'
+import Tracking from './Pages/Tracking'
 const App = () => {
   return (
     <>
@@ -27,6 +28,7 @@ const App = () => {
         <Route path='/faq' element={<FAQ/>} />
         <Route path='/pricing' element={<Price />} />
         <Route path='/verify' element={<Verify/>} />
+        <Route path='/tracking' element={<Tracking/>} />
       </Routes>
       
       

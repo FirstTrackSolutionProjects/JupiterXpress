@@ -12,6 +12,7 @@ import CreateOrder from "../Components/CreateOrder"
 import Warehouse from "../Components/Warehouse"
 import { AuthContext } from "../context/AuthContext"
 import UpdateOrder from "../Components/UpdateOrder"
+import ServiceCheck from "../Components/ServiceCheck"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -52,7 +53,7 @@ const Dashboard = () => {
               </div>
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
                 {menuID[0] == 0 && <DashboardMain/>}
-                {menuID[0] == 1 && <DeliveryMan/>}
+                {menuID[0] == 1 && <ServiceCheck/>}
                 {(menuID[0] == 2 && menuID[1] == 0) && <BranchManage_Branch/>}
                 {(menuID[0] == 2 && menuID[1] == 1) && <BranchManage_Payments/>}
                 {(menuID[0] == 3 && menuID[1] == 0) && <DashboardMain/>}
@@ -60,7 +61,7 @@ const Dashboard = () => {
                 {(menuID[0] == 4) && <CreateOrder/>}
                 {(menuID[0] == 5) && <Warehouse/>}
                 {(menuID[0] == 6) && <UpdateOrder/>}
-                {(menuID[0] == 7) && <DashboardMain/>}
+                {(menuID[0] == 7) && <ServiceCheck/>}
                 {(menuID[0] == 8) && <DashboardMain/>}
                 {(menuID[0] == 9) && <DashboardMain/>}
                 {(menuID[0] == 10) && <DashboardMain/>}
