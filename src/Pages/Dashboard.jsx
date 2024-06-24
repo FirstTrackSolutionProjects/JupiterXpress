@@ -4,7 +4,6 @@ import DashboardMain from "../Components/DashboardMain"
 import Header from "../Components/Header"
 import MenuItem from "../Components/MenuItem"
 import { menuItems } from "../Constants"
-import DeliveryMan from "../Components/DeliveryMan"
 import BranchManage_Branch from "../Components/BranchManage_Branch"
 import BranchManage_Payments from "../Components/BranchManage_Payments"
 import { jwtDecode } from "jwt-decode"
@@ -13,6 +12,7 @@ import Warehouse from "../Components/Warehouse"
 import { AuthContext } from "../context/AuthContext"
 import UpdateOrder from "../Components/UpdateOrder"
 import ServiceCheck from "../Components/ServiceCheck"
+import NDR from "../Components/NDR"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -83,7 +83,7 @@ const Dashboard = () => {
                 {(menuID[0] == 16 && menuID == 3) && <DashboardMain/>}
                 {(menuID[0] == 17 && menuID == 0) && <DashboardMain/>}
                 {(menuID[0] == 17 && menuID == 1) && <DashboardMain/>}
-                {(menuID[0] == 18 && menuID == 0) && <DashboardMain/>}
+                {(menuID[0] == 18 && menuID == 0) && <NDR/>}
                 {(menuID[0] == 18 && menuID == 1) && <DashboardMain/>}
                 {(menuID[0] == 18 && menuID == 2) && <DashboardMain/>}
                 {(menuID[0] == 18 && menuID == 3) && <DashboardMain/>}
@@ -95,7 +95,7 @@ const Dashboard = () => {
                 {(menuID[0] == 20 && menuID == 4 ) && <DashboardMain/>}
                 {(menuID[0] == 20 && menuID == 5 ) && <DashboardMain/>}
                 {(menuID[0] == 20 && menuID == 6 ) && <DashboardMain/>}
-                {(menuID[0] == 20 && menuID == 7 ) && <DashboardMain/>}
+                {(menuID[0] == 20 && menuID == 7 ) && <NDR/>}
                 {(menuID[0] == 20 && menuID == 8 ) && <DashboardMain/>}
                 {(menuID[0] == 20 && menuID == 9 ) && <DashboardMain/>}
                 {(menuID[0] == 20 && menuID == 10 ) && <DashboardMain/>}                

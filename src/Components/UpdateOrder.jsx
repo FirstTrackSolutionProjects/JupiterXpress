@@ -159,15 +159,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
               X
             </div>
           </div>
-          <div>
-            NDR ACTIONS
-          </div>
-          <div onClick={()=>ndr()}>
-            Re-Attempt
-          </div>
-          <div>
-            Deferred Delivery
-          </div>
+          
           <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">

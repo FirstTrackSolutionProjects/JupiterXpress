@@ -80,14 +80,14 @@ const Recharge = () => {
 
   return (
     <div>
-      <h1>INR Wallet</h1>
+      {/* <h1>INR Wallet</h1> */}
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
       <button onClick={displayRazorpay}>Recharge Wallet</button>
-      {order && <div>Order ID: {order.id}</div>}
+      {/* {order && <div>Order ID: {order.id}</div>} */}
       {paymentId && <div>Payment Successful: {paymentId}</div>}
     </div>
   );
