@@ -2,16 +2,16 @@ import React from 'react'
 import Header from '../Components/Header'
 
 
-const Blog = ({img, title}) => {
+const Blog = ({img, title, desc}) => {
   return (
     <>
       <div className=' bg-white w-72 rounded-xl flex flex-col my-3 mx-3'>
-      <div className='w-72  bg-white rounded-l-xl overflow-hidden flex items-center'>
+      <div className='w-72  bg-white rounded-t-xl overflow-hidden flex items-center'>
           <img src={img} className='object-contain' alt="" />
         </div> 
         <div className=' p-4'>
           <p className='text-xl font-medium'>{title}</p>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor eos obcaecati neque autem ullam, pariatur non inventore aperiam porro quasi officia officiis exercitationem nemo totam.</p>
+          <p>{desc}</p>
         </div>
       </div>
     </>
@@ -27,9 +27,9 @@ const Blogs = () => {
       <p className=' text-white text-2xl font-medium text-center'>YOUR SATISFACTION, OUR STORY</p>
       </div>
       <div className='w-full relative z-20  max-w-[1024px] p-4 mt-12 sm:mt-16 rounded-xl flex flex-wrap justify-evenly'>
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113104.jpeg'} title={'Revolutionizing Courier Services: Meet Jupiter Xpress'} desc={''} />
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113304.png'} title={'Beyond Delivery: The Jupiter Xpress Advantage'} desc={''} />
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113637.jpg'} title={'Delivering Excellence: Why Jupiter Xpress is Your Ultimate Courier Solution'} desc={''} />
+        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113104.jpeg'} title={'Revolutionizing Courier Services: Meet Jupiter Xpress'} desc={`In a world where speed and reliability are paramount, Jupiter Xpress is setting new standards in the courier industry. `} />
+        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113304.png'} title={'Beyond Delivery: The Jupiter Xpress Advantage'} desc={'In today’s fast-paced world, the need for reliable and efficient courier services has never been greater. '} />
+        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113637.jpg'} title={'Delivering Excellence: Why Jupiter Xpress is Your Ultimate Courier Solution'} desc={'In the ever-evolving world of courier services, Jupiter Xpress stands out as a beacon of innovation, reliability, and customer-centricity. '} />
       </div>
     </div>
     </>
