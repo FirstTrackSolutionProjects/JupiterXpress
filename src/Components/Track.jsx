@@ -1,20 +1,14 @@
-
-const TrackInfo = () => {
-  return (
-    <>
-      <div className="w-1/2 p-4 absolute z-30 bg-white text-black">
-        <div className="text-center">YOUR SHIPMENT STATUS:-</div>
-        <div>
-          
-        </div>
-      </div>
-    </>
-  )
-}
-
-
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const Track = ({track, setTrack}) => {
+  const navigate = useNavigate();
+  const [id, setId] = useState('')
+  const handleTracking = (e) => {
+    e.preventDefault();
+    localStorage.setItem('track',id);
+    navigate('/tracking')
+  }
   return (
     <div className={`absolute inset-0 z-20 flex justify-center items-center overflow-hidden transition-all duration-1000 ${track?"w-full":"w-0"} `}>
       {/* <TrackInfo/> */}
@@ -36,9 +30,9 @@ const Track = ({track, setTrack}) => {
             <label htmlFor="orderId">OrderId</label>
             </div>
         </div>
-        <form className="flex flex-col sm:flex-row space-y-2 sm:space-y-0">
-            <input type="text" name="id" className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id" />
-            <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50">Track</button>
+        <form className="flex flex-col sm:flex-row space-y-2 sm:space-y-0" onSubmit={handleTracking}>
+            <input type="text" name="id" value={id} onChange={(e)=>setId(e.target.value)} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id" />
+            <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50" type="submit">Track</button>
         </form>
       </div>
     </div>

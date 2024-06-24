@@ -8,6 +8,14 @@ const Form = () => {
         isWaybill : true
     })
 
+    useEffect(() => {
+        if (localStorage.getItem('track')){
+            setFormData({id: localStorage.getItem('track'), isWaybill: true})
+            localStorage.setItem('track','')
+            // handleSubmit(1)
+        }
+    }, [])
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
@@ -17,7 +25,9 @@ const Form = () => {
       };
     const [trackingData,setTrackingData] = useState(null)
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        try{
+            e.preventDefault();
+        } catch (e) {}
         const data = await fetch('/.netlify/functions/track', {
             method: 'POST',
             headers: {

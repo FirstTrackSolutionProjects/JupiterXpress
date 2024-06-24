@@ -1,7 +1,6 @@
 import React from 'react'
 import Header from '../Components/Header'
 
-
 const Blog = ({img, title, desc}) => {
   return (
     <>
