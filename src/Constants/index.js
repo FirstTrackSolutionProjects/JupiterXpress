@@ -285,16 +285,9 @@ export const menuItems = [
     {
         icon : "logo.webp",
         name : "Reports",
-        isDropdown : true,
-        dropDownOptions : [
-            {
-                icon : "logo.webp",
-                name : "NDR",
-                isDropdown : false,
-                menuID : [18,0],
-                dropDownOptions : [{}]
-            }
-        ]
+        isDropdown : false,
+        menuID : [20,0],
+        dropDownOptions : [{}]
     },
     // {
     //     icon : "logo.webp",
@@ -305,7 +298,7 @@ export const menuItems = [
     // },
     {
         icon : "logo.webp",
-        name : "Setting",
+        name : "Settings",
         isDropdown : true,
         dropDownOptions : [
             // {
@@ -362,6 +355,13 @@ export const menuItems = [
                 name : "General Settings",
                 isDropdown : false,
                 menuID : [20,7],
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "logo.webp",
+                name : "Change/Reset Password",
+                isDropdown : false,
+                menuID : [20,8],
                 dropDownOptions : [{}]
             },
             // {
