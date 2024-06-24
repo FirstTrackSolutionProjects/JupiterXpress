@@ -17,7 +17,6 @@ const Header = () => {
       if (!token) return false;
       try {
         const decoded = jwtDecode(token);
-        // alert(decoded.username)
         setUsername(decoded.business_name)
         return decoded.exp * 1000 > Date.now(); // Check if token is expired
       } catch (error) {
