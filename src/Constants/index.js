@@ -4,8 +4,8 @@ export const navItems = [
         url : '/'
     },
     {
-        name : 'Pricing',
-        url : '/pricing'
+        name : 'Tracking',
+        url : '/tracking'
     },
     {
         name : 'Blogs',
