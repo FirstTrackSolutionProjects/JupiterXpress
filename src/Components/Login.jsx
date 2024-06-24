@@ -122,7 +122,7 @@ const RegisterForm = ({authMode}) => {
           Welcome to the team, Partner
         </div>
         <form action="" className="w-full sm:w-auto flex px-3 flex-col space-y-3 sm:space-y-5 text-black" onSubmit={handleSubmit}>
-          {/* <input type="text" placeholder="Business Name" name="businessName" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" /> */}
+          <input type="text" placeholder="Business Name" name="businessName" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
           <input type="text" placeholder="Full Name" value={formData.name} onChange={handleChange} name="name" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
           {/* <div className="flex space-x-2">
           <select placeholder="Select State" name="state" className="py-2 px-3 rounded-xl  w-1/2 sm:w-[196px]" >
