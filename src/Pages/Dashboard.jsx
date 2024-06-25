@@ -12,9 +12,12 @@ import UpdateOrder from "../Components/UpdateOrder"
 import NDR from "../Components/NDR"
 import History from "../Components/History"
 import Profile from "../Components/Profile"
+import Recharge from "../Components/Wallet/Recharge"
+import { div } from "three/examples/jsm/nodes/Nodes.js"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
+  const [showRecharge, setShowRecharge] = useState(false)
   const navigate = useNavigate()
   const isAuthenticated = () => {
     const token = localStorage.getItem('token');
@@ -51,9 +54,10 @@ const Dashboard = () => {
             <div className="absolute inset-0 flex  pt-16">
               <div className="min-w-[250px]  md:block hidden  h-full relative bg-blue-100 overflow-y-auto overflow-x-hidden">
                 {menuItems.map((item,index) =>(
-                  <MenuItem key={index} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
+                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                 ))}
               </div>
+              {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
                 {menuID[0] == 0 && <DashboardMain/>}
                 {(menuID[0] == 1) && <CreateOrder/>}

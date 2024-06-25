@@ -10,8 +10,9 @@ const Header = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const [username, setUsername] = useState("");
+  const [showRecharge, setShowRecharge] = useState(false)
   const [isVerified, setIsVerified] = useState(false);
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(0.00);
   useEffect(() => {
     const isAuthenticated = () => {
       const token = localStorage.getItem("token");
@@ -46,6 +47,8 @@ const Header = () => {
     }
   }, []);
   return (
+    <>
+    {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
     <div className="fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
       <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-700 items-center h-16">
         <Link to="/" className="flex items-center">
@@ -62,7 +65,7 @@ const Header = () => {
         {username && (
           <div className="h-16 flex space-x-3 items-center">
             {isVerified && (<>
-              <div className=" bg-blue-500 text-white flex items-center font-medium rounded-xl px-2 py-2 cursor-pointer border-l-4 border-t-4 border-blue-800">
+              <div onClick={()=>setShowRecharge(true)} className=" bg-blue-500 text-white flex items-center font-medium rounded-xl px-2 py-2 cursor-pointer border-l-4 border-t-4 border-blue-800">
                 <p>{`₹${balance}`}</p>
               </div>
               {/* <div className="bg-white flex items-center font-medium rounded-xl px-3 py-2 ">
@@ -88,6 +91,7 @@ const Header = () => {
         )}
       </nav>
     </div>
+    </>
   );
 };
 

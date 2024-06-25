@@ -35,6 +35,13 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
+        name : "Wallet Recharge",
+        isDropdown : false,
+        menuID : [8],
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "logo.webp",
         name : "Create Shipment",
         isDropdown : false,
         menuID : [1],
