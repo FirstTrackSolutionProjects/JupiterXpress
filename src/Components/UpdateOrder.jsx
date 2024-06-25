@@ -147,7 +147,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             isManage ? "" : "hidden"
           }`}
         >
-          <div className="w-[728px] h-16 px-4  relative flex">
+          <div className="w-full h-16 px-4  relative flex">
             <div className="text-2xl font-medium">MANAGE SHIPMENT</div>
             <div
               onClick={(e) => {
@@ -687,7 +687,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             </div>
             
           </div>
-          <button type="submit">submit</button>
+          <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
         </form>
         </div>
       </>
@@ -709,11 +709,11 @@ const Card = ({ shipment }) => {
     return (
       <>
         <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} />
-        <div className="w-full h-16 bg-white relative items-center px-8 flex border-b">
+        <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>{shipment.ord_id}</div>
-          <div className="absolute right-8 flex space-x-4">
-          <div className="cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
-          <div className="cursor-pointer" onClick={()=>ship(shipment.ord_id)}>Ship</div>
+          <div className="absolute right-4 sm:right-8 flex space-x-2">
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>ship(shipment.ord_id)}>Ship</div>
           </div>
         </div>
       </>

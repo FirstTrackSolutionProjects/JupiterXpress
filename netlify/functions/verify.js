@@ -24,8 +24,9 @@ exports.handler = async (event) => {
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
+    const id = verified.id
     try{
-      const {name,
+      const {
         address,
         state,
         city,
@@ -38,13 +39,12 @@ exports.handler = async (event) => {
         bank,
         ifsc,
         account,
-        cin,
-        id} = JSON.parse(event.body);
+        cin} = JSON.parse(event.body);
 
         const connection = await mysql.createConnection(dbConfig);
 
         try {
-          await connection.execute('INSERT INTO USER_DATA (id, business_name, address, city, state, hub, pin ,aadhar, pan, gstin, cin, account_number, ifsc, bank, msme_udyam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id,name , address, city, state, hub, pin,  aadhar, pan, gst, cin, account, ifsc, bank, msme]);
+          await connection.execute('INSERT INTO USER_DATA (id, address, city, state, hub, pin ,aadhar, pan, gstin, cin, account_number, ifsc, bank, msme_udyam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, address, city, state, hub, pin,  aadhar, pan, gst, cin, account, ifsc, bank, msme]);
           return {
             statusCode: 200,
             body: JSON.stringify({ message: 'Details Submitted' }),

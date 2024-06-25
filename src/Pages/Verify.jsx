@@ -3,8 +3,7 @@ import Header from '../Components/Header'
 import Footer from '../Components/Footer';
 import { jwtDecode } from "jwt-decode"
 const TextForm = () => {
-    const [formData,setFormData] = useState({
-        name: '',
+    const InitialState = {
         address: '',
         state: '',
         city: '',
@@ -18,14 +17,8 @@ const TextForm = () => {
         ifsc: '',
         account: '',
         cin: '',
-        id: 0
-    })
-    useEffect(()=>{
-        setFormData((prevData) => ({
-            ...prevData,
-            id: jwtDecode(localStorage.getItem('token')).id
-        }))
-    },[])
+    }
+    const [formData,setFormData] = useState(InitialState)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -52,10 +45,6 @@ const TextForm = () => {
         <>
             <form onSubmit={handleSubmit} action="" className="w-[1024px] flex flex-col bg-white pt-8 px-4" >
             <div className="w-full flex mb-2 flex-wrap ">
-                <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="name">Business Name*</label>
-                    <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.name} id="name" name="name" placeholder="Ex. Aditya Kumar" />
-                </div>
             </div>
             <div className="w-full flex mb-2 flex-wrap ">
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -168,7 +157,7 @@ const TextForm = () => {
                 
                 <div className="px-2 space-x-4 mb-4">
                 <button type='submit' className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Submit</button>
-                <button onClick={(e)=>{e.preventDefault();}} className="px-5 py-1 border rounded-3xl bg-red-500 text-white">Cancel</button>
+                <button onClick={(e)=>{e.preventDefault();setFormData(InitialState)}} className="px-5 py-1 border rounded-3xl bg-red-500 text-white">Clear</button>
                 </div>
             </form>
         </>

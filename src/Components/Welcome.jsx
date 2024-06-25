@@ -1,11 +1,22 @@
 import JupiterCanvas from "./Canvas/Jupiter"
 import { Link } from "react-router-dom"
 import Login from './Login'
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
 import Track from "./Track"
+import { AuthContext } from "../context/AuthContext"
 const Welcome = () => {
+  const {login , logout} = useContext(AuthContext)
   const [authMode, setAuthMode] = useState(0)
   const [track, setTrack] = useState(0)
+  const [loggedIn, setLoggedIn] = useState(false)
+  useEffect(() => {
+    if (localStorage.getItem('token')){
+      setLoggedIn(true)
+    }
+    else{
+      setLoggedIn(false)
+    }
+  },[login, logout])
   return (
     <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center'>
       <Login authMode={authMode} setAuthMode={setAuthMode} />
@@ -19,10 +30,12 @@ const Welcome = () => {
             </div>
             <div className="lg:text-xl text-center">SEAMLESS SHIPPING • UNIVERSAL REACH</div>
             <div className="lg:text-[12px] text-[9px]">We Committed to delivery - Make easy Efficient and quality delivery.</div>
-            <div className="flex justify-evenly w-full mt-6">
-              <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-500 hover:text-blue-500 hover:bg-white" >Get Started</div>
-              <div onClick={()=>{ setAuthMode(2);}} className="py-2 px-4 border rounded-xl border-blue-500 text-blue-500 hover:text-black hover:border-none hover:bg-blue-500" >Login Now</div>
-            </div>
+            {
+              (!(loggedIn))?(<div className="flex justify-evenly w-full mt-6">
+                <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-500 hover:text-blue-500 hover:bg-white" >Get Started</div>
+                <div onClick={()=>{ setAuthMode(2);}} className="py-2 px-4 border rounded-xl border-blue-500 text-blue-500 hover:text-black hover:border-none hover:bg-blue-500" >Login Now</div>
+              </div>):null
+            }
             </div>
             
           </div>

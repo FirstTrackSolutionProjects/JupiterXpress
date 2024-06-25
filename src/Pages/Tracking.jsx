@@ -42,17 +42,17 @@ const Form = () => {
     return (
         <>
             <div className='w-full pt-16'>
-                <div className='w-full p-8 flex flex-col items-center space-y-16'>
+                <div className='w-full p-8 flex flex-col items-center space-y-16 mb-8'>
                     <div className='text-center text-3xl font-medium'>Track your Parcel</div>
                     
         <form className="flex flex-col items-center  space-y-8" onSubmit={handleSubmit}>
             <div className='flex space-x-8'>
 
-            <div className='flex'>
+            <div className='flex space-x-1'>
             <input type="radio" id='awb' name='isWaybill' checked value={true} onChange={handleChange} />
             <label htmlFor="awb">AWB</label>
             </div>
-            <div className='flex'>
+            <div className='flex space-x-1'>
             <input type="radio" id='order' name='isWaybill' value={false} onChange={handleChange} />
             <label htmlFor="order">Order Id</label>
             </div>

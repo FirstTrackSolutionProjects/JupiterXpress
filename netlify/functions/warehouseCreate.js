@@ -18,12 +18,21 @@ exports.handler = async (event, context) => {
     const response = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
         method: 'POST',
         headers: {
-        'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
+        'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485',
         'Content-Type': 'application/json',
         'Accept': 'application/json'
         },
         body: JSON.stringify({name, email, phone, address, city, state, country, pin, return_address:address, return_pin:pin, return_city:city, return_state:state, return_country:country})
     });
+    const response2 = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
+      method: 'POST',
+      headers: {
+      'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+      },
+      body: JSON.stringify({name, email, phone, address, city, state, country, pin, return_address:address, return_pin:pin, return_city:city, return_state:state, return_country:country})
+  });
     const data = await response.json();
     if (!data.success){
         return {
@@ -43,7 +52,9 @@ exports.handler = async (event, context) => {
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME,
         });
+        await connection.beginTransaction();
         await connection.execute('INSERT INTO delhiveryWarehouse VALUES (?,?,?,?,?)', [username, name, address, phone, pin]);
+        await connection.commit();
 
       } catch (error) {
         return {

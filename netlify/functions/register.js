@@ -32,7 +32,6 @@ exports.handler = async (event) => {
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [reg_email]);
     const id = rows[0].id
     const token = jwt.sign({  email : reg_email , verified : 0, name, id }, SECRET_KEY, { expiresIn: '12h' });
-    await connection.execute('INSERT INTO WALLET (id, balance ) VALUES (?, ?)', [id, 0.00]);
     return {
       statusCode: 200,
       body: JSON.stringify({ token : token ,message: 'User registered', success: true }),

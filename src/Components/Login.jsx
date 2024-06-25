@@ -78,6 +78,7 @@ const RegisterForm = ({authMode}) => {
     reg_email : '',
     reg_password : '',
     confirm_password : '',
+    pin : ''
   })
 
   const handleChange = (e) => {
@@ -88,12 +89,28 @@ const RegisterForm = ({authMode}) => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();  
     if (formData.reg_password !== formData.confirm_password) {
       alert('Both Password and Confirm Password must match');
       return;
     }
+    const response = await fetch('/.netlify/functions/serviceCheck', {
+      method: 'POST',
+      headers : {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      },
+      body : JSON.stringify({code : formData.pin})
+    })
+    const data = await response.json()
+
+    if (!(data.data.delivery_codes.length)){
+      alert('Sorry, We are not available at your location yet')
+      return;
+    }
+    
+    
     fetch('/.netlify/functions/register', {
       method: 'POST',
       headers: {
@@ -117,23 +134,18 @@ const RegisterForm = ({authMode}) => {
   };
   return (
     <>
-      <div className={` transition-all duration-500  overflow-hidden  flex flex-col items-center  ${authMode==1?"w-full h-[400px] md:h-[400px] " : ""} ${authMode==2?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""}`}>
+      <div className={` transition-all duration-500  overflow-hidden  flex flex-col items-center justify-center  ${authMode==1?"w-full h-[500px] " : ""} ${authMode==2?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""}`}>
       <div className="text-center text-xl sm:text-3xl font-medium mb-5 ">
           Welcome to the team, Partner
         </div>
         <form action="" className="w-full sm:w-auto flex px-3 flex-col space-y-3 sm:space-y-5 text-black" onSubmit={handleSubmit}>
           <input type="text" placeholder="Business Name" name="businessName" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
           <input type="text" placeholder="Full Name" value={formData.name} onChange={handleChange} name="name" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
-          {/* <div className="flex space-x-2">
-          <select placeholder="Select State" name="state" className="py-2 px-3 rounded-xl  w-1/2 sm:w-[196px]" >
-            <option value="">Select State</option>
-          </select>
-          <select placeholder="Select Hub" name="hub" className="py-2 px-3 rounded-xl  w-1/2 sm:w-[196px]" >
-            <option value="">Select Hub</option>
-          </select>
-          </div> */}
           
-          <input type="text" placeholder="Mobile" value={formData.mobile} onChange={handleChange} name="mobile" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
+          <div className="w-full space-x-4 flex justify-between">
+          <input type="text" placeholder="Mobile" value={formData.mobile} onChange={handleChange} name="mobile" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
+          <input type="text" placeholder="Postal Code" value={formData.pin} onChange={handleChange} name="pin" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
+          </div>
           <input type="email" placeholder="Your E-mail Address" value={formData.reg_email} onChange={handleChange} name="reg_email" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
           <input type="password" name="reg_password" placeholder="Password" value={formData.reg_password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
           <input type="password" name="confirm_password" value={formData.confirm_password} onChange={handleChange} placeholder="Confirm Password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>

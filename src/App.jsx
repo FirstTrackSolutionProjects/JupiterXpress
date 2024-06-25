@@ -29,6 +29,7 @@ const App = () => {
         <Route path='/pricing' element={<Price />} />
         <Route path='/verify' element={<Verify/>} />
         <Route path='/tracking' element={<Tracking/>} />
+        <Route path='*' element={<Index />} />
       </Routes>
       
       

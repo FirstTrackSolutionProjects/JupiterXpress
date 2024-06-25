@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
     const response = await fetch(`https://track.delhivery.com/api/p/update`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token 2e80e1f3f5368a861041f01bb17c694967e94138`,
+          'Authorization': `Token ee0f4261a8a842473bf0621173bbedc8cd230485`,
           'Content-Type' : 'application/json',
           'Accept' : 'application/json'
         },

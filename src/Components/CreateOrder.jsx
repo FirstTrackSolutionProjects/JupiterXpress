@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 
 const FullDetails = () => {
   const [orders, setOrders] = useState([
-    { master_sku: '' , product_name: '' , product_quantity: 0 , selling_price: 0 , discount: '' , tax_in_percentage: 0 }
+    { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
 ]);
   const [formData, setFormData] = useState({
     whName : '',
+    pickupTime : '',
+    pickupDate: '',
     order : '',
     date : '',
     payMode : '',
@@ -105,7 +107,7 @@ const FullDetails = () => {
   return (
     <>
       <div className="w-full p-4 flex flex-col items-center">
-        <div className="text-3xl font-medium text-center">Enter Shipping Details</div>
+        <div className="text-3xl font-medium text-center my-8">Enter Shipping Details</div>
         <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -123,6 +125,33 @@ const FullDetails = () => {
             
           </div>
          
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="order">Pickup Date</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="order"
+                name="order"
+                placeholder="Ex. ORDER123456"
+                value={formData.order}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="date">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="date"
+                name="date"
+                placeholder="Ex. 13/05/2024"
+                value={formData.date}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -472,11 +501,11 @@ const FullDetails = () => {
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[50px] space-y-2">
+          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="quantity">Quantity</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
+                type="text"
                 id="quantity"
                 name="product_quantity"
                 placeholder="Quantity"
@@ -520,10 +549,10 @@ const FullDetails = () => {
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
-            <button type="button" onClick={() => removeProduct(index)}>Remove</button>
+            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
         </div>
       ))}
-      <button type="button" onClick={addProduct}>Add More Product</button>
+      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
           <div className="w-full flex mb-2 flex-wrap ">
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -538,17 +567,31 @@ const FullDetails = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="cod">COD Amount</label>
-              <input
+            <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+              <div className="space-y-2">
+                <label htmlFor="cod">COD Amount</label>
+                <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
+                type="text"
                 id="cod"
                 name="cod"
                 placeholder="Ex. 1500"
                 value={formData.cod}
                 onChange={handleChange}
               />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="cod">Shipping Type</label>
+                <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="cod"
+                name="cod"
+                placeholder="Ex. 1500"
+                value={formData.cod}
+                onChange={handleChange}
+              />
+              </div>
             </div>
             
           </div>
@@ -567,7 +610,7 @@ const FullDetails = () => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="length">Length (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -579,7 +622,7 @@ const FullDetails = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="breadth">Breadth (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -591,7 +634,7 @@ const FullDetails = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="height">Height (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -633,7 +676,8 @@ const FullDetails = () => {
             </div>
             
           </div>
-          <button type="submit">submit</button>
+          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Submit</button>
+
         </form>
       </div>
     </>
