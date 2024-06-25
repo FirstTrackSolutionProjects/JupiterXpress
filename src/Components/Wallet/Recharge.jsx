@@ -18,6 +18,9 @@ const Recharge = ({setShowRecharge}) => {
     };
 
     const displayRazorpay = async () => {
+      if (parseInt(amount) < 500){
+        return;
+      }
       const response = await fetch('/.netlify/functions/createOrder', {
         method: 'POST',
         body: JSON.stringify({ amount }),
@@ -79,7 +82,7 @@ const Recharge = ({setShowRecharge}) => {
 
   return (
     <div className='absolute inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.5)]'>
-      <div className='relative mx-2 w-full sm:w-[500px] flex flex-col items-center bg-white rounded-2xl p-8 space-y-8'>
+      <form className='relative mx-2 w-full sm:w-[500px] flex flex-col items-center bg-white rounded-2xl p-8 space-y-8'>
       <div className='absolute right-6 hover:bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center hover:text-white' onClick={()=>setShowRecharge(false)}>
           X
         </div>
@@ -98,7 +101,7 @@ const Recharge = ({setShowRecharge}) => {
       <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+2000)}}>+2000</button>
       </div>
       <button onClick={displayRazorpay} className='w-40 border py-2 px-4 rounded-3xl hover:text-white hover:bg-blue-500'>Recharge Wallet</button>
-      </div>
+      </form>
     </div>
   );
 };
