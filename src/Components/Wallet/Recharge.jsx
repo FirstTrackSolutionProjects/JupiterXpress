@@ -6,7 +6,7 @@ const Recharge = ({setShowRecharge}) => {
   const [paymentId, setPaymentId] = useState(null);
   const token = localStorage.getItem('token'); 
   const decoded = jwtDecode(token);
-  const username = decoded.username
+  const id = decoded.id
     const loadRazorpayScript = () => {
       return new Promise((resolve) => {
         const script = document.createElement('script');
@@ -18,10 +18,10 @@ const Recharge = ({setShowRecharge}) => {
     };
 
     const displayRazorpay = async () => {
-      if (parseInt(amount) < 500){
-        return;
-      }
-      const response = await fetch('/.netlify/functions/createOrder', {
+      // if (parseInt(amount) < 500){
+      //   return;
+      // }
+      const response = await fetch('/.netlify/functions/deliveryOrder', {
         method: 'POST',
         body: JSON.stringify({ amount }),
       });
@@ -51,7 +51,7 @@ const Recharge = ({setShowRecharge}) => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
-              username: username,
+              uid: id,
               amount: amount,
             }),
           });
@@ -60,7 +60,7 @@ const Recharge = ({setShowRecharge}) => {
             setPaymentId(response.razorpay_payment_id);
             setOrder(response.razorpay_order_id);
           } else {
-            alert('Payment verification failed');
+            alert(verifyData.error);
           }
         },
         prefill: {
@@ -91,7 +91,7 @@ const Recharge = ({setShowRecharge}) => {
       <input
         type="number"
         value={amount}
-        min={500}
+        min={1}
         onChange={(e) => setAmount(e.target.value)}
         className='w-full border py-2 px-4 rounded-3xl'
       />

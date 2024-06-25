@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise');
+const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const dbConfig = {
@@ -8,8 +10,22 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
+let transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', 
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'azureaditya5155@gmail.com',
+    pass: 'rjbgdxyvfimoahpn',
+  },
+});
+const SECRET_KEY = process.env.JWT_SECRET;
+
 exports.handler = async (event) => {
   try {
+    const token = event.headers.authorization;
+    const verified = jwt.verify(token, SECRET_KEY);
+    const id = verified.id;
     const {order} = JSON.parse(event.body);
     const connection = await mysql.createConnection(dbConfig);
 
@@ -97,6 +113,14 @@ exports.handler = async (event) => {
       },
       body : formData
     }).then((response) => response.json())
+    const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
+    let mailOptions = {
+      from: 'azureaditya5155@gmail.com', 
+      to: users[0].email, 
+      subject: 'Shipment created successfully', 
+      text: `Dear Merchant, \nYour shipment request for Order id : ${shipment.ord_id} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+    };
+    await transporter.sendMail(mailOptions);
     return {
       statusCode: 200,
       body: JSON.stringify({response, shipment, schedule, label}),

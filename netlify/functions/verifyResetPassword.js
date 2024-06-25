@@ -14,7 +14,7 @@ exports.handler = async (event) => {
 
 
     try{
-      const {email, otp, password} = JSON.parse(event.body);
+      const {email, otp, newPassword} = JSON.parse(event.body);
       const connection = await mysql.createConnection(dbConfig);
 
         try {
@@ -26,7 +26,7 @@ exports.handler = async (event) => {
             const inOtp = users[0].secret;
             if (inOtp == otp){
               await connection.beginTransaction();
-              await connection.execute('UPDATE USERS SET password = ? WHERE email = ?',[await bcrypt.hash(password, 10), email])
+              await connection.execute('UPDATE USERS SET password = ? WHERE email = ?',[await bcrypt.hash(newPassword, 10), email])
               await connection.execute('UPDATE USERS SET secret = ? WHERE email = ?',[null, email])
               await connection.commit();
             }

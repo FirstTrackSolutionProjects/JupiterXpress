@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 // Database connection
@@ -13,7 +14,15 @@ const dbConfig = {
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
-
+let transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', 
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'azureaditya5155@gmail.com',
+    pass: 'rjbgdxyvfimoahpn',
+  },
+});
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
@@ -29,6 +38,13 @@ exports.handler = async (event) => {
 
   try {
     await connection.execute('INSERT INTO USERS (email, password, name, mobile ) VALUES (?, ?, ?, ?)', [reg_email, hashedPassword, name, mobile]);
+    let mailOptions = {
+      from: 'azureaditya5155@gmail.com', 
+      to: reg_email, 
+      subject: 'Registration Successfull', 
+      text: `Dear ${name}, \nYour registration on Jupiter Xpress is successfull. Please verify your details to experience robust features of Jupiter Xpress. \n\n Regards, \nJupiter Xpress`
+    };
+    await transporter.sendMail(mailOptions)
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [reg_email]);
     const id = rows[0].id
     const token = jwt.sign({  email : reg_email , verified : 0, name, id }, SECRET_KEY, { expiresIn: '12h' });
@@ -39,7 +55,7 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: error}),
+      body: JSON.stringify({ message: error.message}),
     };
   } finally {
     await connection.end();

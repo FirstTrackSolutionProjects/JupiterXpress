@@ -702,6 +702,7 @@ const Card = ({ shipment }) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': localStorage.getItem('token'),
         },
         body: JSON.stringify({order})
       }).then(response => response.json()).then(result => alert(result.response.rmk));

@@ -13,7 +13,7 @@ import NDR from "../Components/NDR"
 import History from "../Components/History"
 import Profile from "../Components/Profile"
 import Recharge from "../Components/Wallet/Recharge"
-import { div } from "three/examples/jsm/nodes/Nodes.js"
+import ChangePassword from "../Components/ChangePassword"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -71,7 +71,7 @@ const Dashboard = () => {
                 {(menuID[0] == 4) && <History/>}
                 {(menuID[0] == 5) && <NDR/>}
                 {(menuID[0] == 6 && menuID[1] == 0) && <Profile/>}
-                {(menuID[0] == 6 && menuID[1] == 1) && null}
+                {(menuID[0] == 6 && menuID[1] == 1) && <ChangePassword/>}
                 {(menuID[0] == 7) && (loggingOut())}
                            
               </div>

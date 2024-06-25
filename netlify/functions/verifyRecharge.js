@@ -1,8 +1,19 @@
 const Razorpay = require('razorpay');
 const mysql = require('mysql2/promise');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+let transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', 
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'azureaditya5155@gmail.com',
+    pass: 'rjbgdxyvfimoahpn',
+  },
+});
 exports.handler = async (event, context) => {
-  const { razorpay_payment_id, razorpay_order_id, razorpay_signature, username, amount } = JSON.parse(event.body);
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature, uid, amount } = JSON.parse(event.body);
 
   const razorpay = new Razorpay({
     key_id: "rzp_live_bUjlhO5HTl10ug",
@@ -18,6 +29,11 @@ exports.handler = async (event, context) => {
         return {
           statusCode: 400,
           body: JSON.stringify({ error: 'Invalid payment signature' }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+            
+          },
         };
       }
 
@@ -31,11 +47,11 @@ exports.handler = async (event, context) => {
 
   try {
     // Update user's wallet balance in database
-    await connection.execute('UPDATE users SET balance = balance + ? WHERE username = ?', [amount, username]);
+    await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE id = ?', [amount, uid]);
 
     // Insert transaction record
     const transactionDetails = {
-      username,
+      uid,
       razorpay_payment_id,
       razorpay_order_id,
       amount,
@@ -43,18 +59,34 @@ exports.handler = async (event, context) => {
     };
     
     await connection.execute(
-      'INSERT INTO transactions (username, payment_id, order_id, amount, date) VALUES (?, ?, ?, ?, ?)',
-      [transactionDetails.username, transactionDetails.razorpay_payment_id, transactionDetails.razorpay_order_id, transactionDetails.amount, transactionDetails.date]
+      'INSERT INTO TRANSACTIONS (id, payment_id, order_id, amount, date) VALUES (?, ?, ?, ?, ?)',
+      [transactionDetails.uid, transactionDetails.razorpay_payment_id, transactionDetails.razorpay_order_id, transactionDetails.amount, transactionDetails.date]
     );
-
+    let mailOptions = {
+      from: 'azureaditya5155@gmail.com', 
+      to: 'adityakr5155@gmail.com', 
+      subject: 'Wallet Recharge Successfull', 
+      text: `Dear Merchant, \nYour wallet recharge for amount ₹${amount} has been verified and credited to your wallet.\nRegards,\nJupiter Xpress`
+    };
+  await transporter.sendMail(mailOptions);
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true }),
+      body: JSON.stringify({ success: true, message : "Recharge Successfull" }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+        
+      },
     };
   } catch (error) {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+        
+      },
     };
   } finally {
     connection.end();

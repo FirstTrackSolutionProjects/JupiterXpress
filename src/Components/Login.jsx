@@ -1,9 +1,11 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
+import ResetPassword from "./ResetPassword";
 const LoginForm = ({authMode}) => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate()
+  const [reset,setReset] = useState(false);
   const [formData, setFormData] = useState({
 
     email : '',
@@ -55,14 +57,18 @@ const LoginForm = ({authMode}) => {
   };
   return (
     <>
+      {reset && <ResetPassword setReset={setReset}/>}
       <div className={` transition-all duration-500  overflow-hidden flex items-center flex-col  ${authMode==2?"w-full h-56" : ""} ${authMode==1?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""} `}>
         <div className="text-center text-3xl font-medium ">
           Welcome back, Partner
         </div>
-        <form action="" onSubmit={handleLogin} className="w-full sm:w-auto flex px-3 flex-col mt-3 space-y-3 sm:space-y-5 text-black">
+        <form action="" onSubmit={handleLogin} className="w-full sm:w-auto flex px-3 flex-col mt-3 space-y-3 sm:space-y-3 text-black">
           <input type="email" placeholder="E-mail" value={formData.email} onChange={handleChange} name="email" className="py-2 px-3 rounded-xl w-full sm:w-[400px]" />
           <input type="password" placeholder="Password"name="password" value={formData.password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
+          <div>
+          <p className="text-white" onClick={()=>setReset(!reset)}>Reset Your Password</p>
           <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white text-white hover:bg-[rgba(135,206,235,0.3)]">Login</button>
+          </div>
         </form>
         </div>
         </>

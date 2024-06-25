@@ -119,6 +119,14 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
+        name : "Manual Recharge",
+        isDropdown : false,
+        admin : true,
+        menuID : [12],
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "logo.webp",
         name : "Settings",
         isDropdown : true,
         dropDownOptions : [
@@ -131,7 +139,7 @@ export const menuItems = [
             },
             {
                 icon : "logo.webp",
-                name : "Change/Reset Password",
+                name : "Change Password",
                 isDropdown : false,
                 menuID : [6,1],
                 dropDownOptions : [{}]
