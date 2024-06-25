@@ -28,8 +28,9 @@ exports.handler = async (event) => {
 
   try {
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [email]);
-    const [rows2] = await connection.execute('SELECT * FROM USER_DATA WHERE id = ?', [3]);
+    
     if (rows.length > 0 && await bcrypt.compare(password, rows[0].password)) {
+      const [rows2] = await connection.execute('SELECT * FROM USER_DATA WHERE id = ?', [rows[0].id]);
       const id = rows[0].id;
       const name = rows[0].name;
       const verified = rows[0].verified;
