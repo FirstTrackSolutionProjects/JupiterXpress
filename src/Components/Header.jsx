@@ -65,7 +65,8 @@ const Header = () => {
         {username && (
           <div className="h-16 flex space-x-3 items-center">
             {isVerified && (<>
-              <div onClick={()=>setShowRecharge(true)} className=" bg-blue-500 text-white flex items-center font-medium rounded-xl px-2 py-2 cursor-pointer border-l-4 border-t-4 border-blue-800">
+              <div onClick={()=>setShowRecharge(true)} className={`relative bg-blue-600 ${balance < 250 ? "text-red-400" : "text-green-400"} flex items-center font-medium rounded-tl-xl rounded-br-xl px-3 min-w-14 py-2 cursor-pointer border-l-4 border-t-4 border-blue-900`}>
+              {balance < 250 && <p className="absolute -mt-5 top-0 right-[2px] text-red-400 text-3xl">!</p>}
                 <p>{`₹${balance}`}</p>
               </div>
               {/* <div className="bg-white flex items-center font-medium rounded-xl px-3 py-2 ">
