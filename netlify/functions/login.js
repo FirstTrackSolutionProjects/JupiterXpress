@@ -34,8 +34,9 @@ exports.handler = async (event) => {
       const id = rows[0].id;
       const name = rows[0].name;
       const verified = rows[0].verified;
+      const admin = rows[0].is_admin;
       const business_name = rows2[0].business_name;
-      const token = jwt.sign({  email, verified, name, id, business_name }, SECRET_KEY, { expiresIn: '12h' });
+      const token = jwt.sign({  email, verified, name, id, business_name, admin }, SECRET_KEY, { expiresIn: '12h' });
       return {
         statusCode: 200,
         body: JSON.stringify({ token : token, success:true, verified: verified }),

@@ -77,6 +77,48 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
+        name : "Merchant Manage",
+        isDropdown : true,
+        admin : true,
+        menuID : [9],
+        dropDownOptions : [{
+            icon : "logo.webp",
+            name : "Verify",
+            isDropdown : false,
+            menuID : [9,0],
+            dropDownOptions : [{}]
+        }]
+    },
+    {
+        icon : "logo.webp",
+        name : "Users",
+        admin : true,
+        isDropdown : true,
+        menuID : [10],
+        dropDownOptions : [{
+            icon : "logo.webp",
+            name : "Accounts",
+            isDropdown : false,
+            menuID : [10,0],
+            dropDownOptions : [{}]
+        },{
+            icon : "logo.webp",
+            name : "Admin",
+            isDropdown : false,
+            menuID : [10,1],
+            dropDownOptions : [{}]
+        },]
+    },
+    {
+        icon : "logo.webp",
+        name : "Submission",
+        isDropdown : false,
+        admin : true,
+        menuID : [11],
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "logo.webp",
         name : "Settings",
         isDropdown : true,
         dropDownOptions : [

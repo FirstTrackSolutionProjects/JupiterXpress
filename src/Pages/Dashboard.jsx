@@ -17,6 +17,7 @@ import { div } from "three/examples/jsm/nodes/Nodes.js"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
+  const [isAdmin, setIsAdmin] = useState(false)
   const [showRecharge, setShowRecharge] = useState(false)
   const navigate = useNavigate()
   const isAuthenticated = () => {
@@ -24,6 +25,7 @@ const Dashboard = () => {
     if (!token) return false;
     try {
       const decoded = jwtDecode(token);
+      setIsAdmin(decoded.admin)
       if (decoded.exp * 1000 < Date.now()){
         logout();
         return false;
@@ -53,9 +55,12 @@ const Dashboard = () => {
             <Header/>
             <div className="absolute inset-0 flex  pt-16">
               <div className="min-w-[250px]  md:block hidden  h-full relative bg-blue-100 overflow-y-auto overflow-x-hidden">
-                {menuItems.map((item,index) =>(
+                {menuItems.map((item,index) =>{
+                  if (item.admin && !isAdmin)
+                    return;
+                  return (
                   <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
-                ))}
+                  )})}
               </div>
               {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
