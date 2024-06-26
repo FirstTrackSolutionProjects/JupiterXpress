@@ -26,9 +26,9 @@ const Blogs = () => {
       <p className=' text-white text-2xl font-medium text-center'>YOUR SATISFACTION, OUR STORY</p>
       </div>
       <div className='w-full relative z-20  max-w-[1024px] p-4 mt-12 sm:mt-16 rounded-xl flex flex-wrap justify-evenly'>
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113104.jpeg'} title={'Revolutionizing Courier Services: Meet Jupiter Xpress'} desc={`In a world where speed and reliability are paramount, Jupiter Xpress is setting new standards in the courier industry. `} />
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113304.png'} title={'Beyond Delivery: The Jupiter Xpress Advantage'} desc={'In today’s fast-paced world, the need for reliable and efficient courier services has never been greater. '} />
-        <Blog img={'https://jupiterxpress.online/public/uploads/blogs/20240523113637.jpg'} title={'Delivering Excellence: Why Jupiter Xpress is Your Ultimate Courier Solution'} desc={'In the ever-evolving world of courier services, Jupiter Xpress stands out as a beacon of innovation, reliability, and customer-centricity. '} />
+        <Blog img={'blogs/1.webp'} title={'Revolutionizing Courier Services: Meet Jupiter Xpress'} desc={`In a world where speed and reliability are paramount, Jupiter Xpress is setting new standards in the courier industry. `} />
+        <Blog img={'blogs/2.webp'} title={'Beyond Delivery: The Jupiter Xpress Advantage'} desc={'In today’s fast-paced world, the need for reliable and efficient courier services has never been greater. '} />
+        <Blog img={'blogs/3.webp'} title={'Delivering Excellence: Why Jupiter Xpress is Your Ultimate Courier Solution'} desc={'In the ever-evolving world of courier services, Jupiter Xpress stands out as a beacon of innovation, reliability, and customer-centricity. '} />
       </div>
     </div>
     </>
