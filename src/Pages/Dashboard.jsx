@@ -14,6 +14,9 @@ import History from "../Components/History"
 import Profile from "../Components/Profile"
 import Recharge from "../Components/Wallet/Recharge"
 import ChangePassword from "../Components/ChangePassword"
+import MerchantManage from "../Components/MerchantManage"
+import ManualRecharge from "../Components/ManualRecharge"
+import VerificationRequests from "../Components/VerificationRequests"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -72,7 +75,11 @@ const Dashboard = () => {
                 {(menuID[0] == 5) && <NDR/>}
                 {(menuID[0] == 6 && menuID[1] == 0) && <Profile/>}
                 {(menuID[0] == 6 && menuID[1] == 1) && <ChangePassword/>}
+                {(menuID[0] == 9 && menuID[1] == 0) && <MerchantManage/>}
+                {(menuID[0] == 11 && menuID[1] == 0) && <VerificationRequests/>}
+                {(menuID[0] == 12) && <ManualRecharge/>}
                 {(menuID[0] == 7) && (loggingOut())}
+
                            
               </div>
             </div>

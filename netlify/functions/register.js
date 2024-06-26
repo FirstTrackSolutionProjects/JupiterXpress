@@ -45,7 +45,7 @@ exports.handler = async (event) => {
       text: `Dear ${name}, \nYour registration on Jupiter Xpress is successfull. Please verify your details to experience robust features of Jupiter Xpress. \n\n Regards, \nJupiter Xpress`
     };
     await transporter.sendMail(mailOptions)
-    const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [reg_email]);
+    const [rows] = await connection.execute('SELECT * FROM USERS  WHERE email = ?', [reg_email]);
     const id = rows[0].id
     const token = jwt.sign({  email : reg_email , verified : 0, name, id }, SECRET_KEY, { expiresIn: '12h' });
     return {

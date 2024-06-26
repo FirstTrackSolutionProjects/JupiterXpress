@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-
+import { jwtDecode } from 'jwt-decode'
 const Profile = () => {
+  const admin = jwtDecode(localStorage.getItem('token')).admin;
   const INITIAL_STATE = {
     name : '',
     business_name : '',
@@ -33,9 +34,9 @@ const Profile = () => {
     })
   }, [])
   return (
-    <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      <div className='w-[90%] bg-white p-8 flex flex-col items-center'>
-      <div className='text-center text-3xl font-medium text-black mb-8'>Merchant Profile</div>
+    <div className=" w-full h-full flex flex-col items-center overflow-x-hidden">
+      <div className='w-full h-full bg-white p-8 flex flex-col items-center'>
+      <div className='text-center text-3xl font-medium text-black mb-8'>{admin?"Admin":"Merchant"} Profile</div>
       <div className='sm:px-8 sm:border text-black text-xl flex flex-col space-y-2 items-center'>
         <div className='h-48 flex items-center space-x-4'>
           <div className='h-16 w-16'>
