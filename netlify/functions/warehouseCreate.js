@@ -18,7 +18,7 @@ exports.handler = async (event, context) => {
     const response = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
         method: 'POST',
         headers: {
-        'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485',
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
         },
@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
     const response2 = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
       method: 'POST',
       headers: {
-      'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485',
+      'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
       },

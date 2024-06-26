@@ -16,7 +16,7 @@ let transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: 'azureaditya5155@gmail.com',
-    pass: 'rjbgdxyvfimoahpn',
+    pass: process.env.EMAIL_PASS,
   },
 });
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -89,7 +89,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485'
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
       },
       body : formData
     }).then((response) => response.json())
@@ -99,7 +99,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485'
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
       },
       body : JSON.stringify({pickup_location: "warehouse", pickup_time : '', pickup_date : '', expected_package_count	: 1})
     }).then((response) => response.json()).catch((err)=>err)
@@ -109,7 +109,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': 'Token ee0f4261a8a842473bf0621173bbedc8cd230485'
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
       },
       body : formData
     }).then((response) => response.json())

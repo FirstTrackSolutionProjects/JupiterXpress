@@ -34,17 +34,26 @@ const Profile = () => {
   }, [])
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      <div className='w-full p-8 flex flex-col items-center'>
+      <div className='w-[90%] bg-white p-8 flex flex-col items-center'>
       <div className='text-center text-3xl font-medium text-black mb-8'>Merchant Profile</div>
-      <div className='w-full text-black font-medium text-xl flex flex-col items-center space-y-2'>
-        <div>Name : {profileData.name}</div>
-        <div> Business Name : {profileData.business_name}</div>
-        <div>Email : {profileData.email}</div>
-        <div>Phone : {profileData.phone}</div>
-        <div>Address : {profileData.address}</div>
-        <div>MSME : {profileData.msme}</div>
-        <div>CIN : {profileData.cin}</div>
-        <div>GSTIN : {profileData.gstin}</div>
+      <div className='w-full  text-black text-xl flex flex-col space-y-2'>
+        <div className='h-48 w-full flex items-center space-x-4'>
+          <div className='h-16 w-16'>
+            <img src="user.webp" alt="" className='object-contain' />
+          </div>
+          <div className='flex-1 font-medium'>
+            <div>{profileData.business_name}</div>
+            <div className='text-gray-600 text-sm'>({profileData.name})</div>
+          </div>
+          <div className='flex-1'>
+            <div>E-mail : {}</div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+        
       </div>
       </div>
     </div>

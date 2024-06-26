@@ -6,7 +6,7 @@ exports.handler = async (event) => {
 
     const response = await axios.get(`https://track.delhivery.com/api/v1/packages/json/?waybill=${id}`, {
       headers: {
-        'Authorization': `Token ee0f4261a8a842473bf0621173bbedc8cd230485`,
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
       },
     });
 

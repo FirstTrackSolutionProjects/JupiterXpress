@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
   try {
     const response = await axios.get(`https://track.delhivery.com/c/api/pin-codes/json/?filter_codes=${code}`, {
         headers: {
-          'Authorization': `Token ee0f4261a8a842473bf0621173bbedc8cd230485`,
+          'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
         },
       });
   
