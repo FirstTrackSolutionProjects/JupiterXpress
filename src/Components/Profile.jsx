@@ -36,24 +36,27 @@ const Profile = () => {
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-[90%] bg-white p-8 flex flex-col items-center'>
       <div className='text-center text-3xl font-medium text-black mb-8'>Merchant Profile</div>
-      <div className='w-full  text-black text-xl flex flex-col space-y-2'>
-        <div className='h-48 w-full flex items-center space-x-4'>
+      <div className='sm:px-8 sm:border text-black text-xl flex flex-col space-y-2 items-center'>
+        <div className='h-48 flex items-center space-x-4'>
           <div className='h-16 w-16'>
             <img src="user.webp" alt="" className='object-contain' />
           </div>
-          <div className='flex-1 font-medium'>
+          <div className='flex-1 sm:text-xl font-medium'>
             <div>{profileData.business_name}</div>
             <div className='text-gray-600 text-sm'>({profileData.name})</div>
           </div>
-          <div className='flex-1'>
-            <div>E-mail : {}</div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
         </div>
-        
+        <div className=' text-sm sm:text-xl space-y-1'>
+        <div><span className='font-medium'> E-mail </span> : {profileData.email}</div>
+        <div><span className='font-medium'> Phone </span> : {profileData.phone}</div>
+        <div><span className='font-medium'> Address </span> : {profileData.address}</div>
+        <div><span className='font-medium'> MSME/UDYOG </span> : {profileData.msme}</div>
+        <div><span className='font-medium'> CIN </span> : {profileData.cin}</div>
+        <div><span className='font-medium'> GSTIN </span> : {profileData.gstin}</div>
+        </div>
+        <div className=' py-6'>
+        <button className="px-5 py-1 border rounded-3xl bg-blue-500 text-white text-sm sm:text-xl">Edit Details</button>
+        </div>
       </div>
       </div>
     </div>
