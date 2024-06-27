@@ -93,7 +93,7 @@ const VerificationRequests =  () => {
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-full p-8 flex flex-col items-center space-y-8'>
-      <div className='text-center text-3xl font-medium text-black'>Manage Verification Requests</div>
+      <div className='text-center text-3xl font-medium text-black'>Merchant Verification Requests</div>
       <div className='w-full bg-white p-8'>
         {
             requests.map(((request,index)=>(
