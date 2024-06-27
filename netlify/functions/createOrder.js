@@ -110,8 +110,9 @@ exports.handler = async (event) => {
   weight,
   status,
   gst,
-  customer_gst
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`, [id,order , date, payMode, name, email, phone,  address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry , Bstate, Bcity, Bpostcode ,  cod, discount, length,breadth, height, weight, "standby", gst, Cgst ]);
+  customer_gst,
+  wName
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`, [id,order , date, payMode, name, email, phone,  address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry , Bstate, Bcity, Bpostcode ,  cod, discount, length,breadth, height, weight, "standby", gst, Cgst, whName ]);
             for (let i = 0; i < orders.length; i++){
                 await connection.execute(`INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?)`,[order, orders[i].master_sku, orders[i].product_name, orders[i].product_quantity, orders[i].tax_in_percentage, orders[i].selling_price, orders[i].discount])
             }

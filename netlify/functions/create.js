@@ -28,23 +28,22 @@ exports.handler = async (event) => {
     const id = verified.id;
     const {order} = JSON.parse(event.body);
     const connection = await mysql.createConnection(dbConfig);
-
+    const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
+    const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
-    // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
+    const [warehouses] = await connection.execute('SELECT * FROM delhiveryWarehouse WHERE username = ? AND name = ?', [email, shipment.wName]);
+    const warehouse = warehouses[0]
+    // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
+   
     
-
-
-    let req =
-         {
+    let req = {
         shipments: [],
         pickup_location: {
-          name: "Hello",
-          add: "ABC123",
-          city: "Delhi",
-          pin_code: 813210,
-          country: "India",
-          phone: "1234567890"
+          name: shipment.wName,
+          add: warehouse.address,
+          pin_code: warehouse.pincode,
+          phone: warehouse.phone
         }
       }
       req.shipments.push({
@@ -83,6 +82,7 @@ exports.handler = async (event) => {
       const formData = new URLSearchParams();
       formData.append('format', 'json');
       formData.append('data', JSON.stringify(req));
+    
 
     const response = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
       method: 'POST',
@@ -104,19 +104,18 @@ exports.handler = async (event) => {
       body : JSON.stringify({pickup_location: "warehouse", pickup_time : '', pickup_date : '', expected_package_count	: 1})
     }).then((response) => response.json()).catch((err)=>err)
 
-    const label = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
-      method: 'POST',
+    const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
       },
-      body : formData
     }).then((response) => response.json())
-    const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
+  
     let mailOptions = {
       from: 'azureaditya5155@gmail.com', 
-      to: users[0].email, 
+      to: email, 
       subject: 'Shipment created successfully', 
       text: `Dear Merchant, \nYour shipment request for Order id : ${shipment.ord_id} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
     };
@@ -126,7 +125,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({response, shipment, schedule, label}),
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+        'Access-Control-Allow-Origin': '*',
         
       },
     };
@@ -136,7 +135,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: error.message + 'hello' }),
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+        'Access-Control-Allow-Origin': '*', 
         
       },
     };

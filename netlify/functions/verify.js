@@ -68,8 +68,8 @@ exports.handler = async (event) => {
           };
           let mailOptions2 = {
             from: 'azureaditya5155@gmail.com', 
-            to: 'adityakr5155@gmail.com', 
-            subject: 'Verification Request Submitted Successfully', 
+            to: 'xpressjupiter@gmail.com',  
+            subject: 'Merchant Verification Request Received', 
             text: `Dear Owner, \n${name} has submitted a request for verification of account on Jupiter Xpress.`
           };
         await transporter.sendMail(mailOptions);

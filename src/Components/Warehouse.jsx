@@ -323,7 +323,8 @@ const Listing = ({ mode, setMode }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json",
+          "Authorization": localStorage.getItem("token"),
         },
         body: JSON.stringify({ username: localStorage.getItem("username") }),
       })

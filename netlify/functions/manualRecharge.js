@@ -10,6 +10,16 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
+let transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', 
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'azureaditya5155@gmail.com',
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 // Secret key for JWT
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -38,6 +48,13 @@ exports.handler = async (event) => {
             const [users] = await connection.execute('SELECT * FROM USERS WHERE email = ?',[email]);
             const id = users[0].id;
             await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE id = ?', [amount, id]);
+            let mailOptions = {
+              from: 'azureaditya5155@gmail.com', 
+              to: email, 
+              subject: 'Manual Recharge Received', 
+              text: `Dear Merchant, \nYour wallet got manually ${amount>=0?"credited":"debited"} by ₹${amount}.\nRegards,\nJupiter Xpress`
+            };
+            await transporter.sendMail(mailOptions);
           return {
             statusCode: 200,
             body: JSON.stringify({ success:true, message: "Recharge successfull"})

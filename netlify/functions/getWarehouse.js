@@ -1,6 +1,9 @@
 // netlify/functions/authenticate.js
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -15,7 +18,9 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const { username } = JSON.parse(event.body);
+  const token = event.headers.authorization;
+  const verified = jwt.verify(token, SECRET_KEY);
+  const username = verified.email
   if (!username) {
     return {
       statusCode: 400,

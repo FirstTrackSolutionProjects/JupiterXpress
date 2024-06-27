@@ -117,7 +117,7 @@ export const menuItems = [
         // menuID : [11],
         dropDownOptions : [{
             icon : "logo.webp",
-            name : "Verification Request",
+            name : "Merchant Verification",
             isDropdown : false,
             admin : true,
             menuID : [11,0],
