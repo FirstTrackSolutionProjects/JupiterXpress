@@ -37,7 +37,7 @@ exports.handler = async (event) => {
         } catch (error) {
           return {
             statusCode: 500,
-            body: JSON.stringify({ message: error.message,error: error.message }),
+            body: JSON.stringify({ message: "Something Went Wrong",error: error.message }),
           };
         } finally {
           await connection.end();

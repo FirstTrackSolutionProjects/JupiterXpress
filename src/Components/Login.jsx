@@ -58,7 +58,7 @@ const LoginForm = ({authMode}) => {
   return (
     <>
       {reset && <ResetPassword setReset={setReset}/>}
-      <div className={` transition-all duration-500  overflow-hidden flex items-center flex-col  ${authMode==2?"w-full h-56" : ""} ${authMode==1?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""} `}>
+      <div className={` transition-all duration-500  overflow-hidden  flex items-center flex-col  ${authMode==2?"w-full h-56" : ""} ${authMode==1?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""} `}>
         <div className="text-center text-3xl font-medium ">
           Welcome back, Partner
         </div>
@@ -165,12 +165,10 @@ const RegisterForm = ({authMode}) => {
 
 const Login = ({authMode, setAuthMode}) => {
   return (
-    <div className={`absolute  flex sm:py-3 z-20 ${authMode?"w-full delay-0":"w-0 delay-500"} justify-center  items-center transition-all duration-1000`}>
-      <div className={` shadow-cabCard shadow-[hsl(197,71%,73%)] relative space-y-5 pt-1 pb-5 flex flex-col items-center transition-all duration-500 w-[400px] sm:w-[600px] md:w-[760px]  overflow-hidden  lg:w-[700px] rounded-xl bg-[rgba(135,206,235,0.3)]  ${authMode?"":"w-0"} `}>
-        <div onClick={()=>setAuthMode(0)} className="absolute top-6 right-6 text-3xl cursor-pointer">
-          X
-        </div>
-        <img src="logo.webp" alt="" className="w-32 sm:w-auto" />
+    <div className={`absolute  flex  z-20 ${authMode?"w-full delay-0":"w-0 delay-500"} justify-center  items-center transition-all duration-1000`}>
+      <div className={` shadow-cabCard shadow-[hsl(197,71%,73%)] relative pt-5 pb-5 flex flex-col items-center transition-all duration-500 w-[400px] sm:w-[600px] md:w-[760px]  overflow-hidden  lg:w-[700px] rounded-xl bg-[rgba(135,206,235,0.3)]  ${authMode?"":"w-0"} `}>
+      <p className='absolute top-4 right-6 z-50 cursor-pointer text-white' onClick={()=>setAuthMode(0)}>X</p>
+        <img src="logo.webp" alt="" className="w-auto" />
           <RegisterForm authMode={authMode}/>
          <LoginForm authMode={authMode} />
         

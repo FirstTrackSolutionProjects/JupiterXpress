@@ -39,7 +39,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({ success:true, data : {basic : rows[0], detailed : rows2[0]} }),
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)`
           
         },
       };

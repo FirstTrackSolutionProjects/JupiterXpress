@@ -7,10 +7,19 @@ const Profile = () => {
     business_name : '',
     email : '',
     phone : '',
-    address : '',
     msme : '',
     cin : '',
-    gstin : ''
+    gstin : '',
+    aadhar : '',
+    pan : '',
+    address : '',
+    hub : '',
+    city : '',
+    state : '',
+    pin : '',
+    bank : '',
+    account_number : '',
+    ifsc : ''
   }
   const [profileData,  setProfileData] = useState(INITIAL_STATE)
   useEffect(()=>{
@@ -26,10 +35,19 @@ const Profile = () => {
         business_name : data.detailed.business_name,
         email : data.basic.email,
         phone : data.basic.mobile,
-        address : data.detailed.address,
         msme : data.detailed.msme_udyam,
         cin : data.detailed.cin,
-        gstin : data.detailed.gstin
+        gstin : data.detailed.gstin,
+        aadhar : data.detailed.aadhar,
+        pan : data.detailed.pan,
+        address : data.detailed.address,
+        hub : data.detailed.hub,
+        city : data.detailed.city,
+        state : data.detailed.state,
+        pin : data.detailed.pin,
+        bank : data.detailed.bank,
+        account_number : data.detailed.account_number,
+        ifsc : data.detailed.ifsc
       })
     })
   }, [])
@@ -37,7 +55,7 @@ const Profile = () => {
     <div className=" w-full h-full flex flex-col items-center overflow-x-hidden">
       <div className='w-full h-full bg-white p-8 flex flex-col items-center'>
       <div className='text-center text-3xl font-medium text-black mb-8'>{admin?"Admin":"Merchant"} Profile</div>
-      <div className='sm:px-8 sm:border text-black text-xl flex flex-col space-y-2 items-center'>
+      {/* <div className='sm:px-8 sm:border text-black text-xl flex flex-col space-y-2 items-center'>
         <div className='h-48 flex items-center space-x-4'>
           <div className='h-16 w-16'>
             <img src="user.webp" alt="" className='object-contain' />
@@ -58,7 +76,37 @@ const Profile = () => {
         <div className=' py-6'>
         <button className="px-5 py-1 border rounded-3xl bg-blue-500 text-white text-sm sm:text-xl">Edit Details</button>
         </div>
-      </div>
+      </div> */}
+      <div className=' border-2  relative p-6 max-w-[400px] bg-white rounded-2xl overflow-hidden space-y-8'>
+                    <div className='w-full space-y-6'>
+                        <div className='w-full flex items-center justify-center space-x-8'>
+                            <div className='flex justify-center items-center w-32 h-32'>
+                                <img src='user.webp'/>
+                            </div>
+                            <div className=''>
+                                <p className='font-medium text-xl'>{profileData.business_name}</p>
+                                <p className='font-medium text-sm text-gray-600'>({profileData.name})</p>
+                                <p className='font-medium text-sm text-gray-600'>{profileData.email}</p>
+                                <p className='font-medium text-sm text-gray-600'>{profileData.phone}</p>
+                                <p className='font-medium text-sm text-green-400'>Balance(Coming Soon)</p>
+                            </div>
+                        </div>
+                        <div className='w-full font-medium text-gray-700'>
+                            {profileData.gstin && <p>GSTIN : {profileData.gstin}</p>}
+                            {profileData.cin && <p>CIN : {profileData.cin}</p>}
+                            {profileData.aadhar && <p>Aadhar Number : {profileData.aadhar}</p>}
+                            {profileData.pan && <p>PAN Number : {profileData.pan}</p>}
+                            {profileData.address && <p>Address : {profileData.address}</p>}
+                            {profileData.hub && <p>Hub : {profileData.hub}</p>}
+                            {profileData.city && <p>City : {profileData.city}</p>}
+                            {profileData.state && <p>State : {profileData.state}</p>}
+                            {profileData.pin && <p>Pincode : {profileData.pin}</p>}
+                            {profileData.bank && <p>Bank Name : {profileData.bank}</p>}
+                            {profileData.account_number && <p>A/C No. : {profileData.account_number}</p>}
+                            {profileData.ifsc && <p>IFSC : {profileData.ifsc}</p>}
+                        </div>
+                    </div>
+                </div>
       </div>
     </div>
   )
