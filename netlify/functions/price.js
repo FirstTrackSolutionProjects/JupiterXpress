@@ -5,7 +5,7 @@
 exports.handler = async (event, context) => {
     const {method, status, origin, dest, weight, payMode, codAmount, length, breadth, height} = JSON.parse(event.body)
   try {
-    const netWeight = (Math.max((length*breadth*height)/5000 , weight)).toString()
+    const netWeight = (Math.max((parseFloat(length)*parseFloat(breadth)*parseFloat(height))/5 , weight)).toString()
     let responses = []
     
     const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${netWeight}&pt=${payMode}&cod=${codAmount}`, {
