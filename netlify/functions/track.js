@@ -1,31 +1,46 @@
-const axios = require('axios');
-const mysql = require('mysql2/promise');
-
-const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-};
-
 exports.handler = async (event) => {
   try {
-    const { id, isWaybill } = JSON.parse(event.body);
-    const connection = await mysql.createConnection(dbConfig);
-    const [shipment] = await connection.execute(`SELECT * FROM SHIPMENTS WHERE ${isWaybill ?'awb':'ord_id'}=${id}`)
-    const {serviceId, categoryId} = shipment[0]
-    if (serviceId === 1){
-      const response = await axios.get(`https://track.delhivery.com/api/v1/packages/json/?${isWaybill?"waybill":"ref_ids"}=${id}`, {
-        headers: {
-          'Authorization': `Token ${categoryId===1?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:""}`,
-        },
-      });
-  
+    const { id } = JSON.parse(event.body);
+
+    const response1 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${id}`, {
+      headers: {
+        'Authorization': `Token ${process.env.DELHIVERY_500GM_SURFACE_KEY}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data1 = await response1.json();
+
+    if (data1.ShipmentData) {
       return {
         statusCode: 200,
-        body: JSON.stringify({data : response.data}),
+        body: JSON.stringify({ data: data1, success: true }),
       };
     }
+
+    const response2 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${id}`, {
+      headers: {
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data2 = await response2.json();
+
+    if (data2.ShipmentData) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ data: data2, success: true }),
+      };
+    }
+
+    return {
+      statusCode: 404,
+      body: JSON.stringify({ message: "Not Found" }),
+    };
+    
   } catch (error) {
     return {
       statusCode: 500,
