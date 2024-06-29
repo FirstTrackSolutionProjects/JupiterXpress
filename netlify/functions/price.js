@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
     
     const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${netWeight}&pt=${payMode}&cod=${codAmount}`, {
       headers: {
-        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
+        'Authorization': `Token ${process.env.DELHIVERY_500GM_SURFACE_KEY}`,
         'Content-Type': 'application/json',
         'Accept': '*/*'
       }
