@@ -15,16 +15,30 @@ exports.handler = async (event, context) => {
         'Accept': '*/*'
       }
     });
+    const response2 = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${netWeight}&pt=${payMode}&cod=${codAmount}`, {
+      headers: {
+        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': '*/*'
+      }
+    });
     const data = await response.json();
+    const data2 = await response2.json();
     const price = data[0]['total_amount']
+    const price2 = data2[0]['total_amount']
     responses.push({
-      "name" : "Delhivery",
-      "min" : "500gm",
+      "name" : "Delhivery Surface Light",
+      "weight" : "500gm",
       "price" : Math.round(price*1.3)
+    })
+    responses.push({
+      "name" : "Delhivery Surface",
+      "weight" : "1Kg",
+      "price" : Math.round(price2*1.3)
     })
     return {
       statusCode: 200,
-      body: JSON.stringify({responses}),
+      body: JSON.stringify({prices : responses}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

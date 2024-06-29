@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 
 const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount}) => {
-  const [price,setPrice] = useState(null)
+  const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount})
     const data = async () => {
@@ -16,7 +16,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
         },
           body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount}),
         
-      }).then(response => response.json()).then(result => {console.log(result); setPrice(result.price)}).catch(error => console.log(error + " " + error.message))
+      }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
     data()
   }, []) 
@@ -27,10 +27,16 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
           CHOOSE YOUR SERVICE
         </div>
         <div className="w-full p-4 ">
+          {
+            prices.length ? <><div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+            <div>{prices[0]?.name+" "+prices[0]?.weight}</div>
+            <div className="absolute right-4">{`${Math.round((prices[0]?.price)*1.3)}`}</div>
+          </div> 
           <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-            <div>Delhivery</div>
-            <div className="absolute right-4">{`${Math.round(price*1.3)}`}</div>
-          </div>
+          <div>{prices[1]?.name+" "+prices[1]?.weight}</div>
+          <div className="absolute right-4">{`${Math.round((prices[1]?.price)*1.3)}`}</div>
+        </div></>: null
+          }
           
         </div>
       </div>
