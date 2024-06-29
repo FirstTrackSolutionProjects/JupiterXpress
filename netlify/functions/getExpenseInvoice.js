@@ -31,7 +31,7 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const [rows] = await connection.execute('SELECT * FROM RECHARGE WHERE uid = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM EXPENSES WHERE uid = ?', [id]);
     
       
       return {

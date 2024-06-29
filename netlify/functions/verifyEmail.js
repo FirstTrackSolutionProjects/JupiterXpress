@@ -24,10 +24,9 @@ exports.handler = async (event) => {
 
 
     try{
-      const {email, otp, newPassword} = JSON.parse(event.body);
+      const {email, otp} = JSON.parse(event.body);
       const connection = await mysql.createConnection(dbConfig);
         try {
-            
             const [users] = await connection.execute('SELECT * FROM USERS WHERE email = ?',[email]);
             if (users.length == 0){
               throw new Error({message : 'User not Found'})
@@ -35,7 +34,7 @@ exports.handler = async (event) => {
             const inOtp = users[0].secret;
             if (inOtp == otp){
               await connection.beginTransaction();
-              await connection.execute('UPDATE USERS SET password = ? WHERE email = ?',[await bcrypt.hash(newPassword, 10), email])
+              await connection.execute('UPDATE USERS SET emailVerified = ? WHERE email = ?',[1, email])
               await connection.execute('UPDATE USERS SET secret = ? WHERE email = ?',[null, email])
               await connection.commit();
             }
@@ -43,18 +42,18 @@ exports.handler = async (event) => {
             let mailOptions = {
               from: process.env.EMAIL_USER,
               to: email, 
-              subject: 'Password changed successfully', 
-              text: `Dear ${fullName}, \nYour account password has been changed successfully. If this action is not done by you. Contact support center immediately.\nRegards,\nJupiter Xpress`
+              subject: 'Email Verified Successfully', 
+              text: `Dear ${fullName}, \nYour account email has been verified.\nRegards,\nJupiter Xpress`
             };
           await transporter.sendMail(mailOptions);
           return {
             statusCode: 200,
-            body: JSON.stringify({ success: true,  message: 'Password Changed' }),
+            body: JSON.stringify({ success: true,  message: 'Email Verified' }),
           };
         } catch (error) {
           return {
             statusCode: 500,
-            body: JSON.stringify({ message: "Something Went Wrong",error: error.message }),
+            body: JSON.stringify({ message: error.message ,error: error.message }),
           };
         } finally {
           await connection.end();

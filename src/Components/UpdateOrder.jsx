@@ -731,7 +731,7 @@ const Listing = ({ step, setStep }) => {
               'Content-Type': 'application/json',
               'Authorization': localStorage.getItem('token'),
             },
-            body: JSON.stringify({id : 3}),
+            
           })
             .then(response => response.json())
             .then(result => {

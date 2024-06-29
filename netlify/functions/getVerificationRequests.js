@@ -34,7 +34,7 @@ exports.handler = async (event) => {
     try{
           const connection = await mysql.createConnection(dbConfig);
           try {
-            const [users] = await connection.execute("SELECT * FROM (USERS NATURAL JOIN USER_DATA) WHERE verified IS NULL AND is_admin IS NULL");
+            const [users] = await connection.execute("SELECT * FROM USERS u INNER JOIN MERCHANT_VERIFICATION mv ON u.uid = mv.uid WHERE u.isVerified = 0 AND u.isAdmin = 0 AND mv.status='pending'");
           return {
             statusCode: 200,
             body: JSON.stringify({ success:true, message: users}),

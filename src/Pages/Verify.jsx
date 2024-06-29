@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect , useContext} from 'react'
 import Header from '../Components/Header'
 import Footer from '../Components/Footer';
 import { jwtDecode } from "jwt-decode"
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const TextForm = () => {
+    const navigate = useNavigate()
+    const {logout} = useContext(AuthContext)
+    const [isVerified, setIsVerified] = useState(false)
     const InitialState = {
         address: '',
         state: '',
@@ -18,6 +23,33 @@ const TextForm = () => {
         account: '',
         cin: '',
     }
+    const isAuthenticated = () => {
+        const token = localStorage.getItem('token');
+        if (!token) return false;
+        try {
+          const decoded = jwtDecode(token);
+          if (decoded.exp * 1000 < Date.now()){
+            logout();
+            return false;
+          } // Check if token is expired
+          if (!(decoded.verified)){
+            navigate('/verify')
+            return true;
+          }
+          return true;
+        } catch (error) {
+          return false;
+        }
+      };
+      useEffect(() => {
+        
+        if (!isAuthenticated()) {
+          navigate('/')
+        }
+        if (isVerified){
+            navigate('/dashboard')
+        }
+      }, [])
     const [formData,setFormData] = useState(InitialState)
     const handleChange = (e) => {
         const { name, value } = e.target;

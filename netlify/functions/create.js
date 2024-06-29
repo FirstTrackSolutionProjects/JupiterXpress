@@ -15,7 +15,7 @@ let transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: 'azureaditya5155@gmail.com',
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
@@ -26,23 +26,23 @@ exports.handler = async (event) => {
     const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const {order} = JSON.parse(event.body);
+    const {order, serviceId , categoryId} = JSON.parse(event.body);
     const connection = await mysql.createConnection(dbConfig);
     const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
     const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
-    const [warehouses] = await connection.execute('SELECT * FROM delhiveryWarehouse WHERE username = ? AND name = ?', [email, shipment.wName]);
+    const [warehouses] = await connection.execute('SELECT * FROM DELHIVERY WHERE uid = ? AND wid = ?', [email, shipment.wid]);
     const warehouse = warehouses[0]
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
    
-    
-    let req = {
+    if (serviceId === 1) {
+      let req = {
         shipments: [],
         pickup_location: {
-          name: shipment.wName,
+          name: shipment.warehouseName,
           add: warehouse.address,
-          pin_code: warehouse.pincode,
+          pin_code: warehouse.pin,
           phone: warehouse.phone
         }
       }
@@ -82,14 +82,13 @@ exports.handler = async (event) => {
       const formData = new URLSearchParams();
       formData.append('format', 'json');
       formData.append('data', JSON.stringify(req));
-    
 
     const response = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
+        'Authorization': `Token ${categoryId === 1?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
       },
       body : formData
     }).then((response) => response.json())
@@ -99,7 +98,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
+        'Authorization': `Token ${categoryId === 1?'':categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
       },
       body : JSON.stringify({pickup_location: "warehouse", pickup_time : '', pickup_date : '', expected_package_count	: 1})
     }).then((response) => response.json()).catch((err)=>err)
@@ -109,12 +108,12 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
+        'Authorization': `Token ${categoryId === 1?'':categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
       },
     }).then((response) => response.json())
   
     let mailOptions = {
-      from: 'azureaditya5155@gmail.com', 
+      from: process.env.EMAIL_USER,
       to: email, 
       subject: 'Shipment created successfully', 
       text: `Dear Merchant, \nYour shipment request for Order id : ${shipment.ord_id} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
@@ -129,6 +128,8 @@ exports.handler = async (event) => {
         
       },
     };
+    }
+    
   } catch (error) {
     return {
       statusCode: 500,

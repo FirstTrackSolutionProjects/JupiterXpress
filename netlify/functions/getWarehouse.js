@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
 
   const token = event.headers.authorization;
   const verified = jwt.verify(token, SECRET_KEY);
-  const username = verified.email
+  const id = verified.id;
   if (!username) {
     return {
       statusCode: 400,
@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
     });
-    const [rows] = await connection.execute('SELECT * FROM delhiveryWarehouse WHERE username = ?', [username]);
+    const [rows] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ?', [id]);
 
    
       return {

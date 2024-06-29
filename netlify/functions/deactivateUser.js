@@ -1,0 +1,70 @@
+const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+
+const SECRET_KEY = process.env.JWT_SECRET;
+
+exports.handler = async (event, context) => {
+  const token = event.headers.authorization;
+  if (!token) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Access Denied" }),
+    };
+  }
+  try{
+    const verified = jwt.verify(token, SECRET_KEY);
+    const {uid} = JSON.parse(event.body);
+  // Connect to MySQL database
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com', 
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  
+
+  try {
+    await connection.execute('UPDATE USERS set isActive=0 where uid = ?', [uid]);
+
+    const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
+             const {email , name} = users[0];
+             let mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: email,  
+              subject: 'Your account has been deactivated', 
+              text: `Dear ${name}, \nYour account has been deactivated, if you think it's a mistake contact us.\nRegards,\nJupiter Xpress`
+            };
+            await transporter.sendMail(mailOptions);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, message: 'Account has been deactivated successfully'}),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  } finally {
+    connection.end();
+  }
+  } catch(e){
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'Invalid Token' }),
+    };
+  }
+
+};

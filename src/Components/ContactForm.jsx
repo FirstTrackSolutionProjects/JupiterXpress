@@ -18,27 +18,35 @@ const ContactForm = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const templateParams = {
-      email: formData.email,
-      subject: formData.subject,
-      message: formData.message,
-      name : formData.name,
-      mobile : formData.mobile
-    };
-    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID
-    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
-    const userID = import.meta.env.VITE_EMAILJS_USER_ID
-    emailjs.send(serviceID, templateID, templateParams, userID)
-      .then((response) => {
-        console.log('Email sent successfully!', response.status, response.text);
-        alert('Email sent successfully!');
-        setIsSending(false);
-      }, (error) => {
-        console.error('Failed to send email.', error);
-        alert('Error sending email. Please try again.');
-        setIsSending(false);
-      });
-    
+    // const templateParams = {
+    //   email: formData.email,
+    //   subject: formData.subject,
+    //   message: formData.message,
+    //   name : formData.name,
+    //   mobile : formData.mobile
+    // };
+    // const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    // const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    // const userID = import.meta.env.VITE_EMAILJS_USER_ID
+    // emailjs.send(serviceID, templateID, templateParams, userID)
+    //   .then((response) => {
+    //     console.log('Email sent successfully!', response.status, response.text);
+    //     alert('Email sent successfully!');
+    //     setIsSending(false);
+    //   }, (error) => {
+    //     console.error('Failed to send email.', error);
+    //     alert('Error sending email. Please try again.');
+    //     setIsSending(false);
+    //   });
+    fetch('/.netlify/functions/submitContact', {
+      method: 'POST',
+      headers : {
+        'Authorization' : localStorage.getItem('token'),
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body : JSON.stringify(formData)
+    }).then((response) => response.json()).then((result)=> alert(result.message))
     }
   return (
     <div className="flex flex-col w-full lg:w-auto space-y-6 items-center text-black my-12 font-medium">

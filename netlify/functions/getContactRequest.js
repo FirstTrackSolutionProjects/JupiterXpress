@@ -10,6 +10,8 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
+
+
 // Secret key for JWT
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -24,20 +26,16 @@ exports.handler = async (event) => {
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
-    const admin = verified.admin;
-    if (!admin){
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Not an admin' }),
-      };
-    }
+    const id = verified.id;
     try{
-          const connection = await mysql.createConnection(dbConfig);
-          try {
-            const [users] = await connection.execute("SELECT * FROM USERS NATURAL JOIN USER_DATA WHERE isVerified=1 AND isAdmin=0");
+
+        const connection = await mysql.createConnection(dbConfig);
+
+        try {
+          const [data] = await connection.execute('SELECT * FROM CONTACT_SUBMISSIONS');
           return {
             statusCode: 200,
-            body: JSON.stringify({ success:true, message: users}),
+            body: JSON.stringify({success:true ,  data: data }),
           };
         } catch (error) {
           return {

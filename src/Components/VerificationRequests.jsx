@@ -1,7 +1,7 @@
 import { useEffect , useState  } from 'react'
 
 
-const View = ({name, email, mobile, gstin, setView, business_name, cin, aadhar, pan, address, city, hub, state, pin, account_number, ifsc, bank}) => {
+const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, account_number, ifsc, bank}) => {
     const handleApprove = async () => {
         await fetch('/.netlify/functions/verifyMerchant', {
             method: 'POST',
@@ -9,7 +9,17 @@ const View = ({name, email, mobile, gstin, setView, business_name, cin, aadhar, 
                 'Accept' : 'application/json',
                 'Authorization' : localStorage.getItem('token'),
             },
-            body: JSON.stringify({id})
+            body: JSON.stringify({uid, reqId})
+        }).then(response => response.json()).then(result => alert(result.message));
+    }
+    const handleReject = async () => {
+        await fetch('/.netlify/functions/rejectMerchant', {
+            method: 'POST',
+            headers: { 'Content-Type' : 'application/json',
+                'Accept' : 'application/json',
+                'Authorization' : localStorage.getItem('token'),
+            },
+            body: JSON.stringify({uid, reqId})
         }).then(response => response.json()).then(result => alert(result.message));
     }
     return (
@@ -24,20 +34,19 @@ const View = ({name, email, mobile, gstin, setView, business_name, cin, aadhar, 
                                 <img src='user.webp'/>
                             </div>
                             <div className=''>
-                                <p className='font-medium text-xl'>{business_name}</p>
-                                <p className='font-medium text-sm text-gray-600'>({name})</p>
+                                <p className='font-medium text-xl'>{businessName}</p>
+                                <p className='font-medium text-sm text-gray-600'>({fullName})</p>
                                 <p className='font-medium text-sm text-gray-600'>{email}</p>
-                                <p className='font-medium text-sm text-gray-600'>{mobile}</p>
+                                <p className='font-medium text-sm text-gray-600'>{phone}</p>
                                 <p className='font-medium text-sm text-green-400'>Balance(Coming Soon)</p>
                             </div>
                         </div>
                         <div className='w-full font-medium text-gray-700'>
-                            <p>GSTIN : {gstin}</p>
+                            <p>GSTIN : {gst}</p>
                             <p>CIN : {cin}</p>
-                            <p>Aadhar Number : {aadhar}</p>
-                            <p>PAN Number : {pan}</p>
+                            <p>Aadhar Number : {aadhar_number}</p>
+                            <p>PAN Number : {pan_number}</p>
                             <p>Address : {address}</p>
-                            <p>Hub : {hub}</p>
                             <p>City : {city}</p>
                             <p>State : {state}</p>
                             <p>Pincode : {pin}</p>
@@ -49,7 +58,7 @@ const View = ({name, email, mobile, gstin, setView, business_name, cin, aadhar, 
                     <button onClick={handleApprove} className=" bg-blue-500 text-white mx-2  py-2 px-4 rounded-3xl">
                         Approve
                     </button>
-                    <button className=" bg-red-500 text-white mx-2  py-2 px-6 rounded-3xl">
+                    <button onClick={handleReject} className=" bg-red-500 text-white mx-2  py-2 px-6 rounded-3xl">
                         Reject
                     </button>
                 </div>
@@ -65,9 +74,10 @@ const Card = ({request}) => {
         <>
             {view && <View {...request} setView={setView} />}
             <div className='p-4 border cursor-pointer ' onClick={()=>setView(true)} >
-                <p>User Id : {request.id}</p>
-                <p>Name : {request.name}</p>
-                <p>Business Name : {request.business_name}</p>
+                <p>Request Id : {request.reqId}</p>
+                <p>User Id : {request.uid}</p>
+                <p>Name : {request.fullName}</p>
+                <p>Business Name : {request.businessName}</p>
             </div>
         </>
     )

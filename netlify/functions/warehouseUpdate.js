@@ -38,7 +38,7 @@ exports.handler = async (event, context) => {
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME,
         });
-        await connection.execute('UPDATE delhiveryWarehouse set address = ?, phone = ?, pincode = ? WHERE name = ?', [ address, phone, pin, name]);
+        await connection.execute('UPDATE WAREHOUSES set address = ?, phone = ?, pin = ? WHERE name = ?', [ address, phone, pin, name]);
 
       } catch (error) {
         return {

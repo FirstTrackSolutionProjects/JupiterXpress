@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2/promise');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 
@@ -15,7 +16,7 @@ let transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: 'azureaditya5155@gmail.com',
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
@@ -31,7 +32,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: 'Access Denied' }),
     };
   }
-  const {email, amount} = JSON.parse(event.body);
+  const {email, amount, reason} = JSON.parse(event.body);
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const admin = verified.admin;
@@ -45,11 +46,22 @@ exports.handler = async (event) => {
           
           const connection = await mysql.createConnection(dbConfig);
           try {
+            await connection.beginTransaction();
             const [users] = await connection.execute('SELECT * FROM USERS WHERE email = ?',[email]);
-            const id = users[0].id;
-            await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE id = ?', [amount, id]);
+            if (users.length){
+              const uid = users[0].uid;
+              await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE uid = ?', [amount, uid]);
+              await connection.execute('INSERT INTO MANUAL_RECHARGE (beneficiary_id, amount, reason) VALUES (?,?,?)',[uid, amount, reason]);
+            }
+            else{
+              return {
+                statusCode: 400,
+                body: JSON.stringify({ message: 'User not found' }),
+              };
+            }
+            await connection.commit();
             let mailOptions = {
-              from: 'azureaditya5155@gmail.com', 
+              from: process.env.EMAIL_USER,
               to: email, 
               subject: 'Manual Recharge Received', 
               text: `Dear Merchant, \nYour wallet got manually ${amount>=0?"credited":"debited"} by ₹${amount}.\nRegards,\nJupiter Xpress`

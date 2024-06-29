@@ -15,7 +15,7 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
+        user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     },
   });
@@ -41,9 +41,9 @@ exports.handler = async (event) => {
             }
             await connection.execute('UPDATE USERS set secret = ? WHERE email = ?',[otp,email]);
             let mailOptions = {
-              from: process.env.EMAIL_USER,
+                from: process.env.EMAIL_USER,
                 to: email, 
-                subject: 'OTP for password reset', 
+                subject: 'OTP for email verification', 
                 text: otp.toString(),
               };
             await transporter.sendMail(mailOptions);

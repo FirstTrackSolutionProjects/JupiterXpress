@@ -21,13 +21,15 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: 'Method Not Allowed' }),
     };
   }
-
-  const { id } = JSON.parse(event.body);
+  const token = event.headers.authorization;
+  try {
+    const verified = jwt.verify(token, SECRET_KEY);
+    const id = verified.id;
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM SHIPMENTS WHERE id = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM SHIPMENTS WHERE uid = ?', [id]);
     if (rows.length > 0) {
       return {
         statusCode: 200,
@@ -36,7 +38,7 @@ exports.handler = async (event) => {
     } else {
       return {
         statusCode: 401,
-        body: JSON.stringify({ message: 'Invalid id' }),
+        body: JSON.stringify({ message: 'No shipments found' }),
       };
     }
   } catch (error) {
@@ -47,4 +49,10 @@ exports.handler = async (event) => {
   } finally {
     await connection.end();
   }
+} catch (e) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ message: 'Invalid Token' }),
+  };
+}
 };

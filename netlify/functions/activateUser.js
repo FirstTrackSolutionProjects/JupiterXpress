@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 
@@ -15,7 +16,7 @@ exports.handler = async (event, context) => {
   }
   try{
     const verified = jwt.verify(token, SECRET_KEY);
-    const id = verified.id;
+    const {uid} = JSON.parse(event.body);
   // Connect to MySQL database
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
@@ -23,22 +24,33 @@ exports.handler = async (event, context) => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   });
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com', 
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM WALLET WHERE uid = ?', [id]);
+    await connection.execute('UPDATE USERS set isActive=1 where uid = ?', [uid]);
 
-    if (rows.length === 0) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'User not found' }),
-      };
-    }
-
-    const balance = rows[0].balance;
+    const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
+             const {email , name} = users[0];
+             let mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: email,  
+              subject: 'Your account has been activated', 
+              text: `Dear ${name}, \nYour account has been re-activated.\n\nRegards,\nJupiter Xpress`
+            };
+            await transporter.sendMail(mailOptions);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance }),
+      body: JSON.stringify({ success: true, message: 'Account has been activated successfully'}),
     };
   } catch (error) {
     return {
