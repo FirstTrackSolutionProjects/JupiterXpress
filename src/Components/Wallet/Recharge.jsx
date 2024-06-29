@@ -81,7 +81,7 @@ const Recharge = ({setShowRecharge}) => {
     };
 
   return (
-    <div className='absolute inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.5)]'>
+    <div className='fixed inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.5)]'>
       <form className='relative mx-2 w-full sm:w-[500px] flex flex-col items-center bg-white rounded-2xl p-8 space-y-8' onSubmit={(e)=>{e.preventDefault(); displayRazorpay()}}>
       <div className='absolute right-6 hover:bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center hover:text-white' onClick={()=>setShowRecharge(false)}>
           X
