@@ -75,7 +75,8 @@ const Dashboard = () => {
                 {(menuID[0] == 3) && <UpdateOrder/>}
                 {(menuID[0] == 4) && <TransactionHistory/>}
                 {(menuID[0] == 5) && <NDR/>}
-                {(menuID[0] == 6 && menuID[1] == 0) && isAdmin ?<AdminProfile/> : <Profile/>}
+                {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  &&  <AdminProfile/> }
+                {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  &&  <Profile/> }
                 {(menuID[0] == 6 && menuID[1] == 1) && <ChangePassword/>}
                 {(menuID[0] == 9 && menuID[1] == 0) && <MerchantManage/>}
                 {(menuID[0] == 11 && menuID[1] == 0) && <VerificationRequests/>}
