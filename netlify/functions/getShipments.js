@@ -37,7 +37,7 @@ exports.handler = async (event) => {
       };
     } else {
       return {
-        statusCode: 401,
+        statusCode: 404,
         body: JSON.stringify({ message: 'No shipments found' }),
       };
     }

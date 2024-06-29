@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 const AddForm = ({ mode, setMode }) => {
   const [formData, setFormData] = useState({
@@ -326,7 +327,6 @@ const Listing = ({ mode, setMode }) => {
           "Accept": "application/json",
           "Authorization": localStorage.getItem("token"),
         },
-        body: JSON.stringify({ username: localStorage.getItem("username") }),
       })
         .then((response) => response.json())
         .catch((error) => console.error(error));

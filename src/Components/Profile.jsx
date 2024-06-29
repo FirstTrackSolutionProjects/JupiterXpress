@@ -84,7 +84,7 @@ const Profile = () => {
                                 <img src='user.webp'/>
                             </div>
                             <div className=''>
-                                <p className='font-medium text-xl'>{profileData.business_name}</p>
+                                <p className='font-medium text-xl'>{profileData.businessName}</p>
                                 <p className='font-medium text-sm text-gray-600'>({profileData.name})</p>
                                 <p className='font-medium text-sm text-gray-600'>{profileData.email}</p>
                                 <p className='font-medium text-sm text-gray-600'>{profileData.phone}</p>

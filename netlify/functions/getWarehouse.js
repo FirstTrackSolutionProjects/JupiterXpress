@@ -21,10 +21,10 @@ exports.handler = async (event, context) => {
   const token = event.headers.authorization;
   const verified = jwt.verify(token, SECRET_KEY);
   const id = verified.id;
-  if (!username) {
+  if (!id) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Username required' }),
+      body: JSON.stringify({ message: 'Access Denied' }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
