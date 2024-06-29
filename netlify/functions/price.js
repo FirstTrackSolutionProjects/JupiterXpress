@@ -33,7 +33,7 @@ exports.handler = async (event, context) => {
     })
     responses.push({
       "name" : "Delhivery Surface",
-      "weight" : "1Kg",
+      "weight" : "10Kg",
       "price" : Math.round(price2*1.3)
     })
     return {
