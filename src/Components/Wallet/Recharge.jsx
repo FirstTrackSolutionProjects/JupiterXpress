@@ -91,14 +91,14 @@ const Recharge = ({setShowRecharge}) => {
       <input
         type="number"
         value={amount}
-        min={1}
+        min={500}
         onChange={(e) => setAmount(e.target.value)}
         className='w-full border py-2 px-4 rounded-3xl'
       />
       <div className='flex w-full justify-evenly'>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+500)}}>+500</button>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+1000)}}>+1000</button>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+2000)}}>+2000</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(500)}}>500</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(1000)}}>1000</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(2000)}}>2000</button>
       </div>
       <button onClick={displayRazorpay} className='w-40 border py-2 px-4 rounded-3xl hover:text-white hover:bg-blue-500'>Recharge Wallet</button>
       </form>
