@@ -11,9 +11,9 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 let transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', 
-  port: 587,
-  secure: false,
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
