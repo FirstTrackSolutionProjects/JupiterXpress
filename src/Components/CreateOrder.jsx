@@ -39,8 +39,8 @@ const FullDetails = () => {
     breadth : '',
     height :  '',
     gst : '',
-    Cgst : ''
-    
+    Cgst : '',
+    shippingType : '',
   })
   const addProduct = () => {
     setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: 0 , selling_price: 0 , discount: '' , tax_in_percentage: 0 }]);
@@ -117,7 +117,7 @@ const FullDetails = () => {
                 type="text"
                 id="whName"
                 name="whName"
-                placeholder="Ex. Patna Warehouse"
+                placeholder="Warehouse Name"
                 value={formData.whName}
                 onChange={handleChange}
               />
@@ -199,7 +199,7 @@ const FullDetails = () => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Aditya Kumar"
+                placeholder="Enter Customer Name"
                 value={formData.name}
                 onChange={handleChange}
               />
@@ -241,7 +241,7 @@ const FullDetails = () => {
                 type="text"
                 id="address"
                 name="address"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Shipping Address"
                 value={formData.address}
                 onChange={handleChange}
               />
@@ -257,7 +257,7 @@ const FullDetails = () => {
                 type="text"
                 id="address2"
                 name="address2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Alternate Shipping Address"
                 value={formData.address2}
                 onChange={handleChange}
               />
@@ -298,7 +298,7 @@ const FullDetails = () => {
                 type="text"
                 id="postcode"
                 name="postcode"
-                placeholder="Ex. 813210"
+                placeholder="XXXXXX"
                 value={formData.postcode}
                 onChange={handleChange}
               />
@@ -310,7 +310,7 @@ const FullDetails = () => {
                 type="text"
                 id="city"
                 name="city"
-                placeholder="Ex. Bhagalpur"
+                placeholder="Enter City"
                 value={formData.city}
                 onChange={handleChange}
               />
@@ -327,7 +327,7 @@ const FullDetails = () => {
                 type="text"
                 id="state"
                 name="state"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.state}
                 onChange={handleChange}
               />
@@ -339,7 +339,7 @@ const FullDetails = () => {
                 type="text"
                 id="country"
                 name="country"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.country}
                 onChange={handleChange}
               />
@@ -368,7 +368,7 @@ const FullDetails = () => {
                 type="text"
                 id="Baddress"
                 name="Baddress"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Address"
                 value={formData.Baddress}
                 onChange={handleChange}
               />
@@ -383,7 +383,7 @@ const FullDetails = () => {
                 type="text"
                 id="Baddress2"
                 name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Address"
                 value={formData.Baddress2}
                 onChange={handleChange}
               />
@@ -425,7 +425,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bpostcode"
                 name="Bpostcode"
-                placeholder="Ex. 813210"
+                placeholder="XXXXXX"
                 value={formData.Bpostcode}
                 onChange={handleChange}
               />
@@ -437,7 +437,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bcity"
                 name="Bcity"
-                placeholder="Ex. Bhagalpur"
+                placeholder="Enter City"
                 value={formData.Bcity}
                 onChange={handleChange}
               />
@@ -454,7 +454,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bstate"
                 name="Bstate"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.Bstate}
                 onChange={handleChange}
               />
@@ -466,7 +466,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bcountry"
                 name="Bcountry"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.Bcountry}
                 onChange={handleChange}
               />
@@ -562,7 +562,7 @@ const FullDetails = () => {
                 type="text"
                 id="discount"
                 name="discount"
-                placeholder="Ex. 1500"
+                placeholder="Ex. 100"
                 value={formData.discount}
                 onChange={handleChange}
               />
@@ -587,8 +587,8 @@ const FullDetails = () => {
                 type="text"
                 id="cod"
                 name="cod"
-                placeholder="Ex. 1500"
-                value={formData.cod}
+                placeholder="Express or Surface"
+                value={formData.shippingType}
                 onChange={handleChange}
               />
               </div>
@@ -669,7 +669,7 @@ const FullDetails = () => {
                 type="text"
                 id="Cgst"
                 name="Cgst"
-                placeholder="Enter Csutomer GST"
+                placeholder="Enter Customer GST"
                 value={formData.Cgst}
                 onChange={handleChange}
               />
