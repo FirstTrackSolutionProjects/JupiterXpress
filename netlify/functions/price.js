@@ -27,15 +27,17 @@ exports.handler = async (event, context) => {
     const price = data[0]['total_amount']
     const price2 = data2[0]['total_amount']
     responses.push({
-      "name" : "Delhivery Surface Light",
+      "name" : `Delhivery ${method=='S'?'Surface' : 'Express'} Light`,
       "weight" : "500gm",
       "price" : Math.round(price*1.3)
     })
-    responses.push({
-      "name" : "Delhivery Surface",
-      "weight" : "10Kg",
-      "price" : Math.round(price2*1.3)
-    })
+    if (method=='S') {
+      responses.push({
+        "name" :  `Delhivery Surface`,
+        "weight" : "10Kg",
+        "price" : Math.round(price2*1.3)
+      })
+    }
     return {
       statusCode: 200,
       body: JSON.stringify({prices : responses}),

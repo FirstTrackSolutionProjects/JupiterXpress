@@ -1,6 +1,8 @@
 // netlify/functions/fetchData.js
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
 
+const SECRET_KEY = process.env.JWT_SECRET
 
 exports.handler = async (event, context) => {
     const {
@@ -11,10 +13,12 @@ exports.handler = async (event, context) => {
         city,
         state,
         country,
-        pin,
-        username
+        pin
   } = JSON.parse(event.body)
+  const token = event.headers.authorization
   try {
+    const verified = jwt.verify(token, SECRET_KEY)
+    const id = verified.id
     const connection = await mysql.createConnection({
           host: process.env.DB_HOST,
           user: process.env.DB_USER,
@@ -22,7 +26,7 @@ exports.handler = async (event, context) => {
           database: process.env.DB_NAME,
         });
         await connection.beginTransaction();
-        await connection.execute('INSERT INTO WAREHOUSES (uid, warehouseName, address, phone, pin)', [username, name, address, phone, pin]);
+        await connection.execute('INSERT INTO WAREHOUSES (uid, warehouseName, address, phone, pin) VALUES (?,?,?,?,?)', [id, name, address, phone, pin]);
     const delhivery_500 = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
         method: 'POST',
         headers: {
@@ -85,7 +89,7 @@ exports.handler = async (event, context) => {
   } catch (error) {
     return {
       statusCode: 501,
-      body: JSON.stringify({success:false,  message: error }),
+      body: JSON.stringify({success:false,  message: error.message + token }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

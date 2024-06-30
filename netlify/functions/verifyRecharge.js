@@ -2,7 +2,6 @@ const Razorpay = require('razorpay');
 const mysql = require('mysql2/promise');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const { Await } = require('react-router-dom');
 
 let transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST, 

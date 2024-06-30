@@ -112,7 +112,7 @@ exports.handler = async (event) => {
               status = ?, 
               gst = ?, 
               customer_gst = ?
-              WHERE ord_id = ? AND id = ?`, 
+              WHERE ord_id = ? AND uid = ?`, 
               [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight, "Ready", gst, Cgst, order, id]
             );
             

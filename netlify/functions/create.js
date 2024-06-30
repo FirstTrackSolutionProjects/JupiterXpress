@@ -76,7 +76,7 @@ exports.handler = async (event) => {
         "shipment_height": shipment.height,
         "weight": shipment.weight,
         "seller_gst_tin": shipment.gst,
-        "shipping_mode": "Surface",
+        "shipping_mode": shipment.shippingType,
         "address_type": shipment.shipping_address_type,
       })
       const formData = new URLSearchParams();

@@ -5,7 +5,7 @@ const FullDetails = () => {
     { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
 ]);
   const [formData, setFormData] = useState({
-    whName : '',
+    wid : '',
     pickupTime : '',
     pickupDate: '',
     order : '',
@@ -41,7 +41,23 @@ const FullDetails = () => {
     gst : '',
     Cgst : '',
     shippingType : '',
+    pickDate : '',
+    pickTime : '',
   })
+  const [warehouses, setWarehouses] = useState([])
+  useEffect(() => {
+    const getWarehouses = async () => {
+      await fetch('/.netlify/functions/getWarehouse',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        }
+      }).then(response => response.json()).then(result => setWarehouses(result.rows))
+    }
+    getWarehouses();
+  }, [])
   const addProduct = () => {
     setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: 0 , selling_price: 0 , discount: '' , tax_in_percentage: 0 }]);
 
@@ -111,47 +127,54 @@ const FullDetails = () => {
         <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="whName">Pickup Warehouse Name</label>
+              <label htmlFor="wid">Pickup Warehouse Name</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="wid"
+                name="wid"
+                placeholder="Warehouse Name"
+                value={formData.wid}
+                onChange={handleChange}
+              >
+                <option value="">Select Warehouse</option>
+                { warehouses.length ?
+                  warehouses.map((warehouse, index) => (
+                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
+                  ) ) : null
+                } 
+              </select>
+            </div>
+            
+          </div>
+         
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="whName"
-                name="whName"
-                placeholder="Warehouse Name"
-                value={formData.whName}
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
                 onChange={handleChange}
               />
             </div>
             
           </div>
-         
-          {/* <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="order">Pickup Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="order"
-                name="order"
-                placeholder="Ex. ORDER123456"
-                value={formData.order}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="date">Pickup Time</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="date"
-                name="date"
-                placeholder="Ex. 13/05/2024"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div> */}
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -581,12 +604,12 @@ const FullDetails = () => {
               />
               </div>
               <div className="space-y-2">
-                <label htmlFor="cod">Shipping Type</label>
+                <label htmlFor="shippingType">Shipping Type</label>
                 <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="cod"
-                name="cod"
+                id="shippingType"
+                name="shippingType"
                 placeholder="Express or Surface"
                 value={formData.shippingType}
                 onChange={handleChange}

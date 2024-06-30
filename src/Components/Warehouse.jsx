@@ -25,7 +25,8 @@ const AddForm = ({ mode, setMode }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
+        "Accept": "application/json",
+        'Authorization': localStorage.getItem("token"),
       },
       body: JSON.stringify(formData),
     })
@@ -190,8 +191,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
     name: name,
     phone: phone,
     address: address,
-    pin: pin,
-    username: localStorage.getItem("username"),
+    pin: pin
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -206,7 +206,8 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
+        "Accept": "application/json",
+        "Authorization": localStorage.getItem("token"),
       },
       body: JSON.stringify(formData),
     })
@@ -248,6 +249,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
                 name="name"
                 placeholder="Warehouse Name"
                 value={formData.name}
+                readOnly
               />
             </div>
           </div>
@@ -356,7 +358,7 @@ const Listing = ({ mode, setMode }) => {
         </div>
         <div className="w-full">
           {warehouses.map((warehouse, index) => (
-            <Card name={warehouse.name} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pincode} />
+            <Card name={warehouse.warehouseName} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pin} />
           ))}
         </div>
       </div>

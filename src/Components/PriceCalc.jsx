@@ -28,14 +28,13 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
         </div>
         <div className="w-full p-4 ">
           {
-            prices.length ? <><div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-            <div>{prices[0]?.name+" "+prices[0]?.weight}</div>
-            <div className="absolute right-4">{`${Math.round((prices[0]?.price))}`}</div>
-          </div> 
-          <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-          <div>{prices[1]?.name+" "+prices[1]?.weight}</div>
-          <div className="absolute right-4">{`${Math.round((prices[1]?.price))}`}</div>
-        </div></>: null
+            prices.length ? prices.map((price)=>(
+              <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+          <div>{price.name+" "+price.weight}</div>
+          <div className="absolute right-4">{`${Math.round((price.price))}`}</div>
+        </div>
+            ))
+          : null
           }
           
         </div>
