@@ -65,7 +65,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Patna Warehouse"
+                placeholder="Warehouse Name"
                 value={formData.name}
                 onChange={handleChange}
               />
@@ -91,7 +91,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="email"
                 name="email"
-                placeholder="Ex. admin123@example.com"
+                placeholder="Ex. merchant123@example.com"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -104,7 +104,7 @@ const AddForm = ({ mode, setMode }) => {
               type="text"
               id="address"
               name="address"
-              placeholder="Ex. Block A, Patna, Bihar"
+              placeholder="Enter Address"
               value={formData.address}
               onChange={handleChange}
             />
@@ -117,7 +117,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="pin"
                 name="pin"
-                placeholder="Ex. 845401"
+                placeholder="Enter Pincode"
                 value={formData.pin}
                 onChange={handleChange}
               />
@@ -129,7 +129,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="city"
                 name="city"
-                placeholder="Ex. Patna"
+                placeholder="Enter City"
                 value={formData.city}
                 onChange={handleChange}
               />
@@ -143,7 +143,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="state"
                 name="state"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.state}
                 onChange={handleChange}
               />
@@ -155,7 +155,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="country"
                 name="country"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.country}
                 onChange={handleChange}
               />
@@ -246,7 +246,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Patna Warehouse"
+                placeholder="Warehouse Name"
                 value={formData.name}
               />
             </div>
@@ -272,7 +272,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
               type="text"
               id="address"
               name="address"
-              placeholder="Ex. Block A, Patna, Bihar"
+              placeholder="Enter Address"
               value={formData.address}
               onChange={handleChange}
             />
@@ -285,7 +285,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
                 type="text"
                 id="pin"
                 name="pin"
-                placeholder="Ex. 845401"
+                placeholder="XXXXXX"
                 value={formData.pin}
                 onChange={handleChange}
               />
