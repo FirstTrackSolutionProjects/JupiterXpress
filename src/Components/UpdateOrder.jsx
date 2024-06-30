@@ -80,8 +80,10 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
         breadth : shipment.breadth,
         height :  shipment.height,
         gst : shipment.gst,
-        Cgst : shipment.customer_gst
-        
+        Cgst : shipment.customer_gst,
+        pickDate : shipment.pickup_date,
+        pickTime : shipment.pickup_time,
+        shippingType : shipment.shipping_mode
       })
 
 
@@ -195,7 +197,33 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             </div>
             
           </div>
-         
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -611,17 +639,31 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="cod">COD Amount</label>
-              <input
+            <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+              <div className="space-y-2">
+                <label htmlFor="cod">COD Amount</label>
+                <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
+                type="text"
                 id="cod"
                 name="cod"
                 placeholder="Ex. 1500"
                 value={formData.cod}
                 onChange={handleChange}
               />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="shippingType">Shipping Type</label>
+                <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="shippingType"
+                name="shippingType"
+                placeholder="Express or Surface"
+                value={formData.shippingType}
+                onChange={handleChange}
+              />
+              </div>
             </div>
             
           </div>
@@ -726,9 +768,9 @@ const ShipList = ({shipment, setIsShip}) => {
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : "800001", dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method=="cod"?"COD":"Pre-paid", codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method=="COD"?"COD":"Pre-paid", codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
         
-      }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
+      }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
     data()
   }, []) 
@@ -746,7 +788,7 @@ const ShipList = ({shipment, setIsShip}) => {
             prices.length ? prices.map((price)=>(
               <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
           <div>{price.name+" "+price.weight}</div>
-          <div className="absolute right-4">{`${Math.round((price.price))}`}</div>
+          <div className="absolute right-4">{`₹${Math.round((price.price))}`}</div>
         </div>
             ))
           : null

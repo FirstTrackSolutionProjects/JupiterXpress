@@ -94,7 +94,7 @@ const Profile = () => {
         <button className="px-5 py-1 border rounded-3xl bg-blue-500 text-white text-sm sm:text-xl">Edit Details</button>
         </div>
       </div> */}
-      <div className=' border-2  relative p-6 max-w-[400px] bg-white rounded-2xl overflow-hidden space-y-8'>
+      <div className=' border-2  relative p-6 max-w-[500px] bg-white rounded-2xl overflow-hidden space-y-8'>
                     <div className='w-full space-y-6'>
                         <div className='w-full flex items-center justify-center space-x-8'>
                             <div className='flex justify-center items-center w-32 h-32'>
