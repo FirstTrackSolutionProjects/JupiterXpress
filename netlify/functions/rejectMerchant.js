@@ -49,12 +49,12 @@ exports.handler = async (event) => {
           try {
              await connection.execute("UPDATE MERCHANT_VERIFICATION SET status='rejected', actionBy=? WHERE reqId = ?", [id,reqId]);
              const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
-             const {email , name} = users[0];
+             const {email , fullName} = users[0];
              let mailOptions = {
               from: process.env.EMAIL_USER,
               to: email,  
               subject: 'Account verification is rejected', 
-              text: `Dear ${name}, \nWe were not able to verify your documents due to some reason. Please try again.`
+              text: `Dear ${fullName}, \nWe were not able to verify your documents due to some reason. Please try again.`
             };
             await transporter.sendMail(mailOptions);
           return {

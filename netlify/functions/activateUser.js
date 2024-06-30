@@ -39,12 +39,12 @@ exports.handler = async (event, context) => {
     await connection.execute('UPDATE USERS set isActive=1 where uid = ?', [uid]);
 
     const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
-             const {email , name} = users[0];
+             const {email , fullName} = users[0];
              let mailOptions = {
               from: process.env.EMAIL_USER,
               to: email,  
               subject: 'Your account has been activated', 
-              text: `Dear ${name}, \nYour account has been re-activated.\n\nRegards,\nJupiter Xpress`
+              text: `Dear ${fullName}, \nYour account has been re-activated.\n\nRegards,\nJupiter Xpress`
             };
             await transporter.sendMail(mailOptions);
 

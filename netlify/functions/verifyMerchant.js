@@ -54,12 +54,12 @@ exports.handler = async (event) => {
             await connection.execute("INSERT INTO WALLET (uid, balance) VALUES (?, ?)",[uid, 10]);
              await connection.execute("UPDATE USERS SET isVerified = 1 WHERE uid = ?", [uid]);
              const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
-             const {email , name} = users[0];
+             const {email , fullName} = users[0];
              let mailOptions = {
               from: process.env.EMAIL_USER,
               to: email,  
               subject: 'Account has been verified', 
-              text: `Dear ${name}, \nYour account has been verified on Jupiter Xpress. Login now and experience the fast delivery.`
+              text: `Dear ${fullName}, \nYour account has been verified on Jupiter Xpress. Login now and experience the fast delivery.`
             };
             await transporter.sendMail(mailOptions);
           return {

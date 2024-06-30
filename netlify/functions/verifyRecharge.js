@@ -60,12 +60,12 @@ exports.handler = async (event, context) => {
     );
     await connection.commit();
     const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
-    const {email , name} = users[0];
+    const {email , fullName} = users[0];
     let mailOptions = {
       from: process.env.EMAIL_USER,
       to: email, 
       subject: 'Wallet Recharge Successfull', 
-      text: `Dear ${name}, \nYour wallet recharge for amount ₹${amount} and order Id : ${transactionDetails.razorpay_order_id} has been verified and credited to your wallet.\nRegards,\nJupiter Xpress`
+      text: `Dear ${fullName}, \nYour wallet recharge for amount ₹${amount} and order Id : ${transactionDetails.razorpay_order_id} has been verified and credited to your wallet.\nRegards,\nJupiter Xpress`
     };
   await transporter.sendMail(mailOptions);
     return {
