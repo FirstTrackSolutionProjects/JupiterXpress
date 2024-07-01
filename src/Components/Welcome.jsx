@@ -79,7 +79,7 @@ const Welcome = () => {
                 <img src={img3} alt="" className='lg:w-[42px] lg:h-[32px]  w-[42px] h-[32px] mx-1' />
                 <img src={img4} alt="" className='lg:w-[42px] lg:h-[32px]  w-[42px] h-[32px] mx-1' />
                 </div>*/}
-
+{/*Slider added*/}
               <div className=' mt-6 w-[340px] sm:w-[360px]  space-y-2'>
               <div className='lg:text-base text-sm font-bold  mt-1 px-9  text-blue-400 italic'>OUR TRUSTED PARTNERS </div>
               {/*<div className='lg:text-[12.5px] text-[9px] font-bold  mt-2'>Domestic </div>*/}
