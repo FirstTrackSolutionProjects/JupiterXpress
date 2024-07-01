@@ -8,14 +8,14 @@ const Card = ({transaction}) => {
             {transaction.type ==="recharge" && <div className='p-4 border'>
                 <p>Recharge</p>
                 <p>Order Id : {transaction.order_id}</p>
-                <p>Amount : {transaction.amount > 0? "+"+transaction.amount : "-"+transaction.amount}</p>
+                <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>{(date.toDateString())}</p>
             </div>}
             {transaction.type ==="manual" && <div className='p-4 border'>
                 <p>Manual Recharge</p>
                 <p>Beneficiary Id : {transaction.beneficiary_id}</p>
                 <p>Order Id : {transaction.recharge_id}</p>
-                <p>Amount : {transaction.amount > 0? "+"+transaction.amount : "-"+transaction.amount}</p>
+                <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>Reason : {transaction.reason}</p>
                 <p>{(date.toDateString())}</p>
             </div>}

@@ -254,15 +254,18 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="payMode">Payment Method</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="payMode"
                 name="payMode"
-                placeholder="Ex. COD or Prepaid"
                 value={formData.payMode}
                 onChange={handleChange}
-              />
+              >
+                <option value="COD">COD</option>
+                <option value="prepaid">Prepaid</option>
+                <option value="topay">To Pay</option>
+              </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="name">Buyer's Name</label>
@@ -337,27 +340,31 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="addressType"
                 name="addressType"
-                placeholder="Home or Office"
                 value={formData.addressType}
                 onChange={handleChange}
-              />
+              >
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+              </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="addressType2"
                 name="addressType2"
-                placeholder="Home or Office"
                 value={formData.addressType2}
                 onChange={handleChange}
-              />
+              >
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+              </select>
             </div>
             
           </div>
@@ -463,7 +470,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="BaddressType">Billing Address Type</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="BaddressType"
@@ -471,12 +478,15 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 placeholder="Home or Office"
                 value={formData.BaddressType}
                 onChange={handleChange}
-              />
+              >
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+              </select>
             </div>
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="BaddressType2"
@@ -484,7 +494,10 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 placeholder="Home or Office"
                 value={formData.BaddressType2}
                 onChange={handleChange}
-              />
+              >
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+              </select>
             </div>
             
           </div>
@@ -654,15 +667,17 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
               </div>
               <div className="space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
-                <input
+                <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="shippingType"
                 name="shippingType"
-                placeholder="Express or Surface"
                 value={formData.shippingType}
                 onChange={handleChange}
-              />
+              >
+                <option value="Surface">Surface</option>
+                <option value="Express">Express</option>
+              </select>
               </div>
             </div>
             
