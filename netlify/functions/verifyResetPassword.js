@@ -1,7 +1,17 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
 
+let transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const dbConfig = {
   host: process.env.DB_HOST,
@@ -16,7 +26,6 @@ exports.handler = async (event) => {
     try{
       const {email, otp, newPassword} = JSON.parse(event.body);
       const connection = await mysql.createConnection(dbConfig);
-
         try {
             
             const [users] = await connection.execute('SELECT * FROM USERS WHERE email = ?',[email]);
@@ -30,6 +39,14 @@ exports.handler = async (event) => {
               await connection.execute('UPDATE USERS SET secret = ? WHERE email = ?',[null, email])
               await connection.commit();
             }
+            const {fullName} = users[0];
+            let mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: email, 
+              subject: 'Password changed successfully', 
+              text: `Dear ${fullName}, \nYour account password has been changed successfully. If this action is not done by you. Contact support center immediately.\nRegards,\nJupiter Xpress`
+            };
+          await transporter.sendMail(mailOptions);
           return {
             statusCode: 200,
             body: JSON.stringify({ success: true,  message: 'Password Changed' }),

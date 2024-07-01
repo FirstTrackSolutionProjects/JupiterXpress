@@ -6,7 +6,7 @@ const ContactDetails = () => {
     <div className='space-y-3 w-full lg:w-auto flex flex-col justify-center items-center lg:items-start'>
     <div className='sm:w-96 w-full bg-white p-4 rounded-xl font-medium'>
       <p className='font-bold text-xl'>Address:</p>
-      <p>Email : xpressjupiter@gmail.com</p>
+      <p>Email : info@jupiterxpress.online</p>
       <p>Address: JUPITER XPRESS At: Ward No :13, Ekta Nagar, Street No.3, Near Railway Station, Malout, Sri Muktsar Sahib, Punjab, 152107</p>
     </div>
     <div className='w-full sm:w-96 bg-white py-6 rounded-xl font-medium'>

@@ -20,11 +20,11 @@ exports.handler = async (event, context) => {
 
   const token = event.headers.authorization;
   const verified = jwt.verify(token, SECRET_KEY);
-  const username = verified.email
-  if (!username) {
+  const id = verified.id;
+  if (!id) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Username required' }),
+      body: JSON.stringify({ message: 'Access Denied' }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
     });
-    const [rows] = await connection.execute('SELECT * FROM delhiveryWarehouse WHERE username = ?', [username]);
+    const [rows] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ?', [id]);
 
    
       return {

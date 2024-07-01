@@ -11,14 +11,14 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 let transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com', 
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'azureaditya5155@gmail.com',
-      pass: process.env.EMAIL_PASS
-    },
-  });
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
   
 
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
             }
             await connection.execute('UPDATE USERS set secret = ? WHERE email = ?',[otp,email]);
             let mailOptions = {
-                from: 'azureaditya5155@gmail.com', 
+              from: process.env.EMAIL_USER,
                 to: email, 
                 subject: 'OTP for password reset', 
                 text: otp.toString(),

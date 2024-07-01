@@ -21,7 +21,25 @@ const Profile = () => {
     account_number : '',
     ifsc : ''
   }
-  const [profileData,  setProfileData] = useState(INITIAL_STATE)
+  const [profileData,  setProfileData] = useState({
+    name : '',
+    business_name : '',
+    email : '',
+    phone : '',
+    msme : '',
+    cin : '',
+    gstin : '',
+    aadhar : '',
+    pan : '',
+    address : '',
+    hub : '',
+    city : '',
+    state : '',
+    pin : '',
+    bank : '',
+    account_number : '',
+    ifsc : ''
+  })
   useEffect(()=>{
     fetch('/.netlify/functions/getProfile', {
       method: 'GET',
@@ -31,23 +49,22 @@ const Profile = () => {
       }
     }).then(response => response.json()).then(result => result.data).then( (data) => {
       setProfileData({
-        name : data.basic.name,
-        business_name : data.detailed.business_name,
-        email : data.basic.email,
-        phone : data.basic.mobile,
-        msme : data.detailed.msme_udyam,
-        cin : data.detailed.cin,
-        gstin : data.detailed.gstin,
-        aadhar : data.detailed.aadhar,
-        pan : data.detailed.pan,
-        address : data.detailed.address,
-        hub : data.detailed.hub,
-        city : data.detailed.city,
-        state : data.detailed.state,
-        pin : data.detailed.pin,
-        bank : data.detailed.bank,
-        account_number : data.detailed.account_number,
-        ifsc : data.detailed.ifsc
+        name : data.fullName,
+        business_name : data.businessName,
+        email : data.email,
+        phone : data.phone,
+        msme : data.msme,
+        cin : data.cin,
+        gstin : data.gst,
+        aadhar : data.aadhar_number,
+        pan : data.pan_aadhar,
+        address : data.address,
+        city : data.city,
+        state : data.state,
+        pin : data.pin,
+        bank : data.bank,
+        account_number : data.accountNumber,
+        ifsc : data.ifsc
       })
     })
   }, [])
@@ -77,7 +94,7 @@ const Profile = () => {
         <button className="px-5 py-1 border rounded-3xl bg-blue-500 text-white text-sm sm:text-xl">Edit Details</button>
         </div>
       </div> */}
-      <div className=' border-2  relative p-6 max-w-[400px] bg-white rounded-2xl overflow-hidden space-y-8'>
+      <div className=' border-2  relative p-6 max-w-[500px] bg-white rounded-2xl overflow-hidden space-y-8'>
                     <div className='w-full space-y-6'>
                         <div className='w-full flex items-center justify-center space-x-8'>
                             <div className='flex justify-center items-center w-32 h-32'>

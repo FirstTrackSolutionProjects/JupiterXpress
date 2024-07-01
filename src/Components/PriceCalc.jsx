@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
 
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount}) => {
-  const [price,setPrice] = useState(null)
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, height, breadth, length}) => {
+  const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount})
     const data = async () => {
@@ -14,9 +14,9 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount}),
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount, length, breadth, height}),
         
-      }).then(response => response.json()).then(result => {console.log(result); setPrice(result.price)}).catch(error => console.log(error + " " + error.message))
+      }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
     data()
   }, []) 
@@ -27,10 +27,15 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
           CHOOSE YOUR SERVICE
         </div>
         <div className="w-full p-4 ">
-          <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-            <div>Delhivery</div>
-            <div className="absolute right-4">{`${Math.round(price*1.3)}`}</div>
-          </div>
+          {
+            prices.length ? prices.map((price)=>(
+              <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+          <div>{price.name+" "+price.weight}</div>
+          <div className="absolute right-4">{`${Math.round((price.price))}`}</div>
+        </div>
+            ))
+          : null
+          }
           
         </div>
       </div>
@@ -49,6 +54,9 @@ const PriceCalc = () => {
     weight : '',
     payMode : 'COD',
     codAmount : '0',
+    length : '',
+    breadth : '',
+    height : '',
   })
   const [showCompare, setShowCompare] = useState(false)
   const handleChange = (e) => {
@@ -158,6 +166,7 @@ const PriceCalc = () => {
             </div>
             
           </div>
+          <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="codAmount">COD Amount</label>
               <input
@@ -169,6 +178,45 @@ const PriceCalc = () => {
                 value={formData.codAmount}
                 onChange={handleChange}
               />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+              <label htmlFor="length">Length (in cm)</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="length"
+                name="length"
+                placeholder="Ex. 2.5"
+                value={formData.length}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+              <label htmlFor="breadth">Breadth (in cm)</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="breadth"
+                name="breadth"
+                placeholder="Ex. 2.5"
+                value={formData.breadth}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+              <label htmlFor="height">Height (in cm)</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="height"
+                name="height"
+                placeholder="Ex. 2.5"
+                value={formData.height}
+                onChange={handleChange}
+              />
+            </div>
+            </div>
             </div>
             <button type="submit" className="border bg-white mx-2  py-2 px-4 rounded-3xl">
               Submit and Compare

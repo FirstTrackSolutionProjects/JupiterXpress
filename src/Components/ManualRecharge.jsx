@@ -3,7 +3,8 @@ import React, { useState } from "react";
 const ManualRecharge = () => {
     const [formData, setFormData] = useState({
         email : '',
-        amount : ''
+        amount : '',
+        reason : '',
     })
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,21 +45,36 @@ const ManualRecharge = () => {
                 placeholder="Ex. user@example.com"
                 value={formData.email}
                 onChange={handleChange}
+                required
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="amount">Amount</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
+                type="number"
                 id="amount"
                 name="amount"
                 placeholder="Ex. 500"
                 value={formData.amount}
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="reason">Reason for manual Transaction</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="reason"
+                name="reason"
+                placeholder="Ex. Cashback"
+                value={formData.reason}
+                onChange={handleChange}
+                required
+              />
+            </div>
           
             <button type="submit" className="border bg-white mx-2  py-2 px-4 rounded-3xl">
               Recharge

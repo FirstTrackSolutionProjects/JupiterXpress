@@ -34,7 +34,7 @@
         "npm:mysql2@^3.10.0",
         "npm:netlify-cli@^17.27.0",
         "npm:node-fetch@^3.3.2",
-        "npm:nodemailer@^6.9.13",
+        "npm:nodemailer@^6.9.14",
         "npm:postcss@^8.4.38",
         "npm:razorpay@^2.9.4",
         "npm:react-dom@^18.2.0",

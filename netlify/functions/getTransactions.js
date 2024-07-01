@@ -31,33 +31,22 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const [rows] = await connection.execute('SELECT * FROM USERS WHERE id = ?', [id]);
-    if (rows.length > 0) {
-      const [rows2] = await connection.execute('SELECT * FROM USER_DATA WHERE id = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM RECHARGE WHERE uid = ?', [id]);
+    
+      
       return {
         statusCode: 200,
-        body: JSON.stringify({ success:true, data : {basic : rows[0], detailed : rows2[0]} }),
+        body: JSON.stringify({ success:true, data : rows }),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)`
           
         },
       };
-    } else {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ message: 'Invalid credentials' }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
-          
-        },
-      };
-    }
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Error logging in', error: error.message }),
+      body: JSON.stringify({ message: 'Unexpected Error while fetching transactions', error: error.message }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
