@@ -16,7 +16,7 @@ import image9 from '../assets/images/aust.jpeg'
 import image10 from '../assets/images/canada.png'
 import image11 from '../assets/images/zoho.jpeg'
 
-const images = [image1, image2, image3, image4, image5, image6, image7, image8,image11];
+const images = [image1, image2, image3, image4, image5, image6, image7, image8,image11,image9,image10];
 
   
 
@@ -26,11 +26,11 @@ const Welcome = () => {
   const slides = Math.ceil(images.length / 4);
 
   const nextSlide = () => {
-    setCurrentSlide((prevSlide) => (prevSlide - 1 + slides) % slides);
+    setCurrentSlide((prevSlide) => (prevSlide + 1 + slides) % slides);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1 + slides) % slides);
+    setCurrentSlide((prevSlide) => (prevSlide - 1 + slides) % slides);
   };
 
   
@@ -80,38 +80,38 @@ const Welcome = () => {
                 <img src={img4} alt="" className='lg:w-[42px] lg:h-[32px]  w-[42px] h-[32px] mx-1' />
                 </div>*/}
 
-              <div className='mt-6'>
-              <div className='lg:text-[12.5px] text-[9px] font-bold  mt-2 text-blue-400 italic'>OUR TRUSTED PARTNERS </div>
-              <div className='lg:text-[12.5px] text-[9px] font-bold  mt-2'>Domestic </div>
+              <div className=' mt-6 w-[340px] sm:w-[360px]  space-y-2'>
+              <div className='lg:text-base text-sm font-bold  mt-1 px-9  text-blue-400 italic'>OUR TRUSTED PARTNERS </div>
+              {/*<div className='lg:text-[12.5px] text-[9px] font-bold  mt-2'>Domestic </div>*/}
               <div className="relative overflow-hidden">
       <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {Array.from({ length: slides }).map((_, slideIndex) => (
-          <div key={slideIndex} className="flex-shrink-0 w-full flex px-6 py-2">
+          <div key={slideIndex} className="flex-shrink-0 w-full flex justify-center  items-center">
             {images.slice(slideIndex * 4, slideIndex * 4 + 4).map((image, index) => (
-              <div key={index} className="flex-shrink-0 w-1/5 ">
-                <img src={image} alt={`Slide ${slideIndex * 4 + index}`} className="ml-5 lg:w-[60px] lg:h-[50px] shadow-md" />
+              <div key={index} className="flex-shrink-0 w-1/5 flex justify-center ">
+                <img src={image} alt={`Slide ${slideIndex * 4 + index}`} className="w-full px-1 h-[40px] sm:h-[50px] shadow-md " />
               </div>
             ))}
           </div>
         ))}
       </div>
       
-      <button onClick={prevSlide} className="absolute top-1/2 left-5 transform -translate-y-1/2 text-white p-2 rounded-full shadow-md ">
+      <button onClick={prevSlide} className="absolute top-0 bottom-0 z-20  left-2  text-white  shadow-md ">
       &#10094;
       </button>
-      <button onClick={nextSlide} className="absolute top-1/2 right-14 transform -translate-y-1/2  text-white p-2 rounded-full shadow-md ">
+      <button onClick={nextSlide} className="absolute top-0 bottom-0 right-2 z-20   text-white  shadow-md ">
       &#10095;
       </button>
       
     </div>
               
-    {/*---*/}
+    {/*---
 
     <div className='lg:text-[12.5px] text-[9px] font-bold  mt-2'>International </div>
     <div className='flex items-center mt-2 ml-10'>
     <img src={image9} alt="" className='lg:w-[60px] lg:h-[50px]  w-[55px] h-[45px] ml-2 mx-1' />
     <img src={image10} alt="" className='lg:w-[60px] lg:h-[50px]  w-[55px] h-[45px] mx-1' />
-    </div>
+    </div> */}
               {/*<div className="relative overflow-hidden">
       <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
         {Array.from({ length: slides }).map((_, slideIndex) => (
