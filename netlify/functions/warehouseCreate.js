@@ -16,15 +16,16 @@ exports.handler = async (event, context) => {
         pin
   } = JSON.parse(event.body)
   const token = event.headers.authorization
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
   try {
     const verified = jwt.verify(token, SECRET_KEY)
     const id = verified.id
-    const connection = await mysql.createConnection({
-          host: process.env.DB_HOST,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD,
-          database: process.env.DB_NAME,
-        });
+    
         await connection.beginTransaction();
         await connection.execute('INSERT INTO WAREHOUSES (uid, warehouseName, address, phone, pin) VALUES (?,?,?,?,?)', [id, name, address, phone, pin]);
     const delhivery_500 = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/create/`, {
@@ -95,5 +96,7 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
       },
     };
+  } finally {
+    connection.end()
   }
 };

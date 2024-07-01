@@ -770,6 +770,42 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
     );
   };
 
+const ShipCard = ({price, shipment}) => {
+  const ship = async () => {
+    const getBalance = await fetch('/.netlify/functions/getBalance', {
+      method: 'GET',
+      headers : {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      }
+    })
+    const balanceData = await getBalance.json();
+    const balance = balanceData.balance;
+    if (parseFloat(balance) < parseFloat(price.price)){
+      alert('Insufficient balance')
+      return;
+    }
+    fetch('/.netlify/functions/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      },
+      body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price)})
+    }).then(response => response.json()).then(result => alert(result.response.rmk));
+  }
+  return (
+    <>
+       <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+          <div>{price.name+" "+price.weight}</div>
+          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>ship()}>Ship</div></div>
+        </div>
+    </>
+  )
+}
+
 const ShipList = ({shipment, setIsShip}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
@@ -800,11 +836,8 @@ const ShipList = ({shipment, setIsShip}) => {
         </div>
         <div className="w-full p-4 ">
           {
-            prices.length ? prices.map((price)=>(
-              <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-          <div>{price.name+" "+price.weight}</div>
-          <div className="absolute right-4">{`₹${Math.round((price.price))}`}</div>
-        </div>
+            prices.length ? prices.map((price, index)=>(
+             <ShipCard key={index} shipment={shipment}  price={price} />
             ))
           : null
           }
@@ -818,17 +851,7 @@ const ShipList = ({shipment, setIsShip}) => {
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
     const [isShip, setIsShip] = useState(false);
-    const ship = (order) => {
-      fetch('/.netlify/functions/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': localStorage.getItem('token'),
-        },
-        body: JSON.stringify({order})
-      }).then(response => response.json()).then(result => alert(result.response.rmk));
-    }
+    
     return (
       <>
         {isShip && <ShipList setIsShip={setIsShip} shipment={shipment}/>}

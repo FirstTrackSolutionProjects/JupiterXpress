@@ -58,7 +58,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ error: error.message }),
     };
   } finally {
-    connection.end();
+    await connection.end();
   }
   } catch(e){
     return {

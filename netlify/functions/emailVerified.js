@@ -7,15 +7,15 @@ const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event, context) => {
  
-  
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
   try {
     const {email} = JSON.parse(event.body);
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
+    
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [email]);
     const emailVerified = rows[0].emailVerified;
         return {
@@ -39,5 +39,7 @@ exports.handler = async (event, context) => {
         
       },
     };
+  } finally {
+    await connection.end()
   }
 };

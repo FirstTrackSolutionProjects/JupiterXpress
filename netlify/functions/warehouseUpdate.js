@@ -41,13 +41,14 @@ exports.handler = async (event, context) => {
             },
           };
     }
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
     try {
-        const connection = await mysql.createConnection({
-          host: process.env.DB_HOST,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD,
-          database: process.env.DB_NAME,
-        });
+        
         await connection.execute('UPDATE WAREHOUSES set address = ?, phone = ?, pin = ? WHERE warehouseName = ?', [ address, phone, pin, name]);
 
       } catch (error) {
@@ -55,6 +56,8 @@ exports.handler = async (event, context) => {
           statusCode: 500,
           body: JSON.stringify({ message: error.message , success: false }),
         };
+      } finally{
+        connection.end()
       }
     return {
       statusCode: 200,

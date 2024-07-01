@@ -22,12 +22,12 @@ let transporter = nodemailer.createTransport({
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event) => {
+  const connection = await mysql.createConnection(dbConfig);
   try {
     const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
     const {order, serviceId , categoryId} = JSON.parse(event.body);
-    const connection = await mysql.createConnection(dbConfig);
     const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
     const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
@@ -35,7 +35,6 @@ exports.handler = async (event) => {
     const [warehouses] = await connection.execute('SELECT * FROM DELHIVERY WHERE uid = ? AND wid = ?', [email, shipment.wid]);
     const warehouse = warehouses[0]
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
-   
     if (serviceId === 1) {
       let req = {
         shipments: [],
@@ -140,5 +139,7 @@ exports.handler = async (event) => {
         
       },
     };
+  } finally {
+    connection.end()
   }
 };
