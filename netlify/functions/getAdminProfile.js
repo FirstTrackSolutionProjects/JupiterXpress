@@ -25,28 +25,38 @@ exports.handler = async (event) => {
       },
     };
   }
-  const token = event.headers.authorization;
+  const token = event.headers.authorization
   const connection = await mysql.createConnection(dbConfig);
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
-    const id = verified.id;
-    const [rows] = await connection.execute('SELECT * FROM RECHARGE WHERE uid = ?', [id]);
-    
-      
+    const id = verified.id
+    const [rows] = await connection.execute('SELECT * FROM USERS NATURAL JOIN EMPLOYEE_INFO WHERE uid = ?', [id]);
+    if (rows.length > 0) {
       return {
         statusCode: 200,
-        body: JSON.stringify({ success:true, data : rows }),
+        body: JSON.stringify({ success:true, data : rows[0] }),
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)`
+          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
           
         },
       };
+    } else {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: 'Invalid credentials' }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+          
+        },
+      };
+    }
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Unexpected Error while fetching transactions', error: error.message }),
+      body: JSON.stringify({ message: 'Error logging in', error: error.message }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

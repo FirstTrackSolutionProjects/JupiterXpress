@@ -28,22 +28,22 @@ const Header = () => {
     };
     const fetchBalance = async () => {
       const balance = await fetch(
-        `/.netlify/functions/getBalance?id=${
-          jwtDecode(localStorage.getItem("token")).id
-        }`
+        `/.netlify/functions/getBalance`,{
+          headers:{
+            "authorization":localStorage.getItem("token"),
+          }
+        }
       )
         .then((response) => response.json())
         .then((result) => result.balance);
       if (balance) {
         setBalance(balance);
-      } else {
-        alert("Failed to fetch balance");
       }
     };
     const auth = isAuthenticated();
     if (!auth) setUsername("");
     else {
-      fetchBalance();
+        fetchBalance();
     }
   }, []);
   return (
@@ -64,7 +64,7 @@ const Header = () => {
 
         {username && (
           <div className="h-16 flex space-x-3 items-center">
-            {isVerified && (<>
+            {isVerified? (<>
               <div onClick={()=>setShowRecharge(true)} className={`relative bg-blue-600 ${balance < 250 ? "text-red-400" : "text-green-400"} flex items-center font-medium rounded-tl-xl rounded-br-xl px-3 min-w-14 py-2 cursor-pointer border-l-4 border-t-4 border-blue-900`}>
               {balance < 250 && <p className="absolute -mt-5 top-0 right-[2px] text-red-400 text-3xl">!</p>}
                 <p>{`₹${balance}`}</p>
@@ -73,7 +73,7 @@ const Header = () => {
                 <p>R</p>
               </div> */}
               </>
-            )}
+            ):null}
             <div className="flex space-x-4">
               <p className="bg-white flex items-center font-medium rounded-xl px-2 py-2 cursor-pointer" onClick={()=>navigate('/dashboard')}>
                 {username}

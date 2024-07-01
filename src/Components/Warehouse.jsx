@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 const AddForm = ({ mode, setMode }) => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,8 @@ const AddForm = ({ mode, setMode }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
+        "Accept": "application/json",
+        'Authorization': localStorage.getItem("token"),
       },
       body: JSON.stringify(formData),
     })
@@ -64,7 +66,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Patna Warehouse"
+                placeholder="Warehouse Name"
                 value={formData.name}
                 onChange={handleChange}
               />
@@ -90,7 +92,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="email"
                 name="email"
-                placeholder="Ex. admin123@example.com"
+                placeholder="Ex. merchant123@example.com"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -103,7 +105,7 @@ const AddForm = ({ mode, setMode }) => {
               type="text"
               id="address"
               name="address"
-              placeholder="Ex. Block A, Patna, Bihar"
+              placeholder="Enter Address"
               value={formData.address}
               onChange={handleChange}
             />
@@ -116,7 +118,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="pin"
                 name="pin"
-                placeholder="Ex. 845401"
+                placeholder="Enter Pincode"
                 value={formData.pin}
                 onChange={handleChange}
               />
@@ -128,7 +130,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="city"
                 name="city"
-                placeholder="Ex. Patna"
+                placeholder="Enter City"
                 value={formData.city}
                 onChange={handleChange}
               />
@@ -142,7 +144,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="state"
                 name="state"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.state}
                 onChange={handleChange}
               />
@@ -154,7 +156,7 @@ const AddForm = ({ mode, setMode }) => {
                 type="text"
                 id="country"
                 name="country"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.country}
                 onChange={handleChange}
               />
@@ -189,8 +191,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
     name: name,
     phone: phone,
     address: address,
-    pin: pin,
-    username: localStorage.getItem("username"),
+    pin: pin
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -205,7 +206,8 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
+        "Accept": "application/json",
+        "Authorization": localStorage.getItem("token"),
       },
       body: JSON.stringify(formData),
     })
@@ -245,8 +247,9 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Patna Warehouse"
+                placeholder="Warehouse Name"
                 value={formData.name}
+                readOnly
               />
             </div>
           </div>
@@ -271,7 +274,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
               type="text"
               id="address"
               name="address"
-              placeholder="Ex. Block A, Patna, Bihar"
+              placeholder="Enter Address"
               value={formData.address}
               onChange={handleChange}
             />
@@ -284,7 +287,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
                 type="text"
                 id="pin"
                 name="pin"
-                placeholder="Ex. 845401"
+                placeholder="XXXXXX"
                 value={formData.pin}
                 onChange={handleChange}
               />
@@ -326,7 +329,6 @@ const Listing = ({ mode, setMode }) => {
           "Accept": "application/json",
           "Authorization": localStorage.getItem("token"),
         },
-        body: JSON.stringify({ username: localStorage.getItem("username") }),
       })
         .then((response) => response.json())
         .catch((error) => console.error(error));
@@ -356,7 +358,7 @@ const Listing = ({ mode, setMode }) => {
         </div>
         <div className="w-full">
           {warehouses.map((warehouse, index) => (
-            <Card name={warehouse.name} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pincode} />
+            <Card name={warehouse.warehouseName} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pin} />
           ))}
         </div>
       </div>

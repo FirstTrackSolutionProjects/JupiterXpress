@@ -4,8 +4,19 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
     const [orders, setOrders] = useState([
         { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
     ]);
-
+    const [warehouses, setWarehouses] = useState([])
     useEffect(()=>{
+      const getWarehouses = async () => {
+        await fetch('/.netlify/functions/getWarehouse',{
+          method : 'POST',
+          headers : {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          }
+        }).then(response => response.json()).then(result => setWarehouses(result.rows))
+      }
+      getWarehouses();
         fetch('/.netlify/functions/getOrder', {
             method: 'POST',
             headers: {
@@ -26,8 +37,9 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
               console.error('Error:', error);
               alert('An error occurred during Order');
             });
+            
       }, [])
-
+      
       useEffect(()=>{
         setFormData((prev)=>({
             ...prev,
@@ -36,7 +48,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
       }, [orders]);
 
     const [formData, setFormData] = useState({
-        whName : '',
+        wid : shipment.wid,
         order : shipment.ord_id,
         date : shipment.ord_date,
         payMode : shipment.pay_method,
@@ -68,8 +80,10 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
         breadth : shipment.breadth,
         height :  shipment.height,
         gst : shipment.gst,
-        Cgst : shipment.customer_gst
-        
+        Cgst : shipment.customer_gst,
+        pickDate : shipment.pickup_date,
+        pickTime : shipment.pickup_time,
+        shippingType : shipment.shipping_mode
       })
 
 
@@ -163,20 +177,53 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="whName">Pickup Warehouse Name</label>
+            <label htmlFor="wid">Pickup Warehouse Name</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="wid"
+                name="wid"
+                placeholder="Warehouse Name"
+                value={formData.wid}
+                onChange={handleChange}
+              >
+                <option value="">Select Warehouse</option>
+                { warehouses.length ?
+                  warehouses.map((warehouse, index) => (
+                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
+                  ) ) : null
+                } 
+              </select>
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="whName"
-                name="whName"
-                placeholder="Ex. Patna Warehouse"
-                value={formData.whName}
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
                 onChange={handleChange}
               />
             </div>
             
           </div>
-         
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -574,10 +621,10 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
-            <button type="button" onClick={() => removeProduct(index)}>Remove</button>
+            <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
         </div>
       ))}
-      <button type="button" onClick={addProduct}>Add More Product</button>
+      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
           <div className="w-full flex mb-2 flex-wrap ">
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -592,17 +639,31 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="cod">COD Amount</label>
-              <input
+            <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+              <div className="space-y-2">
+                <label htmlFor="cod">COD Amount</label>
+                <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
+                type="text"
                 id="cod"
                 name="cod"
                 placeholder="Ex. 1500"
                 value={formData.cod}
                 onChange={handleChange}
               />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="shippingType">Shipping Type</label>
+                <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="shippingType"
+                name="shippingType"
+                placeholder="Express or Surface"
+                value={formData.shippingType}
+                onChange={handleChange}
+              />
+              </div>
             </div>
             
           </div>
@@ -694,8 +755,54 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
     );
   };
 
+const ShipList = ({shipment, setIsShip}) => {
+  const [prices,setPrices] = useState([])
+  useEffect(()=>{
+    // console.log({method, status, origin, dest, weight, payMode, codAmount})
+    const data = async () => {
+      await fetch(`/.netlify/functions/price`, {
+        method: 'POST',
+        headers: { 'Accept': '*/*',
+          'Content-Type': 'application/json',
+          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
+          "Access-Control-Allow-Origin" : "*",
+          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+        },
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method=="COD"?"COD":"Pre-paid", codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
+        
+      }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
+    }  
+    data()
+  }, []) 
+  return (
+    <>
+      <div className="w-full absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+        <div className="absolute top-3 right-3" onClick={()=>setIsShip(false)}>
+          X
+        </div>
+        <div className="text-center text-3xl font-medium">
+          CHOOSE YOUR SERVICE
+        </div>
+        <div className="w-full p-4 ">
+          {
+            prices.length ? prices.map((price)=>(
+              <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+          <div>{price.name+" "+price.weight}</div>
+          <div className="absolute right-4">{`₹${Math.round((price.price))}`}</div>
+        </div>
+            ))
+          : null
+          }
+          
+        </div>
+      </div>
+    </>
+  )
+}
+
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
+    const [isShip, setIsShip] = useState(false);
     const ship = (order) => {
       fetch('/.netlify/functions/create', {
         method: 'POST',
@@ -709,12 +816,13 @@ const Card = ({ shipment }) => {
     }
     return (
       <>
+        {isShip && <ShipList setIsShip={setIsShip} shipment={shipment}/>}
         <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} />
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>{shipment.ord_id}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>ship(shipment.ord_id)}>Ship</div>
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div>
           </div>
         </div>
       </>
@@ -731,7 +839,7 @@ const Listing = ({ step, setStep }) => {
               'Content-Type': 'application/json',
               'Authorization': localStorage.getItem('token'),
             },
-            body: JSON.stringify({id : 3}),
+            
           })
             .then(response => response.json())
             .then(result => {
@@ -766,6 +874,7 @@ const Listing = ({ step, setStep }) => {
             </div>
           </div>
           <div className="w-full">
+          
             {shipments.map((shipment, index) => (
               <Card key={index} shipment={shipment} />
             ))}

@@ -27,15 +27,14 @@ exports.handler = async (event) => {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ?', [email]);
+    const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ? AND isActive=1', [email]);
     
     if (rows.length > 0 && await bcrypt.compare(password, rows[0].password)) {
-      const [rows2] = await connection.execute('SELECT * FROM USER_DATA WHERE id = ?', [rows[0].id]);
-      const id = rows[0].id;
-      const name = rows[0].name;
-      const verified = rows[0].verified;
-      const admin = rows[0].is_admin;
-      const business_name = rows2[0].business_name;
+      const id = rows[0].uid;
+      const name = rows[0].fullName;
+      const verified = rows[0].isVerified;
+      const admin = rows[0].isAdmin;
+      const business_name = rows[0].businessName;
       const token = jwt.sign({  email, verified, name, id, business_name, admin }, SECRET_KEY, { expiresIn: '12h' });
       return {
         statusCode: 200,

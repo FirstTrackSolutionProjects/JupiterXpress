@@ -13,17 +13,27 @@ exports.handler = async (event, context) => {
     const response = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/edit/`, {
         method: 'POST',
         headers: {
-        'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
+        'Authorization': `Token ${process.env.DELHIVERY_500GM_SURFACE_KEY}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
         },
         body: JSON.stringify({name,  phone, address, pin})
     });
+    const response2 = await fetch(`https://track.delhivery.com/api/backend/clientwarehouse/edit/`, {
+      method: 'POST',
+      headers: {
+      'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+      },
+      body: JSON.stringify({name,  phone, address, pin})
+  });
     const data = await response.json();
-    if (!data.success){
+    const data2 = await response2.json();
+    if (!data.success || !data2.success){
         return {
             statusCode: 400,
-            body: JSON.stringify({success: false, message: data.error}),
+            body: JSON.stringify({success: false, message: data.error + data2.error}),
             headers: {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
@@ -38,7 +48,7 @@ exports.handler = async (event, context) => {
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME,
         });
-        await connection.execute('UPDATE delhiveryWarehouse set address = ?, phone = ?, pincode = ? WHERE name = ?', [ address, phone, pin, name]);
+        await connection.execute('UPDATE WAREHOUSES set address = ?, phone = ?, pin = ? WHERE warehouseName = ?', [ address, phone, pin, name]);
 
       } catch (error) {
         return {

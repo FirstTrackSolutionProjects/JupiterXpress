@@ -1,8 +1,21 @@
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event, context) => {
-  const id = event.queryStringParameters.id;
-
+  const token = event.headers.authorization;
+  if (!token) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Access Denied" }),
+    };
+  }
+  try{
+    const verified = jwt.verify(token, SECRET_KEY);
+    const id = verified.id;
   // Connect to MySQL database
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
@@ -12,7 +25,7 @@ exports.handler = async (event, context) => {
   });
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM WALLET WHERE id = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM WALLET WHERE uid = ?', [id]);
 
     if (rows.length === 0) {
       return {
@@ -35,4 +48,11 @@ exports.handler = async (event, context) => {
   } finally {
     connection.end();
   }
+  } catch(e){
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'Invalid Token' }),
+    };
+  }
+
 };
