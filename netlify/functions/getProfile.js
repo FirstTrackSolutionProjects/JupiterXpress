@@ -31,12 +31,11 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id
-    const [rows] = await connection.execute('SELECT * FROM USERS WHERE id = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM USERS NATURAL JOIN USER_DATA WHERE uid = ?', [id]);
     if (rows.length > 0) {
-      const [rows2] = await connection.execute('SELECT * FROM USER_DATA WHERE id = ?', [id]);
       return {
         statusCode: 200,
-        body: JSON.stringify({ success:true, data : {basic : rows[0], detailed : rows2[0]} }),
+        body: JSON.stringify({ success:true, data : rows[0] }),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

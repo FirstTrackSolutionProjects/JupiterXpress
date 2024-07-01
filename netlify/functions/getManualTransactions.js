@@ -31,7 +31,9 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const [rows] = await connection.execute('SELECT * FROM RECHARGE WHERE uid = ?', [id]);
+    const admin = verified.admin;
+    if (admin){
+        const [rows] = await connection.execute('SELECT * FROM MANUAL_RECHARGE');
     
       
       return {
@@ -43,6 +45,20 @@ exports.handler = async (event) => {
           
         },
       };
+    }
+    const [rows] = await connection.execute('SELECT * FROM MANUAL_RECHARGE where beneficiary_id = ?',[id]);
+    
+      
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success:true, data : rows }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)`
+          
+        },
+      };
+    
   } catch (error) {
     return {
       statusCode: 500,

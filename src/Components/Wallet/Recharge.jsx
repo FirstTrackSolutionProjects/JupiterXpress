@@ -81,8 +81,8 @@ const Recharge = ({setShowRecharge}) => {
     };
 
   return (
-    <div className='absolute inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.5)]'>
-      <form className='relative mx-2 w-full sm:w-[500px] flex flex-col items-center bg-white rounded-2xl p-8 space-y-8' onSubmit={(e)=>e.preventDefault()}>
+    <div className='fixed inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.5)]'>
+      <form className='relative mx-2 w-full sm:w-[500px] flex flex-col items-center bg-white rounded-2xl p-8 space-y-8' onSubmit={(e)=>{e.preventDefault(); displayRazorpay()}}>
       <div className='absolute right-6 hover:bg-blue-500 w-7 h-7 rounded-full flex items-center justify-center hover:text-white' onClick={()=>setShowRecharge(false)}>
           X
         </div>
@@ -91,16 +91,16 @@ const Recharge = ({setShowRecharge}) => {
       <input
         type="number"
         value={amount}
-        min={1}
+        min={500}
         onChange={(e) => setAmount(e.target.value)}
         className='w-full border py-2 px-4 rounded-3xl'
       />
       <div className='flex w-full justify-evenly'>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+500)}}>+500</button>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+1000)}}>+1000</button>
-      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount((prev)=>parseInt(prev)+2000)}}>+2000</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(500)}}>500</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(1000)}}>1000</button>
+      <button className='w-20 border py-2 px-4 rounded-3xl hover:bg-blue-500 hover:text-white' onClick={()=>{setAmount(2000)}}>2000</button>
       </div>
-      <button onClick={displayRazorpay} className='w-40 border py-2 px-4 rounded-3xl hover:text-white hover:bg-blue-500'>Recharge Wallet</button>
+      <button type='submit' className='w-40 border py-2 px-4 rounded-3xl hover:text-white hover:bg-blue-500'>Recharge Wallet</button>
       </form>
     </div>
   );

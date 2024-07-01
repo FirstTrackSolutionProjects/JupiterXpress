@@ -31,7 +31,7 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const [rows] = await connection.execute('SELECT * FROM RECHARGE WHERE uid = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM USERS NATURAL JOIN EMPLOYEE_INFO');
     
       
       return {
@@ -46,7 +46,7 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Unexpected Error while fetching transactions', error: error.message }),
+      body: JSON.stringify({ message: 'Unexpected Error while fetching employees', error: error.message }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

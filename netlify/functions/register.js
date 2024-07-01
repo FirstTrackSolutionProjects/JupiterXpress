@@ -15,11 +15,11 @@ const dbConfig = {
 const SECRET_KEY = process.env.JWT_SECRET;
 
 let transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', 
-  port: 587,
-  secure: false,
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
   auth: {
-    user: 'azureaditya5155@gmail.com',
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
@@ -31,23 +31,30 @@ exports.handler = async (event) => {
     };
   }
 
-  const { reg_email, reg_password, name, mobile } = JSON.parse(event.body);
+  const { reg_email, reg_password, name, mobile, business_name } = JSON.parse(event.body);
   const hashedPassword = await bcrypt.hash(reg_password, 10);
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    await connection.execute('INSERT INTO USERS (email, password, name, mobile ) VALUES (?, ?, ?, ?)', [reg_email, hashedPassword, name, mobile]);
+    const [users] = await connection.execute('SELECT * FROM USERS  WHERE email = ?', [reg_email]);
+    if (users.length){
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: "User is already registered. Please login"}),
+      };
+    }
+    await connection.execute('INSERT INTO USERS (businessName, email, password, fullName, phone ) VALUES (?, ?, ?, ?,?)', [business_name, reg_email, hashedPassword, name, mobile]);
     let mailOptions = {
-      from: 'azureaditya5155@gmail.com', 
+      from: process.env.EMAIL_USER,
       to: reg_email, 
-      subject: 'Registration Successfull', 
-      text: `Dear ${name}, \nYour registration on Jupiter Xpress is successfull. Please verify your details to experience robust features of Jupiter Xpress. \n\n Regards, \nJupiter Xpress`
+      subject: 'Registration Incomplete', 
+      text: `Dear ${name}, \nYour registration on Jupiter Xpress is incomplete. Please verify your details to experience robust features of Jupiter Xpress. \n\n Regards, \nJupiter Xpress`
     };
     await transporter.sendMail(mailOptions)
     const [rows] = await connection.execute('SELECT * FROM USERS  WHERE email = ?', [reg_email]);
-    const id = rows[0].id
-    const token = jwt.sign({  email : reg_email , verified : 0, name, id }, SECRET_KEY, { expiresIn: '12h' });
+    const id = rows[0].uid
+    const token = jwt.sign({  email : reg_email , verified : 0, name, id, business_name : business_name }, SECRET_KEY, { expiresIn: '12h' });
     return {
       statusCode: 200,
       body: JSON.stringify({ token : token ,message: 'User registered', success: true }),

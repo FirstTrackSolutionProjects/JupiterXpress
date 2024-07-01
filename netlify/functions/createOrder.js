@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql2/promise');
-require('dotenv').config();
-
+const jwt = require("jsonwebtoken");
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const dbConfig = {
   host: process.env.DB_HOST,
@@ -18,16 +17,16 @@ exports.handler = async (event) => {
   if (!token) {
     return {
       statusCode: 401,
-      body: JSON.stringify({ message: 'Access Denied' }),
+      body: JSON.stringify({ message: "Access Denied" }),
     };
   }
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    try{
+    try {
       let {
-        whName,
+        wid,
         order,
         date,
         payMode,
@@ -59,11 +58,12 @@ exports.handler = async (event) => {
         breadth,
         height,
         gst,
-        Cgst
-       } = JSON.parse(event.body);
+        Cgst,
+        pickDate,
+        pickTime
+      } = JSON.parse(event.body);
 
-
-       if(same){
+      if (same) {
         Baddress = address;
         BaddressType = addressType;
         Baddress2 = address2;
@@ -71,15 +71,16 @@ exports.handler = async (event) => {
         Bcountry = country;
         Bstate = state;
         Bcity = city;
-        Bpostcode = postcode
-       }
+        Bpostcode = postcode;
+      }
 
-        const connection = await mysql.createConnection(dbConfig);
+      const connection = await mysql.createConnection(dbConfig);
 
-        try {
-            await connection.beginTransaction();
-          await connection.execute(`INSERT INTO SHIPMENTS (
-  id,
+      try {
+        await connection.beginTransaction();
+        await connection.execute(
+          `INSERT INTO SHIPMENTS (
+  uid,
   ord_id,
   ord_date,
   pay_method,
@@ -111,35 +112,91 @@ exports.handler = async (event) => {
   status,
   gst,
   customer_gst,
-  wName
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`, [id,order , date, payMode, name, email, phone,  address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry , Bstate, Bcity, Bpostcode ,  cod, discount, length,breadth, height, weight, "standby", gst, Cgst, whName ]);
-            for (let i = 0; i < orders.length; i++){
-                await connection.execute(`INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?)`,[order, orders[i].master_sku, orders[i].product_name, orders[i].product_quantity, orders[i].tax_in_percentage, orders[i].selling_price, orders[i].discount])
-            }
-            await connection.commit();
-          return {
-            statusCode: 200,
-            body: JSON.stringify({ success: true,  message: 'Details Submitted' }),
-          };
-        } catch (error) {
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ message: error.message+id, orders:orders ,error: error.message }),
-          };
-        } finally {
-          await connection.end();
+  wid,
+  same,
+  pickup_date,
+  pickup_time
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?)`,
+          [
+            id,
+            order,
+            date,
+            payMode,
+            name,
+            email,
+            phone,
+            address,
+            addressType,
+            address2,
+            addressType2,
+            country,
+            state,
+            city,
+            postcode,
+            Baddress,
+            BaddressType,
+            Baddress2,
+            BaddressType2,
+            Bcountry,
+            Bstate,
+            Bcity,
+            Bpostcode,
+            cod,
+            discount,
+            length,
+            breadth,
+            height,
+            weight,
+            "Ready",
+            gst,
+            Cgst,
+            wid,
+            same,
+            pickDate,
+            pickTime
+          ]
+        );
+        for (let i = 0; i < orders.length; i++) {
+          await connection.execute(
+            `INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+              order,
+              orders[i].master_sku,
+              orders[i].product_name,
+              orders[i].product_quantity,
+              orders[i].tax_in_percentage,
+              orders[i].selling_price,
+              orders[i].discount,
+            ]
+          );
         }
-
-    } catch(err){
+        await connection.commit();
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ success: true, message: "Details Submitted" }),
+        };
+      } catch (error) {
+        return {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: error.message + id,
+            orders: orders,
+            error: error.message,
+          }),
+        };
+      } finally {
+        await connection.end();
+      }
+    } catch (err) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: 'Something went wrong' }),
+        body: JSON.stringify({ message: "Something went wrong" }),
       };
     }
   } catch (err) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid Token' }),
+      body: JSON.stringify({ message: "Invalid Token" }),
     };
   }
 };

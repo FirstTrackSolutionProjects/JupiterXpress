@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const ResetPassword = ({setReset}) => {
+const ResetPassword = ({reset, setReset}) => {
     const INITIAL_STATE = {
         email : '',
         otp : '',
@@ -45,7 +45,7 @@ const ResetPassword = ({setReset}) => {
     }));
   };
   return (
-    <div className="absolute bg-blue-100  h-full inset-0 flex flex-col items-center justify-center overflow-hidden">
+    <div className={`absolute bg-blue-100   h-full inset-0 flex flex-col items-center justify-center overflow-hidden`}>
         <p className='absolute top-4 right-6 text-black z-50 cursor-pointer' onClick={()=>setReset(false)}>X</p>
     <div className='max-w-96 p-8 flex flex-col items-center relative'>
         

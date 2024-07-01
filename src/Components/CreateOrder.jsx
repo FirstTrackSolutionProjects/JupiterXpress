@@ -5,7 +5,7 @@ const FullDetails = () => {
     { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
 ]);
   const [formData, setFormData] = useState({
-    whName : '',
+    wid : '',
     pickupTime : '',
     pickupDate: '',
     order : '',
@@ -39,9 +39,25 @@ const FullDetails = () => {
     breadth : '',
     height :  '',
     gst : '',
-    Cgst : ''
-    
+    Cgst : '',
+    shippingType : '',
+    pickDate : '',
+    pickTime : '',
   })
+  const [warehouses, setWarehouses] = useState([])
+  useEffect(() => {
+    const getWarehouses = async () => {
+      await fetch('/.netlify/functions/getWarehouse',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        }
+      }).then(response => response.json()).then(result => setWarehouses(result.rows))
+    }
+    getWarehouses();
+  }, [])
   const addProduct = () => {
     setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: 0 , selling_price: 0 , discount: '' , tax_in_percentage: 0 }]);
 
@@ -111,47 +127,54 @@ const FullDetails = () => {
         <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="whName">Pickup Warehouse Name</label>
+              <label htmlFor="wid">Pickup Warehouse Name</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="wid"
+                name="wid"
+                placeholder="Warehouse Name"
+                value={formData.wid}
+                onChange={handleChange}
+              >
+                <option value="">Select Warehouse</option>
+                { warehouses.length ?
+                  warehouses.map((warehouse, index) => (
+                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
+                  ) ) : null
+                } 
+              </select>
+            </div>
+            
+          </div>
+         
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="whName"
-                name="whName"
-                placeholder="Ex. Patna Warehouse"
-                value={formData.whName}
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
                 onChange={handleChange}
               />
             </div>
             
           </div>
-         
-          {/* <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="order">Pickup Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="order"
-                name="order"
-                placeholder="Ex. ORDER123456"
-                value={formData.order}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="date">Pickup Time</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="date"
-                name="date"
-                placeholder="Ex. 13/05/2024"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div> */}
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -199,7 +222,7 @@ const FullDetails = () => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Ex. Aditya Kumar"
+                placeholder="Enter Customer Name"
                 value={formData.name}
                 onChange={handleChange}
               />
@@ -241,7 +264,7 @@ const FullDetails = () => {
                 type="text"
                 id="address"
                 name="address"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Shipping Address"
                 value={formData.address}
                 onChange={handleChange}
               />
@@ -257,7 +280,7 @@ const FullDetails = () => {
                 type="text"
                 id="address2"
                 name="address2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Alternate Shipping Address"
                 value={formData.address2}
                 onChange={handleChange}
               />
@@ -298,7 +321,7 @@ const FullDetails = () => {
                 type="text"
                 id="postcode"
                 name="postcode"
-                placeholder="Ex. 813210"
+                placeholder="XXXXXX"
                 value={formData.postcode}
                 onChange={handleChange}
               />
@@ -310,7 +333,7 @@ const FullDetails = () => {
                 type="text"
                 id="city"
                 name="city"
-                placeholder="Ex. Bhagalpur"
+                placeholder="Enter City"
                 value={formData.city}
                 onChange={handleChange}
               />
@@ -327,7 +350,7 @@ const FullDetails = () => {
                 type="text"
                 id="state"
                 name="state"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.state}
                 onChange={handleChange}
               />
@@ -339,7 +362,7 @@ const FullDetails = () => {
                 type="text"
                 id="country"
                 name="country"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.country}
                 onChange={handleChange}
               />
@@ -368,7 +391,7 @@ const FullDetails = () => {
                 type="text"
                 id="Baddress"
                 name="Baddress"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Address"
                 value={formData.Baddress}
                 onChange={handleChange}
               />
@@ -383,7 +406,7 @@ const FullDetails = () => {
                 type="text"
                 id="Baddress2"
                 name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
+                placeholder="Enter Address"
                 value={formData.Baddress2}
                 onChange={handleChange}
               />
@@ -425,7 +448,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bpostcode"
                 name="Bpostcode"
-                placeholder="Ex. 813210"
+                placeholder="XXXXXX"
                 value={formData.Bpostcode}
                 onChange={handleChange}
               />
@@ -437,7 +460,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bcity"
                 name="Bcity"
-                placeholder="Ex. Bhagalpur"
+                placeholder="Enter City"
                 value={formData.Bcity}
                 onChange={handleChange}
               />
@@ -454,7 +477,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bstate"
                 name="Bstate"
-                placeholder="Ex. Bihar"
+                placeholder="Enter State"
                 value={formData.Bstate}
                 onChange={handleChange}
               />
@@ -466,7 +489,7 @@ const FullDetails = () => {
                 type="text"
                 id="Bcountry"
                 name="Bcountry"
-                placeholder="Ex. India"
+                placeholder="Enter Country"
                 value={formData.Bcountry}
                 onChange={handleChange}
               />
@@ -562,7 +585,7 @@ const FullDetails = () => {
                 type="text"
                 id="discount"
                 name="discount"
-                placeholder="Ex. 1500"
+                placeholder="Ex. 100"
                 value={formData.discount}
                 onChange={handleChange}
               />
@@ -581,14 +604,14 @@ const FullDetails = () => {
               />
               </div>
               <div className="space-y-2">
-                <label htmlFor="cod">Shipping Type</label>
+                <label htmlFor="shippingType">Shipping Type</label>
                 <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="cod"
-                name="cod"
-                placeholder="Ex. 1500"
-                value={formData.cod}
+                id="shippingType"
+                name="shippingType"
+                placeholder="Express or Surface"
+                value={formData.shippingType}
                 onChange={handleChange}
               />
               </div>
@@ -669,7 +692,7 @@ const FullDetails = () => {
                 type="text"
                 id="Cgst"
                 name="Cgst"
-                placeholder="Enter Csutomer GST"
+                placeholder="Enter Customer GST"
                 value={formData.Cgst}
                 onChange={handleChange}
               />

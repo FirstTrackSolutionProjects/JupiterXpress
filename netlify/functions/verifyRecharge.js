@@ -4,21 +4,16 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 let transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', 
-  port: 587,
-  secure: false,
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
   auth: {
-    user: 'azureaditya5155@gmail.com',
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 exports.handler = async (event, context) => {
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature, uid, amount } = JSON.parse(event.body);
-
-  const razorpay = new Razorpay({
-    key_id: "rzp_live_bUjlhO5HTl10ug",
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
 
   // Verify the payment signature
   const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -47,8 +42,8 @@ exports.handler = async (event, context) => {
 
   try {
     // Update user's wallet balance in database
-    await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE id = ?', [amount, uid]);
-
+    await connection.beginTransaction();
+    await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE uid = ?', [amount, uid]);
     // Insert transaction record
     const transactionDetails = {
       uid,
@@ -59,14 +54,17 @@ exports.handler = async (event, context) => {
     };
     
     await connection.execute(
-      'INSERT INTO TRANSACTIONS (id, payment_id, order_id, amount, date) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO RECHARGE (uid, payment_id, order_id, amount, date) VALUES (?, ?, ?, ?, ?)',
       [transactionDetails.uid, transactionDetails.razorpay_payment_id, transactionDetails.razorpay_order_id, transactionDetails.amount, transactionDetails.date]
     );
+    await connection.commit();
+    const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
+    const {email , fullName} = users[0];
     let mailOptions = {
-      from: 'azureaditya5155@gmail.com', 
-      to: 'adityakr5155@gmail.com', 
+      from: process.env.EMAIL_USER,
+      to: email, 
       subject: 'Wallet Recharge Successfull', 
-      text: `Dear Merchant, \nYour wallet recharge for amount ₹${amount} has been verified and credited to your wallet.\nRegards,\nJupiter Xpress`
+      text: `Dear ${fullName}, \nYour wallet recharge for amount ₹${amount} and order Id : ${transactionDetails.razorpay_order_id} has been verified and credited to your wallet.\nRegards,\nJupiter Xpress`
     };
   await transporter.sendMail(mailOptions);
     return {

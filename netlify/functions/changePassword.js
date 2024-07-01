@@ -29,7 +29,7 @@ exports.handler = async (event) => {
 
       try {
         const [users] = await connection.execute(
-          "SELECT * FROM USERS WHERE id = ?",
+          "SELECT * FROM USERS WHERE uid = ?",
           [id]
         );
         
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
         }
           await connection.beginTransaction();
           await connection.execute(
-            "UPDATE USERS SET password = ? WHERE id = ?",
+            "UPDATE USERS SET password = ? WHERE uid = ?",
             [await bcrypt.hash(newPassword, 10), id]
           );
           await connection.commit();

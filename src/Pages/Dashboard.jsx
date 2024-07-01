@@ -9,14 +9,16 @@ import CreateOrder from "../Components/CreateOrder"
 import Warehouse from "../Components/Warehouse"
 import { AuthContext } from "../context/AuthContext"
 import UpdateOrder from "../Components/UpdateOrder"
+import AdminProfile from "../Components/AdminProfile"
 import NDR from "../Components/NDR"
-import History from "../Components/History"
 import Profile from "../Components/Profile"
 import Recharge from "../Components/Wallet/Recharge"
 import ChangePassword from "../Components/ChangePassword"
 import MerchantManage from "../Components/MerchantManage"
 import ManualRecharge from "../Components/ManualRecharge"
 import VerificationRequests from "../Components/VerificationRequests"
+import TransactionHistory from "../Components/TransactionHistory"
+import ContactSubmissions from "../Components/ContactSubmissions"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -71,16 +73,16 @@ const Dashboard = () => {
                 {(menuID[0] == 1) && <CreateOrder/>}
                 {(menuID[0] == 2) && <Warehouse/>}
                 {(menuID[0] == 3) && <UpdateOrder/>}
-                {(menuID[0] == 4) && <History/>}
+                {(menuID[0] == 4) && <TransactionHistory/>}
                 {(menuID[0] == 5) && <NDR/>}
-                {(menuID[0] == 6 && menuID[1] == 0) && <Profile/>}
+                {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  &&  <AdminProfile/> }
+                {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  &&  <Profile/> }
                 {(menuID[0] == 6 && menuID[1] == 1) && <ChangePassword/>}
                 {(menuID[0] == 9 && menuID[1] == 0) && <MerchantManage/>}
                 {(menuID[0] == 11 && menuID[1] == 0) && <VerificationRequests/>}
+                {(menuID[0] == 11 && menuID[1] == 1) && <ContactSubmissions/>}
                 {(menuID[0] == 12) && <ManualRecharge/>}
                 {(menuID[0] == 7) && (loggingOut())}
-
-                           
               </div>
             </div>
         </>
