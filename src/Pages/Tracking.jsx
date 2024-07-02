@@ -110,7 +110,7 @@ const Result = ({data}) => {
     )
 }
 
-const Tracking = () => {
+const DomesticTracking = () => {
   return (
     <>
         <Header />
@@ -120,4 +120,4 @@ const Tracking = () => {
   )
 }
 
-export default Tracking
+export default DomesticTracking

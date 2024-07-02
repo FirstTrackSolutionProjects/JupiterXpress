@@ -28,7 +28,7 @@ const HeroHeader = () => {
       <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-300 items-center h-16">
         {
           navItems.map((item,index) =>(
-            <NavItem key = {index} name={item.name} url={item.url} />
+            <NavItem key = {index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} />
           ))
         }
         {username && (

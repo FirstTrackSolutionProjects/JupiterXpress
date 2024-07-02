@@ -8,7 +8,8 @@ import Blogs from './Pages/Blogs'
 import Privacy from './Pages/Privacy'
 import TnC from './Pages/TnC'
 import FAQ from './Pages/FAQ'
-import Price from './Pages/Price'
+import DomesticPrice from './Pages/DomesticPrice'
+import InternationalPrice from './Pages/InternationalPrice'
 import Verify from './Pages/Verify'
 import Tracking from './Pages/Tracking'
 const App = () => {
@@ -26,9 +27,11 @@ const App = () => {
         <Route path='/privacy' element={<Privacy/>} />
         <Route path='/tnc' element={<TnC/>} />
         <Route path='/faq' element={<FAQ/>} />
-        <Route path='/pricing' element={<Price />} />
+        <Route path='/domestic' element={<DomesticPrice />} />
+        <Route path='/international' element={<InternationalPrice />} />
         <Route path='/verify' element={<Verify/>} />
         <Route path='/tracking' element={<Tracking/>} />
+
         <Route path='*' element={<Index />} />
       </Routes>
       

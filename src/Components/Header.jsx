@@ -59,7 +59,7 @@ const Header = () => {
           </div>
         </Link>
         {navItems.map((item, index) => (
-          <NavItem key={index} name={item.name} url={item.url} />
+          <NavItem key={index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} />
         ))}
 
         {username && (
