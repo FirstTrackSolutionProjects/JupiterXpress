@@ -55,8 +55,9 @@ const Welcome = () => {
           <div className={` transition-all duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
           
           
-            
             <div className='relative flex flex-col justify-center items-center py-6'>
+            <div className="lg:text-[12px] text-[9px] ">JUPITER <i className="text-blue-400 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </div>
+          <div className="lg:text-[12px] text-[9px] mb-6"> <i className="text-blue-400 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</div>
               <div className=' text-left lg:text-7xl  text-5xl  font-bold italic'>JUPITER</div>
               <div className='flex items-center my-3'>
               <img src="logo.webp" alt="" className='lg:w-[200px] lg:h-[60px]  w-[150px] h-[45px]' />
@@ -80,7 +81,7 @@ const Welcome = () => {
                 <img src={img4} alt="" className='lg:w-[42px] lg:h-[32px]  w-[42px] h-[32px] mx-1' />
                 </div>*/}
 {/*Slider added*/}
-              <div className=' mt-6 w-[340px] sm:w-[360px]  space-y-2'>
+              <div className=' mt-5 w-[340px] sm:w-[360px]  space-y-2'>
               <div className='lg:text-base text-sm font-bold  mt-1 px-9  text-blue-400 italic'>OUR TRUSTED PARTNERS </div>
               {/*<div className='lg:text-[12.5px] text-[9px] font-bold  mt-2'>Domestic </div>*/}
               <div className="relative overflow-hidden">
@@ -89,7 +90,7 @@ const Welcome = () => {
           <div key={slideIndex} className="flex-shrink-0 w-full flex justify-center  items-center">
             {images.slice(slideIndex * 4, slideIndex * 4 + 4).map((image, index) => (
               <div key={index} className="flex-shrink-0 w-1/5 flex justify-center ">
-                <img src={image} alt={`Slide ${slideIndex * 4 + index}`} className="w-full px-1 h-[40px] sm:h-[50px] shadow-md " />
+                <img src={image} alt={`Slide ${slideIndex * 4 + index}`} className="w-full px-1 h-[40px] sm:h-[45px] shadow-md " />
               </div>
             ))}
           </div>
