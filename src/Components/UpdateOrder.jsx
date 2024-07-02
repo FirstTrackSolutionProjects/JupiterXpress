@@ -234,7 +234,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 name="order"
                 placeholder="Ex. ORDER123456"
                 value={formData.order}
-                readOnly
+                onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -685,7 +685,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           <div className="w-full flex mb-2 flex-wrap ">
 
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Weight (In Kg)</label>
+              <label htmlFor="weight">Weight (In g)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -793,8 +793,8 @@ const ShipCard = ({price, shipment}) => {
         'Accept': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-      body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price)})
-    }).then(response => response.json()).then(result => alert(result.response.rmk));
+      body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
+    }).then(response => response.json()).then(result => console.log(result.error));
   }
   return (
     <>

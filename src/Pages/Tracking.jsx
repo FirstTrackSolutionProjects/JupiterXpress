@@ -37,7 +37,6 @@ const Form = () => {
             body: JSON.stringify(formData)
         }).then(response => response.json())
         setTrackingData(data)
-        console.log(data)
     }
     return (
         <>
@@ -80,6 +79,17 @@ const Card = ({scan}) => {
         </>
     )
 }
+const FlightGoCard = ({scan}) => {
+    return (
+        <>
+         <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
 
 const Result = ({data}) => {
     useEffect(() => {
@@ -88,16 +98,19 @@ const Result = ({data}) => {
     return (
         <>
             <div className={`w-full p-8 overflow-hidden  `}>
-                    {data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index)=>(
+                    {data?.id == 1 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index)=>(
                         <Card key={index} scan={scan.ScanDetail} />
-                    ))}
+                    )) : null}
+                    {data?.id == 2 ? data?.data.docket_events.map((scan, index)=>(
+                        <FlightGoCard key={index} scan={scan} />
+                    )): null}
             </div>
         
         </>
     )
 }
 
-const Tracking = () => {
+const DomesticTracking = () => {
   return (
     <>
         <Header />
@@ -107,4 +120,4 @@ const Tracking = () => {
   )
 }
 
-export default Tracking
+export default DomesticTracking

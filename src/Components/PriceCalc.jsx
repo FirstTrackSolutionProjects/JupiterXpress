@@ -44,11 +44,10 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
 }
 
 
-const PriceCalc = () => {
-  
+const Domestic = () => {
   const [formData, setFormData] = useState({
     method : 'S',
-    status: 'DTO',
+    status: 'Delivered',
     origin : '',
     dest : '',
     weight : '',
@@ -72,14 +71,8 @@ const PriceCalc = () => {
   }
   return (
     <>
-      
-      <div className="pt-16 relative">
       {showCompare && <ComparePrices {...formData} />}
-      <div className="w-full p-8 flex flex-col items-center space-y-6">
-        <div className="text-center text-3xl font-medium mb-8">
-          Calculate your shipping price
-        </div>
-        <form action="" className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+      <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="method">Shipping Method</label>
@@ -103,9 +96,9 @@ const PriceCalc = () => {
                 value={formData.status}
                 onChange={handleChange}
               >
-                <option value="Delivered">Delivered</option>
+                <option value="Delivered">Forward</option>
                 <option value="RTO">RTO</option>
-                <option value="DTO">DTO</option>
+                <option value="DTO">Reverse</option>
               </select>
             </div>
           </div>
@@ -159,8 +152,8 @@ const PriceCalc = () => {
 
               >
                 <option value="COD">COD</option>
-                <option value="Pre-paid">Prepaid</option>
-                <option value="Pickup">Pickup</option>
+                <option value="prepaid">Prepaid</option>
+                <option value="pickup">Pickup</option>
                 <option value="REPL">REPL</option>
               </select>
             </div>
@@ -181,7 +174,7 @@ const PriceCalc = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="length">Length (in cm)</label>
+              <label htmlFor="length">L (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -193,7 +186,7 @@ const PriceCalc = () => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="breadth">Breadth (in cm)</label>
+              <label htmlFor="breadth">B (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -205,7 +198,7 @@ const PriceCalc = () => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="height">Height (in cm)</label>
+              <label htmlFor="height">H (in cm)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -222,6 +215,24 @@ const PriceCalc = () => {
               Submit and Compare
             </button>
         </form>
+    </>
+  )
+}
+
+
+
+
+const PriceCalc = () => {
+  return (
+    <>
+      
+      <div className="pt-16 relative">
+      
+      <div className="w-full p-8 flex flex-col items-center space-y-6">
+        <div className="justify-center text-center text-3xl font-medium mb-8 flex">
+          Calculate your shipping price
+        </div>
+        <Domestic />
       </div>
       </div>
     </>

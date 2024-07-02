@@ -5,11 +5,18 @@ export const navItems = [
     },
     {
         name : 'Tracking',
-        url : '/tracking'
+        url : '/tracking',
     },
     {
         name : 'Pricing',
-        url : '/pricing'
+        isDropdown : true,
+        options : [{
+            name : 'Domestic',
+            url : '/domestic',
+        },{
+            name : 'International',
+            url : '/international',
+        }]
     },
     {
         name : 'Blogs',

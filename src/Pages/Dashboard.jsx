@@ -67,21 +67,21 @@ const Dashboard = () => {
                   <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
               </div>
-              {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
+              {showRecharge ? <Recharge setShowRecharge={setShowRecharge}/> : null}
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
-                {menuID[0] == 0 && <DashboardMain/>}
-                {(menuID[0] == 1) && <CreateOrder/>}
-                {(menuID[0] == 2) && <Warehouse/>}
-                {(menuID[0] == 3) && <UpdateOrder/>}
-                {(menuID[0] == 4) && <TransactionHistory/>}
-                {(menuID[0] == 5) && <NDR/>}
-                {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  &&  <AdminProfile/> }
-                {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  &&  <Profile/> }
-                {(menuID[0] == 6 && menuID[1] == 1) && <ChangePassword/>}
-                {(menuID[0] == 9 && menuID[1] == 0) && <MerchantManage/>}
-                {(menuID[0] == 11 && menuID[1] == 0) && <VerificationRequests/>}
-                {(menuID[0] == 11 && menuID[1] == 1) && <ContactSubmissions/>}
-                {(menuID[0] == 12) && <ManualRecharge/>}
+                {menuID[0] == 0 ? <DashboardMain/> : null}
+                {(menuID[0] == 1) ? <CreateOrder/> : null}
+                {(menuID[0] == 2) ? <Warehouse/> : null}
+                {(menuID[0] == 3) ? <UpdateOrder/> : null}
+                {(menuID[0] == 4) ? <TransactionHistory/> : null}
+                {(menuID[0] == 5) ? <NDR/> : null}
+                {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
+                {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }
+                {(menuID[0] == 6 && menuID[1] == 1) ? <ChangePassword/> : null}
+                {(menuID[0] == 9 && menuID[1] == 0) ? <MerchantManage/> : null}
+                {(menuID[0] == 11 && menuID[1] == 0) ? <VerificationRequests/> : null}
+                {(menuID[0] == 11 && menuID[1] == 1) ? <ContactSubmissions/> : null}
+                {(menuID[0] == 12) ? <ManualRecharge/> : null}
                 {(menuID[0] == 7) && (loggingOut())}
               </div>
             </div>

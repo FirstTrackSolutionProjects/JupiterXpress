@@ -29,13 +29,18 @@ exports.handler = async (event, context) => {
     responses.push({
       "name" : `Delhivery ${method=='S'?'Surface' : 'Express'} Light`,
       "weight" : "500gm",
-      "price" : Math.round(price*1.3)
+      "price" : Math.round(price*1.3),
+      "serviceId" : "1",
+      "categoryId" : "2"
     })
     if (method=='S') {
       responses.push({
         "name" :  `Delhivery Surface`,
         "weight" : "10Kg",
-        "price" : Math.round(price2*1.3)
+        "price" : Math.round(price2*1.3),
+        "serviceId" : "1",
+        "categoryId" : "2"
+
       })
     }
     return {

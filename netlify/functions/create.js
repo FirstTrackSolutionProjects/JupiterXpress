@@ -28,21 +28,30 @@ exports.handler = async (event) => {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
     const {order, serviceId , categoryId} = JSON.parse(event.body);
-    const [users] = await connection.execute('SELECT * FROM USERS WHERE id = ?',[id])
+    const [users] = await connection.execute('SELECT * FROM USERS WHERE uid = ?',[id])
     const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
-    const [warehouses] = await connection.execute('SELECT * FROM DELHIVERY WHERE uid = ? AND wid = ?', [email, shipment.wid]);
+    const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
+    const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
     const warehouse = warehouses[0]
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
-    if (serviceId === 1) {
+    let total_amount = 0;
+    for (let i =0; i < orders.length; i++) {
+      total_amount += parseFloat(orders[i].selling_price)
+    }
+    let product_description = "";
+    for (let i = 0; i < orders.length; i++) {
+      product_description += `${orders[i].product_name} (${orders[i].product_quantity}) (₹${orders[i].selling_price})\n`
+    }
+    if (serviceId === "1") {
       let req = {
         shipments: [],
         pickup_location: {
-          name: shipment.warehouseName,
+          name: warehouse.warehouseName,
           add: warehouse.address,
           pin_code: warehouse.pin,
-          phone: warehouse.phone
+          phone: warehouse.phone,
         }
       }
       req.shipments.push({
@@ -53,7 +62,7 @@ exports.handler = async (event) => {
         "state": shipment.shipping_state,
         "country": shipment.shipping_country,
         "phone": shipment.customer_mobile,
-        "order": shipment.ord_id,
+        "order": "ORDER1234573",
         "payment_mode": shipment.pay_method,
         "return_pin": "",
         "return_city": "",
@@ -61,13 +70,13 @@ exports.handler = async (event) => {
         "return_add": "",
         "return_state": "",
         "return_country": "",
-        "products_desc": "",
+        "products_desc": product_description,
         "hsn_code": (shipment.hsn)?(shipment.hsn):(""),
         "cod_amount": shipment.cod_amount,
         "order_date": shipment.date,
-        "total_amount": shipment.cod_amount,
-        "seller_add": "",
-        "seller_name": "",
+        "total_amount": "20000",
+        "seller_add": warehouse.address,
+        "seller_name": warehouse.warehouseName,
         "seller_inv": "",
         "quantity": "1",
         "waybill": "",
@@ -82,45 +91,48 @@ exports.handler = async (event) => {
       formData.append('format', 'json');
       formData.append('data', JSON.stringify(req));
 
-    const response = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
+    const responseDta = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === 1?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
       },
       body : formData
-    }).then((response) => response.json())
+    })
+    const response = await responseDta.json()
+    if (response.success){
+      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, status = ? WHERE ord_id = ?', )
+    }
+    // const schedule = await fetch(`https://track.delhivery.com/​fm/request/new/`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Accept': 'application/json',
+    //     'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+    //   },
+    //   body : JSON.stringify({pickup_location: "First Track Solution", pickup_time : "18:00:00", pickup_date : "2024-07-02", expected_package_count	: "1"})
+    // }).then((response) => response.data())
 
-    const schedule = await fetch(`https://track.delhivery.com/​fm/request/new/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === 1?'':categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
-      },
-      body : JSON.stringify({pickup_location: "warehouse", pickup_time : '', pickup_date : '', expected_package_count	: 1})
-    }).then((response) => response.json()).catch((err)=>err)
-
-    const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === 1?'':categoryId===2?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
-      },
-    }).then((response) => response.json())
+    // const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     'Accept': 'application/json',
+    //     'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+    //   },
+    // }).then((response) => response.json())
   
-    let mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \nYour shipment request for Order id : ${shipment.ord_id} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
-    };
-    await transporter.sendMail(mailOptions);
+    // let mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email, 
+    //   subject: 'Shipment created successfully', 
+    //   text: `Dear Merchant, \nYour shipment request for Order id : ${shipment.ord_id} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nLabel PDF : ${label.packages[0].pdf_download_link}\nRegards,\nJupiter Xpress`
+    // };
+    // await transporter.sendMail(mailOptions);
     return {
       statusCode: 200,
-      body: JSON.stringify({response, shipment, schedule, label}),
+      body: JSON.stringify({  response}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -132,7 +144,7 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message + 'hello' }),
+      body: JSON.stringify({ error: error.message  }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', 
