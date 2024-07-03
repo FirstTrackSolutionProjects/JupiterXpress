@@ -22,6 +22,12 @@ const TextForm = () => {
         ifsc: '',
         account: '',
         cin: '',
+        aadharDoc : null,
+        panDoc : null,
+        gstDoc : null,
+        chequeDoc : null,
+        selfieDoc : null,
+        otherDoc : null,
     }
     const isAuthenticated = () => {
         const token = localStorage.getItem('token');
@@ -52,14 +58,18 @@ const TextForm = () => {
       }, [])
     const [formData,setFormData] = useState(InitialState)
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, files, type } = e.target;
         setFormData((prevData) => ({
           ...prevData,
-          [name]: value,
+          [name]:type=="file"?files[0]:value,
         }));
       };
       const handleSubmit = (e) => {
         e.preventDefault();
+        let fd = new FormData();
+        for (const key in formData) {
+          fd.append(key, formData[key]);
+        }
         fetch("/.netlify/functions/verify", {
           method: "POST",
           headers: {
@@ -146,32 +156,32 @@ const TextForm = () => {
              
                 <div className="w-full flex mb-2 flex-wrap ">
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="aadhar_doc">Aadhar Card (Both Sides) *</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="aadhar_doc" name="aadhar_doc" placeholder="Upload Driving License" />
+                    <label htmlFor="aadharDoc">Aadhar Card (Both Sides) *</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="aadharDoc" name="aadharDoc" placeholder="Upload Driving License" />
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="pan_doc" name="pan_doc" placeholder="Upload Driving License" />
+                    <label htmlFor="panDoc">PAN Card (Front Side) *</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="panDoc" name="panDoc" placeholder="Upload Driving License" />
                 </div>
                 </div>
                 <div className="w-full flex mb-2 flex-wrap ">
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="photo">Photo Upload</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="photo" name="photo" placeholder="Upload Driving License" />
+                    <label htmlFor="selfieDoc">Photo Upload</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="selfieDoc" name="selfieDoc" placeholder="Upload Driving License" />
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="cheque">Cancelled Cheque *</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="cheque" name="cheque" placeholder="Upload Driving License" />
+                    <label htmlFor="chequeDoc">Cancelled Cheque *</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="chequeDoc" name="chequeDoc" placeholder="Upload Driving License" />
                 </div>
                 </div>
                 <div className="w-full flex mb-2 flex-wrap ">
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="gst_doc">GST Certificate</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="gst_doc" name="gst_doc" placeholder="Upload Driving License" />
+                    <label htmlFor="gstDoc">GST Certificate</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="gstDoc" name="gstDoc" placeholder="Upload Driving License" />
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                    <label htmlFor="other">Other Document</label>
-                    <input className="w-full border leading-8  rounded-3xl " type="file" id="other" name="other" placeholder="Upload Driving License" />
+                    <label htmlFor="otherDoc">Other Document</label>
+                    <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="otherDoc" name="otherDoc" placeholder="Upload Driving License" />
                 </div>
                 </div>
                 

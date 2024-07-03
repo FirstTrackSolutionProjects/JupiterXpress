@@ -102,7 +102,7 @@ exports.handler = async (event) => {
     })
     const response = await responseDta.json()
     if (response.success){
-      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, status = ? WHERE ord_id = ?', )
+      // await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ? WHERE ord_id = ?', )
     }
     // const schedule = await fetch(`https://track.delhivery.com/​fm/request/new/`, {
     //   method: 'POST',
