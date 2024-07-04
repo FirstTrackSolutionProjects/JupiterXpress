@@ -48,6 +48,7 @@ const International = () => {
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
@@ -60,6 +61,7 @@ const International = () => {
                   placeholder="Contact No."
                   value={formData.phone}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
@@ -72,6 +74,7 @@ const International = () => {
                   placeholder="Your email"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -84,6 +87,7 @@ const International = () => {
                   className="border py-2 px-4 rounded-3xl"
                   value={formData.status}
                   onChange={handleChange}
+                  required
                 >
                   <option value="Delivered">Forward</option>
                   <option value="RTO">RTO</option>
@@ -100,6 +104,7 @@ const International = () => {
                   placeholder="Ex. India"
                   value={formData.originCountry}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
@@ -112,6 +117,7 @@ const International = () => {
                   placeholder="Ex. Japan"
                   value={formData.destCountry}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -126,6 +132,7 @@ const International = () => {
                   placeholder="XXXXXX"
                   value={formData.origin}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -138,6 +145,7 @@ const International = () => {
                   placeholder="XXXXXX"
                   value={formData.dest}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -152,6 +160,7 @@ const International = () => {
                   placeholder="Ex. 1500"
                   value={formData.weight}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
@@ -162,6 +171,7 @@ const International = () => {
                   className="border py-2 px-4 rounded-3xl"
                   value={formData.payMode}
                   onChange={handleChange}
+                  required
   
                 >
                   <option value="prepaid">Prepaid</option>
@@ -181,6 +191,7 @@ const International = () => {
                   placeholder="Ex. 2.5"
                   value={formData.length}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
@@ -193,6 +204,7 @@ const International = () => {
                   placeholder="Ex. 2.5"
                   value={formData.breadth}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
@@ -205,6 +217,7 @@ const International = () => {
                   placeholder="Ex. 2.5"
                   value={formData.height}
                   onChange={handleChange}
+                  required
                 />
               </div>
               </div>
