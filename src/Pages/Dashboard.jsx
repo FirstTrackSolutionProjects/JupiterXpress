@@ -73,6 +73,7 @@ const Dashboard = () => {
                 {menuID[0] == 0 ? <DashboardMain/> : null}
                 {(menuID[0] == 1 && menuID[1] == 0) ? <CreateOrder/> : null}
                 {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
+                {(menuID[0] == 2) ? <Warehouse/> : null}
                 {(menuID[0] == 3) ? <UpdateOrder/> : null}
                 {(menuID[0] == 4) ? <TransactionHistory/> : null}
                 {(menuID[0] == 5) ? <NDR/> : null}
