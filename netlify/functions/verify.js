@@ -50,7 +50,8 @@ exports.handler = async (event) => {
         bank,
         ifsc,
         account,
-        cin} = JSON.parse(event.body);
+        cin
+        } = JSON.parse(event.body);
 
         const connection = await mysql.createConnection(dbConfig);
 
@@ -70,13 +71,15 @@ exports.handler = async (event) => {
             from: process.env.EMAIL_USER,
             to: email, 
             subject: 'Verification Request Submitted Successfully', 
-            text: `Dear ${name}, \n Your Request for verification of account on Jupiter Xpress is submitted successfully.  \n\nRegards, \nJupiter Xpress`
+            text: `Dear ${name}, \n Your Request for verification of account on Jupiter Xpress is submitted successfully.  \n\nRegards, \nJupiter Xpress`,
+            
           };
           let mailOptions2 = {
             from: process.env.EMAIL_USER,
-            to: process.env.VERIFY_EMAIL,  
+            to: `${process.env.VERIFY_EMAIL},${process.env.EMAIL_USER}`,  
             subject: 'Merchant Verification Request Received', 
-            text: `Dear Owner, \n${name} has submitted a request for verification of account on Jupiter Xpress.`
+            text: `Dear Owner, \n${name} has submitted a request for verification of account on Jupiter Xpress.`,
+            
           };
         await transporter.sendMail(mailOptions);
         await transporter.sendMail(mailOptions2);

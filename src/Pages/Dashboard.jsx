@@ -19,6 +19,7 @@ import ManualRecharge from "../Components/ManualRecharge"
 import VerificationRequests from "../Components/VerificationRequests"
 import TransactionHistory from "../Components/TransactionHistory"
 import ContactSubmissions from "../Components/ContactSubmissions"
+import CreateOrderInternational from "../Components/CreateOrderInternational"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -70,8 +71,8 @@ const Dashboard = () => {
               {showRecharge ? <Recharge setShowRecharge={setShowRecharge}/> : null}
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
                 {menuID[0] == 0 ? <DashboardMain/> : null}
-                {(menuID[0] == 1) ? <CreateOrder/> : null}
-                {(menuID[0] == 2) ? <Warehouse/> : null}
+                {(menuID[0] == 1 && menuID[1] == 0) ? <CreateOrder/> : null}
+                {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
                 {(menuID[0] == 3) ? <UpdateOrder/> : null}
                 {(menuID[0] == 4) ? <TransactionHistory/> : null}
                 {(menuID[0] == 5) ? <NDR/> : null}

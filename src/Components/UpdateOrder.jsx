@@ -782,9 +782,11 @@ const ShipCard = ({price, shipment}) => {
     })
     const balanceData = await getBalance.json();
     const balance = balanceData.balance;
-    if (parseFloat(balance) < parseFloat(price.price)){
-      alert('Insufficient balance')
-      return;
+    if ((parseFloat(balance) < parseFloat(price.price))){
+      if (shipment.pay_method !== "topay"){
+        alert('Insufficient balance')
+        return;
+      }
     }
     fetch('/.netlify/functions/create', {
       method: 'POST',
@@ -794,7 +796,7 @@ const ShipCard = ({price, shipment}) => {
         'Authorization': localStorage.getItem('token'),
       },
       body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
-    }).then(response => response.json()).then(result => console.log(result.error));
+    }).then(response => response.json()).then(result => console.log(result.message));
   }
   return (
     <>
@@ -877,7 +879,6 @@ const Listing = ({ step, setStep }) => {
               'Content-Type': 'application/json',
               'Authorization': localStorage.getItem('token'),
             },
-            
           })
             .then(response => response.json())
             .then(result => {

@@ -50,9 +50,21 @@ export const menuItems = [
     {
         icon : "logo.webp",
         name : "Create Shipment",
-        isDropdown : false,
+        isDropdown : true,
         menuID : [1],
-        dropDownOptions : [{}]
+        dropDownOptions : [{
+            icon : "logo.webp",
+            name : "Domestic",
+            isDropdown : false,
+            menuID : [1,0],
+            dropDownOptions : [{}]
+        },{
+            icon : "logo.webp",
+            name : "International",
+            isDropdown : false,
+            menuID : [1,1],
+            dropDownOptions : [{}]
+        },]
     },
     {
         icon : "logo.webp",
