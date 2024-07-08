@@ -111,14 +111,13 @@ exports.handler = async (event) => {
               breadth = ?, 
               height = ?, 
               weight = ?, 
-              status = ?, 
               gst = ?, 
               customer_gst = ?,
               pickup_date = ?,
               pickup_time = ?,
               wid = ?
               WHERE ord_id = ? AND uid = ?`, 
-              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight, "Ready", gst, Cgst, pickDate, pickTime, wid ,order, id]
+              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight,  gst, Cgst, pickDate, pickTime, wid ,order, id]
             );
             
             const [existing] = await connection.execute(`SELECT master_sku FROM ORDERS WHERE ord_id = ?`, [order])
