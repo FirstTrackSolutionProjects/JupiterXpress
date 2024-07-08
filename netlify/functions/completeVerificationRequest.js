@@ -28,19 +28,11 @@ exports.handler = async (event) => {
     try{
           const connection = await mysql.createConnection(dbConfig);
           try {
-            const [req] = await connection.execute("SELECT * FROM MERCHANT_VERIFICATION WHERE status='incomplete' AND uid = ?", [id]);
-          if (req.length > 0) {
-            return {
-              statusCode: 200,
-              body: JSON.stringify({ success:true, message: req[0]}),
-            };
-          }
-          else {
-            return {
-              statusCode: 200,
-              body: JSON.stringify({ success:false}),
-            };
-          }
+            const [req] = await connection.execute("UPDATE MERCHANT_VERIFICATION set status='pending' WHERE status='incomplete' AND uid = ?", [id]);
+          return {
+            statusCode: 200,
+            body: JSON.stringify({ success:true, message: "Verification Request Submitted Successfully"}),
+          };
         } catch (error) {
           return {
             statusCode: 500,

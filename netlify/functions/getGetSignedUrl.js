@@ -7,10 +7,10 @@ const s3 = new AWS.S3({
 });
 
 exports.handler = async (event, context) => {
-  const { filename } = JSON.parse(event.body);
+  const { key } = JSON.parse(event.body);
   const params = {
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: filename,
+    Key: key,
     Expires: 60,
   };
 

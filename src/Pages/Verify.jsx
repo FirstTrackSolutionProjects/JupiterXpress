@@ -22,11 +22,11 @@
 //         ifsc: '',
 //         account: '',
 //         cin: '',
-//         aadharDoc : null,
-//         panDoc : null,
-//         gstDoc : null,
-//         chequeDoc : null,
-//         selfieDoc : null,
+//         aadhar_doc : null,
+//         pan_doc : null,
+//         gst_doc : null,
+//         cancelledCheque : null,
+//         selfie_doc : null,
 //         otherDoc : null,
 //     }
 //     const isAuthenticated = () => {
@@ -155,28 +155,28 @@
 
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                     <label htmlFor="aadharDoc">Aadhar Card (Both Sides) *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="aadharDoc" name="aadharDoc" placeholder="Upload Driving License" />
+//                     <label htmlFor="aadhar_doc">Aadhar Card (Both Sides) *</label>
+//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="aadhar_doc" name="aadhar_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                     <label htmlFor="panDoc">PAN Card (Front Side) *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="panDoc" name="panDoc" placeholder="Upload Driving License" />
+//                     <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
+//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="pan_doc" name="pan_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                     <label htmlFor="selfieDoc">Photo Upload</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="selfieDoc" name="selfieDoc" placeholder="Upload Driving License" />
+//                     <label htmlFor="selfie_doc">Photo Upload</label>
+//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="selfie_doc" name="selfie_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                     <label htmlFor="chequeDoc">Cancelled Cheque *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="chequeDoc" name="chequeDoc" placeholder="Upload Driving License" />
+//                     <label htmlFor="cancelledCheque">Cancelled Cheque *</label>
+//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="cancelledCheque" name="cancelledCheque" placeholder="Upload Driving License" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                     <label htmlFor="gstDoc">GST Certificate</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="gstDoc" name="gstDoc" placeholder="Upload Driving License" />
+//                     <label htmlFor="gst_doc">GST Certificate</label>
+//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="gst_doc" name="gst_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="otherDoc">Other Document</label>
@@ -218,21 +218,42 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const FileUploadForm = () => {
+  const [reqId, setReqId] = useState(null)
   const [fileData, setFileData] = useState({
-    aadharDoc: null,
-    panDoc: null,
-    gstDoc: null,
-    chequeDoc: null,
-    selfieDoc: null,
+    aadhar_doc: null,
+    pan_doc: null,
+    gst_doc: null,
+    cancelledCheque: null,
+    selfie_doc: null,
   });
   const [uploadStatus, setUploadStatus] = useState({
-    aadharDoc: false,
-    panDoc: false,
-    gstDoc: false,
-    chequeDoc: false,
-    selfieDoc: false,
+    aadhar_doc: false,
+    pan_doc: false,
+    gst_doc: false,
+    cancelledCheque: false,
+    selfie_doc: false,
   });
-
+  useEffect(() => {
+    const getDocumentStatus = async () => {
+      await fetch('/.netlify/functions/getDocumentStatus', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        }
+      }).then(response => response.json()).then((result) => {
+        setReqId(result.message.reqId)
+        setUploadStatus({
+          aadhar_doc: result.message.aadhar_doc?(true):(false),
+          pan_doc: result.message.pan_doc?(true):(false),
+          gst_doc: result.message.gst_doc?(true):(false),
+          cancelledCheque: result.message.cancelledCheque?(true):(false),
+          selfie_doc: result.message.selfie_doc?(true):(false),
+        })
+      })
+    }
+    getDocumentStatus()
+  }, [])
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     setFileData((prevData) => ({
@@ -251,6 +272,7 @@ const FileUploadForm = () => {
     })
     const tokenData = await response.json();
     const id = tokenData.id;
+    const key  = `merchant/${id}/verificationDocs/${reqId}/${name}`
     await fetch(`/.netlify/functions/getPutSignedUrl`, {
       method: "POST",
       headers: {
@@ -258,12 +280,11 @@ const FileUploadForm = () => {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({filename : `merchant/${id}/verificationDocs//${name}`, filetype : fileData[name].type})
+      body: JSON.stringify({filename : key, filetype : fileData[name].type})
     })
       .then((response) => response.json())
       .then(async (data) => {
         const { uploadURL } = data;
-        alert(uploadURL)
         await fetch(uploadURL, {
           method: "PUT",
           headers: {
@@ -271,6 +292,15 @@ const FileUploadForm = () => {
           },
           body: fileData[name],
         });
+        await fetch(`/.netlify/functions/updateDocumentStatus`, {
+          method: 'POST',
+          headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json',
+            'Authorization' : localStorage.getItem('token')
+          },
+          body : JSON.stringify({name : name, key : key})
+        })
         alert("Success");
       })
       .then(() => {
@@ -282,110 +312,129 @@ const FileUploadForm = () => {
       .catch((error) => alert(error.message));
   };
 
+  const handleSubmit= async (e) => {
+    e.preventDefault();
+    await fetch(`/.netlify/functions/completeVerificationRequest`, {
+      method: 'GET',
+      headers : {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json',
+        'Authorization' : localStorage.getItem('token')
+      }
+  }).then(response => response.json()).then(result => alert(result.message));
+}
   return (
-    <form className="w-[1024px] flex flex-col bg-white pt-8 px-4">
+    <form className="w-[1024px] flex flex-col bg-white pt-8 px-4" onSubmit={handleSubmit}>
       {/* File input fields */}
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="aadharDoc">Aadhar Card (Both Sides) *</label>
+          <label htmlFor="aadhar_doc">Aadhar Card (Both Sides) *</label>
           <input
             className="w-full border leading-8 rounded-3xl"
             type="file"
             onChange={handleFileChange}
-            id="aadharDoc"
-            name="aadharDoc"
+            id="aadhar_doc"
+            name="aadhar_doc"
           />
           <button
             type="button"
-            onClick={() => handleUpload("aadharDoc")}
+            onClick={() => handleUpload("aadhar_doc")}
             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
           >
             Upload
           </button>
-          {uploadStatus.aadharDoc && <span>✔️</span>}
+          {uploadStatus.aadhar_doc && <span>✔️</span>}
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="panDoc">PAN Card (Front Side) *</label>
+          <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
           <input
             className="w-full border leading-8 rounded-3xl"
             type="file"
             onChange={handleFileChange}
-            id="panDoc"
-            name="panDoc"
+            id="pan_doc"
+            name="pan_doc"
           />
           <button
             type="button"
-            onClick={() => handleUpload("panDoc")}
+            onClick={() => handleUpload("pan_doc")}
             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
           >
             Upload
           </button>
-          {uploadStatus.panDoc && <span>✔️</span>}
+          {uploadStatus.pan_doc && <span>✔️</span>}
         </div>
       </div>
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="gstDoc">GST Certificate </label>
+          <label htmlFor="gst_doc">GST Certificate </label>
           <input
             className="w-full border leading-8 rounded-3xl"
             type="file"
             onChange={handleFileChange}
-            id="gstDoc"
-            name="gstDoc"
+            id="gst_doc"
+            name="gst_doc"
           />
           <button
             type="button"
-            onClick={() => handleUpload("gstDoc")}
+            onClick={() => handleUpload("gst_doc")}
             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
           >
             Upload
           </button>
-          {uploadStatus.gstDoc && <span>✔️</span>}
+          {uploadStatus.gst_doc && <span>✔️</span>}
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="chequeDoc">Cancelled Cheque *</label>
+          <label htmlFor="cancelledCheque">Cancelled Cheque *</label>
           <input
             className="w-full border leading-8 rounded-3xl"
             type="file"
             onChange={handleFileChange}
-            id="chequeDoc"
-            name="chequeDoc"
+            id="cancelledCheque"
+            name="cancelledCheque"
           />
           <button
             type="button"
-            onClick={() => handleUpload("chequeDoc")}
+            onClick={() => handleUpload("cancelledCheque")}
             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
           >
             Upload
           </button>
-          {uploadStatus.chequeDoc && <span>✔️</span>}
+          {uploadStatus.cancelledCheque && <span>✔️</span>}
         </div>
       </div>
       <div className="w-1/2 flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="selfieDoc">Upload your selfie *</label>
+          <label htmlFor="selfie_doc">Upload your selfie *</label>
           <input
             className="w-full border leading-8 rounded-3xl"
             type="file"
             onChange={handleFileChange}
-            id="selfieDoc"
-            name="selfieDoc"
+            id="selfie_doc"
+            name="selfie_doc"
           />
           <button
             type="button"
-            onClick={() => handleUpload("selfieDoc")}
+            onClick={() => handleUpload("selfie_doc")}
             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
           >
             Upload
           </button>
-          {uploadStatus.selfieDoc && <span>✔️</span>}
+          {uploadStatus.selfie_doc && <span>✔️</span>}
         </div>
         {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                  <label htmlFor="panDoc">PAN Card (Front Side) *</label>
-                  <input className="w-full border leading-8 rounded-3xl" type="file" onChange={handleFileChange} id="panDoc" name="panDoc" />
-                  <button type='button' onClick={() => handleUpload('aadharDoc')} className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Upload</button>
-                  {uploadStatus.panDoc && <span>✔️</span>}
+                  <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
+                  <input className="w-full border leading-8 rounded-3xl" type="file" onChange={handleFileChange} id="pan_doc" name="pan_doc" />
+                  <button type='button' onClick={() => handleUpload('aadhar_doc')} className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Upload</button>
+                  {uploadStatus.pan_doc && <span>✔️</span>}
               </div> */}
+      </div>
+      <div className="px-2 space-x-4 mb-4">
+        <button
+          type="submit"
+          className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
+        >
+          Submit
+        </button>
       </div>
       {/* Add similar file inputs for other documents */}
     </form>
@@ -627,6 +676,20 @@ const Verify = () => {
   const { logout } = useContext(AuthContext);
   const [step, setStep] = useState(1);
 
+  useEffect(() => {
+    const getStatus = async () => {
+      await fetch('/.netlify/functions/getVerificationStatus', {
+        method: 'GET',
+        headers: {
+          'Authorization': localStorage.getItem('token'),
+          'Content-Type' : 'application/json',
+          'Accept' : 'application/json'
+        }
+      }).then((response)=>response.json()).then((data)=>data.success?(setStep(2)):null)
+    }
+    getStatus()
+  }, [])
+
   const isAuthenticated = () => {
     const token = localStorage.getItem("token");
     if (!token) return false;
@@ -647,9 +710,9 @@ const Verify = () => {
   };
 
   useEffect(() => {
-    // if (!isAuthenticated()) {
-    //     navigate('/');
-    // }
+    if (!isAuthenticated()) {
+        navigate('/');
+    }
   }, []);
 
   const handleNextStep = () => {
@@ -664,7 +727,7 @@ const Verify = () => {
           <div className="text-center text-3xl font-medium">
             Verify your details
           </div>
-          {step === 2 ? (
+          {step === 1 ? (
             <TextForm onNext={handleNextStep} />
           ) : (
             <FileUploadForm />

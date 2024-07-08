@@ -25,22 +25,15 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
+    const { name, key } = JSON.parse(event.body);
     try{
           const connection = await mysql.createConnection(dbConfig);
           try {
-            const [req] = await connection.execute("SELECT * FROM MERCHANT_VERIFICATION WHERE status='incomplete' AND uid = ?", [id]);
-          if (req.length > 0) {
-            return {
-              statusCode: 200,
-              body: JSON.stringify({ success:true, message: req[0]}),
-            };
-          }
-          else {
-            return {
-              statusCode: 200,
-              body: JSON.stringify({ success:false}),
-            };
-          }
+            const [req] = await connection.execute(`UPDATE MERCHANT_VERIFICATION set ${name} = ? WHERE status='incomplete' AND uid = ?`, [ key, id]);
+          return {
+            statusCode: 200,
+            body: JSON.stringify({ success:true}),
+          };
         } catch (error) {
           return {
             statusCode: 500,

@@ -62,7 +62,7 @@ exports.handler = async (event) => {
         "state": shipment.shipping_state,
         "country": shipment.shipping_country,
         "phone": shipment.customer_mobile,
-        "order": "ORDER1234573",
+        "order": "ORDER1234582",
         "payment_mode": shipment.pay_method,
         "return_pin": "",
         "return_city": "",
@@ -91,33 +91,33 @@ exports.handler = async (event) => {
       formData.append('format', 'json');
       formData.append('data', JSON.stringify(req));
 
-    const responseDta = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
-      },
-      body : formData
-    })
-    const response = await responseDta.json()
-    if (response.success){
-      // await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ? WHERE ord_id = ?', )
-    }
-    // const schedule = await fetch(`https://track.delhivery.com/​fm/request/new/`, {
+    // const responseDta = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
     //   method: 'POST',
     //   headers: {
-    //     'Content-Type': 'application/json',
+    //     'Content-Type': 'application/x-www-form-urlencoded',
     //     'Accept': 'application/json',
     //     'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
     //   },
-    //   body : JSON.stringify({pickup_location: "First Track Solution", pickup_time : "18:00:00", pickup_date : "2024-07-02", expected_package_count	: "1"})
-    // }).then((response) => response.data())
+    //   body : formData
+    // })
+    // const response = await responseDta.json()
+    // if (response.success){
+    //   await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ? WHERE ord_id = ?', )
+    // }
+    const schedule = await fetch(`https://track.delhivery.com/​fm/request/new/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+      },
+      body : JSON.stringify({pickup_location: "First Track Solution", pickup_time : "18:00:00", pickup_date : "2024-07-02", expected_package_count	: "1"})
+    }).then((response) => response.text())
 
     // const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
     //   method: 'GET',
     //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     'Content-Type': 'application/json',
     //     'Accept': 'application/json',
     //     'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
     //   },
@@ -132,7 +132,7 @@ exports.handler = async (event) => {
     // await transporter.sendMail(mailOptions);
     return {
       statusCode: 200,
-      body: JSON.stringify({  response}),
+      body: JSON.stringify({ schedule}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',

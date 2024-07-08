@@ -1,7 +1,7 @@
 import { useEffect , useState  } from 'react'
 
 
-const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, account_number, ifsc, bank}) => {
+const View = ({request, reqId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, accountNumber, ifsc, bank}) => {
     const handleApprove = async () => {
         await fetch('/.netlify/functions/verifyMerchant', {
             method: 'POST',
@@ -12,6 +12,7 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
             body: JSON.stringify({uid, reqId})
         }).then(response => response.json()).then(result => alert(result.message));
     }
+    const [profilePhoto, setProfilePhoto] = useState(null)
     const handleReject = async () => {
         await fetch('/.netlify/functions/rejectMerchant', {
             method: 'POST',
@@ -22,6 +23,39 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
             body: JSON.stringify({uid, reqId})
         }).then(response => response.json()).then(result => alert(result.message));
     }
+    useEffect(()=>{
+        const getProfilePhoto = async () => {
+            await fetch('/.netlify/functions/getGetSignedUrl', {
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json',
+                    'Accept' : 'application/json',
+                    'Authorization' : localStorage.getItem('token')
+                },
+                body : JSON.stringify({key : request['selfie_doc']})
+            }).then((response)=>response.json()).then(result => setProfilePhoto(result.downloadURL))
+        }
+        getProfilePhoto()
+    })
+    const handleDownload = async (name) => {
+        await fetch('/.netlify/functions/getGetSignedUrl', {
+        method : 'POST',
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json',
+            'Authorization' : localStorage.getItem('token')
+        },
+        body : JSON.stringify({key : request[name]})
+    }).then(response => response.json()).then(async result => {
+        const link = document.createElement('a');
+        link.href = result.downloadURL;
+        link.target = '_blank'
+        link.style.display = 'none'; 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    })
+    }
     return (
         <>
             <div className='absolute inset-0 bg-[rgba(0,0,0,0.5)] z-50 flex justify-center items-center overflow-y-auto'>
@@ -31,7 +65,7 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
                     <div className='w-full space-y-6'>
                         <div className='w-full flex items-center justify-center space-x-8'>
                             <div className='flex justify-center items-center w-32 h-32'>
-                                <img src='user.webp'/>
+                                <img src={`${profilePhoto?profilePhoto:"user.webp"}`}/>
                             </div>
                             <div className=''>
                                 <p className='font-medium text-xl'>{businessName}</p>
@@ -42,17 +76,18 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
                             </div>
                         </div>
                         <div className='w-full font-medium text-gray-700'>
-                            <p>GSTIN : {gst}</p>
+                            <p>GSTIN : {gst} <span className='cursor-pointer' onClick={()=>handleDownload('gst_doc')}>[PDF]</span></p>
                             <p>CIN : {cin}</p>
-                            <p>Aadhar Number : {aadhar_number}</p>
-                            <p>PAN Number : {pan_number}</p>
+                            <p>Aadhar Number : {aadhar_number} <span className='cursor-pointer' onClick={()=>handleDownload('aadhar_doc')}>[PDF]</span></p>
+                            <p>PAN Number : {pan_number} <span className='cursor-pointer' onClick={()=>handleDownload('pan_doc')}>[PDF]</span></p>
                             <p>Address : {address}</p>
                             <p>City : {city}</p>
                             <p>State : {state}</p>
                             <p>Pincode : {pin}</p>
                             <p>Bank Name : {bank}</p>
-                            <p>A/C No. : {account_number}</p>
+                            <p>A/C No. : {accountNumber}</p>
                             <p>IFSC : {ifsc}</p>
+                            <p>Cancelled Cheque : <span className='cursor-pointer' onClick={()=>handleDownload('cancelledCheque')}>[PDF]</span></p>
                         </div>
                     </div>
                     <button onClick={handleApprove} className=" bg-blue-500 text-white mx-2  py-2 px-4 rounded-3xl">
@@ -70,9 +105,10 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
 
 const Card = ({request}) => {
     const [view, setView] = useState(false)
+    console.log(request)
     return (
         <>
-            {view && <View {...request} setView={setView} />}
+            {view && <View {...request} request={request} setView={setView} />}
             <div className='p-4 border cursor-pointer ' onClick={()=>setView(true)} >
                 <p>Request Id : {request.reqId}</p>
                 <p>User Id : {request.uid}</p>

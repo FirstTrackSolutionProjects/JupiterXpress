@@ -55,7 +55,7 @@ const TransactionHistory =  () => {
                     obj.date = new Date(obj.date);
                 }
             });
-            data.sort((a, b) => a.date - b.date);
+            data.sort((a, b) => a.date - b.date).reverse();
             if (data.length)
                 setTransactions(data)
         }
