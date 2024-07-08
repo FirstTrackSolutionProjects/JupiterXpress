@@ -1,15 +1,15 @@
 const AWS = require('aws-sdk');
 
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID_,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_,
+  region: process.env.AWS_REGION_,
 });
 
 exports.handler = async (event, context) => {
   const { key } = JSON.parse(event.body);
   const params = {
-    Bucket: process.env.S3_BUCKET_NAME,
+    Bucket: process.env.S3_BUCKET_NAME_,
     Key: key,
     Expires: 60,
   };
