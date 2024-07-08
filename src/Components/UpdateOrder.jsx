@@ -263,7 +263,7 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
                 onChange={handleChange}
               >
                 <option value="COD">COD</option>
-                <option value="prepaid">Prepaid</option>
+                <option value="Pre-paid">Prepaid</option>
                 <option value="topay">To Pay</option>
               </select>
             </div>

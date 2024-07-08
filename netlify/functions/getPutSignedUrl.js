@@ -21,12 +21,20 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       body: JSON.stringify({ uploadURL }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      }
     };
   } catch (error) {
     console.error(error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Could not generate signed URL' }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
     };
   }
 };
