@@ -47,7 +47,7 @@ exports.handler = async (event) => {
     await connection.execute('INSERT INTO USERS (businessName, email, password, fullName, phone ) VALUES (?, ?, ?, ?,?)', [business_name, reg_email, hashedPassword, name, mobile]);
     let mailOptions = {
       from: process.env.EMAIL_USER,
-      to: reg_email, 
+      to: `${reg_email},${process.env.EMAIL_USER},${process.env.VERIFY_EMAIL}`, 
       subject: 'Registration Incomplete', 
       text: `Dear ${name}, \nYour registration on Jupiter Xpress is incomplete. Please verify your details to experience robust features of Jupiter Xpress. \n\n Regards, \nJupiter Xpress`
     };
