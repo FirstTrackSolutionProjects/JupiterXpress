@@ -885,7 +885,7 @@ const Listing = ({ step, setStep }) => {
               if (result.success) {
                 setShipments(result.order);
               } else {
-                alert('Order failed: ' + result.message)
+                
               }
             })
             .catch(error => {
@@ -902,7 +902,7 @@ const Listing = ({ step, setStep }) => {
         >
           <div className="w-full h-16 px-4  relative flex">
             <div className="text-2xl font-medium">SHIPMENTS</div>
-            <div
+            {/* <div
               onClick={(e) => {
                 e.preventDefault();
                 setStep(1);
@@ -910,7 +910,7 @@ const Listing = ({ step, setStep }) => {
               className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
             >
               Add
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
           

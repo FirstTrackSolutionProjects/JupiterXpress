@@ -7,8 +7,8 @@ const LoginForm = ({authMode}) => {
   const navigate = useNavigate()
   const [reset,setReset] = useState(false);
   const [isOtp,setIsOtp] = useState(false);
+  const [token, setToken] = useState(null);
   const [formData, setFormData] = useState({
-
     email : '',
     password : '',
    
@@ -22,7 +22,7 @@ const LoginForm = ({authMode}) => {
   };
   const handleLogin = async (event) => {
     event.preventDefault();  // Prevent the default form submission
-  
+    
     // Make the API call
     await fetch('/.netlify/functions/login', {
       method: 'POST',
@@ -45,6 +45,7 @@ const LoginForm = ({authMode}) => {
               navigate('/dashboard')
             }
             else if (!data.emailVerified){
+              setToken(result.token);
               setIsOtp(true) 
             }
             else if (data.emailVerified && !result.verified){
@@ -65,14 +66,14 @@ const LoginForm = ({authMode}) => {
   return (
     <>
       {reset && <ResetPassword reset={reset} setReset={setReset}/>}
-      {isOtp && <OtpVerification email={formData.email} setIsOtp={setIsOtp}/>}
+      {isOtp && <OtpVerification email={formData.email} setIsOtp={setIsOtp} token={token}/>}
       <div className={` transition-all duration-500  overflow-hidden  flex items-center flex-col  ${authMode==2?"w-full h-56" : ""} ${authMode==1?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""} `}>
         <div className="text-center text-3xl font-medium ">
           Welcome back, Partner
         </div>
         <form action="" onSubmit={handleLogin} className="w-full sm:w-auto flex px-3 flex-col mt-3 space-y-3 sm:space-y-3 text-black">
-          <input type="email" placeholder="E-mail" value={formData.email} onChange={handleChange} name="email" className="py-2 px-3 rounded-xl w-full sm:w-[400px]" />
-          <input type="password" placeholder="Password"name="password" value={formData.password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
+          <input required type="email" placeholder="E-mail" value={formData.email} onChange={handleChange} name="email" className="py-2 px-3 rounded-xl w-full sm:w-[400px]" />
+          <input required type="password" placeholder="Password"name="password" value={formData.password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
           <div>
           <p className="text-white" onClick={()=>setReset(!reset)}>Reset Your Password</p>
           <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white text-white hover:bg-[rgba(135,206,235,0.3)]">Login</button>
@@ -85,9 +86,8 @@ const LoginForm = ({authMode}) => {
 
 
 const RegisterForm = ({authMode}) => {
-  const { login } = useContext(AuthContext);
-  const navigate = useNavigate()
   const [isOtp, setIsOtp] = useState(false)
+  const [token, setToken] = useState(null)
   const [formData, setFormData] = useState({
     business_name : '',
     name : '',
@@ -138,6 +138,7 @@ const RegisterForm = ({authMode}) => {
       .then(response => response.json())
       .then(result => {
         if (result.success) {
+          setToken(result.token)
           setIsOtp(true)
           // login(formData.reg_email, result.token)
           // navigate('/verify');
@@ -153,22 +154,22 @@ const RegisterForm = ({authMode}) => {
   
   return (
     <>
-      {isOtp && <OtpVerification email={formData.reg_email} setIsOtp={setIsOtp}/>}
+      {isOtp && <OtpVerification email={formData.reg_email} setIsOtp={setIsOtp} token={token}/>}
       <div className={` transition-all duration-500  overflow-hidden  flex flex-col items-center justify-center  ${authMode==1?"w-full h-[500px] " : ""} ${authMode==2?"hidden" : ""} ${authMode==0?"w-0 h-0" : ""}`}>
       <div className="text-center text-xl sm:text-3xl font-medium mb-5 ">
           Welcome to the team, Partner
         </div>
         <form action="" className="w-full sm:w-auto flex px-3 flex-col space-y-3 sm:space-y-5 text-black" onSubmit={handleSubmit}>
-          <input type="text" placeholder="Business Name" name="business_name" value={formData.business_name} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
-          <input type="text" placeholder="Full Name" value={formData.name} onChange={handleChange} name="name" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
+          <input required type="text" placeholder="Business Name" name="business_name" value={formData.business_name} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
+          <input required type="text" placeholder="Full Name" value={formData.name} onChange={handleChange} name="name" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
           
           <div className="w-full space-x-4 flex justify-between">
-          <input type="text" placeholder="Mobile" value={formData.mobile} onChange={handleChange} name="mobile" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
-          <input type="text" placeholder="Postal Code" value={formData.pin} onChange={handleChange} name="pin" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
+          <input required type="text" placeholder="Mobile" value={formData.mobile} onChange={handleChange} name="mobile" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
+          <input required type="text" placeholder="Postal Code" value={formData.pin} onChange={handleChange} name="pin" className="py-2 px-3 rounded-xl  w-full sm:w-[190px]" />
           </div>
-          <input type="email" placeholder="Your E-mail Address" value={formData.reg_email} onChange={handleChange} name="reg_email" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
-          <input type="password" name="reg_password" placeholder="Password" value={formData.reg_password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
-          <input type="password" name="confirm_password" value={formData.confirm_password} onChange={handleChange} placeholder="Confirm Password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
+          <input required type="email" placeholder="Your E-mail Address" value={formData.reg_email} onChange={handleChange} name="reg_email" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]" />
+          <input required type="password" name="reg_password" placeholder="Password" value={formData.reg_password} onChange={handleChange} className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
+          <input required type="password" name="confirm_password" value={formData.confirm_password} onChange={handleChange} placeholder="Confirm Password" className="py-2 px-3 rounded-xl  w-full sm:w-[400px]"/>
 
           <button type="submit" className="py-2 px-3 rounded-xl  w-full sm:w-[400px] border border-white text-white hover:bg-[rgba(135,206,235,0.3)]">Register</button>
         </form>
@@ -177,7 +178,9 @@ const RegisterForm = ({authMode}) => {
   )
 }
 
-const OtpVerification = ({email, setIsOtp}) => {
+const OtpVerification = ({email, setIsOtp, token}) => {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email : email,
     otp : ''
@@ -200,8 +203,9 @@ const OtpVerification = ({email, setIsOtp}) => {
       body: JSON.stringify(formData),
   }).then(response => response.json()).then(result => {
     if (result.success) {
-      alert('Email verified successfully, you can login now')
       setIsOtp(false)
+      login(email, token)
+      navigate('/verify')
     }
     else {
       alert(result.message)

@@ -1,6 +1,6 @@
 import { useEffect , useState  } from 'react'
 
-const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, setView, businessName, cin, aadhar_number, pan_number, address, city, state, pin, accountNumber, ifsc, bank}) => {
+const View = ({merchant, fullName, email, phone,isActive, uid  , gst, setView, businessName, cin, aadhar_number, pan_number, address, city, state, pin, accountNumber, ifsc, bank}) => {
     const [isActivated, setIsActivated] = useState(isActive)
     const activate = () => {
         fetch('/.netlify/functions/activateUser', {
@@ -74,7 +74,7 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
                                 <p className='font-medium text-sm text-gray-600'>({fullName})</p>
                                 <p className='font-medium text-sm text-gray-600'>{email}</p>
                                 <p className='font-medium text-sm text-gray-600'>{phone}</p>
-                                <p className='font-medium text-sm text-green-400'>Balance : {balance}</p>
+                                <p className='font-medium text-sm text-green-400'>Balance(Coming Soon)</p>
                             </div>
                         </div>
                         <div className='w-full font-medium text-gray-700'>
@@ -104,14 +104,16 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
 
 
 const Card = ({merchant}) => {
-    const [view, setView] = useState(false)
+    // const [view, setView] = useState(false)
     return (
         <>
-            { view && <View {...merchant} merchant={merchant} setView={setView} />}
-            <div className='p-4 border' onClick={()=>setView(true)}>
+            {/* { view && <View {...merchant} merchant={merchant} setView={setView} />} */}
+            <div className='p-4 border'>
                 <p>User Id : {merchant.uid}</p>
                 <p>Name : {merchant.fullName}</p>
                 <p>Business Name : {merchant.businessName}</p>
+                <p>Phone : {merchant.phone}</p>
+                <p>Email : {merchant.email}</p>
             </div>
         </>
     )
@@ -123,7 +125,7 @@ const MerchantManage =  () => {
     const [merchants, setMerchants] = useState([    ])
     useEffect(() => {
         const getVerifiedMerchant = async () => {
-            const response = await fetch('/.netlify/functions/getVerifiedMerchants', {
+            const response = await fetch('/.netlify/functions/getNonVerifiedMerchants', {
                 method: 'GET',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -140,7 +142,7 @@ const MerchantManage =  () => {
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-full p-8 flex flex-col items-center space-y-8'>
-      <div className='text-center text-3xl font-medium text-black'>Verified Merchants</div>
+      <div className='text-center text-3xl font-medium text-black'>Non-Verified Merchants</div>
       <div className='w-full bg-white p-8'>
         {merchants.length > 0 ? (
         merchants.map(((merchant,index)=>(

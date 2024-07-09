@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql2/promise');
-require('dotenv').config();
-
+const jwt = require("jsonwebtoken");
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const dbConfig = {
   host: process.env.DB_HOST,
@@ -18,40 +17,63 @@ exports.handler = async (event) => {
   if (!token) {
     return {
       statusCode: 401,
-      body: JSON.stringify({ message: 'Access Denied' }),
+      body: JSON.stringify({ message: "Access Denied" }),
     };
   }
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    try{
-          const connection = await mysql.createConnection(dbConfig);
-          try {
-            const [req] = await connection.execute("UPDATE MERCHANT_VERIFICATION set status='pending' WHERE status='incomplete' AND uid = ?", [id]);
+    try {
+      const connection = await mysql.createConnection(dbConfig);
+      try {
+        const [req] = await connection.execute(
+          "SELECT * FROM MERCHANT_VERIFICATION WHERE status='incomplete' AND uid = ?",
+          [id]
+        );
+        if (req.length > 0) {
+          await connection.execute(
+            "UPDATE MERCHANT_VERIFICATION set status='pending' WHERE status='incomplete' AND uid = ?",
+            [id]
+          );
           return {
             statusCode: 200,
-            body: JSON.stringify({ success:true, message: "Verification Request Submitted Successfully"}),
+            body: JSON.stringify({
+              success: true,
+              message: "Verification Request Submitted Successfully",
+            }),
           };
-        } catch (error) {
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ message: error.message, error: error.message }),
-          };
-        } finally {
-          await connection.end();
         }
-
-    } catch(err){
+        else{
+          return {
+            statusCode: 400,
+            body: JSON.stringify({
+              success: true,
+              message: "You already have a pending Verification Request",
+            }),
+          };
+        }
+      } catch (error) {
+        return {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: error.message,
+            error: error.message,
+          }),
+        };
+      } finally {
+        await connection.end();
+      }
+    } catch (err) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: 'Something went wrong' }),
+        body: JSON.stringify({ message: "Something went wrong" }),
       };
     }
   } catch (err) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid Token' }),
+      body: JSON.stringify({ message: "Invalid Token" }),
     };
   }
 };

@@ -34,7 +34,7 @@ exports.handler = async (event) => {
     try{
           const connection = await mysql.createConnection(dbConfig);
           try {
-            const [users] = await connection.execute("SELECT * FROM USERS NATURAL JOIN USER_DATA JOIN WALLET ON USERS.uid=WALLET.uid WHERE isVerified=1 AND isAdmin=0");
+            const [users] = await connection.execute("SELECT * FROM USERS WHERE isVerified=0 AND isAdmin=0");
           return {
             statusCode: 200,
             body: JSON.stringify({ success:true, message: users}),

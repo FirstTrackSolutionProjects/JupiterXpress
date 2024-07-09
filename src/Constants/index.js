@@ -102,11 +102,25 @@ export const menuItems = [
         menuID : [9],
         dropDownOptions : [{
             icon : "logo.webp",
-            name : "View",
+            name : "Verified Merchants",
             isDropdown : false,
             menuID : [9,0],
             dropDownOptions : [{}]
-        }]
+        },
+        {
+            icon : "logo.webp",
+            name : "Non-Verified Merchants",
+            isDropdown : false,
+            menuID : [9,1],
+            dropDownOptions : [{}]
+        },
+        {
+            icon : "logo.webp",
+            name : "Merchant Transactions",
+            isDropdown : false,
+            menuID : [9,2],
+            dropDownOptions : [{}]
+        },]
     },
     {
         icon : "logo.webp",

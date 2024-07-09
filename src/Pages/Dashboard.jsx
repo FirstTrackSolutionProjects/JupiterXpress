@@ -20,6 +20,8 @@ import VerificationRequests from "../Components/VerificationRequests"
 import TransactionHistory from "../Components/TransactionHistory"
 import ContactSubmissions from "../Components/ContactSubmissions"
 import CreateOrderInternational from "../Components/CreateOrderInternational"
+import NonVerifiedMerchantManage from "../Components/NonVerifiedMerchantManage"
+import AllTransactions from "../Components/AllTransactions"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -75,12 +77,14 @@ const Dashboard = () => {
                 {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
                 {(menuID[0] == 2) ? <Warehouse/> : null}
                 {(menuID[0] == 3) ? <UpdateOrder/> : null}
-                {(menuID[0] == 4) ? <TransactionHistory/> : null}
+                {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
+                {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
                 {(menuID[0] == 5) ? <NDR/> : null}
                 {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
                 {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }
                 {(menuID[0] == 6 && menuID[1] == 1) ? <ChangePassword/> : null}
                 {(menuID[0] == 9 && menuID[1] == 0) ? <MerchantManage/> : null}
+                {(menuID[0] == 9 && menuID[1] == 1) ? <NonVerifiedMerchantManage/> : null}
                 {(menuID[0] == 11 && menuID[1] == 0) ? <VerificationRequests/> : null}
                 {(menuID[0] == 11 && menuID[1] == 1) ? <ContactSubmissions/> : null}
                 {(menuID[0] == 12) ? <ManualRecharge/> : null}

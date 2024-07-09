@@ -91,17 +91,17 @@
 //             <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="address">Address*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.address} id="address" name="address" placeholder="Enter Address" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.address} id="address" name="address" placeholder="Enter Address" />
 //                 </div>
 //             </div>
 //             <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
 //                     <label htmlFor="state">State*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.state} id="state" name="state" placeholder="Enter State" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.state} id="state" name="state" placeholder="Enter State" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
 //                     <label htmlFor="city">City*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.city} id="city" name="city" placeholder="Enter City" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.city} id="city" name="city" placeholder="Enter City" />
 
 //                 </div>
 
@@ -109,78 +109,78 @@
 //             <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="pin">PIN*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.pin} id="pin" name="pin" placeholder="XXXXXX" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.pin} id="pin" name="pin" placeholder="XXXXXX" />
 //                 </div>
 //             </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="aadhar">Aadhar Number*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.aadhar} id="aadhar" name="aadhar" placeholder="XXXXXXXXXXXX" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.aadhar} id="aadhar" name="aadhar" placeholder="XXXXXXXXXXXX" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="pan">PAN Number*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.pan} id="pan" name="pan" placeholder="ABCDE1234F" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.pan} id="pan" name="pan" placeholder="ABCDE1234F" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="gst">GST Number</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.gst} id="gst" name="gst" placeholder="22AAAAA0000A1Z5" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.gst} id="gst" name="gst" placeholder="22AAAAA0000A1Z5" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="msme">MSME/UDYAM Number</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.msme} id="msme" name="msme" placeholder="UDYAMXX000000000" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.msme} id="msme" name="msme" placeholder="UDYAMXX000000000" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="bank">Bank Name*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.bank} id="bank" name="bank" placeholder="Ex. State Bank of India" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.bank} id="bank" name="bank" placeholder="Ex. State Bank of India" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="ifsc">IFSC*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.ifsc} id="ifsc" name="ifsc" placeholder="Ex. ABCD0001234" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.ifsc} id="ifsc" name="ifsc" placeholder="Ex. ABCD0001234" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="account">Account Number*</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.account} id="account" name="account" placeholder="Ex. 1234567890" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.account} id="account" name="account" placeholder="Ex. 1234567890" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="cin">CIN</label>
-//                     <input className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.cin} id="cin" name="cin" placeholder="U12345MH2024PTC012345" />
+//                     <input required className="w-full border py-2 px-4 rounded-3xl" type="text" onChange={handleChange} value={formData.cin} id="cin" name="cin" placeholder="U12345MH2024PTC012345" />
 //                 </div>
 //                 </div>
 
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="aadhar_doc">Aadhar Card (Both Sides) *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="aadhar_doc" name="aadhar_doc" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="aadhar_doc" name="aadhar_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="pan_doc" name="pan_doc" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="pan_doc" name="pan_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="selfie_doc">Photo Upload</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="selfie_doc" name="selfie_doc" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="selfie_doc" name="selfie_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="cancelledCheque">Cancelled Cheque *</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="cancelledCheque" name="cancelledCheque" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="cancelledCheque" name="cancelledCheque" placeholder="Upload Driving License" />
 //                 </div>
 //                 </div>
 //                 <div className="w-full flex mb-2 flex-wrap ">
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="gst_doc">GST Certificate</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="gst_doc" name="gst_doc" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="gst_doc" name="gst_doc" placeholder="Upload Driving License" />
 //                 </div>
 //                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
 //                     <label htmlFor="otherDoc">Other Document</label>
-//                     <input className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="otherDoc" name="otherDoc" placeholder="Upload Driving License" />
+//                     <input required className="w-full border leading-8  rounded-3xl " type="file" onChange={handleChange} id="otherDoc" name="otherDoc" placeholder="Upload Driving License" />
 //                 </div>
 //                 </div>
 
@@ -314,6 +314,10 @@ const FileUploadForm = () => {
 
   const handleSubmit= async (e) => {
     e.preventDefault();
+    if (!(uploadStatus.aadhar_doc && uploadStatus.pan_doc && uploadStatus.cancelledCheque && uploadStatus.selfie_doc)){
+      alert("Please upload all required documents")
+      return;
+    }
     await fetch(`/.netlify/functions/completeVerificationRequest`, {
       method: 'GET',
       headers : {
@@ -325,7 +329,7 @@ const FileUploadForm = () => {
 }
   return (
     <form className="w-[1024px] flex flex-col bg-white pt-8 px-4" onSubmit={handleSubmit}>
-      {/* File input fields */}
+      {/* File input required fields */}
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="aadhar_doc">Aadhar Card (Both Sides) *</label>
@@ -423,7 +427,7 @@ const FileUploadForm = () => {
         </div>
         {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                   <label htmlFor="pan_doc">PAN Card (Front Side) *</label>
-                  <input className="w-full border leading-8 rounded-3xl" type="file" onChange={handleFileChange} id="pan_doc" name="pan_doc" />
+                  <input required className="w-full border leading-8 rounded-3xl" type="file" onChange={handleFileChange} id="pan_doc" name="pan_doc" />
                   <button type='button' onClick={() => handleUpload('aadhar_doc')} className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Upload</button>
                   {uploadStatus.pan_doc && <span>✔️</span>}
               </div> */}
@@ -494,7 +498,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="address">Address*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -508,7 +512,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
           <label htmlFor="state">State*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -520,7 +524,7 @@ const TextForm = ({ onNext }) => {
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
           <label htmlFor="city">City*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -534,7 +538,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="pin">PIN*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -548,7 +552,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="aadhar">Aadhar Number*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -560,7 +564,7 @@ const TextForm = ({ onNext }) => {
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="pan">PAN Number*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -585,8 +589,8 @@ const TextForm = ({ onNext }) => {
           />
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="msme">MSME/UDYAM Number</label>
-          <input
+          <label htmlFor="msme">MSME/UDYAM Number*</label>
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -600,7 +604,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="bank">Bank Name*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -612,7 +616,7 @@ const TextForm = ({ onNext }) => {
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="ifsc">IFSC*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
@@ -626,7 +630,7 @@ const TextForm = ({ onNext }) => {
       <div className="w-full flex mb-2 flex-wrap ">
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
           <label htmlFor="account">Account Number*</label>
-          <input
+          <input required
             className="w-full border py-2 px-4 rounded-3xl"
             type="text"
             onChange={handleChange}
