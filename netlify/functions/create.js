@@ -66,7 +66,7 @@ exports.handler = async (event) => {
         "state": shipment.shipping_state,
         "country": shipment.shipping_country,
         "phone": shipment.customer_mobile,
-        "order": `JUPTEST${refId}`,
+        "order": `JUP${refId}`,
         "payment_mode": shipment.pay_method,
         "return_pin": "",
         "return_city": "",
@@ -128,7 +128,7 @@ exports.handler = async (event) => {
         'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
       },
       body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : shipment.pickup_time, pickup_date : shipment.pickup_date, expected_package_count	: "1"})
-    }).then((response) => response.json()).catch((err) => ({message : "Schedule false"}));
+    }).then((response) => response.json())
 
     const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
       method: 'GET',
