@@ -10,7 +10,7 @@ const FullDetails = () => {
     pickupDate: '',
     order : '',
     date : '',
-    payMode : 'prepaid',
+    payMode : 'Pre-paid',
     name : '',
     email : '',
     phone : '',

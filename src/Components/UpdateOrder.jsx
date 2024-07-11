@@ -796,7 +796,13 @@ const ShipCard = ({price, shipment}) => {
         'Authorization': localStorage.getItem('token'),
       },
       body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
-    }).then(response => response.json()).then(result => console.log(result.message));
+    }).then(response => response.json()).then(result => {
+      if (result.success)
+        alert("Your shipment has been created. Check your mail for the shipping label.")
+      else{
+        alert("Your shipment has not been created")
+      }
+      });
   }
   return (
     <>

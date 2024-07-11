@@ -60,7 +60,8 @@ exports.handler = async (event) => {
         gst,
         Cgst,
         pickDate,
-        pickTime
+        pickTime,
+        shippingType
       } = JSON.parse(event.body);
 
       if (same) {
@@ -114,8 +115,9 @@ exports.handler = async (event) => {
   wid,
   same,
   pickup_date,
-  pickup_time
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?)`,
+  pickup_time,
+  shipping_mode
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?)`,
           [
             id,
             order,
@@ -151,7 +153,8 @@ exports.handler = async (event) => {
             wid,
             same,
             pickDate,
-            pickTime
+            pickTime,
+            shippingType
           ]
         );
         for (let i = 0; i < orders.length; i++) {
