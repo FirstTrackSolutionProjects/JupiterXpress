@@ -865,7 +865,7 @@ const ShipList = ({shipment, setIsShip}) => {
           X
         </div>
         <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR SERVICE
+          CHOOSE YOUR SERVICE (WAIT FOR 30 SECONDS AFTER CLICKING SHIP TO AVOID DUPLICATE ORDERS)
         </div>
         <div className="w-full p-4 ">
           {
@@ -932,7 +932,7 @@ const Listing = ({ step, setStep }) => {
           }`}
         >
           <div className="w-full h-16 px-4  relative flex">
-            <div className="text-2xl font-medium">SHIPMENTS</div>
+            <div className="text-2xl font-medium">SHIPMENTS </div>
             {/* <div
               onClick={(e) => {
                 e.preventDefault();
