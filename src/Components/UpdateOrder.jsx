@@ -796,9 +796,34 @@ const ShipCard = ({price, shipment}) => {
         'Authorization': localStorage.getItem('token'),
       },
       body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
-    }).then(response => response.json()).then(result => {
-      if (result.success)
-        alert("Your shipment has been created. Check your mail for the shipping label.")
+    }).then(response => response.json()).then(async result => {
+      if (result.success){
+        const schedule = await fetch('/.netlify/functions/schedule', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          },
+          body: JSON.stringify({order : shipment.ord_id})
+        })
+        const scheduleResult = await schedule.json()
+        if (scheduleResult.success){
+          const label = await fetch('/.netlify/functions/label', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': localStorage.getItem('token'),
+            },
+            body: JSON.stringify({order : shipment.ord_id})
+          })
+          const labelResult = await label.json()
+          if (labelResult.success){
+            alert("Your Shipment has been created. Check your mail for the shipment label")
+          }
+        }
+      }
       else{
         alert("Your shipment has not been created")
       }

@@ -28,8 +28,6 @@ exports.handler = async (event) => {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
     const {order,  price,serviceId , categoryId} = JSON.parse(event.body);
-    const [users] = await connection.execute('SELECT * FROM USERS WHERE uid = ?',[id])
-    const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
     const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
@@ -108,47 +106,23 @@ exports.handler = async (event) => {
     if (response.success){
       await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
+      await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
     }
     else{
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
       return {
         statusCode: 200,
-        body: JSON.stringify({ success : false}),
+        body: JSON.stringify({ success : false, message : response}),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         },
       };
     }
-    const schedule = await fetch(`https://track.delhivery.com/fm/request/new/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
-      },
-      body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : shipment.pickup_time, pickup_date : shipment.pickup_date, expected_package_count	: "1"})
-    }).then((response) => response.json())
-
-    const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${response.packages[0].waybill}&pdf=true`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
-      },
-    }).then((response) => response.json())
-    await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
-    let mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nLabel PDF : ${label.packages[0].pdf_download_link}\nRegards,\nJupiter Xpress`
-    };
-    await transporter.sendMail(mailOptions)
+   
     return {
       statusCode: 200,
-      body: JSON.stringify({response : response,  schedule : schedule, success : true}),
+      body: JSON.stringify({response : response, success : true}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
