@@ -40,7 +40,7 @@ exports.handler = async (event) => {
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
     let total_amount = 0;
     for (let i =0; i < orders.length; i++) {
-      total_amount += parseFloat(orders[i].selling_price)
+      total_amount += (parseFloat(orders[i].selling_price)*parseFloat(orders[i].product_quantity))
     }
     let product_description = "";
     for (let i = 0; i < orders.length; i++) {
