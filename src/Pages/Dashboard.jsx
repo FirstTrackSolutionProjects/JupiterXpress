@@ -22,6 +22,8 @@ import ContactSubmissions from "../Components/ContactSubmissions"
 import CreateOrderInternational from "../Components/CreateOrderInternational"
 import NonVerifiedMerchantManage from "../Components/NonVerifiedMerchantManage"
 import AllTransactions from "../Components/AllTransactions"
+import AllParcels from "../Components/AllParcels"
+import AllShipmentReports from "../Components/AllShipmentReports"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -79,6 +81,8 @@ const Dashboard = () => {
                 {(menuID[0] == 3) ? <UpdateOrder/> : null}
                 {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
                 {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
+                {(menuID[0] == 9 && menuID[1] == 3) ? <AllParcels/> : null}
+                {(menuID[0] == 9 && menuID[1] == 4) ? <AllShipmentReports/> : null}
                 {(menuID[0] == 5) ? <NDR/> : null}
                 {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
                 {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }

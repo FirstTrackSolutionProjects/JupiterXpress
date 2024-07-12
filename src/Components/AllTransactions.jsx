@@ -62,8 +62,6 @@ const AllTransactions =  () => {
             if (data.length){
                 setTransactions(data)
                 setFilteredTransactions(data)
-                console.log(transactions)
-                console.log(filteredTransactions)
             }
         }
         getVerifiedtransaction();
