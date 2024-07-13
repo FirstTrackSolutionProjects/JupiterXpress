@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -8,6 +9,16 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
+
+let transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST, 
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event) => {
@@ -16,6 +27,8 @@ exports.handler = async (event) => {
     const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
+    const [users] = await connection.execute('SELECT * FROM USERS WHERE uid =?', [id]);
+    const email = users[0].email;
     const {order,  price,serviceId , categoryId} = JSON.parse(event.body);
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
@@ -108,7 +121,13 @@ exports.handler = async (event) => {
         },
       };
     }
-   
+    let mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email, 
+      subject: 'Shipment created successfully', 
+      text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delhivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+    };
+    await transporter.sendMail(mailOptions)
     return {
       statusCode: 200,
       body: JSON.stringify({response : response, success : true}),

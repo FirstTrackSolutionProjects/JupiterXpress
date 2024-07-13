@@ -45,13 +45,7 @@ exports.handler = async (event) => {
             },
           }).then((response) => response.json())
           
-          let mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: email, 
-            subject: 'Shipment created successfully', 
-            text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
-          };
-          await transporter.sendMail(mailOptions)
+        
    
     return {
       statusCode: 200,
