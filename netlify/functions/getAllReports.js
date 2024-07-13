@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
   });
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id');
+    const [rows] = await connection.execute('SELECT * FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id JOIN USERS u ON u.uid=s.uid');
       return {
         statusCode: 200,
         body: JSON.stringify({ rows , success : true }),

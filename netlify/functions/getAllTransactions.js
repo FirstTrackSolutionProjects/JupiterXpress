@@ -42,7 +42,7 @@ exports.handler = async (event) => {
               },
         }
     }
-    const [rows] = await connection.execute('SELECT * FROM RECHARGE');
+    const [rows] = await connection.execute('SELECT * FROM RECHARGE r JOIN USERS u ON r.uid=u.uid');
     
       
       return {

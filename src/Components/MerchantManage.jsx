@@ -121,6 +121,8 @@ const Card = ({merchant}) => {
 
 const MerchantManage =  () => {
     const [merchants, setMerchants] = useState([    ])
+    const [email, setEmail] = useState('');
+    const [filteredMerchants, setFilteredMerchants] = useState([]);
     useEffect(() => {
         const getVerifiedMerchant = async () => {
             const response = await fetch('/.netlify/functions/getVerifiedMerchants', {
@@ -131,19 +133,44 @@ const MerchantManage =  () => {
                 }
             })
             const data = await response.json();
-            if (data.message.length)
+            if (data.message.length){
                 setMerchants(data.message)
+                setFilteredMerchants(data.message)
+            }
         }
         getVerifiedMerchant();
     },[]);
+    const handleEmailChange = (e) => {
+        const query = e.target.value;
+        setEmail(query);
+    }
+    useEffect(()=>{
+        if (email==""){
+            setFilteredMerchants(merchants)
+            return;
+        }
+        const filtered = merchants.filter(merchant => 
+            ((merchant.email).startsWith(email))
+          );
+      
+          setFilteredMerchants(filtered);
+    },[email])
   return (
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-full p-8 flex flex-col items-center space-y-8'>
       <div className='text-center text-3xl font-medium text-black'>Verified Merchants</div>
+      <div className="flex space-x-4">
+      <input
+        type="email"
+        placeholder="Merchant Email"
+        value={email}
+        onChange={handleEmailChange}
+      />
+    </div>
       <div className='w-full bg-white p-8'>
-        {merchants.length > 0 ? (
-        merchants.map(((merchant,index)=>(
+        {filteredMerchants.length > 0 ? (
+        filteredMerchants.map(((merchant,index)=>(
             <Card key={index}  merchant={merchant}/>
         )))
       ) : (

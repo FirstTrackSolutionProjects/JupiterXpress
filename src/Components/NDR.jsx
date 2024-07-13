@@ -4,7 +4,7 @@ const View  = ({ord_id, setIsView}) => {
   return (
     <>
       <div className="absolute inset-0 flex z-50 justify-center items-center">
-          <div className="bg-white">
+          <div className="bg-white p-4">
             <div onClick={()=>setIsView(false)}>X</div>
             {ord_id}
           </div>
@@ -15,6 +15,31 @@ const View  = ({ord_id, setIsView}) => {
 }
 
 const Card = ({ report }) => {
+  const [fullReport, setFullReport] = useState({
+    report : report,
+    status : null
+  })
+  useEffect(() => {
+    const getReport = async () => {
+      const response = await fetch('/.netlify/functions/getReport', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ ord_id: report.ord_id, serviceId: report.serviceId, categoryId : report.categoryId }),
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      setFullReport({...fullReport, status : data.message});
+    }
+  },[])
   const [view, setIsView] = useState(false)
   return (
     <>

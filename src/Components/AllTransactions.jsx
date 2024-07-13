@@ -7,14 +7,14 @@ const Card = ({transaction}) => {
         <>
             {transaction.type ==="recharge" && <div className='p-4 border'>
                 <p>Recharge</p>
-                <p>User id : {transaction.uid}</p>
+                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
                 <p>Order Id : {transaction.order_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>{(date.toDateString())}</p>
             </div>}
             {transaction.type ==="manual" && <div className='p-4 border'>
                 <p>Manual Recharge</p>
-                <p>Beneficiary Id : {transaction.beneficiary_id}</p>
+                <p>{transaction.fullName}<span className="text-gray-500">({transaction.beneficiary_id})</span></p>
                 <p>Order Id : {transaction.recharge_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>Reason : {transaction.reason}</p>
@@ -28,7 +28,7 @@ const Card = ({transaction}) => {
 
 const AllTransactions =  () => {
     const [transactions, setTransactions] = useState([])
-    const [beneficiary, setBeneficiary] = useState('');
+    const [email, setEmail] = useState('');
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     useEffect(() => {
         const getVerifiedtransaction = async () => {
@@ -66,22 +66,22 @@ const AllTransactions =  () => {
         }
         getVerifiedtransaction();
     },[]);
-    const handleBeneficiaryChange = (e) => {
+    const handleEmailChange = (e) => {
         const query = e.target.value;
-        setBeneficiary(query);
+        setEmail(query);
     }
     useEffect(()=>{
-        if (beneficiary==""){
+        if (email==""){
             setFilteredTransactions(transactions)
             return;
         }
         const filtered = transactions.filter(transaction => 
-            (parseInt(transaction.uid) === parseInt(beneficiary) || parseInt(transaction.beneficiary_id)===parseInt(beneficiary))
+            ((transaction.email).startsWith(email))
           );
       
           setFilteredTransactions(filtered);
           console.log(filtered)
-    },[beneficiary])
+    },[email])
   return (
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
@@ -89,10 +89,10 @@ const AllTransactions =  () => {
       <div className='text-center text-3xl font-medium text-black'>Transaction History</div>
       <div className="flex space-x-4">
       <input
-        type="number"
-        placeholder="User Id/Beneficiary Id"
-        value={beneficiary}
-        onChange={handleBeneficiaryChange}
+        type="email"
+        placeholder="Merchant Email"
+        value={email}
+        onChange={handleEmailChange}
       />
     </div>
       <div className='w-full bg-white p-8'>

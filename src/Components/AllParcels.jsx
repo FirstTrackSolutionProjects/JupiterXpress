@@ -791,6 +791,7 @@ const Listing = ({ step, setStep }) => {
             .then(response => response.json())
             .then(result => {
               if (result.success) {
+                result.order.reverse()
                 setShipments(result.order);
                 setFilteredShipments(result.order);
               } else {
