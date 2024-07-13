@@ -33,9 +33,6 @@ exports.handler = async (event) => {
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
     const {serviceId, categoryId} = shipment;
-    const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
-    const warehouse = warehouses[0]
-
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
     if (serviceId === 1) {
       
@@ -52,13 +49,13 @@ exports.handler = async (event) => {
             from: process.env.EMAIL_USER,
             to: email, 
             subject: 'Shipment created successfully', 
-            text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nLabel PDF : ${label.packages[0].pdf_download_link}\nRegards,\nJupiter Xpress`
+            text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
           };
           await transporter.sendMail(mailOptions)
    
     return {
       statusCode: 200,
-      body: JSON.stringify({label : label, success : true}),
+      body: JSON.stringify({label : label.packages[0].pdf_download_link, success : true}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'

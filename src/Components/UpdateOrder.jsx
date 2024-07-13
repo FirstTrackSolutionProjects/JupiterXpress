@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ManageForm = ({isManage, setIsManage,  shipment}) => {
+const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     const [orders, setOrders] = useState([
         { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
     ]);
@@ -100,7 +100,8 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
           }))
       };
       const handleOrders = (index, event) => {
-        
+        if (isShipped)
+          return;
         const { name, value } = event.target;
         const updatedOrders = [...orders];
         updatedOrders[index][name] = value;
@@ -763,14 +764,14 @@ const ManageForm = ({isManage, setIsManage,  shipment}) => {
             </div>
             
           </div>
-          <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
+          <button disabled={isShipped} className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
         </form>
         </div>
       </>
     );
   };
 
-const ShipCard = ({price, shipment}) => {
+const ShipCard = ({price, shipment, setIsShipped}) => {
   const ship = async () => {
     const getBalance = await fetch('/.netlify/functions/getBalance', {
       method: 'GET',
@@ -798,31 +799,8 @@ const ShipCard = ({price, shipment}) => {
       body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
     }).then(response => response.json()).then(async result => {
       if (result.success){
-        const schedule = await fetch('/.netlify/functions/schedule', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          },
-          body: JSON.stringify({order : shipment.ord_id})
-        })
-        const scheduleResult = await schedule.json()
-        if (scheduleResult.success){
-          const label = await fetch('/.netlify/functions/label', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-            body: JSON.stringify({order : shipment.ord_id})
-          })
-          const labelResult = await label.json()
-          if (labelResult.success){
-            alert("Your Shipment has been created. Check your mail for the shipment label")
-          }
-        }
+        setIsShipped(true)
+        alert("Your shipment has been created successfully")
       }
       else{
         alert("Your shipment has not been created")
@@ -839,7 +817,7 @@ const ShipCard = ({price, shipment}) => {
   )
 }
 
-const ShipList = ({shipment, setIsShip}) => {
+const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     // console.log({method, status, origin, dest, weight, payMode, codAmount})
@@ -852,7 +830,7 @@ const ShipList = ({shipment, setIsShip}) => {
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method=="COD"?"COD":"Pre-paid", codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method, codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
         
       }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -870,7 +848,7 @@ const ShipList = ({shipment, setIsShip}) => {
         <div className="w-full p-4 ">
           {
             prices.length ? prices.map((price, index)=>(
-             <ShipCard key={index} shipment={shipment}  price={price} />
+             <ShipCard setIsShipped={setIsShipped} key={index} shipment={shipment}  price={price} />
             ))
           : null
           }
@@ -884,24 +862,166 @@ const ShipList = ({shipment, setIsShip}) => {
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
     const [isShip, setIsShip] = useState(false);
-    
+    const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
+    const getLabel = async () => {
+      await fetch('/.netlify/functions/label', {
+        method : 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body : JSON.stringify({order : shipment.ord_id})
+      }).then(response => response.json()).then(async result => {
+        const link = document.createElement('a');
+        link.href = result.label;
+        link.target = '_blank'
+        link.style.display = 'none'; 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    })
+    }
     return (
       <>
-        {isShip && <ShipList setIsShip={setIsShip} shipment={shipment}/>}
-        <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} />
+        {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment}/>}
+        <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>{shipment.ord_id}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div>
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
+          {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
+          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
           </div>
         </div>
       </>
     );
   };
+  const PickupRequest = ({setPickup}) => {
+    const [warehouses, setWarehouses] = useState([]);
+    useEffect(() => {
+      const getWarehouses = async () => {
+        const response = await fetch('/.netlify/functions/getWarehouse', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          }
+        });
+        const result = await response.json();
+        setWarehouses(result.rows);
+      };
+      getWarehouses();
+    }, []);
+    const [formData, setFormData] = useState({
+      wid : "",
+      pickDate : "",
+      pickTime : "",
+      packages : ""
+    })
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await fetch('/.netlify/functions/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body: JSON.stringify(formData)
+      }).then(response => response.json()).then(result => {
+        if (result.schedule.incoming_center_name){
+          alert("Pickup request sent successfully")
+        }
+        else if (result.schedule.prepaid){
+          alert("Pickup request failed due to low balance of owner")
+        }
+        else if (result.schedule.pr_exist){
+          alert("This time slot is already booked")
+        }
+        else {
+          alert("Please enter a valid date and time in future")
+        }
+      })
+    }
+    const handleChange =  (e) => {
+      const {name, value} = e.target;
+      setFormData({...formData, [name]: value });
+    }
+    return (
+      <>
+        <div className="fixed z-50 bg-[rgba(0,0,0,0.5)] inset-0 flex justify-center items-center">
+          <div className="relative p-8 bg-white">
+              <div className="absolute right-3 top-3" onClick={()=>setPickup(false)}>
+                x
+              </div>
+              <form action="" onSubmit={handleSubmit}>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="wid">Pickup Warehouse Name</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="wid"
+                name="wid"
+                placeholder="Warehouse Name"
+                value={formData.wid}
+                onChange={handleChange}
+              >
+                <option value="">Select Warehouse</option>
+                { warehouses.length ?
+                  warehouses.map((warehouse, index) => (
+                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
+                  ) ) : null
+                } 
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="packages">No of packages</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="packages"
+                name="packages"
+                placeholder=""
+                value={formData.packages}
+                onChange={handleChange}
+              />
+            </div>
+            <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
+              </form>
+          </div>
+        </div>
+      </>
+    )
+  }
 
 const Listing = ({ step, setStep }) => {
     const [shipments, setShipments] = useState([])
+    const [pickup, setPickup] = useState(false);
     useEffect(() => {
 
         fetch('/.netlify/functions/getShipments', {
@@ -927,21 +1047,19 @@ const Listing = ({ step, setStep }) => {
     return (
       <>
         <div
-          className={`w-full p-4 flex flex-col items-center space-y-6 ${
+          className={`w-full relative p-4 flex flex-col items-center space-y-6 ${
             step == 0 ? "" : "hidden"
           }`}
         >
+          {pickup ? <PickupRequest setPickup={setPickup}/> : null}
           <div className="w-full h-16 px-4  relative flex">
             <div className="text-2xl font-medium">SHIPMENTS </div>
-            {/* <div
-              onClick={(e) => {
-                e.preventDefault();
-                setStep(1);
-              }}
+            <div
+              onClick={()=>setPickup(true)}
               className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
             >
-              Add
-            </div> */}
+              Pickup Request
+            </div>
           </div>
           <div className="w-full">
           

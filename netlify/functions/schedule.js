@@ -17,24 +17,20 @@ exports.handler = async (event) => {
     const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const {order} = JSON.parse(event.body);
-    const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
-    const shipment = shipments[0];
-    const serviceId = shipment.serviceId;
-    const categoryId = shipment.categoryId;
-    const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
+    const {wid, pickTime, pickDate, packages} = JSON.parse(event.body);
+    const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, wid]);
     const warehouse = warehouses[0]
 
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
-    if (serviceId === 1) {
+   
         const schedule = await fetch(`https://track.delhivery.com/fm/request/new/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': `Token ${categoryId === 2?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId===1?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+              'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
             },
-            body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : shipment.pickup_time, pickup_date : shipment.pickup_date, expected_package_count	: "1"})
+            body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : pickTime, pickup_date : pickDate, expected_package_count	: packages})
           }).then((response) => response.json())
    
     return {
@@ -45,11 +41,11 @@ exports.handler = async (event) => {
         'Access-Control-Allow-Origin': '*'
       },
     };
-    }
+    
   } catch (error) {
     return {
         statusCode: 400,
-        body: JSON.stringify({schedule : error, success : true, serviceId}),
+        body: JSON.stringify({schedule : error, success : true}),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'

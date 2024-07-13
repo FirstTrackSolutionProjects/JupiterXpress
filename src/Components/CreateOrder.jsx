@@ -34,20 +34,40 @@ const schema = z.object({
     z.object({
       master_sku: z.string().min(1, "Master SKU is required"),
       product_name: z.string().min(1, "Product name is required"),
-      product_quantity: z.number("Quantity must be a number").min(1, "Quantity must be at least 1"),
-      selling_price: z.number().min(0, "Price must be a non-negative number"),
-      discount: z.number().min(0, "Discount must be a non-negative number"),
-      tax_in_percentage: z.number().min(0, "Tax must be a positive number"),
+      product_quantity: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Quantity must be at least 1")),
+      selling_price: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(0, "Price must be a non-negative number")),
+      discount: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(0, "Discount must be a non-negative number")),
+      tax_in_percentage: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(0, "Tax must be a positive number")),
     })
   ),
-  discount: z.number().optional(),
-  cod: z.number("Must be a number").min(0, "COD must be a positive number"),
+  discount: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1,"Must be positive")),
+  cod: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(0, "COD must be a positive number")),
   shippingType: z.enum(['Surface', 'Express']),
-  weight: z.string().optional(),
-  length: z.string().optional(),
-  breadth: z.string().optional(),
-  height: z.string().optional(),
-  gst: z.string().optional(),
+  weight: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1,"Must be positive")),
+  length: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1,"Must be positive")),
+  breadth: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1,"Must be positive")),
+  height: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1,"Must be positive")),
+  gst: z.string().min(1,"Required"),
   Cgst: z.string().optional(),
 });
 const FullDetails = () => {
@@ -59,10 +79,21 @@ const FullDetails = () => {
       payMode : 'Pre-paid',
       same : 1,
       discount : 0,
+      cod : 0,
+      addressType : "home",
+      addressType2 : "office",
+      BaddressType : "home",
+      BaddressType2 : "office",
+      shippingType : "Surface",
+      height : 0,
+      weight : 0,
+      length : 0,
       orders: [{ master_sku: '', product_name: '', product_quantity: 0, selling_price: 0, discount: 0, tax_in_percentage: 0 }]
     }
   });
-  
+  useEffect(() => {
+    console.log(errors)
+  },[errors])
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'orders'
@@ -534,6 +565,7 @@ const FullDetails = () => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="number"
+              min={watch("cod")=="Pre-paid"?0:1}
               id="cod"
               {...register("cod")}
             />
@@ -597,8 +629,28 @@ const FullDetails = () => {
             />
             {errors.height && <span className='text-red-500'>{errors.height.message}</span>}
           </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="gst">Seller GSTIN</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="gst"
+              {...register("gst")}
+            />
+            {errors.gst && <span className='text-red-500'>{errors.gst.message}</span>}
+          </div>
           
         </div>
+        <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="Cgst">Customer GSTIN(For B2B)</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="Cgst"
+              {...register("Cgst")}
+            />
+            {errors.Cgst && <span className='text-red-500'>{errors.Cgst.message}</span>}
+          </div>
         <div className="w-full flex justify-center mt-4">
           <button
             className="bg-green-500 text-white px-6 py-2 rounded-3xl"

@@ -1,5 +1,4 @@
 const mysql = require('mysql2/promise');
-const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -9,16 +8,6 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
-
-let transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, 
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event) => {
