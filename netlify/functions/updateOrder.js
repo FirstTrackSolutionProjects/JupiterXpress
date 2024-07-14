@@ -61,8 +61,6 @@ exports.handler = async (event) => {
             height,
             gst,
             Cgst,
-            pickDate,
-            pickTime,
             shippingType
           } = JSON.parse(event.body);
           const connection = await mysql.createConnection(dbConfig);
@@ -118,12 +116,10 @@ exports.handler = async (event) => {
               weight = ?, 
               gst = ?, 
               customer_gst = ?,
-              pickup_date = ?,
-              pickup_time = ?,
               wid = ?,
               shipping_mode =?
               WHERE ord_id = ? AND uid = ?`, 
-              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight,  gst, Cgst, pickDate, pickTime, wid , shippingType,order, id]
+              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight,  gst, Cgst,  wid , shippingType,order, id]
             );
             
             const [existing] = await connection.execute(`SELECT master_sku FROM ORDERS WHERE ord_id = ?`, [order])

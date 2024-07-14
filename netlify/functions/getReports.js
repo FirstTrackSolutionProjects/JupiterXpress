@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
   });
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE s.uid = ?', [id]);
+    const [rows] = await connection.execute('SELECT * FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE r.status != "FAILED" AND s.uid = ?', [id]);
     
       return {
         statusCode: 200,

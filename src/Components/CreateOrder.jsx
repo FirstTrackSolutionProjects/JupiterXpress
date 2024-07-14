@@ -5,8 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
   wid: z.string().min(1, "Pickup Warehouse Name is required"),
-  pickDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-  pickTime: z.string().regex(/^\d{2}:\d{2}:\d{2}$/, "Invalid time format (HH:MM:SS)"),
   order: z.string().min(1, "Order ID is required"),
   date: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Invalid date format (DD/MM/YYYY)"),
   payMode: z.enum(['COD', 'Pre-paid', 'topay']),
@@ -32,7 +30,7 @@ const schema = z.object({
   Bcountry: z.string().optional(),
   orders: z.array(
     z.object({
-      master_sku: z.string().min(1, "Master SKU is required"),
+      master_sku: z.string().min(1, "Required"),
       product_name: z.string().min(1, "Product name is required"),
       product_quantity: z.preprocess(
         (a) => parseInt(a, 10),
@@ -50,7 +48,7 @@ const schema = z.object({
   ),
   discount: z.preprocess(
     (a) => parseInt(a, 10),
-    z.number().min(1,"Must be positive")),
+    z.number().min(0,"Must be a non-negative number")),
   cod: z.preprocess(
     (a) => parseInt(a, 10),
     z.number().min(0, "COD must be a positive number")),
@@ -67,7 +65,7 @@ const schema = z.object({
   height: z.preprocess(
     (a) => parseInt(a, 10),
     z.number().min(1,"Must be positive")),
-  gst: z.string().min(1,"Required"),
+  gst: z.string(),
   Cgst: z.string().optional(),
 });
 const FullDetails = () => {
@@ -88,6 +86,7 @@ const FullDetails = () => {
       height : 0,
       weight : 0,
       length : 0,
+      breadth : 0,
       orders: [{ master_sku: '', product_name: '', product_quantity: 0, selling_price: 0, discount: 0, tax_in_percentage: 0 }]
     }
   });
@@ -160,30 +159,7 @@ const FullDetails = () => {
             {errors.wid && <span className='text-red-500'>{errors.wid.message}</span>}
           </div>
         </div>
-        <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="pickDate">Pickup Date</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="pickDate"
-              {...register("pickDate")}
-              placeholder="YYYY-MM-DD"
-            />
-            {errors.pickDate && <span className='text-red-500'>{errors.pickDate.message}</span>}
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="pickTime">Pickup Time</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="pickTime"
-              {...register("pickTime")}
-              placeholder="HH:MM:SS (In 24 Hour Format)"
-            />
-            {errors.pickTime && <span className='text-red-500'>{errors.pickTime.message}</span>}
-          </div>
-        </div>
+        
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="order">Order Id</label>
@@ -475,7 +451,7 @@ const FullDetails = () => {
           {fields.map((field, index) => (
             <div key={field.id} className="w-full flex mb-2 flex-wrap">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor={`orders[${index}].master_sku`}>Master SKU</label>
+                <label htmlFor={`orders[${index}].master_sku`}>Product/Serial No.</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
@@ -565,7 +541,7 @@ const FullDetails = () => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="number"
-              min={watch("cod")=="Pre-paid"?0:1}
+              min={watch("payMode") == "Pre-paid"?0:1}
               id="cod"
               {...register("cod")}
             />
@@ -586,7 +562,7 @@ const FullDetails = () => {
             {errors.shippingType && <span className='text-red-500'>{errors.shippingType.message}</span>}
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="weight">Weight</label>
+            <label htmlFor="weight">Weight (In g) </label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
@@ -598,7 +574,7 @@ const FullDetails = () => {
         </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="length">Length</label>
+            <label htmlFor="length">Length (In cm)</label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
@@ -608,7 +584,7 @@ const FullDetails = () => {
             {errors.length && <span className='text-red-500'>{errors.length.message}</span>}
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="breadth">Breadth</label>
+            <label htmlFor="breadth">Breadth (In cm)</label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
@@ -620,7 +596,7 @@ const FullDetails = () => {
         </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="height">Height</label>
+            <label htmlFor="height">Height (In cm)</label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"

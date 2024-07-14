@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react";
 
-const View  = ({ord_id, setIsView}) => {
-  return (
-    <>
-      <div className="absolute inset-0 flex z-50 justify-center items-center">
-          <div className="bg-white p-4">
-            <div onClick={()=>setIsView(false)}>X</div>
-            {ord_id}
-          </div>
-      </div>
-      
-    </>
-  )
-}
-
-const Card = ({ report }) => {
-  const [fullReport, setFullReport] = useState({
-    report : report,
-    status : null
-  })
+const View  = ({report, setIsView}) => {
+  const [status, setStatus] = useState(null)
   useEffect(() => {
+    
     const getReport = async () => {
       const response = await fetch('/.netlify/functions/getReport', {
         method: 'POST',
@@ -28,24 +12,55 @@ const Card = ({ report }) => {
           'Accept': 'application/json',
           'Authorization': localStorage.getItem('token'),
         },
-        body: JSON.stringify({ ord_id: report.ord_id, serviceId: report.serviceId, categoryId : report.categoryId }),
+        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId : report.categoryId })
       })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      setFullReport({...fullReport, status : data.message});
+      setStatus(data.data);
     }
+    getReport();
   },[])
+  return (
+    <>
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
+          <div className="bg-white p-4  border">
+            <div onClick={()=>setIsView(false)}>X</div>
+            {
+              status ? <div>
+              <p>AWB : {report.awb}</p>
+              <p>Ref Id: JUP{report.ref_id}</p>
+              <p>Status : {status.Status.Status}</p>
+              {
+                (status.Scans).map((scan,index)=> {
+                  const timestamp = scan.ScanDetail.ScanDateTime;
+                  const date = new Date(timestamp);
+                  const formattedTimestamp = date.getFullYear() + "-" +
+                    String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                    String(date.getDate()).padStart(2, '0') + " " +
+                    String(date.getHours()).padStart(2, '0') + ":" +
+                    String(date.getMinutes()).padStart(2, '0');
+                  return (
+                  <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
+                  )
+              })
+              }
+            </div> : "Loading..."
+            }
+          </div>
+      </div>
+      
+    </>
+  )
+}
+
+const Card = ({ report }) => {
+  
+  
   const [view, setIsView] = useState(false)
   return (
     <>
-      {view && <View {...report} setIsView={setIsView}/>}
+      {view && <View report={report} setIsView={setIsView}/>}
       <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
-        <div><div>{report.ord_id}</div><div>{report.ref_id}</div></div>
+        <div><div>{report.ord_id}</div><div>JUP{report.ref_id}</div></div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
         {report.status}
         <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsView(true)}>View</div>
@@ -69,6 +84,7 @@ const Listing = () => {
           .then(response => response.json())
           .then(result => {
             if (result.success) {
+              result.rows.sort((a,b) => parseInt(a.ref_id) - parseInt(b.ref_id)).reverse();
               setReports(result.rows);
             } else {
               alert('Fetch failed: ' + result.message)

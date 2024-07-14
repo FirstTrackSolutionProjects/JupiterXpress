@@ -1,12 +1,50 @@
 import { useEffect, useState } from "react";
 
-const View  = ({ord_id, setIsView}) => {
+const View  = ({report, setIsView}) => {
+  const [status, setStatus] = useState(null)
+  useEffect(() => {
+    
+    const getReport = async () => {
+      const response = await fetch('/.netlify/functions/getReport', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId : report.categoryId }),
+      })
+      const data = await response.json();
+      setStatus(data.data);
+    }
+    getReport();
+  },[])
   return (
     <>
-      <div className="absolute inset-0 flex z-50 justify-center items-center">
-          <div className="bg-white">
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
+          <div className="bg-white p-4  border">
             <div onClick={()=>setIsView(false)}>X</div>
-            {ord_id}
+            {
+              status ? <div>
+              <p>AWB : {report.awb}</p>
+              <p>Ref Id: JUP{report.ref_id}</p>
+              <p>{status.Status.Status}</p>
+              {
+                (status.Scans).map((scan,index)=> {
+                  const timestamp = scan.ScanDetail.ScanDateTime;
+                  const date = new Date(timestamp);
+                  const formattedTimestamp = date.getFullYear() + "-" +
+                    String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                    String(date.getDate()).padStart(2, '0') + " " +
+                    String(date.getHours()).padStart(2, '0') + ":" +
+                    String(date.getMinutes()).padStart(2, '0');
+                  return (
+                  <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
+                  )
+              })
+              }
+            </div> : "Loading..."
+            }
           </div>
       </div>
       
@@ -18,7 +56,7 @@ const Card = ({ report }) => {
   const [view, setIsView] = useState(false)
   return (
     <>
-      {view && <View {...report} setIsView={setIsView}/>}
+      {view ? <View report={report} setIsView={setIsView}/> : null}
       <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
         <div><div>JUP{report.ref_id}<span className="text-gray-500">({report.ord_id})</span> </div><div className="text-[10px] text-gray-500">{report.fullName}</div><div className="text-[10px] text-gray-500">{report.email}</div></div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">

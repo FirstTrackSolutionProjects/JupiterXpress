@@ -81,13 +81,9 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         height :  shipment.height,
         gst : shipment.gst,
         Cgst : shipment.customer_gst,
-        pickDate : shipment.pickup_date,
-        pickTime : shipment.pickup_time,
         shippingType : shipment.shipping_mode
       })
 
-
-      
       const addProduct = () => {
         setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }]);
       };
@@ -198,33 +194,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             </div>
             
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickDate">Pickup Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="pickDate"
-                name="pickDate"
-                placeholder="YYYY-MM-DD"
-                value={formData.pickDate}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickTime">Pickup Time</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="pickTime"
-                name="pickTime"
-                placeholder="HH:MM:SS (In 24 Hour Format)"
-                value={formData.pickTime}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
+          
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="order">Order Id</label>
@@ -804,6 +774,7 @@ const ShipCard = ({price, shipment, setIsShipped}) => {
       }
       else{
         alert("Your shipment has not been created")
+        console.log(result.message)
       }
       });
   }
