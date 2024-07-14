@@ -10,6 +10,7 @@ exports.handler = async (event, context) => {
   const token = event.headers.authorization;
   const verified = jwt.verify(token, SECRET_KEY);
   const id = verified.id;
+  const admin = verified.admin;
   if (!id) {
     return {
       statusCode: 400,
@@ -28,20 +29,37 @@ exports.handler = async (event, context) => {
   });
 
   try {
-    const [warehouses] = await connection.execute('SELECT COUNT(*) AS warehouses FROM WAREHOUSES WHERE uid = ? ', [id]);
-    const warehouse = warehouses[0].warehouses;
-    const [shipments] = await connection.execute('SELECT COUNT(*) AS shipments FROM SHIPMENTS WHERE  uid =?', [id]);
-    const shipment = shipments[0].shipments;
+    if (admin){
+        const [warehouses] = await connection.execute('SELECT COUNT(*) AS warehouses FROM WAREHOUSES');
+         const warehouse = warehouses[0].warehouses;
+         const [shipments] = await connection.execute('SELECT COUNT(*) AS shipments FROM SHIPMENTS');
+         const shipment = shipments[0].shipments;
+         return {
+            statusCode: 200,
+            body: JSON.stringify({ warehouse, shipment , success : true }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+                
+              },
+          };
+    } else{
+        const [warehouses] = await connection.execute('SELECT COUNT(*) AS warehouses FROM WAREHOUSES WHERE uid = ? ', [id]);
+         const warehouse = warehouses[0].warehouses;
+         const [shipments] = await connection.execute('SELECT COUNT(*) AS shipments FROM SHIPMENTS WHERE  uid =?', [id]);
+         const shipment = shipments[0].shipments;
+         return {
+            statusCode: 200,
+            body: JSON.stringify({ warehouse, shipment , success : true }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
+                
+              },
+          };
+    }
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ warehouse, shipment , success : true }),
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
-            
-          },
-      };
+      
 
 
 

@@ -35,10 +35,10 @@ const DashboardSummary = () => {
             <DashboardSummaryCard title="Total Shipments" number={summary?summary.shipment:0} />
             <DashboardSummaryCard title="Total Delivered" number="3" />
             <DashboardSummaryCard title="Total Undelivered" number="2" />
-            <DashboardSummaryCard title={jwtDecode(localStorage.getItem('token')).admin?`Total Revenue`:`Total Expense`} number="₹1563" />
+            <DashboardSummaryCard title={jwtDecode(localStorage.getItem('token')).admin?`Total Revenue`:`Total Wallet Recharge`} number="₹1563" />
             <DashboardSummaryCard title="Parcel on process" number="4" />
-            <DashboardSummaryCard title="Returning parcels" number="1" />
-            <DashboardSummaryCard title="NDR Parcels" number="1" />
+            <DashboardSummaryCard title="Parcel Return" number="1" />
+            <DashboardSummaryCard title="NDR Parcel" number="1" />
         </div>
     )
 }
