@@ -49,7 +49,15 @@ exports.handler = async (event) => {
       product_description += `${orders[i].product_name} (${orders[i].product_quantity}) (₹${orders[i].selling_price})\n`
     }
     if (serviceId === "1") {
-      
+      const res = await fetch(`https://track.delhivery.com/waybill/api/bulk/json/?count=1`, {
+        method : 'GET',
+        headers: {
+          "Content-Type" : "application/json",
+          "Accept" : "application/json",
+          'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+        }
+      })
+      const waybill = await res.json()
       let req = {
         shipments: [],
         pickup_location: {
@@ -84,7 +92,7 @@ exports.handler = async (event) => {
         "seller_name": warehouse.warehouseName,
         "seller_inv": "",
         "quantity": "1",
-        "waybill": "",
+        "waybill": waybill,
         "shipment_width": shipment.width,
         "shipment_height": shipment.height,
         "weight": shipment.weight,
