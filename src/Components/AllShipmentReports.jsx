@@ -54,7 +54,8 @@ const View  = ({report, setIsView}) => {
 
 const Card = ({ report }) => {
   const [view, setIsView] = useState(false)
-  const [isCancelled, setIsCancelled] = useState(report.cancelled)
+  const [isCancelled, setIsCancelled] = useState(report.cancelled?true:false)
+  const [isShipped, setIsShipped] = useState(report.awb?true:false)
   return (
     <>
       {view ? <View report={report} setIsView={setIsView}/> : null}
@@ -63,6 +64,8 @@ const Card = ({ report }) => {
         <div className="absolute right-4 sm:right-8 flex space-x-2">
         {report.status}
         <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsView(true)}>View</div>
+    
+        {isShipped && !isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
         {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
         </div>
       </div>

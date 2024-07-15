@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     const email = users[0].email;
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ?', [order]);
     const shipment = shipments[0];
-    const {serviceId, categoryId, awb} = shipment;
+    const {serviceId, categoryId, awb, uid} = shipment;
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
     
     if (serviceId == "1") {
@@ -50,12 +50,12 @@ exports.handler = async (event) => {
     const response = await responseDta.json()
     if (response.status){
       await connection.beginTransaction()
-      const [expenses] = await connection.execute('SELECT * FROM EXPENSES WHERE expense_order = ? AND uid = ?',[order,id])
+      const [expenses] = await connection.execute('SELECT * FROM EXPENSES WHERE expense_order = ? AND uid = ?',[order,uid])
       const price = expenses[0].expense_cost
-      await connection.execute('UPDATE SHIPMENTS set cancelled = ? WHERE ord_id = ? AND uid = ?', [1, order, id])
+      await connection.execute('UPDATE SHIPMENTS set cancelled = ? WHERE ord_id = ? AND uid = ?', [1, order, uid])
       if (shipment.pay_method != "topay"){
-        await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE uid = ?', [parseInt(price), id]);
-        await connection.execute('INSERT INTO REFUND (uid, refund_order, refund_amount) VALUES  (?,?,?)',[id, order, price])
+        await connection.execute('UPDATE WALLET SET balance = balance + ? WHERE uid = ?', [parseInt(price), uid]);
+        await connection.execute('INSERT INTO REFUND (uid, refund_order, refund_amount) VALUES  (?,?,?)',[uid, order, price])
       }
       await connection.commit()
     }
