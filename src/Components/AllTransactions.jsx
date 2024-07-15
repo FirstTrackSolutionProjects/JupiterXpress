@@ -20,6 +20,20 @@ const Card = ({transaction}) => {
                 <p>Reason : {transaction.reason}</p>
                 <p>{(date.toDateString())}</p>
             </div>}
+            {transaction.type ==="expense" && <div className='p-4 border'>
+                <p>Order Expense</p>
+                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
+                <p>Order Id : {transaction.expense_order}</p>
+                <p>Amount : -{transaction.expense_cost}</p>
+                <p>{(date.toDateString())}</p>
+            </div>}
+            {transaction.type ==="refund" && <div className='p-4 border'>
+                <p>Order Refund</p>
+                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
+                <p>Order Id : {transaction.refund_order}</p>
+                <p>Amount : +{transaction.refund_amount}</p>
+                <p>{(date.toDateString())}</p>
+            </div>}
         </>
     )
 }
@@ -49,8 +63,25 @@ const AllTransactions =  () => {
                 }
             })
             const manuals = await manual.json();
-            console.log(manuals.data)
             data.push(...manuals.data)
+            const expense = await fetch('/.netlify/functions/getExpense', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+            const expenses = await expense.json();
+            data.push(...expenses.data)
+            const refund = await fetch('/.netlify/functions/getRefund', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+            const refunds = await refund.json();
+            data.push(...refunds.data)
             
             // console.log("recharge", transactions.data)
             data.forEach(obj => {
