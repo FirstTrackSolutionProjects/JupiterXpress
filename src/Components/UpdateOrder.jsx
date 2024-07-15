@@ -801,7 +801,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method, codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
         
       }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -809,14 +809,14 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   }, []) 
   return (
     <>
-      <div className="w-full absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+      <div className=" absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
         <div className="absolute top-3 right-3" onClick={()=>setIsShip(false)}>
           X
         </div>
         <div className="text-center text-3xl font-medium">
           CHOOSE YOUR SERVICE (WAIT FOR 30 SECONDS AFTER CLICKING SHIP TO AVOID DUPLICATE ORDERS)
         </div>
-        <div className="w-full p-4 ">
+        <div className="w-full  p-4 ">
           {
             prices.length ? prices.map((price, index)=>(
              <ShipCard setIsShipped={setIsShipped} key={index} shipment={shipment}  price={price} />
@@ -834,6 +834,7 @@ const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
     const [isShip, setIsShip] = useState(false);
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
+    const [isCancelled, setIsCancelled] = useState(shipment.cancelled?true:false);
     const getLabel = async () => {
       await fetch('/.netlify/functions/label', {
         method : 'POST',
@@ -853,6 +854,28 @@ const Card = ({ shipment }) => {
         document.body.removeChild(link);
     })
     }
+    const cancelShipment = async () => {
+      const cancel = confirm('Do you want to cancel this shipment?');
+      if (!cancel) return;
+      await fetch('/.netlify/functions/cancelShipment', {
+        method : 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body : JSON.stringify({order : shipment.ord_id})
+      }).then(response => response.json()).then(async result => {
+        if (result.message.status){
+          setIsCancelled(true)
+          alert(result.message.remark)
+        }
+        else{
+          alert("Your shipment has not been cancelled")
+          console.log(result.message)
+        }
+      })
+    }
     return (
       <>
         {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment}/>}
@@ -863,6 +886,8 @@ const Card = ({ shipment }) => {
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
           {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
+          {isShipped && !isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
+          {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
           </div>
         </div>
       </>
@@ -1018,7 +1043,7 @@ const Listing = ({ step, setStep }) => {
     return (
       <>
         <div
-          className={`w-full relative p-4 flex flex-col items-center space-y-6 ${
+          className={`w-full p-4 flex flex-col items-center space-y-6 ${
             step == 0 ? "" : "hidden"
           }`}
         >
@@ -1033,7 +1058,6 @@ const Listing = ({ step, setStep }) => {
             </div>
           </div>
           <div className="w-full">
-          
             {shipments.map((shipment, index) => (
               <Card key={index} shipment={shipment} />
             ))}

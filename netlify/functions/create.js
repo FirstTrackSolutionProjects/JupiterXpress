@@ -68,7 +68,7 @@ exports.handler = async (event) => {
         "country": shipment.shipping_country,
         "phone": shipment.customer_mobile,
         "order": `JUP${refId}`,
-        "payment_mode": shipment.pay_method,
+        "payment_mode": shipment.pay_method == "topay"?"COD":shipment.pay_method,
         "return_pin": "",
         "return_city": "",
         "return_phone": "",
@@ -108,9 +108,14 @@ exports.handler = async (event) => {
     })
     const response = await responseDta.json()
     if (response.success){
+      await connection.beginTransaction();
       await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
-      await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
+      if (shipment.pay_method != "topay"){
+        await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
+        await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
+      }
+      await connection.commit();
     }
     else{
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
