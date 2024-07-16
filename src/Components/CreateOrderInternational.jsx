@@ -35,7 +35,7 @@ const FullDetails = () => {
     pickDate : '',
     pickTime : '',
     shipmentContent : '',
-    apiServiceCode : '',
+    serviceCode : '',
     
 
   })
@@ -449,7 +449,7 @@ const FullDetails = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
               
-              <div className="space-y-2">
+              <div className="flex-1 space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
                 <select
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -463,6 +463,23 @@ const FullDetails = () => {
                 <option value="Express">Express</option>
               </select>
               </div>
+              <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+              
+              <div className="flex-1 space-y-2">
+                <label htmlFor="serviceCode">Service Code</label>
+                <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="serviceCode"
+                name="serviceCode"
+                value={formData.serviceCode}
+                onChange={handleChange}
+              >
+                <option value="Surface">Surface</option>
+                <option value="Express">Express</option>
+              </select>
+              </div>
+            </div>
             </div>
             
           </div>

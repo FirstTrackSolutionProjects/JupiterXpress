@@ -741,8 +741,10 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     );
   };
 
-const ShipCard = ({price, shipment, setIsShipped}) => {
+const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
+  const [isLoading, setIsLoading] = useState(false)
   const ship = async () => {
+    setIsLoading(true)
     const getBalance = await fetch('/.netlify/functions/getBalance', {
       method: 'GET',
       headers : {
@@ -771,10 +773,13 @@ const ShipCard = ({price, shipment, setIsShipped}) => {
       if (result.success){
         setIsShipped(true)
         alert("Your shipment has been created successfully")
+        setIsLoading(false)
+        setIsShip(false)
       }
       else{
         alert("Your shipment has not been created")
         console.log(result.message)
+        setIsLoading(false)
       }
       });
   }
@@ -782,7 +787,7 @@ const ShipCard = ({price, shipment, setIsShipped}) => {
     <>
        <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
           <div>{price.name+" "+price.weight}</div>
-          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>ship()}>Ship</div></div>
+          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship()}>{isLoading?"Shipping...":"Ship"}</div></div>
         </div>
     </>
   )
@@ -819,7 +824,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
         <div className="w-full  p-4 ">
           {
             prices.length ? prices.map((price, index)=>(
-             <ShipCard setIsShipped={setIsShipped} key={index} shipment={shipment}  price={price} />
+             <ShipCard setIsShipped={setIsShipped} setIsShip={setIsShip} key={index} shipment={shipment}  price={price} />
             ))
           : null
           }

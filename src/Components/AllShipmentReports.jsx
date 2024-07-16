@@ -56,6 +56,28 @@ const Card = ({ report }) => {
   const [view, setIsView] = useState(false)
   const [isCancelled, setIsCancelled] = useState(report.cancelled?true:false)
   const [isShipped, setIsShipped] = useState(report.awb?true:false)
+  const cancelShipment = async () => {
+    const cancel = confirm('Do you want to cancel this shipment?');
+    if (!cancel) return;
+    await fetch('/.netlify/functions/cancelShipment', {
+      method : 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      },
+      body : JSON.stringify({order : report.ord_id})
+    }).then(response => response.json()).then(async result => {
+      if (result.message.status){
+        setIsCancelled(true)
+        alert(result.message.remark)
+      }
+      else{
+        alert("Your shipment has not been cancelled")
+        console.log(result.message)
+      }
+    })
+  }
   return (
     <>
       {view ? <View report={report} setIsView={setIsView}/> : null}
