@@ -25,128 +25,112 @@ exports.handler = async (event) => {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
     try {
-      let {
+      const {
         wid,
-        order,
-        date,
-        name,
-        email,
-        phone,
-        address,
-        address2,
-        addressType,
-        addressType2,
-        postcode,
-        city,
-        state,
-        country,
-        orders,
-        discount,
-        cod,
-        weight,
-        length,
-        breadth,
-        height,
+        contents,
+        serviceCode,
+        consigneeName,
+        consigneeCompany,
+        consigneeContact,
+        consigneeEmail,
+        consigneeAddress,
+        consigneeAddress2,
+        consigneeAddress3,
+        consigneeCity,
+        consigneeState,
+        consigneeCountry,
+        consigneeZipCode,
+        dockets,
+        items,
         gst,
-        Cgst,
-        shippingType
+        shippingType,
+        actual_weight,
+        price
       } = JSON.parse(event.body);
       const connection = await mysql.createConnection(dbConfig);
 
       try {
         await connection.beginTransaction();
-        await connection.execute(
-          `INSERT INTO SHIPMENTS (
+        const [shipment] = await connection.execute(
+          `INSERT INTO INTERNATIONAL_SHIPMENTS (
   uid,
-  ord_id,
-  ord_date,
-  pay_method,
-  customer_name,
-  customer_email,
-  customer_mobile,
-  shipping_address,
-  shipping_address_type,
-  shipping_address_2,
-  shipping_address_type_2,
-  shipping_country,
-  shipping_state,
-  shipping_city,
-  shipping_postcode,
-  billing_address,
-  billing_address_type,
-  billing_address_2,
-  billing_address_type_2,
-  billing_country,
-  billing_state,
-  billing_city,
-  billing_postcode,
-  cod_amount,
-  total_discount,
-  length,
-  breadth,
-  height,
-  weight,
-  gst,
-  customer_gst,
   wid,
-  same,
-  shipping_mode
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?)`,
+  contents,
+  service_code,
+  consignee_name,
+  consignee_company_name,
+  consignee_contact_no,
+  consignee_email,
+  consignee_address_1,
+  consignee_address_2,
+  consignee_address_3,
+  consignee_city,
+  consignee_state,
+  consignee_country,
+  consignee_zip_code,
+  shippingType,
+  gst,
+  shipping_price,
+  actual_weight
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,  ?, ?, ?, ?)`,
           [
             id,
-            order,
-            date,
-            payMode,
-            name,
-            email,
-            phone,
-            address,
-            addressType,
-            address2,
-            addressType2,
-            country,
-            state,
-            city,
-            postcode,
-            Baddress,
-            BaddressType,
-            Baddress2,
-            BaddressType2,
-            Bcountry,
-            Bstate,
-            Bcity,
-            Bpostcode,
-            cod,
-            discount,
-            length,
-            breadth,
-            height,
-            weight,
-            gst,
-            Cgst,
             wid,
-            same,
-            shippingType
+            contents,
+            serviceCode,
+            consigneeName,
+            consigneeCompany,
+            consigneeContact,
+            consigneeEmail,
+            consigneeAddress,
+            consigneeAddress2,
+            consigneeAddress3,
+            consigneeCity,
+            consigneeState,
+            consigneeCountry,
+            consigneeZipCode,
+            shippingType,
+            gst,
+            price,
+            actual_weight
           ]
         );
-        for (let i = 0; i < orders.length; i++) {
-          await connection.execute(
-            `INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        const iid = shipment.insertId;
+        for (let i = 0; i < dockets.length; i++) {
+          const [docket] =  await connection.execute(
+            `INSERT INTO DOCKETS (box_no, iid, docket_weight, length, breadth, height ) VALUES (?, ?, ?, ?, ?, ?)`,
             [
-              order,
-              orders[i].master_sku,
-              orders[i].product_name,
-              orders[i].product_quantity,
-              orders[i].tax_in_percentage,
-              orders[i].selling_price,
-              orders[i].discount,
+              dockets[i].box_no,
+              iid,
+              dockets[i].docket_weight,
+              dockets[i].length,
+              dockets[i].breadth,
+              dockets[i].height,
             ]
           );
+          const did = docket.insertId;
+          const docketItems = items.filter(item => item.box_no == i+1)
+          for (let j = 0; j < docketItems.length; j++) {
+            await connection.execute(
+              `INSERT INTO DOCKET_ITEMS (did, hscode, box_no, quantity, rate, description, unit, unit_weight, igst_amount) VALUES (?,?,?,?,?,?,?,?,?)`,
+              [
+                did,
+                docketItems[j].hscode,
+                docketItems[j].box_no,
+                docketItems[j].quantity,
+                docketItems[j].rate,
+                docketItems[j].description,
+                docketItems[j].unit,
+                docketItems[j].unit_weight,
+                docketItems[j].igst_amount,
+              ]
+            );
+          }
         }
         await connection.commit();
         return {
           statusCode: 200,
-          body: JSON.stringify({ success: true, message: "Details Submitted" }),
+          body: JSON.stringify({ success: true, message: "Order Created" }),
         };
       } catch (error) {
         return {

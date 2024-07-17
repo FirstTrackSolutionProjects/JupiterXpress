@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
         "weight" : "10Kg",
         "price" : Math.round(price2*1.3),
         "serviceId" : "1",
-        "categoryId" : "2"
+        "categoryId" : "1"
 
       })
     }

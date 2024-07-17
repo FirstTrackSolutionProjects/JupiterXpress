@@ -24,6 +24,9 @@ import NonVerifiedMerchantManage from "../Components/NonVerifiedMerchantManage"
 import AllTransactions from "../Components/AllTransactions"
 import AllParcels from "../Components/AllParcels"
 import AllShipmentReports from "../Components/AllShipmentReports"
+import UpdateOrderInternational from "../Components/UpdateOrderInternational"
+import KYCVerification from "../Components/KYCVerification"
+import KYCRequests from "../Components/KYCRequests"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -78,7 +81,8 @@ const Dashboard = () => {
                 {(menuID[0] == 1 && menuID[1] == 0) ? <CreateOrder/> : null}
                 {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
                 {(menuID[0] == 2) ? <Warehouse/> : null}
-                {(menuID[0] == 3) ? <UpdateOrder/> : null}
+                {(menuID[0] == 3 && menuID[1]==0) ? <UpdateOrder/> : null}
+                {(menuID[0] == 3 && menuID[1]==1) ? <UpdateOrderInternational/> : null}
                 {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
                 {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
                 {(menuID[0] == 9 && menuID[1] == 3) ? <AllParcels/> : null}
@@ -91,7 +95,9 @@ const Dashboard = () => {
                 {(menuID[0] == 9 && menuID[1] == 1) ? <NonVerifiedMerchantManage/> : null}
                 {(menuID[0] == 11 && menuID[1] == 0) ? <VerificationRequests/> : null}
                 {(menuID[0] == 11 && menuID[1] == 1) ? <ContactSubmissions/> : null}
+                {(menuID[0] == 11 && menuID[1] == 2) ? <KYCRequests/> : null}
                 {(menuID[0] == 12) ? <ManualRecharge/> : null}
+                {(menuID[0] == 13) ? <KYCVerification/>: null}
                 {(menuID[0] == 7) && (loggingOut())}
               </div>
             </div>

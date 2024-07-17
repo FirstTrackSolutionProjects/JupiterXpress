@@ -49,6 +49,13 @@ export const menuItems = [
     },
     {
         icon : "logo.webp",
+        name : "KYC Update",
+        isDropdown : false,
+        menuID : [13],
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "logo.webp",
         name : "Create Shipment",
         isDropdown : true,
         menuID : [1],
@@ -76,9 +83,22 @@ export const menuItems = [
     {
         icon : "logo.webp",
         name : "Parcels",
-        isDropdown : false,
+        isDropdown : true,
         menuID : [3],
-        dropDownOptions : [{}]
+        dropDownOptions : [{
+            icon : "logo.webp",
+            name : "Domestic",
+            isDropdown : false,
+            menuID : [3,0],
+            dropDownOptions : [{}]
+        },
+        {
+            icon : "logo.webp",
+            name : "International",
+            isDropdown : false,
+            menuID : [3,1],
+            dropDownOptions : [{}]
+        },]
     },
     {
         icon : "logo.webp",
@@ -177,7 +197,16 @@ export const menuItems = [
             admin : true,
             menuID : [11,1],
             dropDownOptions : [{}]
-        }]
+        },
+        {
+            icon : "logo.webp",
+            name : "KYC Requests",
+            isDropdown : false,
+            admin : true,
+            menuID : [11,2],
+            dropDownOptions : [{}]
+        }
+    ]
     },
     {
         icon : "logo.webp",
