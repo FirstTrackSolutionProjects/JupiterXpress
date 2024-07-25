@@ -51,6 +51,7 @@ export const menuItems = [
         icon : "logo.webp",
         name : "KYC Update",
         isDropdown : false,
+        merchantOnly : true,
         menuID : [13],
         dropDownOptions : [{}]
     },
@@ -58,6 +59,7 @@ export const menuItems = [
         icon : "logo.webp",
         name : "Create Shipment",
         isDropdown : true,
+        merchantOnly : true,
         menuID : [1],
         dropDownOptions : [{
             icon : "logo.webp",
@@ -77,6 +79,7 @@ export const menuItems = [
         icon : "logo.webp",
         name : "Warehouse",
         isDropdown : false,
+        merchantOnly : true,
         menuID : [2],
         dropDownOptions : [{}]
     },
@@ -84,6 +87,7 @@ export const menuItems = [
         icon : "logo.webp",
         name : "Parcels",
         isDropdown : true,
+        merchantOnly : true,
         menuID : [3],
         dropDownOptions : [{
             icon : "logo.webp",
@@ -111,6 +115,7 @@ export const menuItems = [
         icon : "logo.webp",
         name : "Reports",
         isDropdown : false,
+        merchantOnly : true,
         menuID : [5],
         dropDownOptions : [{}]
     },
@@ -156,26 +161,26 @@ export const menuItems = [
             dropDownOptions : [{}]
         }]
     },
-    {
-        icon : "logo.webp",
-        name : "Users",
-        admin : true,
-        isDropdown : true,
-        menuID : [10],
-        dropDownOptions : [{
-            icon : "logo.webp",
-            name : "Accounts",
-            isDropdown : false,
-            menuID : [10,0],
-            dropDownOptions : [{}]
-        },{
-            icon : "logo.webp",
-            name : "Admin",
-            isDropdown : false,
-            menuID : [10,1],
-            dropDownOptions : [{}]
-        },]
-    },
+    // {
+    //     icon : "logo.webp",
+    //     name : "Users",
+    //     admin : true,
+    //     isDropdown : true,
+    //     menuID : [10],
+    //     dropDownOptions : [{
+    //         icon : "logo.webp",
+    //         name : "Accounts",
+    //         isDropdown : false,
+    //         menuID : [10,0],
+    //         dropDownOptions : [{}]
+    //     },{
+    //         icon : "logo.webp",
+    //         name : "Admin",
+    //         isDropdown : false,
+    //         menuID : [10,1],
+    //         dropDownOptions : [{}]
+    //     },]
+    // },
     {
         icon : "logo.webp",
         name : "Submission",

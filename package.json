@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.1.1",
-    "@heroicons/react": "^2.1.4",
+    "@heroicons/react": "^1.0.6",
     "@hookform/resolvers": "^3.9.0",
     "@netlify/functions": "^2.8.0",
     "@react-three/drei": "^9.106.0",

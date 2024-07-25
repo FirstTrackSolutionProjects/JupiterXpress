@@ -17,35 +17,57 @@ exports.handler = async (event) => {
     const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const {wid, pickTime, pickDate, packages} = JSON.parse(event.body);
+    const {wid, pickTime, pickDate, packages, serviceId, categoryId} = JSON.parse(event.body);
     const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, wid]);
     const warehouse = warehouses[0]
 
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
    
-        const schedule = await fetch(`https://track.delhivery.com/fm/request/new/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
-            },
-            body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : pickTime, pickup_date : pickDate, expected_package_count	: packages})
-          }).then((response) => response.json())
-   
-    return {
-      statusCode: 200,
-      body: JSON.stringify({schedule : schedule, success : true}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-    };
+    if (serviceId == 1){
+      const schedule = await fetch(`https://track.delhivery.com/fm/request/new/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
+        },
+        body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : pickTime, pickup_date : pickDate, expected_package_count	: packages})
+      }).then((response) => response.json())
+
+return {
+  statusCode: 200,
+  body: JSON.stringify({schedule : schedule, success : true}),
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+  },
+};
+    } else {
+      const schedule = await fetch(`https://newco-apim-test.azure-api.net/rest/v2/pickup/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Ocp-Apim-Subscription-Key' : `284cee****************************`,
+          'Authorization': `Bearer ${process.env.MOVIN_API_KEY}`
+        },
+        body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : pickTime, pickup_date : pickDate, expected_package_count	: packages})
+      }).then((response) => response.json())
+
+return {
+  statusCode: 200,
+  body: JSON.stringify({schedule : schedule, success : true}),
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+  },
+};
+    }
     
   } catch (error) {
     return {
         statusCode: 400,
-        body: JSON.stringify({schedule : error, success : true}),
+        body: JSON.stringify({schedule : error, success : false}),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'

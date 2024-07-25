@@ -137,7 +137,7 @@ exports.handler = async (event) => {
     const responseDta = await fetch(`https://online.flightgo.in/docket_api/create_docket`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'Accept': 'application/json',
         'Authorization': `Bearer NjEyMDMzMTJ3ZWxjb21lIHRvIGl0ZHNfMjQ=`
       },

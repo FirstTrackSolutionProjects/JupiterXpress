@@ -152,7 +152,80 @@ exports.handler = async (event) => {
         'Access-Control-Allow-Origin': '*'
       },
     };
+    } else if (serviceId == '2'){
+      const req = {
+        communication_email : email,
+        shipment_unique_id : `JUP${refId}`,
+        shipment_type : 'Forward',
+        forward_shipment_number : `JUP${refId}`,
+        ship_from_account : 0,
+        ship_from_company : users[0].businessName,
+        ship_from_address_line1 : warehouse.address,
+        ship_from_address_line2 : warehouse.address,
+        ship_from_address_line3 : warehouse.address,
+        ship_from_zipcode : warehouse.pin,
+        ship_from_email : email,
+        ship_from_phone : users[0].phone,
+        shipment_date : shipment.date,
+        shipment_priority : 'Express Early Morning',
+        ship_to_first_name : shipment.customer_name.split(" ")[0],
+        ship_to_last_name : shipment.customer_name.split(" ")[1],
+        ship_to_company : "Customer",
+        ship_to_address_line1 : shipment.shipping_address,
+        ship_to_address_line2 : shipment.shipping_address_2,
+        ship_to_address_line3 : shipment.shipping_address_2,
+        ship_to_zipcode : shipment.shipping_postcode,
+        ship_to_email : shipment.customer_email,
+        ship_to_phone : shipment.customer_mobile,
+        package_type : 'Package',
+        goods_general_description : product_description,
+        goods_value : total_amount,
+        bill_to : 'Shipper',
+        include_insurance : 'No',
+        email_notification : 'Yes',
+        mobile_notification : 'Yes',
+        add_adult_signature : 'Yes',
+        cash_on_delivery : shipment.pay_method=="Pre-paid"?"No":"Yes",
+        package : [{
+          "package_unique_id": "PACK_1",
+          "length": shipment.length,
+          "width" : shipment.breadth,
+          "height" : shipment.height,
+          "weight_actual" : shipment.weight,
+          "identical_package_count" : 1
+        }]
+      }
+      const responseDta = await fetch('https://newco-apim-test.azure-api.net/rest/v2/shipment/sync/create', {
+        method : 'POST',
+        headers : {
+          'Authorization': `Bearer ${process.env.MOVIN_API_KEY}`,
+          'Ocp-Apim-Subscription-Key' : '284cee****************************'
+        },
+        body : JSON.stringify(req)
+      })
+      const data = await responseDta.json()
+    if (data.status == 200) {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({response : "Shipment has been created Successfully", success : true}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        }; 
+      } else{ 
+        return {
+          statusCode: 400,
+          body: JSON.stringify({response : data.response.errors[0].shipment.SHIP_1[0].error, success : false}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        }; 
+      }
     }
+    
+   
     
   } catch (error) {
     return {
