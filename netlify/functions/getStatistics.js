@@ -34,13 +34,32 @@ exports.handler = async (event, context) => {
          const warehouse = warehouses[0].warehouses;
          const [shipments] = await connection.execute('SELECT COUNT(*) AS shipments FROM SHIPMENTS');
          const shipment = shipments[0].shipments;
-         return {
+         const [merchants] = await connection.execute('SELECT COUNT(*) AS merchants FROM USERS WHERE isAdmin=0 AND isVerified=1 ')
+         const merchant = merchants[0].merchants;
+         const [delivereds] = await connection.execute('SELECT COUNT(*) AS delivereds FROM SHIPMENT_REPORTS WHERE status = "Delivered" ')
+         const delivered = delivereds[0].delivereds;
+         const [unDelivereds] = await connection.execute('SELECT COUNT(*) AS unDelivereds FROM SHIPMENT_REPORTS WHERE status = "SHIPPED" OR status = "Manifested" ')
+         const unDelivered = unDelivereds[0].unDelivereds;
+         const [inTransits] = await connection.execute('SELECT COUNT(*) AS inTransits FROM SHIPMENT_REPORTS WHERE status = "In Transit" ')
+         const inTransit = inTransits[0].inTransits;
+         const expense = await connection.execute('SELECT * FROM EXPENSES')
+         const refunds = await connection.execute('SELECT * FROM REFUND')
+         let total_expense = 0;
+         for (let i = 0; i < expense[0].length; i++) {
+           total_expense += parseFloat(expense[0][i].expense_cost)
+         }
+         let total_refund = 0;
+         for (let i = 0; i < refunds[0].length; i++){
+          total_refund += parseFloat(refunds[0][i].refund_amount)
+         }
+         const net_expense = total_expense - total_refund;
+         const revenue = ((net_expense/1.3)*0.3).toFixed(2)
+          return {
             statusCode: 200,
-            body: JSON.stringify({ warehouse, shipment , success : true }),
+            body: JSON.stringify({ warehouse, shipment , merchant, delivered, unDelivered ,inTransit, revenue, expense: expense[0][0].expense_cost, refunds ,success : true }),
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
-                
               },
           };
     } else{
@@ -48,9 +67,24 @@ exports.handler = async (event, context) => {
          const warehouse = warehouses[0].warehouses;
          const [shipments] = await connection.execute('SELECT COUNT(*) AS shipments FROM SHIPMENTS WHERE  uid =?', [id]);
          const shipment = shipments[0].shipments;
+         const [delivereds] = await connection.execute('SELECT COUNT(*) AS delivereds FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE r.status = "Delivered" AND s.uid = ? ',[id])
+         const delivered = delivereds[0].delivereds;
+         const [unDelivereds] = await connection.execute('SELECT COUNT(*) AS unDelivereds FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE r.status = "Delivered" AND s.uid = ? ',[id])
+         const unDelivered = unDelivereds[0].unDelivereds;
+         const [inTransits] = await connection.execute('SELECT COUNT(*) AS inTransits FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE r.status = "Delivered" AND s.uid = ? ',[id])
+         const inTransit = inTransits[0].inTransits;
+         const [walletRecharges] = await connection.execute('SELECT * FROM RECHARGE where uid = ? ', [id]);
+         const [manualRecharges] = await connection.execute('SELECT * FROM MANUAL_RECHARGE where beneficiary_id = ? ', [id])
+         let total_recharge = 0;
+         for (let i = 0; i < walletRecharges.length; i++){
+           total_recharge += parseFloat(walletRecharges[i].amount);
+         }
+         for (let i = 0; i < manualRecharges.length; i++){
+          total_recharge += parseFloat(manualRecharges[i].amount);
+        }
          return {
             statusCode: 200,
-            body: JSON.stringify({ warehouse, shipment , success : true }),
+            body: JSON.stringify({ warehouse, shipment, delivered, unDelivered, inTransit , total_recharge , success : true }),
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)

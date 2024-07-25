@@ -17,6 +17,7 @@ const DashboardSummaryCard = ({title, number}) => {
 
 const DashboardSummary = () => { 
   const [summary, setSummary] = useState(null)
+  const admin = jwtDecode(localStorage.getItem('token')).admin
   useEffect(() => {
       const getStatistics = async () => {
         await fetch(`/.netlify/functions/getStatistics`, {
@@ -25,20 +26,21 @@ const DashboardSummary = () => {
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('token'),
           }
-        }).then(response => response.json()).then(response => setSummary(response));
+        }).then(response => response.json()).then(response => {setSummary(response); console.log(response)});
       }
       getStatistics()
   },[])
     return (
         <div className="w-full max-w-[1220px] flex flex-wrap justify-center px-4">
+            {admin ? <DashboardSummaryCard title="Total Merchants" number={summary?summary.merchant:0} /> : null}
             <DashboardSummaryCard title="Total Warehouses" number={summary?summary.warehouse:0} />
             <DashboardSummaryCard title="Total Shipments" number={summary?summary.shipment:0} />
-            <DashboardSummaryCard title="Total Delivered" number="3" />
-            <DashboardSummaryCard title="Total Undelivered" number="2" />
-            <DashboardSummaryCard title={jwtDecode(localStorage.getItem('token')).admin?`Total Revenue`:`Total Wallet Recharge`} number="₹1563" />
-            <DashboardSummaryCard title="Parcel on process" number="4" />
-            <DashboardSummaryCard title="Parcel Return" number="1" />
-            <DashboardSummaryCard title="NDR Parcel" number="1" />
+            <DashboardSummaryCard title="Total Delivered" number={summary?summary.delivered:0} />
+            <DashboardSummaryCard title="Pending Pickups" number={summary?summary.unDelivered:0} />
+            <DashboardSummaryCard title={admin?`Total Revenue`:`Total Wallet Recharge`} number={summary? (admin ? summary.revenue : summary.total_recharge) :0}/>
+            <DashboardSummaryCard title="Parcel on process" number={summary?summary.inTransit:0} />
+            <DashboardSummaryCard title="Parcel Return" number="0" />
+            <DashboardSummaryCard title="NDR Parcel" number="0" />
         </div>
     )
 }
