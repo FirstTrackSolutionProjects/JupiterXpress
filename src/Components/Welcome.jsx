@@ -49,6 +49,7 @@ const Welcome = () => {
     }
   },[login, logout])
   return (
+    <>
     <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center'>
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
@@ -139,7 +140,10 @@ const Welcome = () => {
             <JupiterCanvas authMode={authMode} />
             <button onClick={()=>setTrack(1)} className="absolute border rounded-xl border-blue-500 text-blue-500 py-2 px-4 font-medium bg-[rgba(0,0,0,0.7)] font hover:bg-blue-600 hover:border-none hover:py-3 hover:px-6 hover:text-white transition-all duration-300 ">Track Parcel</button>
           </div>
+
       </div>
+     
+      </>
   )
 }
 

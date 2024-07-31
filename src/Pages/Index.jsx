@@ -11,6 +11,9 @@ const Index = () => {
       <StarsCanvas/>
       <Welcome loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
       </div>
+      <div className='bg-white text-black w-full h-40'>
+      <div>hello</div>
+      </div>
     </>
   )
 }
