@@ -931,18 +931,7 @@ const Card = ({ shipment }) => {
         },
         body: JSON.stringify(formData)
       }).then(response => response.json()).then(result => {
-        if (result.schedule.incoming_center_name){
-          alert("Pickup request sent successfully")
-        }
-        else if (result.schedule.prepaid){
-          alert("Pickup request failed due to low balance of owner")
-        }
-        else if (result.schedule.pr_exist){
-          alert("This time slot is already booked")
-        }
-        else {
-          alert("Please enter a valid date and time in future")
-        }
+        alert(result.message);
       })
     }
     const handleChange =  (e) => {

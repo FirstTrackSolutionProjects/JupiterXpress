@@ -127,7 +127,6 @@ exports.handler = async (event) => {
       await connection.commit();
     }
     else{
-      await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
       return {
         statusCode: 200,
         body: JSON.stringify({ success : false, message : response}),
@@ -198,31 +197,47 @@ exports.handler = async (event) => {
       const responseDta = await fetch('https://newco-apim-test.azure-api.net/rest/v2/shipment/sync/create', {
         method : 'POST',
         headers : {
-          'Authorization': `Bearer ${process.env.MOVIN_API_KEY}`,
-          'Ocp-Apim-Subscription-Key' : '284cee****************************'
+          'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik1HTHFqOThWTkxvWGFGZnBKQ0JwZ0I0SmFLcyJ9.eyJhdWQiOiJmNzE0NDUwMS0xNDlhLTRiMzItYjViYy04ODU0MGNlYTJjNmYiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYmE0MTNmMjgtMzcxOS00ZmFiLWFlMWYtNDExZTU3Zjc0MDI3L3YyLjAiLCJpYXQiOjE3MjIzNDkxNjcsIm5iZiI6MTcyMjM0OTE2NywiZXhwIjoxNzIyMzUzMDY3LCJhaW8iOiJFMmRnWUFoeUVwMDVMYzQ4VU1USU40QzE3OW4wcDNOa0htNitOU2xoaDFpRDdQR09yVzRBIiwiYXpwIjoiMDE2YWMxMjEtOTJlZC00YzkwLTg4OGItYWJjZDZjYWMyYWQ5IiwiYXpwYWNyIjoiMSIsIm9pZCI6ImI5NzczYzM0LTk2NDktNGVhNC04YjIzLTliNzFjZTdhOWY1ZSIsInJoIjoiMC5BWEFBS0Q5QnVoazNxMC11SDBFZVZfZEFKd0ZGRlBlYUZESkx0YnlJVkF6cUxHOXdBQUEuIiwicm9sZXMiOlsiU2hpcG1lbnRDcmVhdGlvbiIsIlNoaXBtZW50VHJhY2tpbmciLCJFUE9ELUVTaWduIiwiUGlja3VwIl0sInN1YiI6ImI5NzczYzM0LTk2NDktNGVhNC04YjIzLTliNzFjZTdhOWY1ZSIsInRpZCI6ImJhNDEzZjI4LTM3MTktNGZhYi1hZTFmLTQxMWU1N2Y3NDAyNyIsInV0aSI6Im1VTmk3VmEzb0UyRVJEYkFwbVFBQUEiLCJ2ZXIiOiIyLjAifQ.NWmbeROfuPH6u0L6LP-GaREIgKZqiChAPIN9BzqQW35l8BH2r_hcKg2pHoXDkYYinVeQABj5dF654UjJiP_LhlegDKO2H4WZeM3-GCuGJL-hp-TQkfF1KW2uUjgG_qWdA5SP1nt0PPWD0R9svy8_Q2ELAdxDrO2Bg-7Q4th7_pjGjErYjaOVY97JjDaFyKVhmZkrbacdKzTG7J2Sqze6XOdMfX1sKK6ohalvaig9vmj2Us5VFxvjE1xvKSimbvpmbE0XMxfBIil-AuJxkpaf9JmfCUkZgnZzsCXficUVmjqfMaBrTxXgHdkSY4xZ7O9bS5v2uGr6kPiAx-BLfpjUBQ`,
+          'Ocp-Apim-Subscription-Key' : 'aa1aac985f6645d99fbbd641c861d207'
         },
         body : JSON.stringify(req)
       })
-      const data = await responseDta.json()
-    if (data.status == 200) {
-        return {
-          statusCode: 200,
-          body: JSON.stringify({response : "Shipment has been created Successfully", success : true}),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-        }; 
-      } else{ 
-        return {
-          statusCode: 400,
-          body: JSON.stringify({response : data.response.errors[0].shipment.SHIP_1[0].error, success : false}),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-        }; 
+      const response = await responseDta.json()
+    if (response.success){
+      await connection.beginTransaction();
+      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
+      await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
+      if (shipment.pay_method != "topay"){
+        await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
+        await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
       }
+      await connection.commit();
+    }
+    else{
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success : false, message : response}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+      };
+    }
+    let mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email, 
+      subject: 'Shipment created successfully', 
+      text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delhivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+    };
+    await transporter.sendMail(mailOptions)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({response : response, success : true}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+    };
     }
     
    

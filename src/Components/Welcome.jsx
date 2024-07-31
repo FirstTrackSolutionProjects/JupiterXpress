@@ -49,7 +49,7 @@ const Welcome = () => {
     }
   },[login, logout])
   return (
-    <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center'>
+    <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center text-white'>
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
           <div className={` transition-all duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
