@@ -86,24 +86,24 @@ exports.handler = async (event, context) => {
       "serviceId" : "1",
       "categoryId" : "2"
     })
-    if (movinNetWeight >= 10000 && method=='S'){
-      responses.push({
-        "name" : `Movin Surface`,
-        "weight" : `Min. 10Kg`,
-        "price" : Math.round(parseFloat(movinPrice)),
-        "serviceId" : "2",
-        "categoryId" : "1"
-      })
-    }
-    if (movinNetWeight >= 5000 && method=='E'){
-      responses.push({
-        "name" : `Movin Express`,
-        "weight" : `Min. 5Kg`,
-        "price" : Math.round(parseFloat(movinPrice)),
-        "serviceId" : "2",
-        "categoryId" : "1"
-      })
-    }
+    // if (movinNetWeight >= 10000 && method=='S'){
+    //   responses.push({
+    //     "name" : `Movin Surface`,
+    //     "weight" : `Min. 10Kg`,
+    //     "price" : Math.round(parseFloat(movinPrice)),
+    //     "serviceId" : "2",
+    //     "categoryId" : "1"
+    //   })
+    // }
+    // if (movinNetWeight >= 5000 && method=='E'){
+    //   responses.push({
+    //     "name" : `Movin Express`,
+    //     "weight" : `Min. 5Kg`,
+    //     "price" : Math.round(parseFloat(movinPrice)),
+    //     "serviceId" : "2",
+    //     "categoryId" : "1"
+    //   })
+    // }
     if (method=='S') {
       responses.push({
         "name" :  `Delhivery Surface`,
