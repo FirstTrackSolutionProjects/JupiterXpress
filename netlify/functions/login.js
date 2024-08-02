@@ -18,17 +18,17 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ message: 'Method Not Allowed' }),
+      body: JSON.stringify({ message: 'Method Not Allowed' })
     };
   }
 
   const { email, password } = JSON.parse(event.body);
+  
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
     const [rows] = await connection.execute('SELECT * FROM USERS WHERE email = ? AND isActive=1', [email]);
-    
     if (rows.length > 0 && await bcrypt.compare(password, rows[0].password)) {
       const id = rows[0].uid;
       const name = rows[0].fullName;
@@ -38,7 +38,7 @@ exports.handler = async (event) => {
       const token = jwt.sign({  email, verified, name, id, business_name, admin }, SECRET_KEY, { expiresIn: '12h' });
       return {
         statusCode: 200,
-        body: JSON.stringify({ token : token, success:true, verified: verified }),
+        body: JSON.stringify({ token : token, success:true, verified: verified })
       };
     } else {
       return {

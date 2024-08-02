@@ -37,7 +37,6 @@ exports.handler = async (event, context) => {
 
   try {
     await connection.execute('UPDATE USERS set isActive=1 where uid = ?', [uid]);
-
     const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
              const {email , fullName} = users[0];
              let mailOptions = {
@@ -47,7 +46,6 @@ exports.handler = async (event, context) => {
               text: `Dear ${fullName}, \nYour account has been re-activated.\n\nRegards,\nJupiter Xpress`
             };
             await transporter.sendMail(mailOptions);
-
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, message: 'Account has been activated successfully'}),
@@ -66,5 +64,4 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ message: 'Invalid Token' }),
     };
   }
-
 };

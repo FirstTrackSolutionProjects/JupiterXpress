@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
 
   try {
       if (serviceId === 1){
-        const response = await fetch(`https://track.delhivery.com/api/v1/packages/json/?ref_ids=JUPX${ref_id}`, {
+        const response = await fetch(`https://track.delhivery.com/api/v1/packages/json/?ref_ids=JUP${ref_id}`, {
             headers: {
               'Authorization': `Token ${categoryId==2?process.env.DELHIVERY_500GM_SURFACE_KEY:process.env.DELHIVERY_10KG_SURFACE_KEY}`,
               'Accept': 'application/json',
@@ -50,16 +50,15 @@ exports.handler = async (event, context) => {
             },
           });
           const data = await response.json();
-          const status = data.ShipmentData[0].Status.Status;
+          const statusData = data.ShipmentData[0].Shipment;
+          const status = statusData.Status.Status
           await connection.execute('UPDATE SHIPMENT_REPORTS set status = ? WHERE ref_id = ?', [status, ref_id]);
-          const [rows] = await connection.execute('SELECT * FROM SHIPMENT_REPORTS r JOIN SHIPMENTS s ON r.ord_id=s.ord_id WHERE r.ref_id = ?', [ref_id])
           return {
             statusCode: 200,
-            body: JSON.stringify({ data : rows[0] , success : true }),
+            body: JSON.stringify({ data : statusData , success : true}),
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
-                
               },
           };
       } else if ( serviceId === 2) {

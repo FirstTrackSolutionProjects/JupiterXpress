@@ -24,7 +24,7 @@ const HeroHeader = () => {
     if (!auth) setUsername("");
   }, []);
   return (
-    <div className=" absolute z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
+    <div className=" fixed bg-black z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
       <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-300 items-center h-16">
         {
           navItems.map((item,index) =>(

@@ -1,43 +1,43 @@
 import React, { useEffect, useState } from "react";
 
 const FullDetails = () => {
-  const [orders, setOrders] = useState([
-    { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
+  const [dockets, setDockets] = useState([
+    { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
+]);
+const handleDeleteDocket = (index) => {
+  const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
+    ...docket,
+    box_no: i + 1,
+  }));
+  setDockets(newDockets);
+};
+const handleAddDocket = () => {
+  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
+};
+  const [items, setItems] = useState([
+    { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }
 ]);
   const [formData, setFormData] = useState({
     wid : '',
-    pickupTime : '',
-    pickupDate: '',
-    order : '',
-    date : '',
-    payMode : 'prepaid',
-    name : '',
-    email : '',
-    phone : '',
-    address: '',
-    address2 : '',
-    addressType : 'home',
-    addressType2 : 'office',
-    postcode : '',
-    city : '',
-    state : '',
-    country : '',
-    orders : orders,
-    discount : '',
-    cod : 0,
-    weight : '',
-    length : '',
-    breadth : '',
-    height :  '',
+    contents : '',
+    serviceCode: 'CANADA PAID',
+    consigneeName : '',
+    consigneeCompany : '',
+    consigneeContact : '',
+    consigneeEmail : '',
+    consigneeAddress : '',
+    consigneeAddress2 : '',
+    consigneeAddress3: '',
+    consigneeCity : '',
+    consigneeState : '',
+    consigneeCountry : 'CA',
+    consigneeZipCode : '',
+    dockets : dockets,
+    items : items,
+    actual_weight : '',
     gst : '',
-    Cgst : '',
     shippingType : 'Surface',
-    pickDate : '',
-    pickTime : '',
-    shipmentContent : '',
-    apiServiceCode : '',
-    
-
+    price : ''
   })
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
@@ -54,35 +54,45 @@ const FullDetails = () => {
     getWarehouses();
   }, [])
   const addProduct = () => {
-    setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: 0 , selling_price: 0 , discount: '' , tax_in_percentage: 0 }]);
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }]);
 
   };
   const removeProduct = (index) => {
-    const updatedOrders = orders.filter((_, i) => i !== index);
-    setOrders(updatedOrders);
+    const updatedItems = items.filter((_, i) => i !== index);
+    setItems(updatedItems);
     setFormData((prev)=>({
       ...prev,
-      orders: orders
+      items: items
     }))
   };
-  const handleOrders = (index, event) => {
-    
+  const handleDocket = (index, event) => {
     const { name, value } = event.target;
-    const updatedOrders = [...orders];
-    updatedOrders[index][name] = value;
-    setOrders(updatedOrders);
+    const updatedDockets = [...dockets];
+    updatedDockets[index][name] = value;
+    setDockets(updatedDockets);
     setFormData((prev)=>({
       ...prev,
-      orders: orders
+      dockets: dockets
+    }))
+  };
+  const handleItems = (index, event) => {
+    
+    const { name, value } = event.target;
+    const updatedItems = [...items];
+    updatedItems[index][name] = value;
+    setItems(updatedItems);
+    setFormData((prev)=>({
+      ...prev,
+      items: items
     }))
   };
 
   useEffect(()=>{
     setFormData((prev)=>({
         ...prev,
-        orders: orders
+        items: items
       }))
-  }, [orders]);
+  }, [items]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -144,26 +154,58 @@ const FullDetails = () => {
          
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickDate">Pickup Date</label>
+              <label htmlFor="contents">Contents</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="pickDate"
-                name="pickDate"
-                placeholder="YYYY-MM-DD"
-                value={formData.pickDate}
+                id="contents"
+                name="contents"
+                placeholder="Ex. Books"
+                value={formData.contents}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickTime">Pickup Time</label>
+              <label htmlFor="serviceCode">Service</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                id="serviceCode"
+                name="serviceCode"
+                value={formData.serviceCode}
+                onChange={handleChange}
+              >
+                <option value="">Select Service</option>
+                <option value="VPUROPAID">V-PURO PAID</option>
+                <option value="MELBOURNE">AUSTRALIA</option>
+                <option value="CANADA PAID">CANADA EXPRESS</option>
+                <option value="CANADA YYZ">CANADA PAID</option>
+                <option value="FG NEW ZEALAND">NEW ZEALAND</option>
+              </select>
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeName">Consignee Name</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="pickTime"
-                name="pickTime"
-                placeholder="HH:MM:SS (In 24 Hour Format)"
-                value={formData.pickTime}
+                id="consigneeName"
+                name="consigneeName"
+                placeholder="Name"
+                value={formData.consigneeName}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeCompany">Consignee Company</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeCompany"
+                name="consigneeCompany"
+                placeholder="Company"
+                value={formData.consigneeCompany}
                 onChange={handleChange}
               />
             </div>
@@ -171,41 +213,14 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="order">Order Id</label>
+              <label htmlFor="consigneeContact">Consignee Contact</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="order"
-                name="order"
-                placeholder="Ex. ORDER123456"
-                value={formData.order}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="date">Order Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="date"
-                name="date"
-                placeholder="Ex. 13/05/2024"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="name">Buyer's Name</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="name"
-                name="name"
+                type="number"
+                id="consigneeContact"
+                name="consigneeContact"
                 placeholder="Enter Customer Name"
-                value={formData.name}
+                value={formData.consigneeContact}
                 onChange={handleChange}
               />
             </div>
@@ -213,26 +228,26 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="city">Buyer's email</label>
+              <label htmlFor="consigneeEmail">Consignee Email</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="email"
-                name="email"
+                id="consigneeEmail"
+                name="consigneeEmail"
                 placeholder="Ex. customer@example.com"
-                value={formData.email}
+                value={formData.consigneeEmail}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="phone">Buyer's Phone</label>
+              <label htmlFor="gst">Seller GST</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="phone"
-                name="phone"
-                placeholder="Ex. 1234554321"
-                value={formData.phone}
+                id="gst"
+                name="gst"
+                placeholder="GSTIN"
+                value={formData.gst}
                 onChange={handleChange}
               />
             </div>
@@ -240,14 +255,14 @@ const FullDetails = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="address">Shipping Address</label>
+              <label htmlFor="consigneeAddress">Consignee Address</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="address"
-                name="address"
+                id="consigneeAddress"
+                name="consigneeAddress"
                 placeholder="Enter Shipping Address"
-                value={formData.address}
+                value={formData.consigneeAddress}
                 onChange={handleChange}
               />
             </div>
@@ -256,18 +271,30 @@ const FullDetails = () => {
             
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="address2">Alternate Shipping Address</label>
+              <label htmlFor="consigneeAddress2">Consignee Address 2</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="address2"
-                name="address2"
-                placeholder="Alternate Shipping Address"
-                value={formData.address2}
+                id="consigneeAddress2"
+                name="consigneeAddress2"
+                placeholder="Shipping Address 2"
+                value={formData.consigneeAddress2}
                 onChange={handleChange}
               />
             </div>
-          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeAddress3">Consignee Address 3</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeAddress3"
+                name="consigneeAddress3"
+                placeholder="Shipping Address 3"
+                value={formData.consigneeAddress3}
+                onChange={handleChange}
+              />
+            </div>
+          {/* <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
               <select
@@ -297,30 +324,30 @@ const FullDetails = () => {
               </select>
             </div>
             
-          </div>
+          </div> */}
           
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="postcode">Shipping Postcode</label>
+              <label htmlFor="consigneeZipCode">Consignee Zip Code</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="postcode"
-                name="postcode"
-                placeholder="XXXXXX"
-                value={formData.postcode}
+                id="consigneeZipCode"
+                name="consigneeZipCode"
+                placeholder="Zip Code"
+                value={formData.consigneeZipCode}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="city">Shipping City</label>
+              <label htmlFor="consigneeCity">Consignee City</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="city"
-                name="city"
+                id="consigneeCity"
+                name="consigneeCity"
                 placeholder="Enter City"
-                value={formData.city}
+                value={formData.consigneeCity}
                 onChange={handleChange}
               />
             </div>
@@ -330,105 +357,200 @@ const FullDetails = () => {
           
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="state">Shipping State</label>
+              <label htmlFor="consigneeState">Consignee State</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="state"
-                name="state"
+                id="consigneeState"
+                name="consigneeState"
                 placeholder="Enter State"
-                value={formData.state}
+                value={formData.consigneeState}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="country">Shipping Country</label>
-              <input
+              <label htmlFor="consigneeCountry">Consignee Country</label>
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="country"
-                name="country"
-                placeholder="Enter Country"
-                value={formData.country}
+                id="consigneeCountry"
+                name="consigneeCountry"
+                value={formData.consigneeCountry}
                 onChange={handleChange}
-              />
+              >
+                <option value="AU">Australia</option>
+                <option value="CA">Canada</option>
+                <option value="NZ">New Zealand</option>
+              </select>
             </div>
           </div>
-          {orders.map((order, index) => (
+          {dockets.map((docket, index) => (
+        <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Box no.</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="box_no"
+              placeholder="Box Number"
+              disabled
+              value={docket.box_no}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Docket Weight</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="docket_weight"
+              placeholder="Docket Weight (in Kg)"
+              value={docket.docket_weight}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Length</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="length"
+              placeholder="Length"
+              value={docket.length}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Breadth</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="breadth"
+              placeholder="Breadth"
+              value={docket.breadth}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Height</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="height"
+              placeholder="Height"
+              value={docket.height}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => handleDeleteDocket(index)}>Remove</button>
+        </div>
+      ))}
+      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={handleAddDocket}>Add Docket</button>
+          {items.map((item, index) => (
             
         <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
           <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-              <label htmlFor="masterSKU">Master SKU</label>
+              <label htmlFor="hscode">HS Code</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="masterSKU"
-                name="master_sku"
-                placeholder="Master SKU"
-                value={order.master_sku}
-                onChange={(e) => handleOrders(index, e)}
+                id="hscode"
+                name="hscode"
+                placeholder="HS Code"
+                value={item.hscode}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="product">Product Name</label>
+          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="box_no">Box no.</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="product"
-                name="product_name"
-                placeholder="Product Name"
-                value={order.product_name}
-                onChange={(e) => handleOrders(index, e)}
+                id="box_no"
+                name="box_no"
+                placeholder="Box no"
+                value={item.box_no}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="quantity">Quantity</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
+                type="number"
                 id="quantity"
-                name="product_quantity"
+                name="quantity"
                 placeholder="Quantity"
-                value={order.product_quantity}
-                onChange={(e) => handleOrders(index, e)}
+                value={item.quantity}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="price">Price</label>
+              <label htmlFor="rate">Rate per item</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="price"
-                name="selling_price"
-                placeholder="Price"
-                value={order.selling_price}
-                onChange={(e) => handleOrders(index, e)}
+                id="rate"
+                name="rate"
+                placeholder="Quantity"
+                value={item.rate}
+                onChange={(e) => handleItems(index, e)}
+              />
+            </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="description">Description</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="description"
+                name="description"
+                placeholder="Description"
+                value={item.description}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="discount">Discount</label>
+              <label htmlFor="unit">Unit</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="discount"
-                name="discount"
-                placeholder="Discount"
-                value={order.discount}
-                onChange={(e) => handleOrders(index, e)}
+                id="unit"
+                name="unit"
+                placeholder="Unit"
+                value={item.unit}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="tax">Tax</label>
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="unit_weight">Unit Weight</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="tax"
-                name="tax_in_percentage"
-                placeholder="Tax"
-                value={order.tax_in_percentage}
-                onChange={(e) => handleOrders(index, e)}
+                type="number"
+                id="unit_weight"
+                name="unit_weight"
+                placeholder="Unit Weight"
+                value={item.unit_weight}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="igst_amount">IGST</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="igst_amount"
+                name="igst_amount"
+                placeholder="IGST Amount"
+                value={item.igst_amount}
+                onChange={(e) => handleItems(index, e)}
+              />
+            </div>
+          
             <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
         </div>
       ))}
@@ -436,20 +558,32 @@ const FullDetails = () => {
           <div className="w-full flex mb-2 flex-wrap ">
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="discount">Total Discount</label>
+              <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="discount"
-                name="discount"
+                type="number"
+                id="actual_weight"
+                name="actual_weight"
                 placeholder="Ex. 100"
-                value={formData.discount}
+                value={formData.actual_weight}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="price">Shipment Cost(As provided)</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="price"
+                name="price"
+                placeholder="Ex. 1150"
+                value={formData.price}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
               
-              <div className="space-y-2">
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
                 <select
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -466,75 +600,7 @@ const FullDetails = () => {
             </div>
             
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Weight (In g)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 2.5"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="length">Length (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="length"
-                name="length"
-                placeholder="Ex. 2.5"
-                value={formData.length}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="breadth">Breadth (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="breadth"
-                name="breadth"
-                placeholder="Ex. 2.5"
-                value={formData.breadth}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
-              <label htmlFor="height">Height (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="height"
-                name="height"
-                placeholder="Ex. 2.5"
-                value={formData.height}
-                onChange={handleChange}
-              />
-            </div>
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="gst">Seller GST</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="gst"
-                name="gst"
-                placeholder="Enter GSTIN"
-                value={formData.gst}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
+          
           <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Submit</button>
 
         </form>

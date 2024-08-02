@@ -15,6 +15,7 @@ import image8 from '../assets/images/xpress.jpeg';
 import image9 from '../assets/images/aust.jpeg'
 import image10 from '../assets/images/canada.png'
 import image11 from '../assets/images/zoho.jpeg'
+import ChooseUs from "./ChooseUs"
 
 const images = [image1, image2, image3, image4, image5, image6, image7, image8,image11,image9,image10];
 
@@ -49,13 +50,10 @@ const Welcome = () => {
     }
   },[login, logout])
   return (
-    <>
-    <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center'>
+    <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center text-white'>
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
           <div className={` transition-all duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
-          
-          
             <div className='relative flex flex-col justify-center items-center py-6'>
             <div className="lg:text-[12px] text-[9px] ">JUPITER <i className="text-blue-400 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </div>
           <div className="lg:text-[12px] text-[9px] mb-6"> <i className="text-blue-400 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</div>
@@ -140,10 +138,7 @@ const Welcome = () => {
             <JupiterCanvas authMode={authMode} />
             <button onClick={()=>setTrack(1)} className="absolute border rounded-xl border-blue-500 text-blue-500 py-2 px-4 font-medium bg-[rgba(0,0,0,0.7)] font hover:bg-blue-600 hover:border-none hover:py-3 hover:px-6 hover:text-white transition-all duration-300 ">Track Parcel</button>
           </div>
-
       </div>
-     
-      </>
   )
 }
 

@@ -47,12 +47,13 @@ exports.handler = async (event) => {
           
           const connection = await mysql.createConnection(dbConfig);
           try {
-            await connection.execute("UPDATE MERCHANT_VERIFICATION SET status='accepted', actionBy=? WHERE reqId = ? ", [id,reqId]);
+            
             const [req] = await connection.execute("SELECT * FROM MERCHANT_VERIFICATION WHERE reqId = ? ", [reqId]);
             const userData = req[0];
-            await connection.execute("INSERT INTO USER_DATA (uid, address, state, city, pin, aadhar_number, pan_number, gst, cin ,msme, accountNumber, ifsc, bank) VALUES (?, ? ,? ,?, ? ,? ,? ,? ,? , ? , ? ,? ,?) ",[uid, userData.address, userData.state, userData.city, userData.pin, userData.aadhar_number, userData.pan_number, userData.gst, userData.cin, userData.msme, userData.accountNumber, userData.ifsc, userData.bank])
+            await connection.execute("INSERT INTO USER_DATA (uid, address, state, city, pin, aadhar_number, pan_number, gst, cin ,msme, accountNumber, ifsc, bank, aadhar_doc, pan_doc, selfie_doc, gst_doc, cancelledCheque) VALUES (?, ? ,? ,?, ? ,? ,? ,? ,? , ? , ? ,? ,?, ?, ?, ?, ?, ?) ",[uid, userData.address, userData.state, userData.city, userData.pin, userData.aadhar_number, userData.pan_number, userData.gst, userData.cin, userData.msme, userData.accountNumber, userData.ifsc, userData.bank, userData.aadhar_doc, userData.pan_doc, userData.selfie_doc, userData.gst_doc, userData.cancelledCheque])
             await connection.execute("INSERT INTO WALLET (uid, balance) VALUES (?, ?)",[uid, 10]);
              await connection.execute("UPDATE USERS SET isVerified = 1 WHERE uid = ?", [uid]);
+             await connection.execute("UPDATE MERCHANT_VERIFICATION SET status='accepted', actionBy=? WHERE reqId = ? ", [id,reqId]);
              const [users] = await connection.execute("SELECT * FROM USERS WHERE uid = ?", [uid]);
              const {email , fullName} = users[0];
              let mailOptions = {
