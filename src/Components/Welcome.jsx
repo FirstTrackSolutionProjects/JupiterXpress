@@ -15,6 +15,7 @@ import image8 from '../assets/images/xpress.jpeg';
 import image9 from '../assets/images/aust.jpeg'
 import image10 from '../assets/images/canada.png'
 import image11 from '../assets/images/zoho.jpeg'
+import ChooseUs from "./ChooseUs"
 
 const images = [image1, image2, image3, image4, image5, image6, image7, image8,image11,image9,image10];
 

@@ -3,7 +3,11 @@ import Welcome from '../Components/Welcome'
 import Header from '../Components/HeroHeader'
 import StarsCanvas from '../Components/Canvas/Stars'
 import Footer from '../Components/Footer'
-import FAQ from './FAQ'
+import ChooseUs from '../Components/ChooseUs'
+import CardSlide from '../Components/CardSlide'
+import LandingInfo from '../Components/LandingInfo'
+import ReachCount from '../Components/ReachCount'
+import CalcComp from '../Components/CalcComp'
 const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   return (
@@ -15,7 +19,13 @@ const Index = () => {
       <div className='min-h-screen w-full'>
       <Welcome loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
       </div>
+      <ChooseUs/>
+      <LandingInfo/>
+      <CalcComp/>
+      <CardSlide/>
+      <ReachCount/>
       <Footer />
+      
     </>
   )
 }
