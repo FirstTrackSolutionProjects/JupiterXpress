@@ -6,7 +6,7 @@ import CounterCard from "./CounterCard";
       <>
         <div className='bg-indigo-100 font-inter '>
           <div className='text-center text-2xl md:text-4xl py-5 text-blue-900 font-bold'>Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-br from-purple-500 via-blue-600 to-sky-400">JUPITER XPRESS</span></div>
-        <div className='md:grid md:grid-cols-4 px-3 md:px-12 py-2 md:py-5 gap-8'>
+        <div className='md:grid md:grid-cols-4 px-8 md:px-12 py-2 md:py-5 gap-8'>
           <div className='my-2 shadow-lg h-80 w-full mx-auto bg-white rounded-3xl p-4 text-center border border-gray-400'>
             <img src='images/3.png' className=' w-40 h-40 rounded-md mx-auto'></img>
             <div className='text-xl text-blue-700 font-bold'>Secure Delivery</div>

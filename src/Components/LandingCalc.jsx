@@ -129,7 +129,7 @@ const Domestic = () => {
             </div>
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
               <label htmlFor="weight">Weight (In grams)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -141,7 +141,7 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+            <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
               <select
                 name="payMode"
@@ -159,7 +159,7 @@ const Domestic = () => {
             
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+          <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2 flex flex-col justify-center">
               <label htmlFor="codAmount">COD Amount</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -171,11 +171,11 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 md:mx-2 mb-2 min-w-[200px] flex">
+            <div className="flex-1 md:mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="length">L (in cm)</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 md:px-4 rounded-3xl text-center"
                 type="text"
                 id="length"
                 name="length"
@@ -184,10 +184,10 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="breadth">B (in cm)</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 md:px-4 rounded-3xl text-center"
                 type="text"
                 id="breadth"
                 name="breadth"
@@ -196,10 +196,10 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 md:mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="height">H (in cm)</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 md:px-4 rounded-3xl text-center"
                 type="text"
                 id="height"
                 name="height"
