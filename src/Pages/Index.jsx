@@ -8,6 +8,7 @@ import CardSlide from '../Components/CardSlide'
 import LandingInfo from '../Components/LandingInfo'
 import ReachCount from '../Components/ReachCount'
 import CalcComp from '../Components/CalcComp'
+import CardSlide2 from '../Components/CardSlide2'
 const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   return (
@@ -22,7 +23,7 @@ const Index = () => {
       <ChooseUs/>
       <LandingInfo/>
       <CalcComp/>
-      <CardSlide/>
+      <CardSlide2/>
       <ReachCount/>
       <Footer />
       

@@ -18,7 +18,7 @@ const CardSlide = () => {
   }, [visible]);
 
   return (
-    <div className="hidden relative h-screen w-full md:flex items-center justify-center bg-white">
+    <div className="hidden relative overflow-x-hidden h-screen w-full md:flex items-center justify-center bg-white">
       {/* Text content centered in the middle */}
       <div
         className={`relative z-10  text-center text-black transition-opacity duration-1000 ${

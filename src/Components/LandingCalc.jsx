@@ -106,7 +106,7 @@ const Domestic = () => {
             <div className="flex-1 mx-2 mb-2  space-y-2">
               <label htmlFor="origin">Origin Pincode</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 px-4 rounded-3xl text-center text-xs"
                 type="text"
                 id="origin"
                 name="origin"
@@ -118,7 +118,7 @@ const Domestic = () => {
             <div className="flex-1 mx-2 mb-2  space-y-2">
               <label htmlFor="dest">Destination Pincode</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 px-4 rounded-3xl text-center text-xs"
                 type="text"
                 id="dest"
                 name="dest"
@@ -132,7 +132,7 @@ const Domestic = () => {
             <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
               <label htmlFor="weight">Weight (In grams)</label>
               <input
-                className="w-full border py-2 px-4 rounded-3xl"
+                className="w-full border py-2 px-4 rounded-3xl text-xs"
                 type="text"
                 id="weight"
                 name="weight"
@@ -171,11 +171,11 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 md:mx-2 mb-2 min-w-[200px] flex">
-            <div className="flex-1 md:mx-2 mb-2 min-w-[50px] space-y-2">
+            <div className="flex-1 md:mx-2 mb-2 mt-2 min-w-[200px] flex">
+            <div className="flex-1 mx-0 md:mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="length">L (in cm)</label>
               <input
-                className="w-full border py-2 md:px-4 rounded-3xl text-center"
+                className="w-full border py-2  rounded-3xl text-center text-xs"
                 type="text"
                 id="length"
                 name="length"
@@ -187,7 +187,7 @@ const Domestic = () => {
             <div className="flex-1 mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="breadth">B (in cm)</label>
               <input
-                className="w-full border py-2 md:px-4 rounded-3xl text-center"
+                className="w-full border py-2  rounded-3xl text-center text-xs"
                 type="text"
                 id="breadth"
                 name="breadth"
@@ -199,7 +199,7 @@ const Domestic = () => {
             <div className="flex-1 md:mx-2 mb-2 min-w-[50px] space-y-2">
               <label htmlFor="height">H (in cm)</label>
               <input
-                className="w-full border py-2 md:px-4 rounded-3xl text-center"
+                className="w-full border py-2  rounded-3xl text-center text-xs"
                 type="text"
                 id="height"
                 name="height"

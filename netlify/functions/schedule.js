@@ -33,30 +33,51 @@ exports.handler = async (event) => {
           'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`
         },
         body : JSON.stringify({pickup_location: warehouse.warehouseName, pickup_time : pickTime, pickup_date : pickDate, expected_package_count	: packages})
-      }).then((response) => response.json()).then((result)=>{
-        if (result.incoming_center_name){
-          return {message : "Pickup request sent successfully"}
-        }
-        else if (result.prepaid){
-          return {message : "Pickup request failed due to low balance of owner"}
-        }
-        else if (result.pr_exist){
-          return {message : "This time slot is already booked"}
-        }
-        else {
-          return {message : "Please enter a valid date and time in future"}
-        }
       })
+      const scheduleData = await schedule.json()
+      if (scheduleData.incoming_center_name){
+        return {
+          statusCode: 200,
+          body: JSON.stringify({schedule : "Pickup request sent successfully", success : true}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        };
+      }
+      else if (scheduleData.prepaid){
+        return {
+          statusCode: 200,
+          body: JSON.stringify({schedule : "Pickup request failed due to low balance of owner", success : true}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        };
+      }
+      else if (scheduleData.pr_exist){
+        return {
+          statusCode: 200,
+          body: JSON.stringify({schedule : "This time slot is already booked", success : true}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        };
+      }
+      else {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({schedule : "Please enter a valid date and time in future", success : true}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        };
+      }
       
 
-return {
-  statusCode: 200,
-  body: JSON.stringify({schedule : schedule, success : true}),
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
-  },
-};
+
     } else {
       const schedule = await fetch(`https://newco-apim-test.azure-api.net/rest/v2/pickup/create`, {
         method: 'POST',

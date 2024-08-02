@@ -140,7 +140,11 @@ exports.handler = async (event) => {
       from: process.env.EMAIL_USER,
       to: email, 
       subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delhivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+      text: `Dear Merchant, \n
+             Your shipment request for Order id : ${order} is successfully created at Delhivery Courier Service 
+             and the corresponding charge is deducted from your wallet.\n
+             Regards,\n
+             Jupiter Xpress`
     };
     await transporter.sendMail(mailOptions)
     return {
@@ -203,9 +207,9 @@ exports.handler = async (event) => {
         body : JSON.stringify(req)
       })
       const response = await responseDta.json()
-    if (response.success){
+    if (response.response.success){
       await connection.beginTransaction();
-      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
+      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.response.success[`JUP${refId}`].parent_shipment_number ,order])
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
       if (shipment.pay_method != "topay"){
         await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);

@@ -931,7 +931,7 @@ const Card = ({ shipment }) => {
         },
         body: JSON.stringify(formData)
       }).then(response => response.json()).then(result => {
-        alert(result.message);
+        alert(result.schedule);
       })
     }
     const handleChange =  (e) => {
