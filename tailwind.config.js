@@ -20,6 +20,9 @@ export default {
   content: ['index.html', 'src/**/*.{ts,js,tsx,jsx}'],
   theme: {
     extend: {
+      fontFamily: { 
+        "inter": ['Inter', 'sans-serif'],
+    } ,
       width: {
         '0': '0',
         'full': '100%',

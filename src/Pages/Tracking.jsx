@@ -90,6 +90,17 @@ const FlightGoCard = ({scan}) => {
         </>
     )
 }
+const MovinCard = ({scan}) => {
+    return (
+        <>
+         <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
 
 const Result = ({data}) => {
     useEffect(() => {

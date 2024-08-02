@@ -26,17 +26,7 @@ let transporter = nodemailer.createTransport({
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event) => {
-  const token = event.headers.authorization;
-  if (!token) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ message: 'Access Denied' }),
-    };
-  }
 
-  try {
-    const verified = jwt.verify(token, SECRET_KEY);
-    const id = verified.id;
     try{
       const {name, email, mobile, message, subject} = JSON.parse(event.body);
 
@@ -46,7 +36,7 @@ exports.handler = async (event) => {
           await connection.execute('INSERT INTO CONTACT_SUBMISSIONS (name, email ,phone, message, subject, status) VALUES (?, ?, ? , ?, ?, ?)',[name, email, mobile,message,subject, "open"]);
           let mailOptions = {
             from: process.env.EMAIL_USER,
-            to: process.env.CONTACT_EMAIL, 
+            to: `${process.env.CONTACT_EMAIL},${process.env.EMAIL_USER}`, 
             subject: `Contact Submission : ${subject}`, 
             text: `Name :  ${name}\nEmail : ${email}\nMobile : ${mobile} \n\n${message} ` 
           };
@@ -70,10 +60,4 @@ exports.handler = async (event) => {
         body: JSON.stringify({ message: 'Something went wrong' }),
       };
     }
-  } catch (err) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid Token' }),
-    };
-  }
 };

@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.1.1",
-    "@heroicons/react": "^2.1.4",
+    "@heroicons/react": "^1.0.6",
+    "@hookform/resolvers": "^3.9.0",
     "@netlify/functions": "^2.8.0",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
     "@tweenjs/tween.js": "^23.1.2",
+    "aws-sdk": "^2.1654.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -34,9 +36,12 @@
     "razorpay": "^2.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.52.1",
+    "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",
     "react-tilt": "^1.0.2",
-    "three": "^0.165.0"
+    "three": "^0.165.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

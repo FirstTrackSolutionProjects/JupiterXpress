@@ -63,22 +63,22 @@ exports.handler = async (event) => {
               body: JSON.stringify({ message: 'You already have a pending verification request' }),
             };
           }
-          await connection.execute('INSERT INTO MERCHANT_VERIFICATION (uid, address, city, state, pin ,aadhar_number, pan_number, gst, cin, accountNumber, ifsc, bank, msme, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, address, city, state, pin,  aadhar, pan, gst, cin, account, ifsc, bank, msme, "pending"]);
+          await connection.execute('INSERT INTO MERCHANT_VERIFICATION (uid, address, city, state, pin ,aadhar_number, pan_number, gst, cin, accountNumber, ifsc, bank, msme, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, address, city, state, pin,  aadhar, pan, gst, cin, account, ifsc, bank, msme, "incomplete"]);
           const [users] = await connection.execute('SELECT * FROM USERS WHERE uid = ?', [id]);
           const email = users[0].email;
           const name = users[0].fullName;
           let mailOptions = {
             from: process.env.EMAIL_USER,
             to: email, 
-            subject: 'Verification Request Submitted Successfully', 
-            text: `Dear ${name}, \n Your Request for verification of account on Jupiter Xpress is submitted successfully.  \n\nRegards, \nJupiter Xpress`,
+            subject: 'Verification Request is Incomplete', 
+            text: `Dear ${name}, \n Your Request for verification of account on Jupiter Xpress is incomplete. Please upload your documents to finish the verification request.  \n\nRegards, \nJupiter Xpress`,
             
           };
           let mailOptions2 = {
             from: process.env.EMAIL_USER,
             to: `${process.env.VERIFY_EMAIL},${process.env.EMAIL_USER}`,  
-            subject: 'Merchant Verification Request Received', 
-            text: `Dear Owner, \n${name} has submitted a request for verification of account on Jupiter Xpress.`,
+            subject: 'Incomplete merchant Verification Request Received', 
+            text: `Dear Owner, \n${name} has submitted a incomplete verification request for verification of account on Jupiter Xpress.`,
             
           };
         await transporter.sendMail(mailOptions);

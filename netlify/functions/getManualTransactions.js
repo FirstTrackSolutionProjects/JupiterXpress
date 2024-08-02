@@ -33,7 +33,7 @@ exports.handler = async (event) => {
     const id = verified.id;
     const admin = verified.admin;
     if (admin){
-        const [rows] = await connection.execute('SELECT * FROM MANUAL_RECHARGE');
+        const [rows] = await connection.execute('SELECT * FROM MANUAL_RECHARGE r JOIN USERS u ON r.beneficiary_id = u.uid');
     
       
       return {

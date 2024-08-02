@@ -1,0 +1,94 @@
+{
+    "destination_code": "US",
+    "shipment_value": "100",
+    "actual_weight": "10",
+    "shipment_invoice_no": "ORDER123456",
+    "shipment_invoice_date": "2024-07-03",
+    "shipment_content": "Books",
+    "new_docket_free_form_invoice": "0",
+    "free_form_currency": "INR",
+    "terms_of_trade": "FOB",
+    "api_service_code": "VPUROPAID",
+    "shipper_name": "Aditya",
+    "shipper_company_name": "Jupiter Xpress",
+    "shipper_contact_no": "0123456789",
+    "shipper_email": "test@test.com",
+    "shipper_address_line_1": "Address 1",
+    "shipper_address_line_2": "Address 2",
+    "shipper_address_line_3": "Address 3",
+    "shipper_city": "Mumbai",
+    "shipper_state": "Maharashtra",
+    "shipper_country": "IN",
+    "shipper_zip_code": "400086",
+    "shipper_gstin_type": "Aadhaar Number",
+    "shipper_gstin_no": "123456781234",
+    "consignee_name": "TEST NAME",
+    "consignee_company_name": "TEST COMPANY NAME",
+    "consignee_contact_no": "9999999999",
+    "consignee_email": "test@test.com",
+    "consignee_address_line_1": "18 Greenbank Rd",
+    "consignee_address_line_2": "Chester",
+    "consignee_address_line_3": "",
+    "consignee_city": "Delhi",
+    "consignee_state": "Alberta",
+    "consignee_country": "CA",
+    "consignee_zip_code": "T4A",
+    "docket_items": [
+    {
+        "actual_weight": "5",
+        "length": "1",
+        "width": "1",
+        "height": "1",
+        "number_of_boxes": "1"
+    },
+    {
+        "actual_weight": "5",
+        "length": "1",
+        "width": "1",
+        "height": "1",
+        "number_of_boxes": "1"
+    }
+    ],
+    "free_form_line_items": [
+    {
+        "total": "50",
+        "no_of_packages": "1",
+        "box_no": "1",
+        "rate": "50",
+        "hscode": "456789",
+        "description": "Books",
+        "unit_of_measurement": "Pc",
+        "unit_weight": "1",
+        "igst_amount": "0.00"
+    },
+    {
+        "total": "50",
+        "no_of_packages": "1",
+        "box_no": "1",
+        "rate": "50",
+        "hscode": "456789",
+        "description": "Books",
+        "unit_of_measurement": "Pc",
+        "unit_weight": "1",
+        "igst_amount": "0.00"
+    }
+    ],
+    "multiple_invoice" : [
+          {
+              "mul_invoice_date" :"2023-12-18",
+              "mul_invoice_no" :"454323",
+              "mul_order_no" :"ORD2345",
+              "mul_currecny" :"INR",
+              "mul_invoice_amount" :"50.00",
+              "mul_eway_bill" :"EW45688"
+          },
+          {
+              "mul_invoice_date" :"2023-12-18",
+              "mul_invoice_no" :"454334",
+              "mul_order_no" :"ORD2344",
+              "mul_currecny" :"INR",
+              "mul_invoice_amount" :"20.00",
+              "mul_eway_bill" :"EW4558"
+          }
+    ]
+}

@@ -24,7 +24,8 @@ exports.handler = async (event) => {
 
   try {
     const verified = jwt.verify(token, SECRET_KEY);
-    const id = verified.id;
+    let id = verified.id;
+    const admin = verified.admin;
     try{
         let {
             wid,
@@ -60,10 +61,13 @@ exports.handler = async (event) => {
             height,
             gst,
             Cgst,
-            pickDate,
-            pickTime
+            shippingType
           } = JSON.parse(event.body);
-          
+          const connection = await mysql.createConnection(dbConfig);
+          if (admin){
+            const [users] = await connection.execute("SELECT * FROM WAREHOUSES w JOIN USERS u ON u.uid = w.uid WHERE w.wid = ?",[wid])
+            id = users[0].uid
+          }
           if(same){
             Baddress = address;
             BaddressType = addressType;
@@ -76,7 +80,6 @@ exports.handler = async (event) => {
           }
           
 
-          const connection = await mysql.createConnection(dbConfig);
           
             
           try {
@@ -111,14 +114,12 @@ exports.handler = async (event) => {
               breadth = ?, 
               height = ?, 
               weight = ?, 
-              status = ?, 
               gst = ?, 
               customer_gst = ?,
-              pickup_date = ?,
-              pickup_time = ?,
-              wid = ?
+              wid = ?,
+              shipping_mode =?
               WHERE ord_id = ? AND uid = ?`, 
-              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight, "Ready", gst, Cgst, pickDate, pickTime, wid ,order, id]
+              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight,  gst, Cgst,  wid , shippingType,order, id]
             );
             
             const [existing] = await connection.execute(`SELECT master_sku FROM ORDERS WHERE ord_id = ?`, [order])
@@ -169,7 +170,7 @@ exports.handler = async (event) => {
             await connection.commit();
           return {
             statusCode: 200,
-            body: JSON.stringify({ success:true, message: 'Details Updated'}),
+            body: JSON.stringify({ success:true, message: 'Details Updated', id : id}),
           };
         } catch (error) {
           return {
