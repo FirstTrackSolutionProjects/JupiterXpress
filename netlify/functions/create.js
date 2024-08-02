@@ -119,7 +119,7 @@ exports.handler = async (event) => {
     if (response.success){
       await connection.beginTransaction();
       await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
-      await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,refId,"SHIPPED"])
+      await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
       if (shipment.pay_method != "topay"){
         await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
         await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
@@ -246,16 +246,7 @@ exports.handler = async (event) => {
     
    
     
-  } catch (error) {
-    return {
-      statusCode: 504,
-      body: JSON.stringify({response : error, success : true}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-    };
-  }  finally {
+  }   finally {
     connection.end()
   }
 };
