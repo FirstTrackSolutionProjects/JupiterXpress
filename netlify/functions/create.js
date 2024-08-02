@@ -246,7 +246,16 @@ exports.handler = async (event) => {
     
    
     
-  }   finally {
+  } catch (error) {
+    return {
+      statusCode: 504,
+      body: JSON.stringify({response : error, success : true}),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+    };
+  }  finally {
     connection.end()
   }
 };
