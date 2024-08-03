@@ -14,7 +14,7 @@ const CounterCard = ({ targetCount,symbol }) => {
       } else {
         clearInterval(interval);
       }
-    }, 20); // Adjust the interval time for smoother animation
+    }, 50); // Adjust the interval time for smoother animation
 
     return () => {
       isMounted = false;
