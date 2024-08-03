@@ -205,6 +205,8 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 name="order"
                 placeholder="Ex. ORDER123456"
                 value={formData.order}
+                readOnly
+                disabled
                 onChange={handleChange}
               />
             </div>
