@@ -5,7 +5,7 @@ import LandingCalc from "./LandingCalc";
 const CalcComp=()=>{
     return(
         <div className="bg-blue-100 font-inter">
-            <div className="text-3xl bg-clip-text text-transparent bg-gradient-to-br from-blue-700  to-sky-400 text-center py-3 font-semibold">Estimate Your Shipping</div>
+            <div className="text-3xl px-2 bg-clip-text text-transparent bg-gradient-to-br from-blue-700  to-sky-400 text-center py-3 font-semibold">Estimate Your Shipping</div>
             <div className="md:grid md:grid-cols-2  ">
                 <div>
                     <LandingCalc/>
