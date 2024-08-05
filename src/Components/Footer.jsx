@@ -26,7 +26,7 @@ const Footer = () => {
             <div className='font-medium text-xl mb-3'>Available Services</div>
             <div>E-Commerce delivery</div>
             <div>Pick & Drop</div>
-            <div>Packageing</div>
+            <div>Packaging</div>
             <div>International & Domestic</div>
             </div>
         </div>
