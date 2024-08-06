@@ -751,42 +751,42 @@ const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsS
         return;
       }
     }
-    // console.log(dockets)
-    // for (let i = 0; i < dockets.length; i++) {
-    //     if (!dockets[i].awb) {
-    //         try {
-    //             const res = await fetch('/.netlify/functions/createDomesticInternational', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'Accept': 'application/json',
-    //                     'Authorization': localStorage.getItem('token'),
-    //                 },
-    //                 body: JSON.stringify({
-    //                     did: dockets[i].did,
-    //                     price: price[i][0].price,
-    //                     serviceId: serviceId,
-    //                     categoryId: categoryId
-    //                 })
-    //             });
+    console.log(dockets)
+    for (let i = 0; i < dockets.length; i++) {
+        if (!dockets[i].awb) {
+            try {
+                const res = await fetch('/.netlify/functions/createDomesticInternational', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': localStorage.getItem('token'),
+                    },
+                    body: JSON.stringify({
+                        did: dockets[i].did,
+                        price: price[i][0].price,
+                        serviceId: serviceId,
+                        categoryId: categoryId
+                    })
+                });
 
-    //             const result = await res.json();
+                const result = await res.json();
 
-    //             if (!result.success) {
-    //                 console.log(result.message)
-    //                 console.log(result.message.packages)
-    //                 alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
-    //                 setIsLoading(false)
-    //                 return; // End the function (and thus the loop) on failure
-    //             }
-    //         } catch (error) {
-    //             console.error('Error occurred:', error);
-    //             setIsLoading(false)
-    //             // Handle the error as needed
-    //             return; // End the function (and thus the loop) on error
-    //         }
-    //     }
-    // }
+                if (!result.success) {
+                    console.log(result.message)
+                    console.log(result.message.packages)
+                    alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
+                    setIsLoading(false)
+                    return; // End the function (and thus the loop) on failure
+                }
+            } catch (error) {
+                console.error('Error occurred:', error);
+                setIsLoading(false)
+                // Handle the error as needed
+                return; // End the function (and thus the loop) on error
+            }
+        }
+    }
     await fetch('/.netlify/functions/createInternational',{
         method: 'POST',
         headers: {
