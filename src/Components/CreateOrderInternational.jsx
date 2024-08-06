@@ -20,7 +20,7 @@ const handleAddDocket = () => {
   const [formData, setFormData] = useState({
     wid : '',
     contents : '',
-    serviceCode: 'CANADA PAID',
+    serviceCode: 'MELBOURNE',
     consigneeName : '',
     consigneeCompany : '',
     consigneeContact : '',
@@ -178,9 +178,13 @@ const handleAddDocket = () => {
                 <option value="PUROLATOR YVR">PUROLATOR</option>
                 <option value="V-PURO_DDU">V-PURO DDU</option>
                 <option value="MELBOURNE">AUSTRALIA</option>
-                <option value="CANADA PAID">CANADA EXPRESS</option>
+                {/* <option value="CANADA PAID">CANADA EXPRESS</option> */}
                 <option value="CANADA YYZ">CANADA PAID</option>
                 <option value="FG NEW ZEALAND">NEW ZEALAND</option>
+                <option value="EUROPE FRA DPD">EUROPE FRA</option>
+                <option value="UAE DIRECT">UAE DIRECT</option>
+                <option value="FG NEW ZEALAND">NEW ZEALAND</option>
+                <option value="USA VIA LHR">USA VIA LHR</option>
               </select>
             </div>
           </div>

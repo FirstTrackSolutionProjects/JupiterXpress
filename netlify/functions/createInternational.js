@@ -112,8 +112,7 @@ exports.handler = async (event) => {
                 "document_name": "aadhaarDoc",
                 "file_path": downloadURL
               }
-        ],
-        "multiple_invoice" : []
+        ]
     }
      dockets.map((docket, index)=> {
       req.docket_items.push({
