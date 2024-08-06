@@ -185,6 +185,7 @@ const handleAddDocket = () => {
                 <option value="UAE DIRECT">UAE DIRECT</option>
                 <option value="FG NEW ZEALAND">NEW ZEALAND</option>
                 <option value="USA VIA LHR">USA VIA LHR</option>
+                <option value="GB">UK</option>
               </select>
             </div>
           </div>
