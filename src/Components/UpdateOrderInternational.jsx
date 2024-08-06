@@ -1,166 +1,166 @@
 import React, { useEffect, useState } from "react";
 
-const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped}) => {
-    const [orders, setOrders] = useState([
-        { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
-    ]);
-    const [warehouses, setWarehouses] = useState([])
-    useEffect(()=>{
-      const getWarehouses = async () => {
-        await fetch('/.netlify/functions/getWarehouse',{
-          method : 'POST',
-          headers : {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          }
-        }).then(response => response.json()).then(result => setWarehouses(result.rows))
-      }
-      getWarehouses();
-        fetch('/.netlify/functions/getOrder', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-            body: JSON.stringify(formData),
-          })
-            .then(response => response.json())
-            .then(result => {
-              if (result.success) {
-                setOrders(result.order)
-              } else {
-                alert('Order failed: ' + result.message)
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred during Order');
-            });
-            
-      }, [])
-      
-      useEffect(()=>{
-        setFormData((prev)=>({
-            ...prev,
-            orders: orders
-          }))
-      }, [orders]);
-
-    const [formData, setFormData] = useState({
-        wid : shipment.wid,
-        order : shipment.ord_id,
-        date : shipment.ord_date,
-        payMode : shipment.pay_method,
-        name : shipment.customer_name,
-        email : shipment.customer_email,
-        phone : shipment.customer_mobile,
-        address: shipment.shipping_address,
-        address2 : shipment.shipping_address_2,
-        addressType : shipment.shipping_address_type,
-        addressType2 : shipment.shipping_address_type_2,
-        postcode : shipment.shipping_postcode,
-        city : shipment.shipping_city,
-        state : shipment.shipping_state,
-        country : shipment.shipping_country,
-        Baddress: shipment.billing_address,
-        Baddress2 :shipment.billing_address_2,
-        BaddressType : shipment.billing_address_type,
-        BaddressType2 : shipment.billing_address_type_2,
-        Bpostcode :shipment.billing_postcode,
-        Bcity : shipment.billing_city,
-        Bstate : shipment.billing_state,
-        Bcountry :shipment.billing_country,
-        same : 1,
-        orders : orders,
-        discount : shipment.total_discount,
-        cod : shipment.cod_amount,
-        weight : shipment.weight,
-        length :shipment.length,
-        breadth : shipment.breadth,
-        height :  shipment.height,
-        gst : shipment.gst,
-        Cgst : shipment.customer_gst,
-        shippingType : shipment.shipping_mode
+const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
+  const [dockets, setDockets] = useState([
+    { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
+]);
+  
+const handleDeleteDocket = (index) => {
+  const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
+    ...docket,
+    box_no: i + 1,
+  }));
+  setDockets(newDockets);
+};
+const handleAddDocket = () => {
+  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
+};
+const [items, setItems] = useState([
+  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }
+]);
+  useEffect(() => {
+    const getDockets = async () => {
+      await fetch('/.netlify/functions/getDockets',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ iid : shipment.iid })
       })
+     .then(response => response.json()).then(result => setDockets(result.dockets))
+    }
+    const getItems = async () => {
+      await fetch('/.netlify/functions/getDocketItems',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ iid : shipment.iid })
+      })
+     .then(response => response.json()).then(result => setItems(result.dockets))
+    }
+    getDockets()
+    getItems()
+  },[]);
+  const [formData, setFormData] = useState({
+    wid : shipment.wid,
+    contents : shipment.contents,
+    serviceCode: shipment.service_code,
+    consigneeName : shipment.consignee_name,
+    consigneeCompany : shipment.consignee_company_name,
+    consigneeContact : shipment.consignee_contact_no,
+    consigneeEmail : shipment.consignee_email,
+    consigneeAddress : shipment.consignee_address_1,
+    consigneeAddress2 : shipment.consignee_address_2,
+    consigneeAddress3: shipment.consignee_address_3,
+    consigneeCity : shipment.consignee_city,
+    consigneeState : shipment.consignee_state,
+    consigneeCountry : shipment.consignee_country,
+    consigneeZipCode : shipment.consignee_zip_code,
+    dockets : dockets,
+    items : items,
+    actual_weight : shipment.actual_weight,
+    gst : shipment.gst,
+    shippingType : shipment.shippingType,
+    price : 0
+  })
+  const [warehouses, setWarehouses] = useState([])
+  useEffect(() => {
+    const getWarehouses = async () => {
+      await fetch('/.netlify/functions/getWarehouse',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        }
+      }).then(response => response.json()).then(result => setWarehouses(result.rows))
+    }
+    getWarehouses();
+  }, [])
+  const addProduct = () => {
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }]);
 
-      const addProduct = () => {
-        setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }]);
-      };
-      const removeProduct = (index) => {
-        const updatedOrders = orders.filter((_, i) => i !== index);
-        setOrders(updatedOrders);
-        setFormData((prev)=>({
-            ...prev,
-            orders: orders
-          }))
-      };
-      const handleOrders = (index, event) => {
-        if (isShipped)
-          return;
-        const { name, value } = event.target;
-        const updatedOrders = [...orders];
-        updatedOrders[index][name] = value;
-        setOrders(updatedOrders);
-        setFormData((prev)=>({
-          ...prev,
-          orders: orders
-        }))
-      };
-      const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]:type === 'checkbox' ? checked : value
-        }));
-      };
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        fetch('/.netlify/functions/updateOrder', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          },
-          body: JSON.stringify(formData),
-        })
-          .then(response => response.json())
-          .then(result => {
-            if (result.success) {
-              alert('Order Updated successfully')
-            } else {
-              alert('Order failed: ' + result.message)
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred during Order');
-          });
-      }
-    return (
-      <>
-        <div
-          className={`absolute top-0 z-20 bg-white w-full p-4 flex flex-col items-center space-y-6 ${
-            isManage ? "" : "hidden"
-          }`}
-        >
-          <div className="w-full h-16 px-4  relative flex">
-            <div className="text-2xl font-medium">MANAGE SHIPMENT</div>
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                setIsManage(0);
-              }}
-              className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
-            >
-              X
-            </div>
-          </div>
-          
-          <form action="" onSubmit={handleSubmit}>
+  };
+  const removeProduct = (index) => {
+    const updatedItems = items.filter((_, i) => i !== index);
+    setItems(updatedItems);
+    setFormData((prev)=>({
+      ...prev,
+      items: items
+    }))
+  };
+  const handleDocket = (index, event) => {
+    const { name, value } = event.target;
+    const updatedDockets = [...dockets];
+    updatedDockets[index][name] = value;
+    setDockets(updatedDockets);
+    setFormData((prev)=>({
+      ...prev,
+      dockets: dockets
+    }))
+  };
+  const handleItems = (index, event) => {
+    
+    const { name, value } = event.target;
+    const updatedItems = [...items];
+    updatedItems[index][name] = value;
+    setItems(updatedItems);
+    setFormData((prev)=>({
+      ...prev,
+      items: items
+    }))
+  };
+
+  useEffect(()=>{
+    setFormData((prev)=>({
+        ...prev,
+        items: items
+      }))
+  }, [items]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]:type === 'checkbox' ? checked : value
+    }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch('/.netlify/functions/createOrderInternational', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      },
+      body: JSON.stringify(formData),
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          alert('Order created successfully')
+        } else {
+          alert('Hey why hurry? Work is going on behind')
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hey why hurry? Work is going on behind');
+      });
+  }
+  return (
+    <>
+      <div className="w-full p-4 flex flex-col items-center">
+        <div className="text-3xl font-medium text-center my-8">Enter Shipping Details</div>
+        <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="wid">Pickup Warehouse Name</label>
+              <label htmlFor="wid">Pickup Warehouse Name</label>
               <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -180,101 +180,108 @@ const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped})
             </div>
             
           </div>
+         
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="contents">Contents</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="contents"
+                name="contents"
+                placeholder="Ex. Books"
+                value={formData.contents}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="serviceCode">Service</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                id="serviceCode"
+                name="serviceCode"
+                value={formData.serviceCode}
+                onChange={handleChange}
+              >
+                <option value="">Select Service</option>
+                <option value="PUROLATOR YVR">PUROLATOR</option>
+                <option value="V-PURO_DDU">V-PURO DDU</option>
+                <option value="MELBOURNE">AUSTRALIA</option>
+                <option value="CANADA PAID">CANADA EXPRESS</option>
+                <option value="CANADA YYZ">CANADA PAID</option>
+                <option value="FG NEW ZEALAND">NEW ZEALAND</option>
+                <option value="EUROPE FRA DPD">EUROPE FRA</option>
+                <option value="UAE DIRECT">UAE DIRECT</option>
+                <option value="USA VIA LHR">USA VIA LHR</option>
+                <option value="UK DPD">UK DPD</option>
+              </select>
+            </div>
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeName">Consignee Name</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeName"
+                name="consigneeName"
+                placeholder="Name"
+                value={formData.consigneeName}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeCompany">Consignee Company</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeCompany"
+                name="consigneeCompany"
+                placeholder="Company"
+                value={formData.consigneeCompany}
+                onChange={handleChange}
+              />
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeContact">Consignee Contact</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="consigneeContact"
+                name="consigneeContact"
+                placeholder="Enter Customer Name"
+                value={formData.consigneeContact}
+                onChange={handleChange}
+              />
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeEmail">Consignee Email</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeEmail"
+                name="consigneeEmail"
+                placeholder="Ex. customer@example.com"
+                value={formData.consigneeEmail}
+                onChange={handleChange}
+              />
+            </div>
+            </div>
+            
+          </div>
           
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="order">Order Id</label>
+              <label htmlFor="consigneeAddress">Consignee Address</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="order"
-                name="order"
-                placeholder="Ex. ORDER123456"
-                value={formData.order}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="date">Order Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="date"
-                name="date"
-                placeholder="Ex. 13/05/2024"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="payMode">Payment Method</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="payMode"
-                name="payMode"
-                value={formData.payMode}
-                onChange={handleChange}
-              >
-                <option value="COD">COD</option>
-                <option value="Pre-paid">Prepaid</option>
-                <option value="topay">To Pay</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="name">Buyer's Name</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Ex. Aditya Kumar"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="city">Buyer's email</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="email"
-                name="email"
-                placeholder="Ex. customer@example.com"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="phone">Buyer's Phone</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="phone"
-                name="phone"
-                placeholder="Ex. 1234554321"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="address">Shipping Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="address"
-                name="address"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.address}
+                id="consigneeAddress"
+                name="consigneeAddress"
+                placeholder="Enter Shipping Address"
+                value={formData.consigneeAddress}
                 onChange={handleChange}
               />
             </div>
@@ -283,18 +290,30 @@ const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped})
             
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="address2">Alternate Shipping Address</label>
+              <label htmlFor="consigneeAddress2">Consignee Address 2</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="address2"
-                name="address2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.address2}
+                id="consigneeAddress2"
+                name="consigneeAddress2"
+                placeholder="Shipping Address 2"
+                value={formData.consigneeAddress2}
                 onChange={handleChange}
               />
             </div>
-          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeAddress3">Consignee Address 3</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeAddress3"
+                name="consigneeAddress3"
+                placeholder="Shipping Address 3"
+                value={formData.consigneeAddress3}
+                onChange={handleChange}
+              />
+            </div>
+          {/* <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
               <select
@@ -324,305 +343,300 @@ const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped})
               </select>
             </div>
             
+          </div> */}
+          
+          <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeZipCode">Consignee Zip Code</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeZipCode"
+                name="consigneeZipCode"
+                placeholder="Zip Code"
+                value={formData.consigneeZipCode}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="consigneeCity">Consignee City</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="consigneeCity"
+                name="consigneeCity"
+                placeholder="Enter City"
+                value={formData.consigneeCity}
+                onChange={handleChange}
+              />
+            </div>
+            
+            
           </div>
           
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="postcode">Shipping Postcode</label>
+              <label htmlFor="consigneeState">Consignee State</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="postcode"
-                name="postcode"
-                placeholder="Ex. 813210"
-                value={formData.postcode}
+                id="consigneeState"
+                name="consigneeState"
+                placeholder="Enter State"
+                value={formData.consigneeState}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="city">Shipping City</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="city"
-                name="city"
-                placeholder="Ex. Bhagalpur"
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </div>
-            
-            
-          </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="state">Shipping State</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="state"
-                name="state"
-                placeholder="Ex. Bihar"
-                value={formData.state}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="country">Shipping Country</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="country"
-                name="country"
-                placeholder="Ex. India"
-                value={formData.country}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-x-4 flex items-center">
-          <input
-                className=""
-                type="checkbox"
-                checked={formData.same}
-                id="same"
-                name="same"
-                value={formData.same}
-                onChange={handleChange}
-              />
-              <label htmlFor="same" >Billing address is same as Shipping address</label>
-              
-            </div>
-          <div className={`w-full ${formData.same?'hidden':''}`}>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress">Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Baddress"
-                name="Baddress"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress}
-                onChange={handleChange}
-              />
-            </div>
-            
-            
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress2">Alternate Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Baddress2"
-                name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress2}
-                onChange={handleChange}
-              />
-            </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="BaddressType">Billing Address Type</label>
+              <label htmlFor="consigneeCountry">Consignee Country</label>
               <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="BaddressType"
-                name="BaddressType"
-                placeholder="Home or Office"
-                value={formData.BaddressType}
+                id="consigneeCountry"
+                name="consigneeCountry"
+                value={formData.consigneeCountry}
                 onChange={handleChange}
               >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
+                <option value="AU">Australia</option>
+                <option value="CA">Canada</option>
+                <option value="NZ">New Zealand</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AE">UAE</option>
+                <option value="US">USA</option>
               </select>
             </div>
-            
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="shipmentType">Shipment Type</label>
               <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="BaddressType2"
-                name="BaddressType2"
-                placeholder="Home or Office"
-                value={formData.BaddressType2}
+                id="shipmentType"
+                name="shipmentType"
+                value={formData.shippingType}
                 onChange={handleChange}
               >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
+                <option value="CARGO">CARGO</option>
+                <option value="GIFT">GIFT</option>
+                <option value="SAMPLE">SAMPLE</option>
               </select>
             </div>
-            
-          </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Bpostcode">Billing Postcode</label>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="gst">Seller GST</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="Bpostcode"
-                name="Bpostcode"
-                placeholder="Ex. 813210"
-                value={formData.Bpostcode}
+                id="gst"
+                name="gst"
+                placeholder="GSTIN"
+                value={formData.gst}
                 onChange={handleChange}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Bcity">Billing City</label>
+              <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Bcity"
-                name="Bcity"
-                placeholder="Ex. Bhagalpur"
-                value={formData.Bcity}
+                type="number"
+                id="actual_weight"
+                name="actual_weight"
+                placeholder="Ex. 100"
+                value={formData.actual_weight}
                 onChange={handleChange}
               />
             </div>
-            
-            
           </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Bstate">Billing State</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Bstate"
-                name="Bstate"
-                placeholder="Ex. Bihar"
-                value={formData.Bstate}
-                onChange={handleChange}
-              />
+          {dockets.map((docket, index) => (
+        <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Box no.</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="box_no"
+              placeholder="Box Number"
+              disabled
+              value={docket.box_no}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Bcountry">Billing Country</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Bcountry"
-                name="Bcountry"
-                placeholder="Ex. India"
-                value={formData.Bcountry}
-                onChange={handleChange}
-              />
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Docket Weight</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="docket_weight"
+              placeholder="Docket Weight (in Kg)"
+              value={docket.docket_weight}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
             </div>
-
-          </div>
-          </div>
-          {orders.map((order, index) => (
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Length</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="length"
+              placeholder="Length"
+              value={docket.length}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Breadth</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="breadth"
+              placeholder="Breadth"
+              value={docket.breadth}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+            <label>Height</label>
+            <input
+              type="number"
+              className="flex-1 border py-2 px-4 rounded-3xl"
+              name="height"
+              placeholder="Height"
+              value={docket.height}
+              onChange={(event) => handleDocket(index, event)}
+              style={{ marginLeft: '10px' }}
+            />
+            </div>
+            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => handleDeleteDocket(index)}>Remove</button>
+        </div>
+      ))}
+      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={handleAddDocket}>Add Docket</button>
+          {items.map((item, index) => (
             
         <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
           <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-              <label htmlFor="masterSKU">Master SKU</label>
+              <label htmlFor="hscode">HS Code</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="masterSKU"
-                name="master_sku"
-                placeholder="Master SKU"
-                value={order.master_sku}
-                onChange={(e) => handleOrders(index, e)}
+                id="hscode"
+                name="hscode"
+                placeholder="HS Code"
+                value={item.hscode}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="product">Product Name</label>
+          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="box_no">Box no.</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="product"
-                name="product_name"
-                placeholder="Product Name"
-                value={order.product_name}
-                onChange={(e) => handleOrders(index, e)}
+                id="box_no"
+                name="box_no"
+                placeholder="Box no"
+                value={item.box_no}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[50px] space-y-2">
+          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="quantity">Quantity</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="quantity"
-                name="product_quantity"
+                name="quantity"
                 placeholder="Quantity"
-                value={order.product_quantity}
-                onChange={(e) => handleOrders(index, e)}
+                value={item.quantity}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="price">Price</label>
+              <label htmlFor="rate">Rate per item</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="price"
-                name="selling_price"
-                placeholder="Price"
-                value={order.selling_price}
-                onChange={(e) => handleOrders(index, e)}
+                id="rate"
+                name="rate"
+                placeholder="Quantity"
+                value={item.rate}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="discount">Discount</label>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="description">Description</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="discount"
-                name="discount"
-                placeholder="Discount"
-                value={order.discount}
-                onChange={(e) => handleOrders(index, e)}
+                id="description"
+                name="description"
+                placeholder="Description"
+                value={item.description}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="tax">Tax</label>
-              <input
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="unit">Unit</label>
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="tax"
-                name="tax_in_percentage"
-                placeholder="Tax"
-                value={order.tax_in_percentage}
-                onChange={(e) => handleOrders(index, e)}
+                id="unit"
+                name="unit"
+                value={formData.unit}
+                onChange={handleChange}
+              >
+                <option value="Pc">Pc</option>
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="unit_weight">Unit Weight</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="unit_weight"
+                name="unit_weight"
+                placeholder="Unit Weight"
+                value={item.unit_weight}
+                onChange={(e) => handleItems(index, e)}
               />
             </div>
-            <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+              <label htmlFor="igst_amount">IGST</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="igst_amount"
+                name="igst_amount"
+                placeholder="IGST Amount"
+                value={item.igst_amount}
+                onChange={(e) => handleItems(index, e)}
+              />
+            </div>
+          
+            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
         </div>
       ))}
       <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
-          <div className="w-full flex mb-2 flex-wrap ">
+          {/* <div className="w-full flex mb-2 flex-wrap "> */}
             
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="discount">Total Discount</label>
+            
+            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="price">Shipment Cost(As provided)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="discount"
-                name="discount"
-                placeholder="Ex. 1500"
-                value={formData.discount}
+                type="number"
+                id="price"
+                name="price"
+                placeholder="Ex. 1150"
+                value={formData.price}
                 onChange={handleChange}
               />
-            </div>
-            <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
-              <div className="space-y-2">
-                <label htmlFor="cod">COD Amount</label>
-                <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="cod"
-                name="cod"
-                placeholder="Ex. 1500"
-                value={formData.cod}
-                onChange={handleChange}
-              />
-              </div>
-              <div className="space-y-2">
+            </div> */}
+            {/* <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+              
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
                 <select
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -636,299 +650,220 @@ const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped})
                 <option value="Express">Express</option>
               </select>
               </div>
-            </div>
+            </div> */}
             
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
+          {/* </div> */}
+          <br/>
+          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Create</button>
 
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Weight (In g)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 2.5"
-                value={formData.weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="length">Length (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="length"
-                name="length"
-                placeholder="Ex. 2.5"
-                value={formData.length}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="breadth">Breadth (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="breadth"
-                name="breadth"
-                placeholder="Ex. 2.5"
-                value={formData.breadth}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="height">Height (in cm)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="height"
-                name="height"
-                placeholder="Ex. 2.5"
-                value={formData.height}
-                onChange={handleChange}
-              />
-            </div>
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="gst">Seller GST</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="gst"
-                name="gst"
-                placeholder="Enter GSTIN"
-                value={formData.gst}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Cgst">Customer GSTIN (FOR B2B)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="Cgst"
-                name="Cgst"
-                placeholder="Enter Csutomer GST"
-                value={formData.Cgst}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <button disabled={isShipped} className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
         </form>
-        </div>
-      </>
-    );
-  };
-
-const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsShip}) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const ship = async (serviceId,categoryId) => {
-    setIsLoading(true)
-    const price = docketsPrices.map((docketPrice,index)=> (
-        docketPrice.filter((a => a.categoryId == categoryId && a.serviceId == serviceId))
-    ))
-    const getBalance = await fetch('/.netlify/functions/getBalance', {
-      method: 'GET',
-      headers : {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': localStorage.getItem('token'),
-      }
-    })
-    const balanceData = await getBalance.json();
-    const balance = balanceData.balance;
-    if ((parseFloat(balance) < parseFloat(price.price))){
-      if (shipment.pay_method !== "topay"){
-        alert('Insufficient balance')
-        setIsLoading(false)
-        return;
-      }
-    }
-    console.log(dockets)
-    for (let i = 0; i < dockets.length; i++) {
-        if (!dockets[i].awb) {
-            try {
-                const res = await fetch('/.netlify/functions/createDomesticInternational', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': localStorage.getItem('token'),
-                    },
-                    body: JSON.stringify({
-                        did: dockets[i].did,
-                        price: price[i][0].price,
-                        serviceId: serviceId,
-                        categoryId: categoryId
-                    })
-                });
-
-                const result = await res.json();
-
-                if (!result.success) {
-                    console.log(result.message)
-                    console.log(result.message.packages)
-                    alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
-                    setIsLoading(false)
-                    return; // End the function (and thus the loop) on failure
-                }
-            } catch (error) {
-                console.error('Error occurred:', error);
-                setIsLoading(false)
-                // Handle the error as needed
-                return; // End the function (and thus the loop) on error
-            }
-        }
-    }
-    await fetch('/.netlify/functions/createInternational',{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-        },
-        body: JSON.stringify({
-            iid: shipment.iid
-        })
-    }).then(response => response.json()).then(result => {
-      if (result.success){
-        alert('Shipment created successfully')
-        setIsLoading(false)
-        setIsShipped(true)
-        setIsShip(false)
-      }
-      else {
-        alert('Failed to created shipment, try again')
-        console.log(result.response)
-        console.log(result.request)
-        setIsLoading(false)
-      }
-    });
-    
-    
-  }
-  return (
-    <>
-       <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-          <div>{price.name+" "+price.weight}</div>
-          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship(price.serviceId,price.categoryId)}>{isLoading?"Shipping...":"Ship"}</div></div>
-        </div>
+      </div>
     </>
-  )
-}
-
-const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
-    const [prices, setPrices] = useState([]);
-    const [dockets, setDockets] = useState([]);
-    const[docketsPrices, setDocketsPrices] = useState([]);
-    useEffect(() => {
-      const fetchDocketsAndPrices = async () => {
-        try {
-          const getDockets = await fetch('/.netlify/functions/getDockets', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-            body: JSON.stringify({ iid: shipment.iid }),
-          });
-          const docketsData = await getDockets.json();
-          setDockets(docketsData.dockets);
-  
-          if (docketsData.dockets) {
-            const pricePromises = docketsData.dockets.map(async (docket) => {
-                
-              if (!docket.awb){
-                const response = await fetch('/.netlify/functions/price', {
-                    method: 'POST',
-                    headers: {
-                      'Accept': 'application/json',
-                      'Content-Type': 'application/json',
-                      'Authorization': localStorage.getItem('token'),
-                    },
-                    body: JSON.stringify({
-                      method: shipment.shippingType === "Surface" ? "S" : "E",
-                      status: "Delivered",
-                      origin: shipment.pin,
-                      dest: "110037",
-                      weight: docket.docket_weight,
-                      payMode: "Pre-paid",
-                      codAmount: 0,
-                      length: docket.length,
-                      breadth: docket.breadth,
-                      height: docket.height,
-                    }),
-                  });
-                  const result = await response.json();
-                  return result.prices;
-              }
-              
-            });
-  
-            const pricesList = await Promise.all(pricePromises);
-            setDocketsPrices(pricesList);
-            console.log(docketsPrices)
-            // Sum the prices while maintaining the structure
-            const summedPrices = pricesList[0].map((item, index) => {
-              const total = pricesList.reduce((acc, subarray) => {
-                return acc + subarray[index].price;
-              }, 0);
-              return {
-                ...item,
-                price: total,
-              };
-            });
-  
-            setPrices(summedPrices);
-          }
-        } catch (err) {
-          alert(err);
-        }
-      };
-  
-      fetchDocketsAndPrices();
-    }, []);
-  
-    return (
-      <>
-        <div className="absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
-          <div className="absolute top-3 right-3" onClick={() => setIsShip(false)}>
-            X
-          </div>
-          <div className="text-center text-3xl font-medium">
-            CHOOSE YOUR DOMESTIC SERVICE (THIS WILL DELIVER YOUR SHIPMENT TO THE INTERNATIONAL SHIPMENT HUB)
-          </div>
-          <div className="w-full p-4">
-            {prices && prices.length ? (
-              prices.map((price, index) => (
-                <ShipCard
-                  setIsShipped={setIsShipped}
-                  setIsShip={setIsShip}
-                  key={index}
-                  shipment={shipment}
-                  dockets={dockets}
-                  docketsPrices={docketsPrices}
-                  price={price}
-                />
-              ))
-            ) : null}
-          </div>
-        </div>
-      </>
     );
   };
+
+// const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsShip}) => {
+//   const [isLoading, setIsLoading] = useState(false)
+//   const ship = async (serviceId,categoryId) => {
+//     setIsLoading(true)
+//     const price = docketsPrices.map((docketPrice,index)=> (
+//         docketPrice.filter((a => a.categoryId == categoryId && a.serviceId == serviceId))
+//     ))
+//     const getBalance = await fetch('/.netlify/functions/getBalance', {
+//       method: 'GET',
+//       headers : {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json',
+//         'Authorization': localStorage.getItem('token'),
+//       }
+//     })
+//     const balanceData = await getBalance.json();
+//     const balance = balanceData.balance;
+//     if ((parseFloat(balance) < parseFloat(price.price))){
+//       if (shipment.pay_method !== "topay"){
+//         alert('Insufficient balance')
+//         setIsLoading(false)
+//         return;
+//       }
+//     }
+//     console.log(dockets)
+//     for (let i = 0; i < dockets.length; i++) {
+//         if (!dockets[i].awb) {
+//             try {
+//                 const res = await fetch('/.netlify/functions/createDomesticInternational', {
+//                     method: 'POST',
+//                     headers: {
+//                         'Content-Type': 'application/json',
+//                         'Accept': 'application/json',
+//                         'Authorization': localStorage.getItem('token'),
+//                     },
+//                     body: JSON.stringify({
+//                         did: dockets[i].did,
+//                         price: price[i][0].price,
+//                         serviceId: serviceId,
+//                         categoryId: categoryId
+//                     })
+//                 });
+
+//                 const result = await res.json();
+
+//                 if (!result.success) {
+//                     console.log(result.message)
+//                     console.log(result.message.packages)
+//                     alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
+//                     setIsLoading(false)
+//                     return; // End the function (and thus the loop) on failure
+//                 }
+//             } catch (error) {
+//                 console.error('Error occurred:', error);
+//                 setIsLoading(false)
+//                 // Handle the error as needed
+//                 return; // End the function (and thus the loop) on error
+//             }
+//         }
+//     }
+//     await fetch('/.netlify/functions/createInternational',{
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json',
+//             'Authorization': localStorage.getItem('token'),
+//         },
+//         body: JSON.stringify({
+//             iid: shipment.iid
+//         })
+//     }).then(response => response.json()).then(result => {
+//       if (result.success){
+//         alert('Shipment created successfully')
+//         setIsLoading(false)
+//         setIsShipped(true)
+//         setIsShip(false)
+//       }
+//       else {
+//         alert('Failed to created shipment, try again')
+//         console.log(result.response)
+//         console.log(result.request)
+//         setIsLoading(false)
+//       }
+//     });
+    
+    
+//   }
+//   return (
+//     <>
+//        <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+//           <div>{price.name+" "+price.weight}</div>
+//           <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship(price.serviceId,price.categoryId)}>{isLoading?"Shipping...":"Ship"}</div></div>
+//         </div>
+//     </>
+//   )
+// }
+
+// const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
+//     const [prices, setPrices] = useState([]);
+//     const [dockets, setDockets] = useState([]);
+//     const[docketsPrices, setDocketsPrices] = useState([]);
+//     useEffect(() => {
+//       const fetchDocketsAndPrices = async () => {
+//         try {
+//           const getDockets = await fetch('/.netlify/functions/getDockets', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//               'Accept': 'application/json',
+//               'Authorization': localStorage.getItem('token'),
+//             },
+//             body: JSON.stringify({ iid: shipment.iid }),
+//           });
+//           const docketsData = await getDockets.json();
+//           setDockets(docketsData.dockets);
+  
+//           if (docketsData.dockets) {
+//             const pricePromises = docketsData.dockets.map(async (docket) => {
+                
+//               if (!docket.awb){
+//                 const response = await fetch('/.netlify/functions/price', {
+//                     method: 'POST',
+//                     headers: {
+//                       'Accept': 'application/json',
+//                       'Content-Type': 'application/json',
+//                       'Authorization': localStorage.getItem('token'),
+//                     },
+//                     body: JSON.stringify({
+//                       method: shipment.shippingType === "Surface" ? "S" : "E",
+//                       status: "Delivered",
+//                       origin: shipment.pin,
+//                       dest: "110037",
+//                       weight: docket.docket_weight,
+//                       payMode: "Pre-paid",
+//                       codAmount: 0,
+//                       length: docket.length,
+//                       breadth: docket.breadth,
+//                       height: docket.height,
+//                     }),
+//                   });
+//                   const result = await response.json();
+//                   return result.prices;
+//               }
+              
+//             });
+  
+//             const pricesList = await Promise.all(pricePromises);
+//             setDocketsPrices(pricesList);
+//             console.log(docketsPrices)
+//             // Sum the prices while maintaining the structure
+//             const summedPrices = pricesList[0].map((item, index) => {
+//               const total = pricesList.reduce((acc, subarray) => {
+//                 return acc + subarray[index].price;
+//               }, 0);
+//               return {
+//                 ...item,
+//                 price: total,
+//               };
+//             });
+  
+//             setPrices(summedPrices);
+//           }
+//         } catch (err) {
+//           alert(err);
+//         }
+//       };
+  
+//       fetchDocketsAndPrices();
+//     }, []);
+  
+//     return (
+//       <>
+//         <div className="absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+//           <div className="absolute top-3 right-3" onClick={() => setIsShip(false)}>
+//             X
+//           </div>
+//           <div className="text-center text-3xl font-medium">
+//             CHOOSE YOUR DOMESTIC SERVICE (THIS WILL DELIVER YOUR SHIPMENT TO THE INTERNATIONAL SHIPMENT HUB)
+//           </div>
+//           <div className="w-full p-4">
+//             {prices && prices.length ? (
+//               prices.map((price, index) => (
+//                 <ShipCard
+//                   setIsShipped={setIsShipped}
+//                   setIsShip={setIsShip}
+//                   key={index}
+//                   shipment={shipment}
+//                   dockets={dockets}
+//                   docketsPrices={docketsPrices}
+//                   price={price}
+//                 />
+//               ))
+//             ) : null}
+//           </div>
+//         </div>
+//       </>
+//     );
+//   };
   
 
 const Card = ({ shipment }) => {
-    // const [isManage, setIsManage] = useState(false);
+    const [isManage, setIsManage] = useState(false);
     // const [isShip, setIsShip] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
@@ -961,15 +896,16 @@ const Card = ({ shipment }) => {
     return (
       <>
         {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
-        {/* <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/> */}
+        
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>JUPINT{shipment.iid}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
-          {/* <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div> */}
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
           {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
           </div>
         </div>
+        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>}
       </>
     );
   };
