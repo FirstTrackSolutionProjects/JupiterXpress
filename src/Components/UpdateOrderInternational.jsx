@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
+const ManageForm = ({isManage, setIsManage,  shipment,dockets,items, isShipped}) => {
     const [orders, setOrders] = useState([
         { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
     ]);
@@ -136,20 +136,6 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             console.error('Error:', error);
             alert('An error occurred during Order');
           });
-      }
-      const ndr = () => {
-        const waybill = '67566';
-        const act = 'RE-ATTEMPT';
-        const date = Date.now();
-        fetch('/.netlify/functions/ndr', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({waybill, act, date})
-        }).then(response => response.json()).then(result => console.log(result.data));
-
       }
     return (
       <>
@@ -766,41 +752,42 @@ const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsS
       }
     }
     // console.log(dockets)
-    for (let i = 0; i < dockets.length; i++) {
-        if (!dockets[i].awb) {
-            try {
-                const res = await fetch('/.netlify/functions/createDomesticInternational', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': localStorage.getItem('token'),
-                    },
-                    body: JSON.stringify({
-                        did: dockets[i].did,
-                        price: price[i][0].price,
-                        serviceId: serviceId,
-                        categoryId: categoryId
-                    })
-                });
+    // for (let i = 0; i < dockets.length; i++) {
+    //     if (!dockets[i].awb) {
+    //         try {
+    //             const res = await fetch('/.netlify/functions/createDomesticInternational', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'Accept': 'application/json',
+    //                     'Authorization': localStorage.getItem('token'),
+    //                 },
+    //                 body: JSON.stringify({
+    //                     did: dockets[i].did,
+    //                     price: price[i][0].price,
+    //                     serviceId: serviceId,
+    //                     categoryId: categoryId
+    //                 })
+    //             });
 
-                const result = await res.json();
+    //             const result = await res.json();
 
-                if (!result.success) {
-                    console.log(result.response)
-                    alert("Some Dockets were unable to ship, please click on ship to ship the remaining Dockets");
-                    setIsLoading(false)
-                    return; // End the function (and thus the loop) on failure
-                }
-            } catch (error) {
-                console.error('Error occurred:', error);
-                setIsLoading(false)
-                // Handle the error as needed
-                return; // End the function (and thus the loop) on error
-            }
-        }
-    }
-    const shipInternational = await fetch('/.netlify/functions/createInternational',{
+    //             if (!result.success) {
+    //                 console.log(result.message)
+    //                 console.log(result.message.packages)
+    //                 alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
+    //                 setIsLoading(false)
+    //                 return; // End the function (and thus the loop) on failure
+    //             }
+    //         } catch (error) {
+    //             console.error('Error occurred:', error);
+    //             setIsLoading(false)
+    //             // Handle the error as needed
+    //             return; // End the function (and thus the loop) on error
+    //         }
+    //     }
+    // }
+    await fetch('/.netlify/functions/createInternational',{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -810,10 +797,21 @@ const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsS
         body: JSON.stringify({
             iid: shipment.iid
         })
-    }).then(response => response.json()).then(result => console.log(result));
-    alert("Shipment Successfull")
-    setIsLoading(false)
-
+    }).then(response => response.json()).then(result => {
+      if (result.success){
+        alert('Shipment created successfully')
+        setIsLoading(false)
+        setIsShipped(true)
+        setIsShip(false)
+      }
+      else {
+        alert('Failed to created shipment, try again')
+        console.log(result.response)
+        console.log(result.request)
+        setIsLoading(false)
+      }
+    });
+    
     
   }
   return (
@@ -906,7 +904,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
             X
           </div>
           <div className="text-center text-3xl font-medium">
-            CHOOSE YOUR SERVICE (WAIT FOR 30 SECONDS AFTER CLICKING SHIP TO AVOID DUPLICATE ORDERS)
+            CHOOSE YOUR DOMESTIC SERVICE (THIS WILL DELIVER YOUR SHIPMENT TO THE INTERNATIONAL SHIPMENT HUB)
           </div>
           <div className="w-full p-4">
             {prices && prices.length ? (
@@ -932,61 +930,17 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
 const Card = ({ shipment }) => {
     // const [isManage, setIsManage] = useState(false);
     const [isShip, setIsShip] = useState(false);
-    // const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
-    // const [isCancelled, setIsCancelled] = useState(shipment.cancelled?true:false);
-    // const getLabel = async () => {
-    //   await fetch('/.netlify/functions/label', {
-    //     method : 'POST',
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Content-Type': 'application/json',
-    //       'Authorization': localStorage.getItem('token')
-    //     },
-    //     body : JSON.stringify({order : shipment.ord_id})
-    //   }).then(response => response.json()).then(async result => {
-    //     const link = document.createElement('a');
-    //     link.href = result.label;
-    //     link.target = '_blank'
-    //     link.style.display = 'none'; 
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    // })
-    // }
-    // const cancelShipment = async () => {
-    //   const cancel = confirm('Do you want to cancel this shipment?');
-    //   if (!cancel) return;
-    //   await fetch('/.netlify/functions/cancelShipment', {
-    //     method : 'POST',
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Content-Type': 'application/json',
-    //       'Authorization': localStorage.getItem('token')
-    //     },
-    //     body : JSON.stringify({order : shipment.ord_id})
-    //   }).then(response => response.json()).then(async result => {
-    //     if (result.message.status){
-    //       setIsCancelled(true)
-    //       alert(result.message.remark)
-    //     }
-    //     else{
-    //       alert("Your shipment has not been cancelled")
-    //       console.log(result.message)
-    //     }
-    //   })
-    // }
+    const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
     return (
       <>
-        {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={false}/>}
+        {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>}
         {/* <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/> */}
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>JUPINT{shipment.iid}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           {/* <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div> */}
-          {/* {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null} */}
+          {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
           {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div>}
-          {/* {isShipped && !isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null} */}
-          {/* {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null} */}
           </div>
         </div>
       </>

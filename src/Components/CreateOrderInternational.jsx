@@ -175,14 +175,14 @@ const handleAddDocket = () => {
                 onChange={handleChange}
               >
                 <option value="">Select Service</option>
-                <option value="VPUROPAID">V-PURO PAID</option>
+                <option value="PUROLATOR YVR">PUROLATOR</option>
+                <option value="V-PURO_DDU">V-PURO DDU</option>
                 <option value="MELBOURNE">AUSTRALIA</option>
                 <option value="CANADA PAID">CANADA EXPRESS</option>
                 <option value="CANADA YYZ">CANADA PAID</option>
                 <option value="FG NEW ZEALAND">NEW ZEALAND</option>
               </select>
             </div>
-            
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">

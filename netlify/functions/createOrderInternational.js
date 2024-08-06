@@ -112,7 +112,7 @@ exports.handler = async (event) => {
           const docketItems = items.filter(item => item.box_no == i+1)
           for (let j = 0; j < docketItems.length; j++) {
             await connection.execute(
-              `INSERT INTO DOCKET_ITEMS (did, hscode, box_no, quantity, rate, description, unit, unit_weight, igst_amount) VALUES (?,?,?,?,?,?,?,?,?)`,
+              `INSERT INTO DOCKET_ITEMS (did, hscode, box_no, quantity, rate, description, unit, unit_weight, igst_amount, iid) VALUES (?,?,?,?,?,?,?,?,?,?)`,
               [
                 did,
                 docketItems[j].hscode,
@@ -123,6 +123,7 @@ exports.handler = async (event) => {
                 docketItems[j].unit,
                 docketItems[j].unit_weight,
                 docketItems[j].igst_amount,
+                iid
               ]
             );
           }

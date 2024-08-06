@@ -50,13 +50,13 @@ exports.handler = async (event) => {
     for (let i = 0; i < items.length; i++) {
       product_description += `${items[i].description} (${items[i].quantity}) (₹${items[i].rate})\n`
     }
-    if (serviceId === "1") {
+    if (serviceId == "1") {
       const res = await fetch(`https://track.delhivery.com/waybill/api/bulk/json/?count=1`, {
         method : 'GET',
         headers: {
           "Content-Type" : "application/json",
           "Accept" : "application/json",
-          'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+          'Authorization': `Token ${categoryId == "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId=="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId==3?'':''}`
         }
       })
       const waybill = await res.json()
@@ -113,7 +113,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'Authorization': `Token ${categoryId === "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId==="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId===3?'':''}`
+        'Authorization': `Token ${categoryId == "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId=="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId==3?'':''}`
       },
       body : formData
     })
@@ -124,7 +124,7 @@ exports.handler = async (event) => {
       await connection.execute('UPDATE DOCKETS set awb = ? WHERE did = ?', [ response.packages[0].waybill , did])
     //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
       if (shipment.pay_method != "topay"){
-        await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
+        await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [parseFloat(price), id]);
         // await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
       }
       await connection.commit();
@@ -132,7 +132,7 @@ exports.handler = async (event) => {
     else{
     //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
       return {
-        statusCode: 200,
+        statusCode: 400,
         body: JSON.stringify({ success : false, message : response}),
         headers: {
           'Content-Type': 'application/json',

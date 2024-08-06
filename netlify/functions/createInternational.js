@@ -13,7 +13,7 @@ const s3 = new AWS.S3({
 
 
 const dbConfig = {
-  host: process.env.DB_HOST,
+  host: process.env.DB_HOST, 
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -45,6 +45,8 @@ exports.handler = async (event) => {
     const [dockets] = await connection.execute('SELECT * FROM DOCKETS WHERE iid = ? ', [iid]);
     const [items] = await connection.execute('SELECT * FROM DOCKET_ITEMS WHERE iid = ? ', [iid]);
     const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
+    const [key] = await connection.execute('SELECT FlightGo FROM DYNAMIC_APIS');
+    const api_key = key[0].FlightGo 
     const warehouse = warehouses[0]
     const params = {
       Bucket: process.env.S3_BUCKET_NAME_,
@@ -60,7 +62,7 @@ exports.handler = async (event) => {
       const req = {
         "tracking_no": `JUPINT${iid}`,
         "origin_code": "IN",
-        "customer_id"  : "181",
+        // "customer_id"  : "181",
         "product_code": "NONDOX",
         "destination_code": shipment.consignee_country,
         "booking_date": shipment.invoice_date,
@@ -72,10 +74,12 @@ exports.handler = async (event) => {
         "shipment_invoice_no": `JUPINT${iid}`,
         "shipment_invoice_date": shipment.invoice_date,
         "shipment_content": shipment.contents,
-        "new_docket_free_form_invoice": "0",
+        "free_form_note_master_code": "CARGO",
+        "new_docket_free_form_invoice": "1",
         "free_form_currency": "INR",
         "terms_of_trade": "FOB",
         "api_service_code": shipment.service_code,
+        "free_form_invoice_type_id":"INVOICE",
         "shipper_name": warehouse.warehouseName,
         "shipper_company_name": user.businessName ,
         "shipper_contact_no": user.phone,
@@ -133,45 +137,41 @@ exports.handler = async (event) => {
           "igst_amount": item.igst_amount
       })
       })
-
+    
     const responseDta = await fetch(`https://online.flightgo.in/docket_api/create_docket`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Bearer NjEyMDMzMTJ3ZWxjb21lIHRvIGl0ZHNfMjQ=`
+        'Authorization': `Bearer ${api_key}`
       },
       body : JSON.stringify(req)
     })
     const response = await responseDta.json()
-    // if (response.success){
-    //   await connection.beginTransaction();
-    //   await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.packages[0].waybill ,order])
-    //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
-    //   if (shipment.pay_method != "topay"){
-    //     await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [shipment.price, id]);
-    //     await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
-    //   }
-    //   await connection.commit();
-    // }
-    // else{
-    //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
-    //   return {
-    //     statusCode: 200,
-    //     body: JSON.stringify({ success : false, message : response}),
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Access-Control-Allow-Origin': '*'
-    //     },
-    //   };
-    // }
-    // let mailOptions = {
-    //   from: process.env.EMAIL_USER,
-    //   to: email, 
-    //   subject: 'Shipment created successfully', 
-    //   text: `Dear Merchant, \nYour shipment request for Order id : ${order} is successfully created at Delhivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
-    // };
-    // await transporter.sendMail(mailOptions)
+    if (response.success){
+      await connection.beginTransaction();
+      await connection.execute('UPDATE INTERNATIONAL_SHIPMENTS set serviceId = ?, categoryId = ?, awb = ?,docket_id = ?, status = ? WHERE iid = ?', [1, 1, response.data.awb_no , response.data.docket_id ,"MANIFESTED", iid])
+      await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [parseFloat(shipment.shipping_price), id]);
+      await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, `JUPINT${iid}`, parseFloat(shipment.shipping_price)])
+      await connection.commit();
+    }
+    else{
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success : false, response : response, request : req}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+      };
+    }
+    let mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email, 
+      subject: 'Shipment created successfully', 
+      text: `Dear Merchant, \nYour shipment request for Order id : JUPINT${iid} and AWB : ${response.data.awb_no} is successfully created at FlightGo Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+    };
+    await transporter.sendMail(mailOptions)
     return {
       statusCode: 200,
       body: JSON.stringify({req: req, response : response, success : true, user: user}),
