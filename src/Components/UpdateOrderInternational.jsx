@@ -132,7 +132,7 @@ const [items, setItems] = useState([
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/.netlify/functions/createOrderInternational', {
+    fetch('/.netlify/functions/UpdateOrderInternational', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

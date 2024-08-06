@@ -15,7 +15,7 @@ const handleAddDocket = () => {
   setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
 };
   const [items, setItems] = useState([
-    { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }
+    { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
 ]);
   const [formData, setFormData] = useState({
     wid : '',
