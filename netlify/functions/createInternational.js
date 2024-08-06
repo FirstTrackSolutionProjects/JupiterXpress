@@ -74,7 +74,7 @@ exports.handler = async (event) => {
         "shipment_invoice_no": `JUPINT${iid}`,
         "shipment_invoice_date": shipment.invoice_date,
         "shipment_content": shipment.contents,
-        "free_form_note_master_code": "CARGO",
+        "free_form_note_master_code": shipment.shippingType,
         "new_docket_free_form_invoice": "1",
         "free_form_currency": "INR",
         "terms_of_trade": "FOB",

@@ -929,18 +929,45 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
 
 const Card = ({ shipment }) => {
     // const [isManage, setIsManage] = useState(false);
-    const [isShip, setIsShip] = useState(false);
+    // const [isShip, setIsShip] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
+    const handleShip = async () => {
+      setIsLoading(true)
+      await fetch('/.netlify/functions/createInternational',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({
+            iid: shipment.iid
+        })
+    }).then(response => response.json()).then(result => {
+      if (result.success){
+        alert('Shipment created successfully')
+        setIsLoading(false)
+        setIsShipped(true)
+      }
+      else {
+        alert('Failed to created shipment, try again')
+        console.log(result.response)
+        console.log(result.request)
+        setIsLoading(false)
+      }
+    });
+    }
     return (
       <>
-        {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>}
+        {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
         {/* <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/> */}
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>JUPINT{shipment.iid}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           {/* <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div> */}
           {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
-          {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div>}
+          {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
           </div>
         </div>
       </>

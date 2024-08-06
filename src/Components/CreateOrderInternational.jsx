@@ -36,7 +36,7 @@ const handleAddDocket = () => {
     items : items,
     actual_weight : '',
     gst : '',
-    shippingType : 'Surface',
+    shippingType : 'CARGO',
     price : ''
   })
   const [warehouses, setWarehouses] = useState([])
@@ -227,11 +227,7 @@ const handleAddDocket = () => {
                 value={formData.consigneeContact}
                 onChange={handleChange}
               />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeEmail">Consignee Email</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -243,20 +239,10 @@ const handleAddDocket = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="gst">Seller GST</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="gst"
-                name="gst"
-                placeholder="GSTIN"
-                value={formData.gst}
-                onChange={handleChange}
-              />
             </div>
             
           </div>
+          
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeAddress">Consignee Address</label>
@@ -391,6 +377,47 @@ const handleAddDocket = () => {
               </select>
             </div>
           </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="shipmentType">Shipment Type</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="shipmentType"
+                name="shipmentType"
+                value={formData.shippingType}
+                onChange={handleChange}
+              >
+                <option value="CARGO">CARGO</option>
+                <option value="GIFT">GIFT</option>
+                <option value="SAMPLE">SAMPLE</option>
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="gst">Seller GST</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="gst"
+                name="gst"
+                placeholder="GSTIN"
+                value={formData.gst}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="actual_weight"
+                name="actual_weight"
+                placeholder="Ex. 100"
+                value={formData.actual_weight}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
           {dockets.map((docket, index) => (
         <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
@@ -521,17 +548,18 @@ const handleAddDocket = () => {
                 onChange={(e) => handleItems(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="unit">Unit</label>
-              <input
+              <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="unit"
                 name="unit"
-                placeholder="Unit"
-                value={item.unit}
-                onChange={(e) => handleItems(index, e)}
-              />
+                value={formData.unit}
+                onChange={handleChange}
+              >
+                <option value="Pc">Pc</option>
+              </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="unit_weight">Unit Weight</label>
@@ -562,21 +590,10 @@ const handleAddDocket = () => {
         </div>
       ))}
       <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
-          <div className="w-full flex mb-2 flex-wrap ">
+          {/* <div className="w-full flex mb-2 flex-wrap "> */}
             
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="actual_weight"
-                name="actual_weight"
-                placeholder="Ex. 100"
-                value={formData.actual_weight}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            
+            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="price">Shipment Cost(As provided)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -587,8 +604,8 @@ const handleAddDocket = () => {
                 value={formData.price}
                 onChange={handleChange}
               />
-            </div>
-            <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+            </div> */}
+            {/* <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
               
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
@@ -604,11 +621,11 @@ const handleAddDocket = () => {
                 <option value="Express">Express</option>
               </select>
               </div>
-            </div>
+            </div> */}
             
-          </div>
-          
-          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Submit</button>
+          {/* </div> */}
+          <br/>
+          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Create</button>
 
         </form>
       </div>
