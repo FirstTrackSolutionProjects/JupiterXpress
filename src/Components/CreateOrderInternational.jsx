@@ -178,7 +178,7 @@ const handleAddDocket = () => {
                 <option value="PUROLATOR YVR">PUROLATOR</option>
                 <option value="V-PURO_DDU">V-PURO DDU</option>
                 <option value="MELBOURNE">AUSTRALIA</option>
-                {/* <option value="CANADA PAID">CANADA EXPRESS</option> */}
+                <option value="CANADA PAID">CANADA EXPRESS</option>
                 <option value="CANADA YYZ">CANADA PAID</option>
                 <option value="FG NEW ZEALAND">NEW ZEALAND</option>
                 <option value="EUROPE FRA DPD">EUROPE FRA</option>
@@ -385,6 +385,9 @@ const handleAddDocket = () => {
                 <option value="AU">Australia</option>
                 <option value="CA">Canada</option>
                 <option value="NZ">New Zealand</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AE">UAE</option>
+                <option value="US">USA</option>
               </select>
             </div>
           </div>
