@@ -4,10 +4,11 @@ import Header from '../Components/HeroHeader'
 import StarsCanvas from '../Components/Canvas/Stars'
 import Footer from '../Components/Footer'
 import ChooseUs from '../Components/ChooseUs'
-import CardSlide from '../Components/CardSlide'
 import LandingInfo from '../Components/LandingInfo'
 import ReachCount from '../Components/ReachCount'
 import CalcComp from '../Components/CalcComp'
+import Industry from '../Components/Industry'
+import TrustedPartners from '../Components/TrustedPartners'
 const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   return (
@@ -22,8 +23,12 @@ const Index = () => {
       <ChooseUs/>
       <LandingInfo/>
       <CalcComp/>
-      <CardSlide/>
+      <Industry/>
       <ReachCount/>
+      <div className='bg-gradient-to-r p-5 from-blue-900 via-blue-400 to-slate-300 font-inter'>
+        <div className='md:p-2 text-xl md:text-3xl text-white font-bold text-center'>Our Trusted Partners</div>
+      <TrustedPartners/>
+      </div>
       <Footer />
       
     </>

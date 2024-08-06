@@ -1,0 +1,9 @@
+@keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-100% - 16px)); /* Adjust the value if needed to match the width and gap */
+    }
+  }
+  
