@@ -288,7 +288,7 @@ const [items, setItems] = useState([
                 type="number"
                 id="consigneeContact"
                 name="consigneeContact"
-                placeholder="Enter Customer Name"
+                placeholder="Enter Customer Contact"
                 value={formData.consigneeContact}
                 onChange={handleChange}
               />
