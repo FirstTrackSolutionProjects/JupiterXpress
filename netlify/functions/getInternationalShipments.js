@@ -25,11 +25,13 @@ exports.handler = async (event) => {
   try {
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
+    const admin = verified.admin;
 
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid WHERE s.uid = ?', [id]);
+    if (admin){
+      const [rows] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid');
     if (rows.length > 0) {
       return {
         statusCode: 200,
@@ -40,6 +42,20 @@ exports.handler = async (event) => {
         statusCode: 404,
         body: JSON.stringify({ message: 'No shipments found' }),
       };
+    }
+    } else {
+      const [rows] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid WHERE s.uid = ?', [id]);
+    if (rows.length > 0) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({success:true, order : rows }),
+      };
+    } else {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'No shipments found' }),
+      };
+    }
     }
   } catch (error) {
     return {

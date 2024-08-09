@@ -16,7 +16,7 @@ const handleAddDocket = () => {
   setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
 };
 const [items, setItems] = useState([
-  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }
+  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
 ]);
   useEffect(() => {
     const getDockets = async () => {
@@ -29,7 +29,7 @@ const [items, setItems] = useState([
         },
         body: JSON.stringify({ iid : shipment.iid })
       })
-     .then(response => response.json()).then(result => setDockets(result.dockets))
+     .then(response => response.json()).then(result => {setDockets(result.dockets); console.log(result.dockets)})
     }
     const getItems = async () => {
       await fetch('/.netlify/functions/getDocketItems',{
@@ -47,6 +47,7 @@ const [items, setItems] = useState([
     getItems()
   },[]);
   const [formData, setFormData] = useState({
+    iid : shipment.iid,
     wid : shipment.wid,
     contents : shipment.contents,
     serviceCode: shipment.service_code,
@@ -83,7 +84,7 @@ const [items, setItems] = useState([
     getWarehouses();
   }, [])
   const addProduct = () => {
-    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: '', unit_weight: 0, igst_amount : 0 }]);
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }]);
 
   };
   const removeProduct = (index) => {
@@ -104,6 +105,12 @@ const [items, setItems] = useState([
       dockets: dockets
     }))
   };
+  useEffect(() => {
+    setFormData((prev)=>({
+      ...prev,
+      dockets: dockets
+    }))
+  },[dockets])
   const handleItems = (index, event) => {
     
     const { name, value } = event.target;
@@ -132,7 +139,36 @@ const [items, setItems] = useState([
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/.netlify/functions/UpdateOrderInternational', {
+    console.log(formData)
+    let docketFlag = 0
+    for (let i = 0; i < formData.dockets.length; i++) {
+      for (let j = 0; j < formData.items.length; j++) {
+        if (parseInt(formData.items[j].box_no) == i+1){
+          docketFlag = 1
+        }
+      }
+      if (docketFlag == 0){
+        alert('Please make sure every docket has some items')
+        return
+      }
+      docketFlag = 0
+    }
+
+    let itemFlag = 0
+    for (let i = 0; i < formData.items.length; i++) {
+      for (let j = 0; j < formData.dockets.length; j++) {
+        if (formData.items[i].box_no == formData.dockets[j].box_no){
+          itemFlag = 1
+        }
+      }
+      if (itemFlag == 0){
+        alert('Some items have invalid box no.')
+        return
+      }
+      itemFlag = 0
+    }
+
+    fetch('/.netlify/functions/updateOrderInternational', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -143,25 +179,25 @@ const [items, setItems] = useState([
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          alert('Order created successfully')
+          alert('Order Updated successfully')
         } else {
-          alert('Hey why hurry? Work is going on behind')
+          alert('Something Went Wrong, please try again')
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('Hey why hurry? Work is going on behind');
+        alert('Something Went Wrong, please try again');
       });
   }
   return (
     <>
       <div className="w-full p-4 flex flex-col items-center">
-        <div className="text-3xl font-medium text-center my-8">Enter Shipping Details</div>
+        <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
         <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="wid">Pickup Warehouse Name</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="wid"
@@ -184,7 +220,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="contents">Contents</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="contents"
@@ -196,7 +232,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="serviceCode">Service</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 id="serviceCode"
                 name="serviceCode"
@@ -220,7 +256,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeName">Consignee Name</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeName"
@@ -232,7 +268,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeCompany">Consignee Company</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeCompany"
@@ -247,7 +283,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeContact">Consignee Contact</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="consigneeContact"
@@ -258,7 +294,7 @@ const [items, setItems] = useState([
               />
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeEmail">Consignee Email</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeEmail"
@@ -275,7 +311,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeAddress">Consignee Address</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeAddress"
@@ -291,7 +327,7 @@ const [items, setItems] = useState([
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeAddress2">Consignee Address 2</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeAddress2"
@@ -303,7 +339,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeAddress3">Consignee Address 3</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeAddress3"
@@ -348,7 +384,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeZipCode">Consignee Zip Code</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeZipCode"
@@ -360,7 +396,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeCity">Consignee City</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeCity"
@@ -377,7 +413,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeState">Consignee State</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeState"
@@ -389,7 +425,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeCountry">Consignee Country</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="consigneeCountry"
@@ -409,7 +445,7 @@ const [items, setItems] = useState([
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="shipmentType">Shipment Type</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="shipmentType"
@@ -436,10 +472,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="actual_weight"
+                min = {0}
                 name="actual_weight"
                 placeholder="Ex. 100"
                 value={formData.actual_weight}
@@ -451,9 +488,10 @@ const [items, setItems] = useState([
         <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
             <label>Box no.</label>
-            <input
+            <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
+              min = {1}
               name="box_no"
               placeholder="Box Number"
               disabled
@@ -464,10 +502,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
             <label>Docket Weight</label>
-            <input
+            <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="docket_weight"
+              min={0}
               placeholder="Docket Weight (in Kg)"
               value={docket.docket_weight}
               onChange={(event) => handleDocket(index, event)}
@@ -476,10 +515,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
             <label>Length</label>
-            <input
+            <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="length"
+              min = {0}
               placeholder="Length"
               value={docket.length}
               onChange={(event) => handleDocket(index, event)}
@@ -488,10 +528,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
             <label>Breadth</label>
-            <input
+            <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="breadth"
+              min = {0}
               placeholder="Breadth"
               value={docket.breadth}
               onChange={(event) => handleDocket(index, event)}
@@ -500,10 +541,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
             <label>Height</label>
-            <input
+            <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="height"
+              min = {0}
               placeholder="Height"
               value={docket.height}
               onChange={(event) => handleDocket(index, event)}
@@ -531,7 +573,7 @@ const [items, setItems] = useState([
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="box_no">Box no.</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="box_no"
@@ -543,9 +585,10 @@ const [items, setItems] = useState([
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="quantity">Quantity</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
+                min={1}
                 id="quantity"
                 name="quantity"
                 placeholder="Quantity"
@@ -555,10 +598,11 @@ const [items, setItems] = useState([
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="rate">Rate per item</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="rate"
+                min={0}
                 name="rate"
                 placeholder="Quantity"
                 value={item.rate}
@@ -567,7 +611,7 @@ const [items, setItems] = useState([
             </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="description">Description</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="description"
@@ -579,7 +623,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="unit">Unit</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="unit"
@@ -592,9 +636,10 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="unit_weight">Unit Weight</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
+                min={0}
                 id="unit_weight"
                 name="unit_weight"
                 placeholder="Unit Weight"
@@ -604,10 +649,11 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="igst_amount">IGST</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="igst_amount"
+                min={0}
                 name="igst_amount"
                 placeholder="IGST Amount"
                 value={item.igst_amount}
@@ -654,7 +700,7 @@ const [items, setItems] = useState([
             
           {/* </div> */}
           <br/>
-          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Create</button>
+          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Update</button>
 
         </form>
       </div>
@@ -900,7 +946,7 @@ const Card = ({ shipment }) => {
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>JUPINT{shipment.iid}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{isShipped?"View":"Manage"}</div>
+          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
           {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
           {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
           </div>

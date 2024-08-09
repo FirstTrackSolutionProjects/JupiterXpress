@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-const FullDetails = () => {
+const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
 ]);
+  
 const handleDeleteDocket = (index) => {
   const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
     ...docket,
@@ -14,35 +15,64 @@ const handleDeleteDocket = (index) => {
 const handleAddDocket = () => {
   setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
 };
-  const [items, setItems] = useState([
-    { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
+const [items, setItems] = useState([
+  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
 ]);
+  useEffect(() => {
+    const getDockets = async () => {
+      await fetch('/.netlify/functions/getDockets',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ iid : shipment.iid })
+      })
+     .then(response => response.json()).then(result => {setDockets(result.dockets); console.log(result.dockets)})
+    }
+    const getItems = async () => {
+      await fetch('/.netlify/functions/getDocketItems',{
+        method : 'POST',
+        headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ iid : shipment.iid })
+      })
+     .then(response => response.json()).then(result => setItems(result.dockets))
+    }
+    getDockets()
+    getItems()
+  },[]);
   const [formData, setFormData] = useState({
-    wid : '',
-    contents : '',
-    serviceCode: 'MELBOURNE',
-    consigneeName : '',
-    consigneeCompany : '',
-    consigneeContact : '',
-    consigneeEmail : '',
-    consigneeAddress : '',
-    consigneeAddress2 : '',
-    consigneeAddress3: '',
-    consigneeCity : '',
-    consigneeState : '',
-    consigneeCountry : 'CA',
-    consigneeZipCode : '',
+    iid : shipment.iid,
+    wid : shipment.wid,
+    contents : shipment.contents,
+    serviceCode: shipment.service_code,
+    consigneeName : shipment.consignee_name,
+    consigneeCompany : shipment.consignee_company_name,
+    consigneeContact : shipment.consignee_contact_no,
+    consigneeEmail : shipment.consignee_email,
+    consigneeAddress : shipment.consignee_address_1,
+    consigneeAddress2 : shipment.consignee_address_2,
+    consigneeAddress3: shipment.consignee_address_3,
+    consigneeCity : shipment.consignee_city,
+    consigneeState : shipment.consignee_state,
+    consigneeCountry : shipment.consignee_country,
+    consigneeZipCode : shipment.consignee_zip_code,
     dockets : dockets,
     items : items,
-    actual_weight : '',
-    gst : '',
-    shippingType : 'CARGO',
-    price : ''
+    actual_weight : shipment.actual_weight,
+    gst : shipment.gst,
+    shippingType : shipment.shippingType,
+    price : 0
   })
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch('/.netlify/functions/getWarehouse',{
+      await fetch('/.netlify/functions/getAllWarehouse',{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -75,6 +105,12 @@ const handleAddDocket = () => {
       dockets: dockets
     }))
   };
+  useEffect(() => {
+    setFormData((prev)=>({
+      ...prev,
+      dockets: dockets
+    }))
+  },[dockets])
   const handleItems = (index, event) => {
     
     const { name, value } = event.target;
@@ -103,7 +139,36 @@ const handleAddDocket = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/.netlify/functions/createOrderInternational', {
+    console.log(formData)
+    let docketFlag = 0
+    for (let i = 0; i < formData.dockets.length; i++) {
+      for (let j = 0; j < formData.items.length; j++) {
+        if (parseInt(formData.items[j].box_no) == i+1){
+          docketFlag = 1
+        }
+      }
+      if (docketFlag == 0){
+        alert('Please make sure every docket has some items')
+        return
+      }
+      docketFlag = 0
+    }
+
+    let itemFlag = 0
+    for (let i = 0; i < formData.items.length; i++) {
+      for (let j = 0; j < formData.dockets.length; j++) {
+        if (formData.items[i].box_no == formData.dockets[j].box_no){
+          itemFlag = 1
+        }
+      }
+      if (itemFlag == 0){
+        alert('Some items have invalid box no.')
+        return
+      }
+      itemFlag = 0
+    }
+
+    fetch('/.netlify/functions/updateOrderInternational', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -114,7 +179,7 @@ const handleAddDocket = () => {
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          alert('Order created successfully')
+          alert('Order Updated successfully')
         } else {
           alert('Something Went Wrong, please try again')
         }
@@ -127,7 +192,7 @@ const handleAddDocket = () => {
   return (
     <>
       <div className="w-full p-4 flex flex-col items-center">
-        <div className="text-3xl font-medium text-center my-8">Enter Shipping Details</div>
+        <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
         <form action="" onSubmit={handleSubmit}>
         <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -146,7 +211,7 @@ const handleAddDocket = () => {
                   warehouses.map((warehouse, index) => (
                     <option value={warehouse.wid} >{warehouse.warehouseName}</option>
                   ) ) : null
-                }
+                } 
               </select>
             </div>
             
@@ -379,12 +444,12 @@ const handleAddDocket = () => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="shippingType">Shipment Type</label>
+              <label htmlFor="shipmentType">Shipment Type</label>
               <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="shippingType"
-                name="shippingType"
+                id="shipmentType"
+                name="shipmentType"
                 value={formData.shippingType}
                 onChange={handleChange}
               >
@@ -395,7 +460,7 @@ const handleAddDocket = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="gst">Seller GST</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="gst"
@@ -411,7 +476,7 @@ const handleAddDocket = () => {
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="actual_weight"
-                min={0}
+                min = {0}
                 name="actual_weight"
                 placeholder="Ex. 100"
                 value={formData.actual_weight}
@@ -426,6 +491,7 @@ const handleAddDocket = () => {
             <input required
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
+              min = {1}
               name="box_no"
               placeholder="Box Number"
               disabled
@@ -453,7 +519,7 @@ const handleAddDocket = () => {
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="length"
-              min={0}
+              min = {0}
               placeholder="Length"
               value={docket.length}
               onChange={(event) => handleDocket(index, event)}
@@ -466,7 +532,7 @@ const handleAddDocket = () => {
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="breadth"
-              min={0}
+              min = {0}
               placeholder="Breadth"
               value={docket.breadth}
               onChange={(event) => handleDocket(index, event)}
@@ -479,7 +545,7 @@ const handleAddDocket = () => {
               type="number"
               className="flex-1 border py-2 px-4 rounded-3xl"
               name="height"
-              min={0}
+              min = {0}
               placeholder="Height"
               value={docket.height}
               onChange={(event) => handleDocket(index, event)}
@@ -495,7 +561,7 @@ const handleAddDocket = () => {
         <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
           <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
               <label htmlFor="hscode">HS Code</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="hscode"
@@ -511,7 +577,6 @@ const handleAddDocket = () => {
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="box_no"
-                min={1}
                 name="box_no"
                 placeholder="Box no"
                 value={item.box_no}
@@ -523,8 +588,8 @@ const handleAddDocket = () => {
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
+                min={1}
                 id="quantity"
-                min={0}
                 name="quantity"
                 placeholder="Quantity"
                 value={item.quantity}
@@ -537,6 +602,7 @@ const handleAddDocket = () => {
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="rate"
+                min={0}
                 name="rate"
                 placeholder="Quantity"
                 value={item.rate}
@@ -573,9 +639,9 @@ const handleAddDocket = () => {
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
+                min={0}
                 id="unit_weight"
                 name="unit_weight"
-                min={0}
                 placeholder="Unit Weight"
                 value={item.unit_weight}
                 onChange={(e) => handleItems(index, e)}
@@ -587,8 +653,8 @@ const handleAddDocket = () => {
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="igst_amount"
+                min={0}
                 name="igst_amount"
-                min = {0}
                 placeholder="IGST Amount"
                 value={item.igst_amount}
                 onChange={(e) => handleItems(index, e)}
@@ -634,20 +700,443 @@ const handleAddDocket = () => {
             
           {/* </div> */}
           <br/>
-          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Create</button>
+          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Update</button>
 
         </form>
       </div>
     </>
-  )
-}
+    );
+  };
 
-const CreateOrderInternational = () => {
+// const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsShip}) => {
+//   const [isLoading, setIsLoading] = useState(false)
+//   const ship = async (serviceId,categoryId) => {
+//     setIsLoading(true)
+//     const price = docketsPrices.map((docketPrice,index)=> (
+//         docketPrice.filter((a => a.categoryId == categoryId && a.serviceId == serviceId))
+//     ))
+//     const getBalance = await fetch('/.netlify/functions/getBalance', {
+//       method: 'GET',
+//       headers : {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json',
+//         'Authorization': localStorage.getItem('token'),
+//       }
+//     })
+//     const balanceData = await getBalance.json();
+//     const balance = balanceData.balance;
+//     if ((parseFloat(balance) < parseFloat(price.price))){
+//       if (shipment.pay_method !== "topay"){
+//         alert('Insufficient balance')
+//         setIsLoading(false)
+//         return;
+//       }
+//     }
+//     console.log(dockets)
+//     for (let i = 0; i < dockets.length; i++) {
+//         if (!dockets[i].awb) {
+//             try {
+//                 const res = await fetch('/.netlify/functions/createDomesticInternational', {
+//                     method: 'POST',
+//                     headers: {
+//                         'Content-Type': 'application/json',
+//                         'Accept': 'application/json',
+//                         'Authorization': localStorage.getItem('token'),
+//                     },
+//                     body: JSON.stringify({
+//                         did: dockets[i].did,
+//                         price: price[i][0].price,
+//                         serviceId: serviceId,
+//                         categoryId: categoryId
+//                     })
+//                 });
+
+//                 const result = await res.json();
+
+//                 if (!result.success) {
+//                     console.log(result.message)
+//                     console.log(result.message.packages)
+//                     alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
+//                     setIsLoading(false)
+//                     return; // End the function (and thus the loop) on failure
+//                 }
+//             } catch (error) {
+//                 console.error('Error occurred:', error);
+//                 setIsLoading(false)
+//                 // Handle the error as needed
+//                 return; // End the function (and thus the loop) on error
+//             }
+//         }
+//     }
+//     await fetch('/.netlify/functions/createInternational',{
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json',
+//             'Authorization': localStorage.getItem('token'),
+//         },
+//         body: JSON.stringify({
+//             iid: shipment.iid
+//         })
+//     }).then(response => response.json()).then(result => {
+//       if (result.success){
+//         alert('Shipment created successfully')
+//         setIsLoading(false)
+//         setIsShipped(true)
+//         setIsShip(false)
+//       }
+//       else {
+//         alert('Failed to created shipment, try again')
+//         console.log(result.response)
+//         console.log(result.request)
+//         setIsLoading(false)
+//       }
+//     });
+    
+    
+//   }
+//   return (
+//     <>
+//        <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
+//           <div>{price.name+" "+price.weight}</div>
+//           <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship(price.serviceId,price.categoryId)}>{isLoading?"Shipping...":"Ship"}</div></div>
+//         </div>
+//     </>
+//   )
+// }
+
+// const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
+//     const [prices, setPrices] = useState([]);
+//     const [dockets, setDockets] = useState([]);
+//     const[docketsPrices, setDocketsPrices] = useState([]);
+//     useEffect(() => {
+//       const fetchDocketsAndPrices = async () => {
+//         try {
+//           const getDockets = await fetch('/.netlify/functions/getDockets', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//               'Accept': 'application/json',
+//               'Authorization': localStorage.getItem('token'),
+//             },
+//             body: JSON.stringify({ iid: shipment.iid }),
+//           });
+//           const docketsData = await getDockets.json();
+//           setDockets(docketsData.dockets);
+  
+//           if (docketsData.dockets) {
+//             const pricePromises = docketsData.dockets.map(async (docket) => {
+                
+//               if (!docket.awb){
+//                 const response = await fetch('/.netlify/functions/price', {
+//                     method: 'POST',
+//                     headers: {
+//                       'Accept': 'application/json',
+//                       'Content-Type': 'application/json',
+//                       'Authorization': localStorage.getItem('token'),
+//                     },
+//                     body: JSON.stringify({
+//                       method: shipment.shippingType === "Surface" ? "S" : "E",
+//                       status: "Delivered",
+//                       origin: shipment.pin,
+//                       dest: "110037",
+//                       weight: docket.docket_weight,
+//                       payMode: "Pre-paid",
+//                       codAmount: 0,
+//                       length: docket.length,
+//                       breadth: docket.breadth,
+//                       height: docket.height,
+//                     }),
+//                   });
+//                   const result = await response.json();
+//                   return result.prices;
+//               }
+              
+//             });
+  
+//             const pricesList = await Promise.all(pricePromises);
+//             setDocketsPrices(pricesList);
+//             console.log(docketsPrices)
+//             // Sum the prices while maintaining the structure
+//             const summedPrices = pricesList[0].map((item, index) => {
+//               const total = pricesList.reduce((acc, subarray) => {
+//                 return acc + subarray[index].price;
+//               }, 0);
+//               return {
+//                 ...item,
+//                 price: total,
+//               };
+//             });
+  
+//             setPrices(summedPrices);
+//           }
+//         } catch (err) {
+//           alert(err);
+//         }
+//       };
+  
+//       fetchDocketsAndPrices();
+//     }, []);
+  
+//     return (
+//       <>
+//         <div className="absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+//           <div className="absolute top-3 right-3" onClick={() => setIsShip(false)}>
+//             X
+//           </div>
+//           <div className="text-center text-3xl font-medium">
+//             CHOOSE YOUR DOMESTIC SERVICE (THIS WILL DELIVER YOUR SHIPMENT TO THE INTERNATIONAL SHIPMENT HUB)
+//           </div>
+//           <div className="w-full p-4">
+//             {prices && prices.length ? (
+//               prices.map((price, index) => (
+//                 <ShipCard
+//                   setIsShipped={setIsShipped}
+//                   setIsShip={setIsShip}
+//                   key={index}
+//                   shipment={shipment}
+//                   dockets={dockets}
+//                   docketsPrices={docketsPrices}
+//                   price={price}
+//                 />
+//               ))
+//             ) : null}
+//           </div>
+//         </div>
+//       </>
+//     );
+//   };
+  
+
+const Card = ({ shipment }) => {
+    const [isManage, setIsManage] = useState(false);
+    // const [isShip, setIsShip] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
+    const handleShip = async () => {
+      setIsLoading(true)
+      await fetch('/.netlify/functions/createInternational',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({
+            iid: shipment.iid
+        })
+    }).then(response => response.json()).then(result => {
+      if (result.success){
+        alert('Shipment created successfully')
+        setIsLoading(false)
+        setIsShipped(true)
+      }
+      else {
+        alert('Failed to created shipment, try again')
+        console.log(result.response)
+        console.log(result.request)
+        setIsLoading(false)
+      }
+    });
+    }
+    return (
+      <>
+        {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
+        
+        <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
+          <div>JUPINT{shipment.iid}</div>
+          <div className="absolute right-4 sm:right-8 flex space-x-2">
+          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
+          {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
+          {<div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
+          </div>
+        </div>
+        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>}
+      </>
+    );
+  };
+  const PickupRequest = ({setPickup}) => {
+    const [warehouses, setWarehouses] = useState([]);
+    useEffect(() => {
+      const getWarehouses = async () => {
+        const response = await fetch('/.netlify/functions/getWarehouse', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          }
+        });
+        const result = await response.json();
+        setWarehouses(result.rows);
+      };
+      getWarehouses();
+    }, []);
+    const [formData, setFormData] = useState({
+      wid : "",
+      pickDate : "",
+      pickTime : "",
+      packages : ""
+    })
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await fetch('/.netlify/functions/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body: JSON.stringify(formData)
+      }).then(response => response.json()).then(result => {
+        if (result.schedule.incoming_center_name){
+          alert("Pickup request sent successfully")
+        }
+        else if (result.schedule.prepaid){
+          alert("Pickup request failed due to low balance of owner")
+        }
+        else if (result.schedule.pr_exist){
+          alert("This time slot is already booked")
+        }
+        else {
+          alert("Please enter a valid date and time in future")
+        }
+      })
+    }
+    const handleChange =  (e) => {
+      const {name, value} = e.target;
+      setFormData({...formData, [name]: value });
+    }
+    return (
+      <>
+        <div className="fixed z-50 bg-[rgba(0,0,0,0.5)] inset-0 flex justify-center items-center">
+          <div className="relative p-8 bg-white">
+              <div className="absolute right-3 top-3" onClick={()=>setPickup(false)}>
+                x
+              </div>
+              <form action="" onSubmit={handleSubmit}>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="wid">Pickup Warehouse Name</label>
+              <select
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="wid"
+                name="wid"
+                placeholder="Warehouse Name"
+                value={formData.wid}
+                onChange={handleChange}
+              >
+                <option value="">Select Warehouse</option>
+                { warehouses.length ?
+                  warehouses.map((warehouse, index) => (
+                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
+                  ) ) : null
+                } 
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickDate">Pickup Date</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickDate"
+                name="pickDate"
+                placeholder="YYYY-MM-DD"
+                value={formData.pickDate}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="pickTime">Pickup Time</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="pickTime"
+                name="pickTime"
+                placeholder="HH:MM:SS (In 24 Hour Format)"
+                value={formData.pickTime}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="packages">No of packages</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                id="packages"
+                name="packages"
+                placeholder=""
+                value={formData.packages}
+                onChange={handleChange}
+              />
+            </div>
+            <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
+              </form>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+const Listing = ({ step, setStep }) => {
+    const [shipments, setShipments] = useState([])
+    const [pickup, setPickup] = useState(false);
+    useEffect(() => {
+
+        fetch('/.netlify/functions/getInternationalShipments', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': localStorage.getItem('token'),
+            },
+          })
+            .then(response => response.json())
+            .then(result => {
+              if (result.success) {
+                setShipments(result.order);
+              } else {
+                
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred during Order');
+            });
+    },[]);
+    return (
+      <>
+        <div
+          className={`w-full p-4 flex flex-col items-center space-y-6 ${
+            step == 0 ? "" : "hidden"
+          }`}
+        >
+          {pickup ? <PickupRequest setPickup={setPickup}/> : null}
+          <div className="w-full h-16 px-4  relative flex">
+            <div className="text-2xl font-medium">SHIPMENTS </div>
+            <div
+              onClick={()=>setPickup(true)}
+              className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
+            >
+              Pickup Request
+            </div>
+          </div>
+          <div className="w-full">
+            {shipments.map((shipment, index) => (
+              <Card key={index} shipment={shipment} />
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  };
+
+const UpdateOrderInternational = () => {
+  const [step, setStep] = useState(0)
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      <FullDetails />
+      {step==0 && <Listing step={step} setStep={setStep} />}
+      {/* <FullDetails /> */}
     </div>
   );
 };
 
-export default CreateOrderInternational;
+export default UpdateOrderInternational;

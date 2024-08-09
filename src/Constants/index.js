@@ -156,9 +156,21 @@ export const menuItems = [
         {
             icon : "logo.webp",
             name : "Shipment Reports",
-            isDropdown : false,
+            isDropdown : true,
             menuID : [9,4],
-            dropDownOptions : [{}]
+            dropDownOptions : [{
+                icon : "logo.webp",
+                name : "Domestic Reports",
+                isDropdown : false,
+                menuID : [9,4,0],
+                dropDownOptions : [{}]
+            },{
+                icon : "logo.webp",
+                name : "International Reports",
+                isDropdown : false,
+                menuID : [9,4,1],
+                dropDownOptions : [{}]
+            },]
         }]
     },
     // {

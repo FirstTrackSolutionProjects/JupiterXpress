@@ -1,7 +1,6 @@
-const mysql = require('mysql2/promise');
-const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const dbConfig = {
   host: process.env.DB_HOST,
@@ -10,163 +9,151 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
-let transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, 
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Secret key for JWT
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.handler = async (event) => {
-  const connection = await mysql.createConnection(dbConfig);
+  const token = event.headers.authorization;
+  if (!token) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Access Denied" }),
+    };
+  }
+
   try {
-    const token = event.headers.authorization;
     const verified = jwt.verify(token, SECRET_KEY);
     const id = verified.id;
-    const [users] = await connection.execute('SELECT * FROM USERS WHERE uid =?', [id]);
-    const email = users[0].email;
-    const {did,  price,serviceId , categoryId} = JSON.parse(event.body);
-    const [dockets] = await connection.execute('SELECT * FROM DOCKETS WHERE did = ? ', [did]);
-    const docket = dockets[0];
-    const [shipments] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS WHERE iid = ?',[docket.iid]) 
-    const shipment = shipments[0]
-    const [items] = await connection.execute('SELECT * FROM DOCKET_ITEMS WHERE did = ? ', [did]);
-    const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
-    const warehouse = warehouses[0]
-    const [systemCodes] = await connection.execute('SELECT * FROM SYSTEM_CODE_GENERATOR')
-    const refId = systemCodes[0].shipment_reference_id;
-    await connection.execute('UPDATE SYSTEM_CODE_GENERATOR SET shipment_reference_id = ? WHERE shipment_reference_id = ?', [parseInt(refId) + 1, refId]);
+    try {
+      const {
+        iid,
+        wid,
+        contents,
+        serviceCode,
+        consigneeName,
+        consigneeCompany,
+        consigneeContact,
+        consigneeEmail,
+        consigneeAddress,
+        consigneeAddress2,
+        consigneeAddress3,
+        consigneeCity,
+        consigneeState,
+        consigneeCountry,
+        consigneeZipCode,
+        dockets,
+        items,
+        gst,
+        shippingType,
+        actual_weight,
+        price
+      } = JSON.parse(event.body);
+      const connection = await mysql.createConnection(dbConfig);
 
-    // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
-    let total_amount = 0;
-    for (let i =0; i < items.length; i++) {
-      total_amount += (parseFloat(items[i].rate)*parseFloat(items[i].quantity))
-    }
-    let product_description = "";
-    for (let i = 0; i < items.length; i++) {
-      product_description += `${items[i].description} (${items[i].quantity}) (₹${items[i].rate})\n`
-    }
-    if (serviceId == "1") {
-      const res = await fetch(`https://track.delhivery.com/waybill/api/bulk/json/?count=1`, {
-        method : 'GET',
-        headers: {
-          "Content-Type" : "application/json",
-          "Accept" : "application/json",
-          'Authorization': `Token ${categoryId == "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId=="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId==3?'':''}`
+      try {
+        await connection.beginTransaction();
+        const [shipment] = await connection.execute(
+          `UPDATE INTERNATIONAL_SHIPMENTS SET
+  wid = ?,
+  contents = ?,
+  service_code = ?,
+  consignee_name = ?,
+  consignee_company_name = ?,
+  consignee_contact_no = ?,
+  consignee_email = ?,
+  consignee_address_1 = ?,
+  consignee_address_2 = ?,
+  consignee_address_3 = ?,
+  consignee_city = ?,
+  consignee_state = ?,
+  consignee_country = ?,
+  consignee_zip_code = ?,
+  shippingType = ?,
+  gst = ?,
+  shipping_price = ?,
+  actual_weight = ? WHERE iid = ?`,
+          [
+            wid,
+            contents,
+            serviceCode,
+            consigneeName,
+            consigneeCompany,
+            consigneeContact,
+            consigneeEmail,
+            consigneeAddress,
+            consigneeAddress2,
+            consigneeAddress3,
+            consigneeCity,
+            consigneeState,
+            consigneeCountry,
+            consigneeZipCode,
+            shippingType,
+            gst,
+            price,
+            actual_weight,
+            iid
+          ]
+        );
+        await connection.execute('DELETE FROM DOCKET_ITEMS WHERE iid = ?', [iid])
+        await connection.execute('DELETE FROM DOCKETS WHERE iid = ?', [iid])
+        for (let i = 0; i < dockets.length; i++) {
+          const [docket] = await connection.execute(
+            `INSERT INTO DOCKETS (box_no, iid, docket_weight, length, breadth, height ) VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              dockets[i].box_no,
+              iid,
+              dockets[i].docket_weight,
+              dockets[i].length,
+              dockets[i].breadth,
+              dockets[i].height,
+            ]
+          );
+          const did = docket.insertId;
+          const docketItems = items.filter(item => item.box_no == i + 1)
+          for (let j = 0; j < docketItems.length; j++) {
+            await connection.execute(
+              `INSERT INTO DOCKET_ITEMS (did, hscode, box_no, quantity, rate, description, unit, unit_weight, igst_amount, iid) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+              [
+                did,
+                docketItems[j].hscode,
+                docketItems[j].box_no,
+                docketItems[j].quantity,
+                docketItems[j].rate,
+                docketItems[j].description,
+                docketItems[j].unit,
+                docketItems[j].unit_weight,
+                docketItems[j].igst_amount,
+                iid
+              ]
+            );
+          }
         }
-      })
-      const waybill = await res.json()
-      let req = {
-        shipments: [],
-        pickup_location: {
-          name: warehouse.warehouseName,
-          add: warehouse.address,
-          pin_code: warehouse.pin,
-          phone: warehouse.phone,
-        }
+        await connection.commit();
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ success: true, message: "Order Updated" }),
+        };
+      } catch (error) {
+        return {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: error.message,
+            error: error.message,
+          }),
+        };
+      } finally {
+        await connection.end();
       }
-      req.shipments.push({
-        "name": "FlightGo",
-        "add": "Delhi",
-        "pin": "110037",
-        "city": "Delhi",
-        "state": "Delhi",
-        "country": "India",
-        "phone": "1234567890",
-        "order": `JUP${refId}`,
-        "payment_mode": "Pre-paid",
-        "return_pin": "",
-        "return_city": "",
-        "return_phone": "",
-        "return_add": "",
-        "return_state": "",
-        "return_country": "",
-        "products_desc": product_description,
-        "hsn_code": "",
-        "cod_amount": 0,
-        "order_date": shipment.invoice_date,
-        "total_amount": total_amount,
-        "seller_add": warehouse.address,
-        "seller_name": warehouse.warehouseName,
-        "seller_inv": "",
-        "quantity": "1",
-        "waybill": waybill,
-        "shipment_length" : docket.length,
-        "shipment_width": docket.breadth,
-        "shipment_height": docket.height,
-        "weight": docket.actual_weight,
-        "seller_gst_tin": shipment.gst,
-        "shipping_mode": shipment.shippingType,
-        "address_type": "Office"
-      })
-      
-      const formData = new URLSearchParams();
-      formData.append('format', 'json');
-      formData.append('data', JSON.stringify(req));
-
-    const responseDta = await fetch(`https://track.delhivery.com/api/cmu/create.json`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'Authorization': `Token ${categoryId == "2"?process.env.DELHIVERY_500GM_SURFACE_KEY:categoryId=="1"?process.env.DELHIVERY_10KG_SURFACE_KEY:categoryId==3?'':''}`
-      },
-      body : formData
-    })
-    const response = await responseDta.json()
-    if (response.success){
-      await connection.beginTransaction();
-      await connection.execute('UPDATE INTERNATIONAL_SHIPMENTS set serviceId = ?, categoryId = ? WHERE iid = ?', [serviceId, categoryId, docket.iid])
-      await connection.execute('UPDATE DOCKETS set awb = ? WHERE did = ?', [ response.packages[0].waybill , did])
-    //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
-      if (shipment.pay_method != "topay"){
-        await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [parseFloat(price), id]);
-        // await connection.execute('INSERT INTO EXPENSES (uid, expense_order, expense_cost) VALUES  (?,?,?)',[id, order, price])
-      }
-      await connection.commit();
-    }
-    else{
-    //   await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"FAILED"])
+    } catch (err) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ success : false, message : response}),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
+        body: JSON.stringify({ message: "Something went wrong" }),
       };
     }
-    let mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \nYour shipment request for Ref id : JUP${refId} is successfully created at Delhivery Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
-    };
-    await transporter.sendMail(mailOptions)
+  } catch (err) {
     return {
-      statusCode: 200,
-      body: JSON.stringify({response : response, success : true}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      statusCode: 400,
+      body: JSON.stringify({ message: "Invalid Token" }),
     };
-    }
-    
-  } catch (error) {
-    return {
-      statusCode: 504,
-      body: JSON.stringify({response : error, success : false}),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-    };
-  }  finally {
-    connection.end()
   }
 };

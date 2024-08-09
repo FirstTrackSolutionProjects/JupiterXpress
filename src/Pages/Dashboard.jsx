@@ -28,7 +28,7 @@ import UpdateOrderInternational from "../Components/UpdateOrderInternational"
 import KYCVerification from "../Components/KYCVerification"
 import KYCRequests from "../Components/KYCRequests"
 import { XIcon, MenuIcon } from "@heroicons/react/outline"
-
+import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -101,7 +101,8 @@ const Dashboard = () => {
                 {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
                 {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
                 {(menuID[0] == 9 && menuID[1] == 3) ? <AllParcels/> : null}
-                {(menuID[0] == 9 && menuID[1] == 4) ? <AllShipmentReports/> : null}
+                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 0) ? <AllShipmentReports/> : null}
+                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 1) ? <AllInternationalShipmentReports/> : null}
                 {(menuID[0] == 5) ? <NDR/> : null}
                 {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
                 {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }
