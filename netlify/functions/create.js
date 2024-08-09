@@ -136,17 +136,17 @@ exports.handler = async (event) => {
         },
       };
     }
-    let mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \n
-             Your shipment request for Order id : ${order} is successfully created at Delhivery Courier Service 
-             and the corresponding charge is deducted from your wallet.\n
-             Regards,\n
-             Jupiter Xpress`
-    };
-    await transporter.sendMail(mailOptions)
+    // let mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email, 
+    //   subject: 'Shipment created successfully',
+    //   text: `Dear Merchant, \n
+    //          Your shipment request for Order id : ${order} is successfully created at Delhivery Courier Service 
+    //          and the corresponding charge is deducted from your wallet.\n
+    //          Regards,\n
+    //          Jupiter Xpress`
+    // };
+    // await transporter.sendMail(mailOptions)
     return {
       statusCode: 200,
       body: JSON.stringify({response : response, success : true}),
