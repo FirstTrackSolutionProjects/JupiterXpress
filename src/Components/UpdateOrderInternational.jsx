@@ -925,8 +925,16 @@ const Card = ({ shipment }) => {
         body: JSON.stringify({
             iid: shipment.iid
         })
-    }).then(response => response.json()).then(result => {
+    }).then(response => response.json()).then(async result => {
       if (result.success){
+        await fetch('/.netlify/functions/internationalOrderMail', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': localStorage.getItem('token')
+          }
+        })
         alert('Shipment created successfully')
         setIsLoading(false)
         setIsShipped(true)

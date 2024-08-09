@@ -774,6 +774,14 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
     }).then(response => response.json()).then(async result => {
       if (result.success){
         setIsShipped(true)
+        await fetch('/.netlify/functions/domesticOrderMail',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          }
+        })
         alert("Your shipment has been created successfully")
         setIsLoading(false)
         setIsShip(false)

@@ -164,13 +164,13 @@ exports.handler = async (event) => {
         },
       };
     }
-    let mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email, 
-      subject: 'Shipment created successfully', 
-      text: `Dear Merchant, \nYour shipment request for Order id : JUPINT${iid} and AWB : ${response.data.awb_no} is successfully created at FlightGo Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
-    };
-    await transporter.sendMail(mailOptions)
+    // let mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email, 
+    //   subject: 'Shipment created successfully', 
+    //   text: `Dear Merchant, \nYour shipment request for Order id : JUPINT${iid} and AWB : ${response.data.awb_no} is successfully created at FlightGo Courier Service and the corresponding charge is deducted from your wallet.\nRegards,\nJupiter Xpress`
+    // };
+    // await transporter.sendMail(mailOptions)
     return {
       statusCode: 200,
       body: JSON.stringify({req: req, response : response, success : true, user: user}),
