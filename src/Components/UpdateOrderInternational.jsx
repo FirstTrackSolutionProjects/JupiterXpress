@@ -53,6 +53,7 @@ const [items, setItems] = useState([
     serviceCode: shipment.service_code,
     consigneeName : shipment.consignee_name,
     consigneeCompany : shipment.consignee_company_name,
+    countryCode : shipment.consignee_country_code,
     consigneeContact : shipment.consignee_contact_no,
     consigneeEmail : shipment.consignee_email,
     consigneeAddress : shipment.consignee_address_1,
@@ -281,6 +282,24 @@ const [items, setItems] = useState([
             
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
+              <label htmlFor="countryCode">Country Code</label>
+              <select required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="countryCode"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={handleChange}
+              >
+                <option value="+91">+91</option>
+                <option value="+61">+61</option>
+                <option value="+64">+64</option>
+                <option value="+971">+971</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+              </select>
+                </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeContact">Consignee Contact</label>
               <input required

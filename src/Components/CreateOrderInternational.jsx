@@ -24,6 +24,7 @@ const handleAddDocket = () => {
     consigneeName : '',
     consigneeCompany : '',
     consigneeContact : '',
+    countryCode : '+91',
     consigneeEmail : '',
     consigneeAddress : '',
     consigneeAddress2 : '',
@@ -216,7 +217,26 @@ const handleAddDocket = () => {
             
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+          <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
+              <label htmlFor="countryCode">Country Code</label>
+              <select required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="countryCode"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={handleChange}
+              >
+                <option value="+91">+91</option>
+                <option value="+61">+61</option>
+                <option value="+64">+64</option>
+                <option value="+971">+971</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+                <option value="+49">+49</option>
+              </select>
+                </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[250px] space-y-2">
               <label htmlFor="consigneeContact">Consignee Contact</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -226,7 +246,8 @@ const handleAddDocket = () => {
                 placeholder="Enter Customer Contact"
                 value={formData.consigneeContact}
                 onChange={handleChange}
-              />
+                />
+                </div>
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeEmail">Consignee Email</label>
               <input required
@@ -238,7 +259,6 @@ const handleAddDocket = () => {
                 value={formData.consigneeEmail}
                 onChange={handleChange}
               />
-            </div>
             </div>
             
           </div>
@@ -374,6 +394,7 @@ const handleAddDocket = () => {
                 <option value="GB">United Kingdom</option>
                 <option value="AE">UAE</option>
                 <option value="US">USA</option>
+                <option value="DE">Germany</option>
               </select>
             </div>
           </div>

@@ -31,6 +31,7 @@ exports.handler = async (event) => {
         serviceCode,
         consigneeName,
         consigneeCompany,
+        countryCode,
         consigneeContact,
         consigneeEmail,
         consigneeAddress,
@@ -59,6 +60,7 @@ exports.handler = async (event) => {
   service_code,
   consignee_name,
   consignee_company_name,
+  consignee_country_code,
   consignee_contact_no,
   consignee_email,
   consignee_address_1,
@@ -72,7 +74,7 @@ exports.handler = async (event) => {
   gst,
   shipping_price,
   actual_weight
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,  ?, ?, ?, ?)`,
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,  ?, ?, ?, ?, ?)`,
           [
             id,
             wid,
@@ -80,6 +82,7 @@ exports.handler = async (event) => {
             serviceCode,
             consigneeName,
             consigneeCompany,
+            countryCode,
             consigneeContact,
             consigneeEmail,
             consigneeAddress,
@@ -138,8 +141,7 @@ exports.handler = async (event) => {
           statusCode: 500,
           body: JSON.stringify({
             message: error.message + id,
-            orders: orders,
-            error: error.message,
+            error: error.message
           }),
         };
       } finally {
