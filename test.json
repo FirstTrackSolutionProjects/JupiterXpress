@@ -1,94 +1,644 @@
-{
-    "destination_code": "US",
-    "shipment_value": "100",
-    "actual_weight": "10",
-    "shipment_invoice_no": "ORDER123456",
-    "shipment_invoice_date": "2024-07-03",
-    "shipment_content": "Books",
-    "new_docket_free_form_invoice": "0",
-    "free_form_currency": "INR",
-    "terms_of_trade": "FOB",
-    "api_service_code": "VPUROPAID",
-    "shipper_name": "Aditya",
-    "shipper_company_name": "Jupiter Xpress",
-    "shipper_contact_no": "0123456789",
-    "shipper_email": "test@test.com",
-    "shipper_address_line_1": "Address 1",
-    "shipper_address_line_2": "Address 2",
-    "shipper_address_line_3": "Address 3",
-    "shipper_city": "Mumbai",
-    "shipper_state": "Maharashtra",
-    "shipper_country": "IN",
-    "shipper_zip_code": "400086",
-    "shipper_gstin_type": "Aadhaar Number",
-    "shipper_gstin_no": "123456781234",
-    "consignee_name": "TEST NAME",
-    "consignee_company_name": "TEST COMPANY NAME",
-    "consignee_contact_no": "9999999999",
-    "consignee_email": "test@test.com",
-    "consignee_address_line_1": "18 Greenbank Rd",
-    "consignee_address_line_2": "Chester",
-    "consignee_address_line_3": "",
-    "consignee_city": "Delhi",
-    "consignee_state": "Alberta",
-    "consignee_country": "CA",
-    "consignee_zip_code": "T4A",
-    "docket_items": [
+[
     {
-        "actual_weight": "5",
-        "length": "1",
-        "width": "1",
-        "height": "1",
-        "number_of_boxes": "1"
-    },
-    {
-        "actual_weight": "5",
-        "length": "1",
-        "width": "1",
-        "height": "1",
-        "number_of_boxes": "1"
+        "errors": false,
+        "tracking_no": "11791146826",
+        "chargeable_weight": "14.00",
+        "forwarding_no": "2012559612833241",
+        "forwarding_no2": "",
+        "pod_image": "",
+        "pod_signature": "",
+        "pcs": "1",
+        "item_data": "",
+        "forwarding_url": "",
+        "expected_datetime": null,
+        "job_no": "",
+        "docket_info": [
+            [
+                "AWB No.",
+                "11791146826"
+            ],
+            [
+                "Booking Date",
+                "2024-05-28"
+            ],
+            [
+                "Consignee Name",
+                "PRIYA BATRA"
+            ],
+            [
+                "Destination",
+                "CANADA"
+            ],
+            [
+                "Status",
+                "DELIVERED"
+            ],
+            [
+                "Delivery Date and Time",
+                "2024-06-24 16:56:19"
+            ],
+            [
+                "Receiver Name",
+                ""
+            ],
+            [
+                "Forwarding No.",
+                "2012559612833241"
+            ],
+            [
+                "Reason For Status",
+                ""
+            ],
+            [
+                "Origin",
+                "INDIA"
+            ],
+            [
+                "Origin_city",
+                ""
+            ],
+            [
+                "Destinantion_city",
+                ""
+            ],
+            [
+                "Consignee Company",
+                ""
+            ],
+            [
+                "Shipper Company",
+                "SAJAN"
+            ],
+            [
+                "Customer Name",
+                "JUPITER XPRESS"
+            ],
+            [
+                "Customer Code",
+                "1179"
+            ],
+            [
+                "Customer type id",
+                "2"
+            ],
+            [
+                "Customer type",
+                "Cocourier"
+            ],
+            [
+                "Customer Company Name",
+                "FLIGHTGO EXPRESS"
+            ],
+            [
+                "Total Awb Created By Customer",
+                "35"
+            ],
+            [
+                "Total Awb Delivered By Customer",
+                "23"
+            ],
+            [
+                "Service Name",
+                "CANADA PAID"
+            ],
+            [
+                "Shipper Name",
+                "SAJAN"
+            ],
+            [
+                "Shipper City",
+                "MALOUT"
+            ],
+            [
+                "Shipper State",
+                "PUNJAB"
+            ],
+            [
+                "Shipper Country",
+                "INDIA"
+            ],
+            [
+                "Consignee City",
+                "SUDBURY"
+            ],
+            [
+                "Consignee State",
+                "ON"
+            ],
+            [
+                "Consignee Country",
+                "CANADA"
+            ],
+            [
+                "Delivery Remark",
+                ""
+            ],
+            [
+                "Job Number",
+                ""
+            ],
+            [
+                "Service Code",
+                "CANADA PAID"
+            ]
+        ],
+        "inscan_date": [
+            "2024-05-29 18:50:09"
+        ],
+        "docket_events": [
+            {
+                "id": "1583006",
+                "docket_id": "40023",
+                "event_at": "2024-06-24 16:56:19",
+                "event_type": "API",
+                "event_description": "Delivered",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-25 18:43:37",
+                "updated_at": "2024-06-25 18:43:37",
+                "event_state": "delivered",
+                "event_remark": ""
+            },
+            {
+                "id": "1566830",
+                "docket_id": "40023",
+                "event_at": "2024-06-20 10:06:40",
+                "event_type": "API",
+                "event_description": "Item available for pickup at Post Office",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-21 16:56:26",
+                "updated_at": "2024-06-25 18:43:38",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1566832",
+                "docket_id": "40023",
+                "event_at": "2024-06-20 08:35:09",
+                "event_type": "API",
+                "event_description": "Notice card left indicating where and when to pick up item",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-21 16:56:27",
+                "updated_at": "2024-06-25 18:43:38",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1566834",
+                "docket_id": "40023",
+                "event_at": "2024-06-20 08:35:08",
+                "event_type": "API",
+                "event_description": "Item out for delivery",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-21 16:56:27",
+                "updated_at": "2024-06-25 18:43:38",
+                "event_state": "redrs",
+                "event_remark": ""
+            },
+            {
+                "id": "1566836",
+                "docket_id": "40023",
+                "event_at": "2024-06-20 07:58:24",
+                "event_type": "API",
+                "event_description": "Item out for delivery",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-21 16:56:27",
+                "updated_at": "2024-06-25 18:43:38",
+                "event_state": "redrs",
+                "event_remark": ""
+            },
+            {
+                "id": "1566838",
+                "docket_id": "40023",
+                "event_at": "2024-06-20 07:10:24",
+                "event_type": "API",
+                "event_description": "Item processed",
+                "event_location": "GARSON",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-21 16:56:28",
+                "updated_at": "2024-06-25 18:43:39",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1555207",
+                "docket_id": "40023",
+                "event_at": "2024-06-17 06:24:25",
+                "event_type": "API",
+                "event_description": "Item processed",
+                "event_location": "SUDBURY",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-18 18:56:23",
+                "updated_at": "2024-06-25 18:43:39",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1546202",
+                "docket_id": "40023",
+                "event_at": "2024-06-14 13:36:25",
+                "event_type": "API",
+                "event_description": "Item processed",
+                "event_location": "SUDBURY",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-15 16:00:43",
+                "updated_at": "2024-06-25 18:43:39",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1542772",
+                "docket_id": "40023",
+                "event_at": "2024-06-14 02:55:15",
+                "event_type": "API",
+                "event_description": "Item in transit",
+                "event_location": "MISSISSAUGA",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-14 15:08:09",
+                "updated_at": "2024-06-25 18:43:39",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1542774",
+                "docket_id": "40023",
+                "event_at": "2024-06-13 23:55:15",
+                "event_type": "API",
+                "event_description": "Item processed",
+                "event_location": "MISSISSAUGA",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-14 15:08:10",
+                "updated_at": "2024-06-25 18:43:40",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1536732",
+                "docket_id": "40023",
+                "event_at": "2024-06-12 09:52:00",
+                "event_type": "API",
+                "event_description": "Item in transit",
+                "event_location": "VANCOUVER",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-13 10:46:45",
+                "updated_at": "2024-06-25 18:43:40",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1525568",
+                "docket_id": "40023",
+                "event_at": "2024-06-10 16:52:00",
+                "event_type": "API",
+                "event_description": "Item was released by Customs and is now with Canada Post for processing",
+                "event_location": "VANCOUVER",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-11 12:24:06",
+                "updated_at": "2024-06-25 18:43:40",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1517622",
+                "docket_id": "40023",
+                "event_at": "2024-06-08 14:51:00",
+                "event_type": "API",
+                "event_description": "Item has been presented to Canada Border Services Agency for customs review.",
+                "event_location": "VANCOUVER",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-09 10:17:39",
+                "updated_at": "2024-06-25 18:43:40",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1503359",
+                "docket_id": "40023",
+                "event_at": "2024-06-06 19:45:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT ARRIVED AT AIRPORT TERMINAL",
+                "event_location": "VANCOUVER, CA",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-06 14:42:06",
+                "updated_at": "2024-06-06 14:42:16",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1503246",
+                "docket_id": "40023",
+                "event_at": "2024-06-06 05:41:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT IN TRANSIT TO DESTINATION",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-06 14:40:09",
+                "updated_at": "2024-06-06 14:40:16",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1506943",
+                "docket_id": "40023",
+                "event_at": "2024-06-06 00:00:00",
+                "event_type": "API",
+                "event_description": "Shipment arrived in Canada and will be presented for customs review",
+                "event_location": "",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-07 07:35:11",
+                "updated_at": "2024-06-25 18:43:40",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1497293",
+                "docket_id": "40023",
+                "event_at": "2024-06-05 09:22:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT IS WITH AIRLINE AND IS OFFLOADED DUE TO CARGO BACKLOG",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-05 11:23:28",
+                "updated_at": "2024-06-05 11:23:34",
+                "event_state": "",
+                "event_remark": ""
+            },
+            {
+                "id": "1485990",
+                "docket_id": "40023",
+                "event_at": "2024-06-03 08:56:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT IS WITH AIRLINE AND IS OFFLOADED DUE TO CARGO BACKLOG",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-03 11:57:43",
+                "updated_at": "2024-06-03 11:57:49",
+                "event_state": "",
+                "event_remark": ""
+            },
+            {
+                "id": "1478735",
+                "docket_id": "40023",
+                "event_at": "2024-06-01 00:16:09",
+                "event_type": "API",
+                "event_description": "Shipment departed from facility",
+                "event_location": "CA",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-01 01:45:56",
+                "updated_at": "2024-06-25 18:43:41",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1482680",
+                "docket_id": "40023",
+                "event_at": "2024-05-31 12:18:45",
+                "event_type": "API",
+                "event_description": "Electronic information submitted by shipper",
+                "event_location": "",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-06-02 03:01:29",
+                "updated_at": "2024-06-25 18:43:41",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1475924",
+                "docket_id": "40023",
+                "event_at": "2024-05-31 08:15:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT IS WITH AIRLINE AND IS OFFLOADED DUE TO CARGO BACKLOG",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-31 11:15:26",
+                "updated_at": "2024-05-31 11:15:32",
+                "event_state": "",
+                "event_remark": ""
+            },
+            {
+                "id": "1476539",
+                "docket_id": "40023",
+                "event_at": "2024-05-30 21:06:00",
+                "event_type": "MANIFEST",
+                "event_description": "SHIPMENT IS DEPARTED TO ORIGIN AIRPORT",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-31 13:56:37",
+                "updated_at": "2024-05-31 13:56:44",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1474089",
+                "docket_id": "40023",
+                "event_at": "2024-05-30 19:33:44",
+                "event_type": "API",
+                "event_description": "Shipment arrived at facility",
+                "event_location": "",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-30 19:47:26",
+                "updated_at": "2024-06-25 18:43:41",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1474091",
+                "docket_id": "40023",
+                "event_at": "2024-05-30 19:33:44",
+                "event_type": "API",
+                "event_description": "Shipment information received",
+                "event_location": "",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-30 19:47:27",
+                "updated_at": "2024-06-25 18:43:41",
+                "event_state": "in_transit",
+                "event_remark": ""
+            },
+            {
+                "id": "1473750",
+                "docket_id": "40023",
+                "event_at": "2024-05-30 19:11:25",
+                "event_type": "SYSTEM",
+                "event_description": "Shipment is ready for depart to origin Airport",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-30 19:11:25",
+                "updated_at": "2024-05-30 19:11:25",
+                "event_state": "manifest",
+                "event_remark": ""
+            },
+            {
+                "id": "1473252",
+                "docket_id": "40023",
+                "event_at": "2024-05-30 17:03:48",
+                "event_type": "SYSTEM",
+                "event_description": "Shipment is ready for Dispatch",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-30 17:03:48",
+                "updated_at": "2024-05-30 17:03:48",
+                "event_state": "shipment_dispatched",
+                "event_remark": ""
+            },
+            {
+                "id": "1467767",
+                "docket_id": "40023",
+                "event_at": "2024-05-29 18:50:09",
+                "event_type": "SYSTEM",
+                "event_description": "Shipment is under processing",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-29 18:50:09",
+                "updated_at": "2024-05-29 18:50:09",
+                "event_state": "in_scan",
+                "event_remark": ""
+            },
+            {
+                "id": "1467718",
+                "docket_id": "40023",
+                "event_at": "2024-05-29 18:45:25",
+                "event_type": "SYSTEM",
+                "event_description": "Shipment is received at Hub",
+                "event_location": "NEW DELHI",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-29 18:45:25",
+                "updated_at": "2024-05-29 18:45:25",
+                "event_state": "pick_up_scan",
+                "event_remark": ""
+            },
+            {
+                "id": "1457752",
+                "docket_id": "40023",
+                "event_at": "2024-05-28 19:48:44",
+                "event_type": "SYSTEM",
+                "event_description": "Label Created, But Shipment still not received at Hub",
+                "event_location": "MALOUT",
+                "add_city": "",
+                "add_state_or_province_code": "",
+                "add_postal_code": "",
+                "add_country_code": "",
+                "add_country_name": "",
+                "created_at": "2024-05-28 19:48:44",
+                "updated_at": "2024-05-28 19:48:44",
+                "event_state": "entry",
+                "event_remark": ""
+            }
+        ]
     }
-    ],
-    "free_form_line_items": [
-    {
-        "total": "50",
-        "no_of_packages": "1",
-        "box_no": "1",
-        "rate": "50",
-        "hscode": "456789",
-        "description": "Books",
-        "unit_of_measurement": "Pc",
-        "unit_weight": "1",
-        "igst_amount": "0.00"
-    },
-    {
-        "total": "50",
-        "no_of_packages": "1",
-        "box_no": "1",
-        "rate": "50",
-        "hscode": "456789",
-        "description": "Books",
-        "unit_of_measurement": "Pc",
-        "unit_weight": "1",
-        "igst_amount": "0.00"
-    }
-    ],
-    "multiple_invoice" : [
-          {
-              "mul_invoice_date" :"2023-12-18",
-              "mul_invoice_no" :"454323",
-              "mul_order_no" :"ORD2345",
-              "mul_currecny" :"INR",
-              "mul_invoice_amount" :"50.00",
-              "mul_eway_bill" :"EW45688"
-          },
-          {
-              "mul_invoice_date" :"2023-12-18",
-              "mul_invoice_no" :"454334",
-              "mul_order_no" :"ORD2344",
-              "mul_currecny" :"INR",
-              "mul_invoice_amount" :"20.00",
-              "mul_eway_bill" :"EW4558"
-          }
-    ]
-}
+]

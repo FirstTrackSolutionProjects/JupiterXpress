@@ -86,7 +86,7 @@ exports.handler = async (event) => {
         "products_desc": product_description,
         "hsn_code": (shipment.hsn)?(shipment.hsn):(""),
         "cod_amount": shipment.cod_amount,
-        "order_date": shipment.date,
+        "order_date": shipment.date.toISOString().split("T")[0],
         "total_amount": total_amount,
         "seller_add": warehouse.address,
         "seller_name": warehouse.warehouseName,
@@ -156,21 +156,43 @@ exports.handler = async (event) => {
       },
     };
     } else if (serviceId == '2'){
+      const loginPayload = {
+        grant_type: "client_credentials",
+        client_id: process.env.MOVIN_CLIENT_ID,
+        client_secret: process.env.MOVIN_CLIENT_SECRET,
+        Scope: `${process.env.MOVIN_SERVER_ID}/.default`,
+      };
+      const formBody = Object.entries(loginPayload).map(
+	        ([key, value]) =>
+	        encodeURIComponent(key) + "=" + encodeURIComponent(value)
+      ).join("&");
+      const login = await fetch(`https://login.microsoftonline.com/${process.env.MOVIN_TENANT_ID}/oauth2/v2.0/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body : formBody
+      })
+      const loginRes = await login.json()
+      const token = loginRes.access_token
       const req = {
-        communication_email : email,
-        shipment_unique_id : `JUP${refId}`,
+        communication_email : "xpressjupiter@gmail.com",
+        payload : [
+          {shipment : {
+            shipment_unique_id : `JUP${refId}`,
         shipment_type : 'Forward',
         forward_shipment_number : `JUP${refId}`,
-        ship_from_account : 0,
+        ship_from_account : process.env.MOVIN_ACCOUNT_NUMBER,
         ship_from_company : users[0].businessName,
         ship_from_address_line1 : warehouse.address,
         ship_from_address_line2 : warehouse.address,
         ship_from_address_line3 : warehouse.address,
         ship_from_zipcode : warehouse.pin,
-        ship_from_email : email,
+        ship_from_email : "xpressjupiter@gmail.com",
         ship_from_phone : users[0].phone,
-        shipment_date : shipment.date,
-        shipment_priority : 'Express Early Morning',
+        shipment_date : "2024-08-12",
+        shipment_priority : categoryId==1?'Express End of Day':'Standard Premium',
         ship_to_first_name : shipment.customer_name.split(" ")[0],
         ship_to_last_name : shipment.customer_name.split(" ")[1],
         ship_to_company : "Customer",
@@ -178,36 +200,38 @@ exports.handler = async (event) => {
         ship_to_address_line2 : shipment.shipping_address_2,
         ship_to_address_line3 : shipment.shipping_address_2,
         ship_to_zipcode : shipment.shipping_postcode,
-        ship_to_email : shipment.customer_email,
+        ship_to_email : "xpressjupiter@gmail.com",
         ship_to_phone : shipment.customer_mobile,
         package_type : 'Package',
         goods_general_description : product_description,
-        goods_value : total_amount,
+        goods_value : total_amount.toString(),
         bill_to : 'Shipper',
         include_insurance : 'No',
         email_notification : 'Yes',
         mobile_notification : 'Yes',
         add_adult_signature : 'Yes',
-        cash_on_delivery : shipment.pay_method=="Pre-paid"?"No":"Yes",
+        cash_on_delivery : shipment.pay_method=="Pre-paid"?"No":"Yes"
+          },
         package : [{
           "package_unique_id": "PACK_1",
-          "length": shipment.length,
-          "width" : shipment.breadth,
-          "height" : shipment.height,
-          "weight_actual" : shipment.weight,
+          "length": categoryId==1?30:36,
+          "width" : categoryId==1?30:36,
+          "height" : categoryId==1?30:36,
+          "weight_actual" : categoryId==1?5:10,
           "identical_package_count" : 1
-        }]
-      }
-      const responseDta = await fetch('https://newco-apim-test.azure-api.net/rest/v2/shipment/sync/create', {
+        }]}]}
+      const responseDta = await fetch('https://apim.iristransport.co.in/rest/v2/shipment/sync/create', {
         method : 'POST',
         headers : {
-          'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik1HTHFqOThWTkxvWGFGZnBKQ0JwZ0I0SmFLcyJ9.eyJhdWQiOiJmNzE0NDUwMS0xNDlhLTRiMzItYjViYy04ODU0MGNlYTJjNmYiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYmE0MTNmMjgtMzcxOS00ZmFiLWFlMWYtNDExZTU3Zjc0MDI3L3YyLjAiLCJpYXQiOjE3MjIzNDkxNjcsIm5iZiI6MTcyMjM0OTE2NywiZXhwIjoxNzIyMzUzMDY3LCJhaW8iOiJFMmRnWUFoeUVwMDVMYzQ4VU1USU40QzE3OW4wcDNOa0htNitOU2xoaDFpRDdQR09yVzRBIiwiYXpwIjoiMDE2YWMxMjEtOTJlZC00YzkwLTg4OGItYWJjZDZjYWMyYWQ5IiwiYXpwYWNyIjoiMSIsIm9pZCI6ImI5NzczYzM0LTk2NDktNGVhNC04YjIzLTliNzFjZTdhOWY1ZSIsInJoIjoiMC5BWEFBS0Q5QnVoazNxMC11SDBFZVZfZEFKd0ZGRlBlYUZESkx0YnlJVkF6cUxHOXdBQUEuIiwicm9sZXMiOlsiU2hpcG1lbnRDcmVhdGlvbiIsIlNoaXBtZW50VHJhY2tpbmciLCJFUE9ELUVTaWduIiwiUGlja3VwIl0sInN1YiI6ImI5NzczYzM0LTk2NDktNGVhNC04YjIzLTliNzFjZTdhOWY1ZSIsInRpZCI6ImJhNDEzZjI4LTM3MTktNGZhYi1hZTFmLTQxMWU1N2Y3NDAyNyIsInV0aSI6Im1VTmk3VmEzb0UyRVJEYkFwbVFBQUEiLCJ2ZXIiOiIyLjAifQ.NWmbeROfuPH6u0L6LP-GaREIgKZqiChAPIN9BzqQW35l8BH2r_hcKg2pHoXDkYYinVeQABj5dF654UjJiP_LhlegDKO2H4WZeM3-GCuGJL-hp-TQkfF1KW2uUjgG_qWdA5SP1nt0PPWD0R9svy8_Q2ELAdxDrO2Bg-7Q4th7_pjGjErYjaOVY97JjDaFyKVhmZkrbacdKzTG7J2Sqze6XOdMfX1sKK6ohalvaig9vmj2Us5VFxvjE1xvKSimbvpmbE0XMxfBIil-AuJxkpaf9JmfCUkZgnZzsCXficUVmjqfMaBrTxXgHdkSY4xZ7O9bS5v2uGr6kPiAx-BLfpjUBQ`,
-          'Ocp-Apim-Subscription-Key' : 'aa1aac985f6645d99fbbd641c861d207'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Ocp-Apim-Subscription-Key' : process.env.MOVIN_SUBSCRIPTION_KEY
         },
         body : JSON.stringify(req)
       })
       const response = await responseDta.json()
-    if (response.response.success){
+    if (response.status == 200){
       await connection.beginTransaction();
       await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.response.success[`JUP${refId}`].parent_shipment_number ,order])
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
@@ -220,7 +244,7 @@ exports.handler = async (event) => {
     else{
       return {
         statusCode: 200,
-        body: JSON.stringify({ success : false, message : response}),
+        body: JSON.stringify({ success : false, message : response, request:req}),
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'

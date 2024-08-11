@@ -770,7 +770,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
         'Accept': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-      body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: "1", categoryId: (price.name=="Delhivery Surface")?"1":"2"})
+      body: JSON.stringify({order : shipment.ord_id, price : shipment.pay_method=="topay"?0:Math.round(price.price), serviceId: price.serviceId, categoryId: price.categoryId})
     }).then(response => response.json()).then(async result => {
       if (result.success){
         setIsShipped(true)
@@ -782,13 +782,15 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
             'Authorization': localStorage.getItem('token'),
           }
         })
+        console.log(result)
         alert("Your shipment has been created successfully")
         setIsLoading(false)
         setIsShip(false)
+        
       }
       else{
         alert("Your shipment has not been created")
-        console.log(result.message)
+        console.log(result)
         setIsLoading(false)
       }
       });
@@ -901,7 +903,7 @@ const Card = ({ shipment }) => {
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
           {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
-          {isShipped && !isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
+          {isShipped && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
           </div>
         </div>
@@ -929,7 +931,8 @@ const Card = ({ shipment }) => {
       wid : "",
       pickDate : "",
       pickTime : "",
-      packages : ""
+      packages : "",
+      serviceId : ""
     })
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -958,7 +961,7 @@ const Card = ({ shipment }) => {
               <form action="" onSubmit={handleSubmit}>
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="wid">Pickup Warehouse Name</label>
-              <select
+              <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="wid"
@@ -976,8 +979,24 @@ const Card = ({ shipment }) => {
               </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="serviceId">Delivery Partner</label>
+              <select required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="serviceId"
+                name="serviceId"
+                value={formData.serviceId}
+                onChange={handleChange}
+              >
+               <option value="">Select Service</option>
+               <option value={"11"} >Delhivery (10Kg)</option>
+               <option value={"12"} >Delhivery (500gm)</option>
+               <option value={"21"} >Movin</option>
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="pickDate">Pickup Date</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="pickDate"
@@ -989,7 +1008,7 @@ const Card = ({ shipment }) => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="pickTime">Pickup Time</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="pickTime"
@@ -1001,7 +1020,7 @@ const Card = ({ shipment }) => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="packages">No of packages</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="packages"

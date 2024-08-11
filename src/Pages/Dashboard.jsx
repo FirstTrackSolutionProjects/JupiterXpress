@@ -29,6 +29,7 @@ import KYCVerification from "../Components/KYCVerification"
 import KYCRequests from "../Components/KYCRequests"
 import { XIcon, MenuIcon } from "@heroicons/react/outline"
 import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
+import InternationalReports from "../Components/InternationalReports"
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -100,10 +101,12 @@ const Dashboard = () => {
                 {(menuID[0] == 3 && menuID[1]==1) ? <UpdateOrderInternational/> : null}
                 {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
                 {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
-                {(menuID[0] == 9 && menuID[1] == 3) ? <AllParcels/> : null}
+                {(menuID[0] == 9 && menuID[1] == 3 && menuID[2] == 0) ? <AllParcels/> : null}
+                {(menuID[0] == 9 && menuID[1] == 3 && menuID[2] == 1) ? <AllInternationalShipmentReports/> : null}
                 {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 0) ? <AllShipmentReports/> : null}
-                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 1) ? <AllInternationalShipmentReports/> : null}
-                {(menuID[0] == 5) ? <NDR/> : null}
+                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 1) ? <InternationalReports/> : null}
+                {(menuID[0] == 5 && menuID[1] == 0) ? <NDR/> : null}
+                {(menuID[0] == 5 && menuID[1] == 1) ? <InternationalReports/> : null}
                 {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
                 {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }
                 {(menuID[0] == 6 && menuID[1] == 1) ? <ChangePassword/> : null}
