@@ -19,8 +19,8 @@ const Menu = ( ) => {
       <div className="flex flex-col justify-center p-4 space-y-6 bg-white text-black h-screen items-center">
         <img src="logo.webp" alt="" className='w-48' />
         {navItems.map((item, index) =>(
-          <div onClick={()=>toggleMenu()} className='w-full text-3xl text-medium text-center'>
-            <NavItem key={index} name={item.name} url={item.url}  />
+          <div onClick={item.isDropdown?()=>{}:()=>toggleMenu()} className='w-full text-3xl text-medium text-center'>
+            <NavItem key={index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} toggleMenu={toggleMenu}  />
           </div>
         ))}
 
