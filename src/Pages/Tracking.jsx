@@ -94,9 +94,8 @@ const MovinCard = ({scan}) => {
     return (
         <>
          <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
-                <div>{scan.event_at}</div>
-                <div>{scan.event_location}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+                <div>{scan.timestamp}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.package_status}</div>
             </div>
         </>
     )
@@ -114,6 +113,9 @@ const Result = ({data}) => {
                     )) : null}
                     {data?.id == 2 ? data?.data.docket_events.map((scan, index)=>(
                         <FlightGoCard key={index} scan={scan} />
+                    )): null}
+                    {data?.id == 3 ? data?.data.map((scan, index)=>(
+                        <MovinCard key={index} scan={scan} />
                     )): null}
             </div>
         

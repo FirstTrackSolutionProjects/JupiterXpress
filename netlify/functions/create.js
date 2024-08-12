@@ -233,7 +233,7 @@ exports.handler = async (event) => {
       const response = await responseDta.json()
     if (response.status == 200){
       await connection.beginTransaction();
-      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.response.success[`JUP${refId}`].parent_shipment_number ,order])
+      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.response.success[`JUP${refId}`].parent_shipment_number[0] ,order])
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)',[refId,order,"SHIPPED"])
       if (shipment.pay_method != "topay"){
         await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
