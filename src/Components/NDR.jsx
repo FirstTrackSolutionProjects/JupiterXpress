@@ -1,31 +1,8 @@
 import { useEffect, useState } from "react";
 
-const View  = ({report, setIsView}) => {
-  const [status, setStatus] = useState(null)
-  useEffect(() => {
-    
-    const getReport = async () => {
-      const response = await fetch('/.netlify/functions/getReport', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': localStorage.getItem('token'),
-        },
-        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId : report.categoryId })
-      })
-      const data = await response.json();
-      setStatus(data.data);
-    }
-    getReport();
-  },[])
+const DelhiveryCard = ({report, status}) => {
   return (
-    <>
-      <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
-          <div className="bg-white p-4  border">
-            <div onClick={()=>setIsView(false)}>X</div>
-            {
-              status ? <div>
+    <div>
               <p>AWB : {report.awb}</p>
               <p>Ref Id: JUP{report.ref_id}</p>
               <p>Status : {status.Status.Status}</p>
@@ -43,7 +20,53 @@ const View  = ({report, setIsView}) => {
                   )
               })
               }
-            </div> : "Loading..."
+            </div>
+  )
+}
+
+const MovinCard = ({report, status}) => {
+  return (
+    <div>
+              <p>AWB : {report.awb}</p>
+              { status.length  ?
+                (status).map((scan,index)=> {
+                  <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.timestamp}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.package_status}</div>
+            </div> 
+              }) : "Shipment is not yet picked up"
+              }
+            </div>
+  )
+}
+
+const View  = ({report, setIsView}) => {
+  const [status, setStatus] = useState(null)
+  useEffect(() => {
+    
+    const getReport = async () => {
+      const response = await fetch('/.netlify/functions/getReport', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId : report.categoryId })
+      })
+      const data = await response.json();
+      setStatus(data.data);
+      console.log(report);
+    }
+    getReport();
+  },[])
+  return (
+    <>
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
+          <div className="bg-white p-4  border">
+            <div onClick={()=>setIsView(false)}>X</div>
+            {
+              status ? report.serviceId == 1 ? <DelhiveryCard report={report} status={status}/> : <MovinCard report={report} status={status}/> : "Loading..."
             }
           </div>
       </div>

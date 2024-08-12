@@ -80,13 +80,13 @@ exports.handler = async (event) => {
     })
     const loginRes = await login.json()
     const movinToken = loginRes.access_token
-    const response4 = await fetch(`https://newco-apim-test.azure-api.net/rest/v2/order/track`, {
+    const response4 = await fetch(`https://apim.iristransport.co.in/rest/v2/order/track`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key' : process.env.MOVIN_SUBSCRIPTION_KEY,
-        'Authorization': `Bearer ${movinToken}`
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${movinToken}`,
+          'Ocp-Apim-Subscription-Key' : process.env.MOVIN_SUBSCRIPTION_KEY
       },
       body: JSON.stringify({"tracking_numbers": [awb]}),
     });
@@ -110,12 +110,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: "Not Found" }),
     };
     
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    };
-  } finally { 
+  }  finally { 
     await connection.end();
   }
 };
