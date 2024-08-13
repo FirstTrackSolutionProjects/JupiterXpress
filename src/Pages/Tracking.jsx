@@ -4,8 +4,7 @@ import Footer from '../Components/Footer'
 
 const Form = () => {
     const [formData,setFormData] = useState({
-        id : '',
-        isWaybill : true
+        awb : ''
     })
 
     useEffect(() => {
@@ -45,7 +44,7 @@ const Form = () => {
                     <div className='text-center text-3xl font-medium'>Track your Parcel</div>
                     
         <form className="flex flex-col items-center  space-y-8" onSubmit={handleSubmit}>
-            <div className='flex space-x-8'>
+            {/* <div className='flex space-x-8'>
 
             <div className='flex space-x-1'>
             <input type="radio" id='awb' name='isWaybill' checked value={true} onChange={handleChange} />
@@ -55,9 +54,9 @@ const Form = () => {
             <input type="radio" id='order' name='isWaybill' value={false} onChange={handleChange} />
             <label htmlFor="order">Order Id</label>
             </div>
-            </div>
+            </div> */}
             <div className='flex'>
-            <input type="text" name="id" value={formData.id} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id" />
+            <input type="text" name="awb" value={formData.id} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
             <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50">Track</button>
             </div>
         </form>

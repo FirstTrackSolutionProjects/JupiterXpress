@@ -10,11 +10,8 @@ const dbConfig = {
 exports.handler = async (event) => {
   const connection = await mysql.createConnection(dbConfig);
   try {
-    const { id } = JSON.parse(event.body);
-    const [shipments] = await connection.execute("SELECT * FROM SHIPMENTS WHERE ord_id = ?", [id])
-    const shipment = shipments[0];
-    const awb = shipment.awb;
-    const response1 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${id}`, {
+    const { awb } = JSON.parse(event.body);
+    const response1 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${awb}`, {
       headers: {
         'Authorization': `Token ${process.env.DELHIVERY_500GM_SURFACE_KEY}`,
         'Accept': 'application/json',
@@ -31,7 +28,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const response2 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${id}`, {
+    const response2 = await fetch(`https://track.delhivery.com/api/v1/packages/json/?waybill=${awb}`, {
       headers: {
         'Authorization': `Token ${process.env.DELHIVERY_10KG_SURFACE_KEY}`,
         'Accept': 'application/json',
