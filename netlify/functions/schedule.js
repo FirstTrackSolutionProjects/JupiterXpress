@@ -515,7 +515,7 @@ exports.handler = async (event) => {
           "account": process.env.MOVIN_ACCOUNT_NUMBER,
           "pickup_date":pickDate,
           "pickup_time_start": pickTime,
-          "service_type": "Standard Premium",
+          "service_type": serviceId[1] == 1?"Standard Premium":"Express End of Day",
           "address_first_name": "Jupiter",
           "address_last_name": "Xpress",
           "address_email": "xpressjupiter@gmail.com",
