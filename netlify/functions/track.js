@@ -44,18 +44,22 @@ exports.handler = async (event) => {
         body: JSON.stringify({ data: data2, success: true, id : 1 }),
       };
     }
-    const response3 = await fetch(`http://admin.flightgo.in/api/tracking_api/get_tracking_data?api_company_id=24&customer_code=1179&tracking_no=${awb}`, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-    const data3 = await response3.json();
-    if (!data3[0].errors) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ data: data3[0], success: true, id : 2 }),
-      };
+    try {
+      const response3 = await fetch(`http://admin.flightgo.in/api/tracking_api/get_tracking_data?api_company_id=24&customer_code=1179&tracking_no=${awb}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      const data3 = await response3.json();
+      if (!data3[0].errors) {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ data: data3[0], success: true, id : 2 }),
+        };
+      }
+    } catch (err) {
+      
     }
     const loginPayload = {
       grant_type: "client_credentials",
