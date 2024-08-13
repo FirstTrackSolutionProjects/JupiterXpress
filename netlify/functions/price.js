@@ -29,8 +29,8 @@ exports.handler = async (event, context) => {
                          "Kerala",
                          "Chandigarh,Delhi,Haryana,Himachal pradesh,Punjab , Uttarakhand , Uttar Pradesh", 
                          "Assam,Arunachal Pradesh,Manipur, Meghalaya ,Mizoram, Nagaland ,Sikkim ,Tripura ", 
-                         "Andhra Pradesh ,Karnataka , Puducherry, Tamil Nadu , Telangana", 
-                         "Dadra & Nager Haveli,Daman& Dia, GOA, Gujarat ,Maharashtra , Rajasthan"]
+                         "Andhra Pradesh ,Karnataka , Pondicherry, Tamil Nadu , Telangana", 
+                         "Dadra & Nagar Haveli,Daman & Diu, GOA, Gujarat ,Maharashtra , Rajasthan"]
     const movinPrices =       { 'S':
                                 [[6.5,9,8,12,9,8,12,8,8],
                                 [9,8,8,15,13,11,11,11,12],
@@ -67,7 +67,7 @@ exports.handler = async (event, context) => {
     }
     let j = 0;
     for (j = 0; j < movinRegion.length; j++) {
-      if ((movinRegion[i].toLowerCase()).includes((destState.toLowerCase()))){
+      if ((movinRegion[j].toLowerCase()).includes((destState.toLowerCase()))){
         break;
       }
     }
