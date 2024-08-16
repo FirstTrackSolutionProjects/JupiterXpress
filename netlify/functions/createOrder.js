@@ -27,8 +27,6 @@ exports.handler = async (event) => {
     try {
       let {
         wid,
-        order,
-        date,
         payMode,
         name,
         email,
@@ -50,13 +48,10 @@ exports.handler = async (event) => {
         Bstate,
         Bcountry,
         same,
+        boxes,
         orders,
         discount,
         cod,
-        weight,
-        length,
-        breadth,
-        height,
         gst,
         Cgst,
         shippingType
@@ -77,11 +72,13 @@ exports.handler = async (event) => {
 
       try {
         await connection.beginTransaction();
+        const [orderIds] = await connection.execute("SELECT domestic_order_ids FROM SYSTEM_CODE_GENERATOR");
+        const order = `JUPXD${orderIds[0].domestic_order_ids}`;
+        await connection.execute("UPDATE SYSTEM_CODE_GENERATOR SET domestic_order_ids = domestic_order_ids + 1")
         await connection.execute(
           `INSERT INTO SHIPMENTS (
   uid,
   ord_id,
-  ord_date,
   pay_method,
   customer_name,
   customer_email,
@@ -104,20 +101,15 @@ exports.handler = async (event) => {
   billing_postcode,
   cod_amount,
   total_discount,
-  length,
-  breadth,
-  height,
-  weight,
   gst,
   customer_gst,
   wid,
   same,
   shipping_mode
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?)`,
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?)`,
           [
             id,
             order,
-            date,
             payMode,
             name,
             email,
@@ -140,10 +132,6 @@ exports.handler = async (event) => {
             Bpostcode,
             cod,
             discount,
-            length,
-            breadth,
-            height,
-            weight,
             gst,
             Cgst,
             wid,
@@ -151,17 +139,31 @@ exports.handler = async (event) => {
             shippingType
           ]
         );
-        for (let i = 0; i < orders.length; i++) {
+        for (let i = 0; i < boxes.length; i++) {
           await connection.execute(
-            `INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO SHIPMENT_PACKAGES (ord_id, box_no, length, breadth, height, weight) VALUES (?, ?, ?, ?, ?, ?)`,
             [
               order,
-              orders[i].master_sku,
+              boxes[i].box_no,
+              boxes[i].length,
+              boxes[i].breadth,
+              boxes[i].height,
+              boxes[i].weight
+            ]
+          );
+        }
+        for (let i = 0; i < orders.length; i++) {
+          await connection.execute(
+            `INSERT INTO ORDERS VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              order,
+              orders[i].box_no,
+              null,
               orders[i].product_name,
               orders[i].product_quantity,
               orders[i].tax_in_percentage,
               orders[i].selling_price,
-              orders[i].discount,
+              null
             ]
           );
         }
@@ -170,7 +172,8 @@ exports.handler = async (event) => {
           statusCode: 200,
           body: JSON.stringify({ success: true, message: "Details Submitted" }),
         };
-      } catch (error) {
+      } 
+      catch (error) {
         return {
           statusCode: 500,
           body: JSON.stringify({
@@ -179,19 +182,24 @@ exports.handler = async (event) => {
             error: error.message,
           }),
         };
-      } finally {
+      } 
+      finally {
         await connection.end();
       }
-    } catch (err) {
+    } 
+    catch (err) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: "Something went wrong" }),
       };
     }
-  } catch (err) {
+    // finally{}
+  } 
+  catch (err) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid Token" }),
     };
   }
+  // finally{}
 };

@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
   wid: z.string().min(1, "Pickup Warehouse Name is required"),
-  order: z.string().min(1, "Order ID is required"),
-  date: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Invalid date format (DD/MM/YYYY)"),
+  // order: z.string().min(1, "Order ID is required"),
+  // date: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Invalid date format (DD/MM/YYYY)"),
   payMode: z.enum(['COD', 'Pre-paid', 'topay']),
   name: z.string().min(1, "Buyer's name is required"),
   email: z.string().email("Invalid email address"),
@@ -30,7 +30,9 @@ const schema = z.object({
   Bcountry: z.string().optional(),
   orders: z.array(
     z.object({
-      master_sku: z.string().min(1, "Required"),
+      box_no: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Box no. must be at least 1")),
       product_name: z.string().min(1, "Product name is required"),
       product_quantity: z.preprocess(
         (a) => parseInt(a, 10),
@@ -38,12 +40,28 @@ const schema = z.object({
       selling_price: z.preprocess(
         (a) => parseInt(a, 10),
         z.number().min(0, "Price must be a non-negative number")),
-      discount: z.preprocess(
-        (a) => parseInt(a, 10),
-        z.number().min(0, "Discount must be a non-negative number")),
       tax_in_percentage: z.preprocess(
         (a) => parseInt(a, 10),
         z.number().min(0, "Tax must be a positive number")),
+    })
+  ),
+  boxes: z.array(
+    z.object({
+      box_no: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Box no. must be at least 1")),
+      length: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Length must be at greater than 0")),
+      breadth: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Breadth must be at greater than 0")),
+      height: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Height must be at greater than 0")),
+      weight: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Weight must be at greater than 0"))
     })
   ),
   discount: z.preprocess(
@@ -53,24 +71,11 @@ const schema = z.object({
     (a) => parseInt(a, 10),
     z.number().min(0, "COD must be a positive number")),
   shippingType: z.enum(['Surface', 'Express']),
-  weight: z.preprocess(
-    (a) => parseInt(a, 10),
-    z.number().min(1,"Must be positive")),
-  length: z.preprocess(
-    (a) => parseInt(a, 10),
-    z.number().min(1,"Must be positive")),
-  breadth: z.preprocess(
-    (a) => parseInt(a, 10),
-    z.number().min(1,"Must be positive")),
-  height: z.preprocess(
-    (a) => parseInt(a, 10),
-    z.number().min(1,"Must be positive")),
   gst: z.string(),
   Cgst: z.string().optional(),
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
-  
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -83,11 +88,8 @@ const FullDetails = () => {
       BaddressType : "home",
       BaddressType2 : "office",
       shippingType : "Surface",
-      height : 0,
-      weight : 0,
-      length : 0,
-      breadth : 0,
-      orders: [{ master_sku: '', product_name: '', product_quantity: 0, selling_price: 0, discount: 0, tax_in_percentage: 0 }]
+      orders: [{ box_no: '1', product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: 0 }],
+      boxes: [{ box_no: 1, length : 0, breadth : 0, height : 0, weight : 0}]
     }
   });
   useEffect(() => {
@@ -97,6 +99,11 @@ const FullDetails = () => {
     control,
     name: 'orders'
   });
+  const boxes = useFieldArray({
+    control,
+    name: 'boxes'
+  });
+  
 
   useEffect(() => {
     const getWarehouses = async () => {
@@ -115,6 +122,33 @@ const FullDetails = () => {
   }, []);
 
   const onSubmit = async (data) => {
+    let boxFlag = 0
+    for (let i = 0; i < data.boxes.length; i++) {
+      for (let j = 0; j < data.orders.length; j++) {
+        if (parseInt(data.orders[j].box_no) == i+1){
+          boxFlag = 1
+        }
+      }
+      if (boxFlag == 0){
+        alert('Please make sure every box has some items')
+        return
+      }
+      boxFlag = 0
+    }
+
+    let itemFlag = 0
+    for (let i = 0; i < data.orders.length; i++) {
+      for (let j = 0; j < data.boxes.length; j++) {
+        if (data.orders[i].box_no == data.boxes[j].box_no){
+          itemFlag = 1
+        }
+      }
+      if (itemFlag == 0){
+        alert('Some items have invalid box no.')
+        return
+      }
+      itemFlag = 0
+    }
     try {
       const response = await fetch('/.netlify/functions/createOrder', {
         method: 'POST',
@@ -160,7 +194,7 @@ const FullDetails = () => {
           </div>
         </div>
         
-        <div className="w-full flex mb-2 flex-wrap">
+        {/* <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="order">Order Id</label>
             <input
@@ -183,7 +217,7 @@ const FullDetails = () => {
             />
             {errors.date && <span className='text-red-500'>{errors.date.message}</span>}
           </div>
-        </div>
+        </div> */}
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="payMode">Payment Method</label>
@@ -448,19 +482,88 @@ const FullDetails = () => {
           <div className="w-full mb-2">
             <div className="text-2xl font-medium">Order Details</div>
           </div>
-          {fields.map((field, index) => (
+          {boxes.fields.map((field, index) => (
             <div key={field.id} className="w-full flex mb-2 flex-wrap">
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor={`orders[${index}].master_sku`}>Product/Serial No.</label>
+              <div className="flex-1 mx-2 mb-2  space-y-2">
+                <label htmlFor={`boxes[${index}].box_no`}>Box No.</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  id={`orders[${index}].master_sku`}
-                  {...register(`orders[${index}].master_sku`)}
+                  id={`boxes[${index}].box_no`}
+                  value = {index+1}
+                  disabled
+                  {...register(`boxes[${index}].box_no`)}
                 />
-                {errors.orders?.[index]?.master_sku && <span className='text-red-500'>{errors.orders[index].master_sku.message}</span>}
+                {errors.boxes?.[index]?.box_no && <span className='text-red-500'>{errors.boxes?.[index]?.box_no.message}</span>}
               </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <div className="flex-1 mx-2 mb-2 space-y-2">
+                <label htmlFor={`boxes[${index}].length`}>Length (in cm)</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`boxes[${index}].length`}
+                  {...register(`boxes[${index}].length`)}
+                />
+                {errors.boxes?.[index]?.length && <span className='text-red-500'>{errors.boxes?.[index]?.length.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2  space-y-2">
+                <label htmlFor={`boxes[${index}].breadth`}>Width (in cm)</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`boxes[${index}].breadth`}
+                  {...register(`boxes[${index}].breadth`)}
+                />
+                {errors.boxes?.[index]?.breadth && <span className='text-red-500'>{errors.boxes?.[index]?.breadth.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2 space-y-2">
+                <label htmlFor={`boxes[${index}].height`}>Height (in cm)</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`boxes[${index}].height`}
+                  {...register(`boxes[${index}].height`)}
+                />
+                {errors.boxes?.[index]?.height && <span className='text-red-500'>{errors.boxes?.[index]?.height.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2  space-y-2">
+                <label htmlFor={`boxes[${index}].length`}>Weight (in g)</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`boxes[${index}].weight`}
+                  {...register(`boxes[${index}].weight`)}
+                />
+                {errors.boxes?.[index]?.weight && <span className='text-red-500'>{errors.boxes?.[index]?.weight.message}</span>}
+              </div>
+              {watch('boxes').length > 1 ? <div className="w-full text-right">
+                <button type="button" className="text-red-500" onClick={() => boxes.remove(index)}>Remove</button>
+              </div> : null}
+            </div>
+          ))}
+          <div className="w-full text-right">
+            <button
+              type="button"
+              className="bg-blue-500 text-white px-4 py-2 rounded-3xl"
+              onClick={() => boxes.append({ box_no: watch('boxes').length, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
+            >
+              Add Boxes
+            </button>
+          </div>
+          {fields.map((field, index) => (
+            <div key={field.id} className="w-full flex mb-2 flex-wrap">
+              <div className="flex-1 mx-2 mb-2  max-w-[150px] min-w-[150px] space-y-2">
+                <label htmlFor={`orders[${index}].box_no`}>Box No</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`orders[${index}].box_no`}
+                  defaultValue={1}
+                  {...register(`orders[${index}].box_no`)}
+                />
+                {errors.orders?.[index]?.box_no && <span className='text-red-500'>{errors.orders[index].box_no.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[200px] space-y-2">
                 <label htmlFor={`orders[${index}].product_name`}>Product Name</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
@@ -470,7 +573,7 @@ const FullDetails = () => {
                 />
                 {errors.orders?.[index]?.product_name && <span className='text-red-500'>{errors.orders[index].product_name.message}</span>}
               </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <div className="flex-1 mx-2 mb-2 max-w-[150px] min-w-[150px] space-y-2">
                 <label htmlFor={`orders[${index}].product_quantity`}>Quantity</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
@@ -480,8 +583,8 @@ const FullDetails = () => {
                 />
                 {errors.orders?.[index]?.product_quantity && <span className='text-red-500'>{errors.orders[index].product_quantity.message}</span>}
               </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor={`orders[${index}].selling_price`}>Selling Price</label>
+              <div className="flex-1 mx-2 mb-2 max-w-[150px] min-w-[150px] space-y-2">
+                <label htmlFor={`orders[${index}].selling_price`}>Price</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="number"
@@ -490,18 +593,8 @@ const FullDetails = () => {
                 />
                 {errors.orders?.[index]?.selling_price && <span className='text-red-500'>{errors.orders[index].selling_price.message}</span>}
               </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor={`orders[${index}].discount`}>Discount</label>
-                <input
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="number"
-                  id={`orders[${index}].discount`}
-                  {...register(`orders[${index}].discount`)}
-                />
-                {errors.orders?.[index]?.discount && <span className='text-red-500'>{errors.orders[index].discount.message}</span>}
-              </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor={`orders[${index}].tax_in_percentage`}>Tax Percentage</label>
+              <div className="flex-1 mx-2 mb-2 max-w-[150px] min-w-[150px] space-y-2">
+                <label htmlFor={`orders[${index}].tax_in_percentage`}>Tax (in %)</label>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="number"
@@ -510,16 +603,16 @@ const FullDetails = () => {
                 />
                 {errors.orders?.[index]?.tax_in_percentage && <span className='text-red-500'>{errors.orders[index].tax_in_percentage.message}</span>}
               </div>
-              <div className="w-full text-right">
+              {watch('orders').length > 1 ? <div className="w-full text-right">
                 <button type="button" className="text-red-500" onClick={() => remove(index)}>Remove</button>
-              </div>
+              </div> : null}
             </div>
           ))}
           <div className="w-full text-right">
             <button
               type="button"
               className="bg-blue-500 text-white px-4 py-2 rounded-3xl"
-              onClick={() => append({ master_sku: '', product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
+              onClick={() => append({ box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
             >
               Add Product
             </button>
@@ -561,50 +654,11 @@ const FullDetails = () => {
             </select>
             {errors.shippingType && <span className='text-red-500'>{errors.shippingType.message}</span>}
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="weight">Weight (In g) </label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="weight"
-              {...register("weight")}
-            />
-            {errors.weight && <span className='text-red-500'>{errors.weight.message}</span>}
-          </div>
+         
         </div>
+       
         <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="length">Length (In cm)</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="length"
-              {...register("length")}
-            />
-            {errors.length && <span className='text-red-500'>{errors.length.message}</span>}
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="breadth">Breadth (In cm)</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="breadth"
-              {...register("breadth")}
-            />
-            {errors.breadth && <span className='text-red-500'>{errors.breadth.message}</span>}
-          </div>
-        </div>
-        <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="height">Height (In cm)</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="height"
-              {...register("height")}
-            />
-            {errors.height && <span className='text-red-500'>{errors.height.message}</span>}
-          </div>
+         
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="gst">Seller GSTIN</label>
             <input

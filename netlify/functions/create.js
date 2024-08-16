@@ -32,6 +32,7 @@ exports.handler = async (event) => {
     const {order,  price,serviceId , categoryId} = JSON.parse(event.body);
     const [shipments] = await connection.execute('SELECT * FROM SHIPMENTS WHERE ord_id = ? ', [order]);
     const shipment = shipments[0];
+    const [boxes] = await connection.execute('SELECT * FROM SHIPMENT_PACKAGES WHERE ord_id = ? ', [order]);
     const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
     const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, shipment.wid]);
     const warehouse = warehouses[0]
@@ -49,6 +50,16 @@ exports.handler = async (event) => {
       product_description += `${orders[i].product_name} (${orders[i].product_quantity}) (₹${orders[i].selling_price})\n`
     }
     if (serviceId === "1") {
+      if (boxes.length > 1){
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ success : false, message : "More than 1 box is not allowed on this service"}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+        };
+      }
       const res = await fetch(`https://track.delhivery.com/waybill/api/bulk/json/?count=1`, {
         method : 'GET',
         headers: {
@@ -212,14 +223,18 @@ exports.handler = async (event) => {
         add_adult_signature : 'Yes',
         cash_on_delivery : shipment.pay_method=="Pre-paid"?"No":"Yes"
           },
-        package : [{
-          "package_unique_id": "PACK_1",
+        package : []
+      }]}
+      for (let i = 0; i < boxes.length; i++){
+        req.payload[0].package.push({
+          "package_unique_id": `PACK_${i+1}`,
           "length": categoryId==1?30:36,
           "width" : categoryId==1?30:36,
           "height" : categoryId==1?30:36,
           "weight_actual" : categoryId==1?5:10,
           "identical_package_count" : 1
-        }]}]}
+        })
+      }
       const responseDta = await fetch('https://apim.iristransport.co.in/rest/v2/shipment/sync/create', {
         method : 'POST',
         headers : {

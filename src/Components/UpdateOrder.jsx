@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
+    const [boxes, setBoxes] = useState([
+      { box_no: 1 , length : 0 , breadth: 0 , height: 0  , weight : 0 }
+    ]);
     const [orders, setOrders] = useState([
-        { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }
+        { box_no: 1 , product_name: '' , product_quantity: 0 , selling_price: 0  , tax_in_percentage: '' }
     ]);
     const [warehouses, setWarehouses] = useState([])
     useEffect(()=>{
@@ -23,20 +26,40 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
               'Content-Type': 'application/json',
               'Authorization': localStorage.getItem('token'),
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({ order : shipment.ord_id}),
           })
             .then(response => response.json())
             .then(result => {
               if (result.success) {
                 setOrders(result.order)
               } else {
-                alert('Order failed: ' + result.message)
+                alert('failed: ' + result.message)
               }
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('An error occurred during Order');
+              alert('An error occurred during fetching Order');
             });
+            fetch('/.netlify/functions/getBoxes', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token'),
+              },
+              body: JSON.stringify({ order : shipment.ord_id}),
+            })
+              .then(response => response.json())
+              .then(result => {
+                if (result.success) {
+                  setBoxes(result.order)
+                } else {
+                  alert('failed: ' + result.message)
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during fetching Boxes');
+              });
             
       }, [])
       
@@ -46,11 +69,16 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             orders: orders
           }))
       }, [orders]);
+      useEffect(()=>{
+        setFormData((prev)=>({
+            ...prev,
+            boxes: boxes
+          }))
+      }, [boxes]);
 
     const [formData, setFormData] = useState({
         wid : shipment.wid,
         order : shipment.ord_id,
-        date : shipment.ord_date,
         payMode : shipment.pay_method,
         name : shipment.customer_name,
         email : shipment.customer_email,
@@ -72,20 +100,20 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         Bstate : shipment.billing_state,
         Bcountry :shipment.billing_country,
         same : 1,
+        boxes : boxes,
         orders : orders,
         discount : shipment.total_discount,
         cod : shipment.cod_amount,
-        weight : shipment.weight,
-        length :shipment.length,
-        breadth : shipment.breadth,
-        height :  shipment.height,
         gst : shipment.gst,
         Cgst : shipment.customer_gst,
         shippingType : shipment.shipping_mode
       })
 
       const addProduct = () => {
-        setOrders([...orders, { master_sku: '' , product_name: '' , product_quantity: '' , selling_price: '' , discount: '' , tax_in_percentage: '' }]);
+        setOrders([...orders, { box_no: 1 , product_name: '' , product_quantity: 0 , selling_price: 0  , tax_in_percentage: '' }]);
+      };
+      const addBox = () => {
+        setBoxes([...boxes, { box_no: boxes.length+1 , length: 0 , breadth : 0 , height : 0  , weight: 0 }]);
       };
       const removeProduct = (index) => {
         const updatedOrders = orders.filter((_, i) => i !== index);
@@ -93,6 +121,14 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         setFormData((prev)=>({
             ...prev,
             orders: orders
+          }))
+      };
+      const removeBox = (index) => {
+        const updatedBoxes = boxes.filter((_, i) => i !== index);
+        setBoxes(updatedBoxes);
+        setFormData((prev)=>({
+            ...prev,
+            boxes: boxes
           }))
       };
       const handleOrders = (index, event) => {
@@ -107,6 +143,18 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
           orders: orders
         }))
       };
+      const handleBoxes = (index, event) => {
+        if (isShipped)
+          return;
+        const { name, value } = event.target;
+        const updatedBoxes = [...boxes];
+        updatedBoxes[index][name] = value;
+        setBoxes(updatedBoxes);
+        setFormData((prev)=>({
+          ...prev,
+          boxes: boxes
+        }))
+      };
       const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
@@ -116,6 +164,36 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
       };
       const handleSubmit = (e) => {
         e.preventDefault();
+        console.log(formData)
+        
+        let boxFlag = 0
+    for (let i = 0; i < formData.boxes.length; i++) {
+      for (let j = 0; j < formData.orders.length; j++) {
+        if (parseInt(formData.orders[j].box_no) == i+1){
+          boxFlag = 1
+        }
+      }
+      if (boxFlag == 0){
+        alert('Please make sure every box has some items')
+        return
+      }
+      boxFlag = 0
+    }
+
+    let itemFlag = 0
+    for (let i = 0; i < formData.orders.length; i++) {
+      for (let j = 0; j < formData.boxes.length; j++) {
+        if (formData.orders[i].box_no == formData.boxes[j].box_no){
+          itemFlag = 1
+        }
+      }
+      if (itemFlag == 0){
+        alert('Some items have invalid box no.')
+        return
+      }
+      itemFlag = 0
+    }
+    
         fetch('/.netlify/functions/updateOrder', {
           method: 'POST',
           headers: {
@@ -136,20 +214,6 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             console.error('Error:', error);
             alert('An error occurred during Order');
           });
-      }
-      const ndr = () => {
-        const waybill = '67566';
-        const act = 'RE-ATTEMPT';
-        const date = Date.now();
-        fetch('/.netlify/functions/ndr', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({waybill, act, date})
-        }).then(response => response.json()).then(result => console.log(result.data));
-
       }
     return (
       <>
@@ -210,7 +274,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 onChange={handleChange}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="date">Order Date</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -221,7 +285,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 value={formData.date}
                 onChange={handleChange}
               />
-            </div>
+            </div> */}
             
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
@@ -532,18 +596,89 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
 
           </div>
           </div>
+          <h2 className="text-xl font-bold mx-1">Boxes</h2>
+          {boxes.map((box, index) => (
+            
+            <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
+              
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                  <label htmlFor="box_no">Box No</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="box_no"
+                    name="box_no"
+                    placeholder="Box No"
+                    disabled
+                    value={index+1}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                  <label htmlFor="length">Length (in cm)</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="length"
+                    name="length"
+                    placeholder="Length (in cm)"
+                    value={box.length}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </div>
+                <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                  <label htmlFor="breadth">Width (in cm)</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="breadth"
+                    name="breadth"
+                    placeholder="Breadth (in cm)"
+                    value={box.breadth}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </div>
+                <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                  <label htmlFor="height">Height (in cm)</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="height"
+                    name="height"
+                    placeholder="Height (in cm)"
+                    value={box.height}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                  <label htmlFor="weight">Weight (in g)</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="weight"
+                    name="weight"
+                    placeholder="Weight"
+                    value={box.weight}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </div>
+                {boxes.length > 1 && <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeBox(index)}>Remove</button>}
+            </div>
+          ))}
+          <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addBox}>Add More Boxes</button>
+          <h2 className="text-xl font-bold mx-1">Items</h2>
           {orders.map((order, index) => (
             
         <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
           <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-              <label htmlFor="masterSKU">Master SKU</label>
+              <label htmlFor="box_no">Box No</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="masterSKU"
-                name="master_sku"
-                placeholder="Master SKU"
-                value={order.master_sku}
+                id="box_no"
+                name="box_no"
+                placeholder="Box No"
+                value={order.box_no}
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
@@ -583,7 +718,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+          {/* <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="discount">Discount</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -594,7 +729,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 value={order.discount}
                 onChange={(e) => handleOrders(index, e)}
               />
-            </div>
+            </div> */}
           <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
               <label htmlFor="tax">Tax</label>
               <input
@@ -607,14 +742,14 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 onChange={(e) => handleOrders(index, e)}
               />
             </div>
-            <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
+            {orders.length > 1 ? <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button> : null}
         </div>
       ))}
       <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
           <div className="w-full flex mb-2 flex-wrap ">
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="discount">Total Discount</label>
+              <label htmlFor="discount">Discount</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -655,7 +790,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             </div>
             
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
+          {/* <div className="w-full flex mb-2 flex-wrap ">
 
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="weight">Weight (In g)</label>
@@ -708,7 +843,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             </div>
             </div>
             
-          </div>
+          </div> */}
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="gst">Seller GST</label>
@@ -807,9 +942,32 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
 
 const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   const [prices,setPrices] = useState([])
+  const [boxes, setBoxes] = useState([])
   useEffect(()=>{
     // console.log({method, status, origin, dest, weight, payMode, codAmount})
+    
+
     const data = async () => {
+      await fetch('/.netlify/functions/getBoxes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ order : shipment.ord_id}),
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            setBoxes(result.order)
+          } else {
+            alert('failed: ' + result.message)
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred during fetching Boxes');
+        });
       await fetch(`/.netlify/functions/price`, {
         method: 'POST',
         headers: { 'Accept': '*/*',
@@ -818,7 +976,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
           "Access-Control-Allow-Origin" : "*",
           "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, weight : shipment.weight, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, length : shipment.length, breadth : shipment.breadth ,height : shipment.height}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, boxes : boxes, count : boxes.length}),
         
       }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -902,7 +1060,7 @@ const Card = ({ shipment }) => {
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
-          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
+          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>alert("Website is under maintenance")}>Ship</div> : null}
           {isShipped && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
           </div>

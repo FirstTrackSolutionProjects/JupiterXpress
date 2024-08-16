@@ -1,0 +1,819 @@
+org: firsttracksolutiontechnologies
+app: jupiterxpress
+service: jupiterXpress
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  stage: api
+
+functions:
+  # activateUser:
+  #   handler: functions/handler.activateUser
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: activateUser
+  #         method: post
+  #         cors: true
+
+  # cancelShipment:
+  #   handler: functions/handler.cancelShipment
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: cancelShipment
+  #         method: post
+  #         cors: true
+
+  # changePassword:
+  #   handler: functions/handler.changePassword
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: changePassword
+  #         method: post
+  #         cors: true
+
+  # completeKycVerificationRequest:
+  #   handler: functions/handler.completeKycVerificationRequest
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: completeKycVerificationRequest
+  #         method: post
+  #         cors: true
+
+  # completeVerificationRequest:
+  #   handler: functions/handler.completeVerificationRequest
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: completeVerificationRequest
+  #         method: post
+  #         cors: true
+
+  # create:
+  #   handler: functions/handler.create
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: create
+  #         method: post
+  #         cors: true
+
+  # createDomesticInternational:
+  #   handler: functions/handler.createDomesticInternational
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: createDomesticInternational
+  #         method: post
+  #         cors: true
+
+  # createInternational:
+  #   handler: functions/handler.createInternational
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: createInternational
+  #         method: post
+  #         cors: true
+
+  # createOrder:
+  #   handler: functions/handler.createOrder
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: createOrder
+  #         method: post
+  #         cors: true
+
+  # createOrderInternational:
+  #   handler: functions/handler.createOrderInternational
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: createOrderInternational
+  #         method: post
+  #         cors: true
+
+  # deactivateUser:
+  #   handler: functions/handler.deactivateUser
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: deactivateUser
+  #         method: post
+  #         cors: true
+
+  # deliveryOrder:
+  #   handler: functions/handler.deliveryOrder
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: deliveryOrder
+  #         method: post
+  #         cors: true
+
+  # domesticOrderMail:
+  #   handler: functions/handler.domesticOrderMail
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: domesticOrderMail
+  #         method: post
+  #         cors: true
+
+  # emailVerified:
+  #   handler: functions/handler.emailVerified
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: emailVerified
+  #         method: post
+  #         cors: true
+
+  # getAdminProfile:
+  #   handler: functions/handler.getAdminProfile
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getAdminProfile
+  #         method: get
+  #         cors: true
+
+  # getAllReports:
+  #   handler: functions/handler.getAllReports
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getAllReports
+  #         method: get
+  #         cors: true
+
+  # getAllShipments:
+  #   handler: functions/handler.getAllShipments
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getAllShipments
+  #         method: get
+  #         cors: true
+
+  # getAllTransactions:
+  #   handler: functions/handler.getAllTransactions
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getAllTransactions
+  #         method: get
+  #         cors: true
+
+  # getAllWarehouse:
+  #   handler: functions/handler.getAllWarehouse
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getAllWarehouse
+  #         method: get
+  #         cors: true
+
+  # getBalance:
+  #   handler: functions/handler.getBalance
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getBalance
+  #         method: get
+  #         cors: true
+
+  # getContactRequest:
+  #   handler: functions/handler.getContactRequest
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getContactRequest
+  #         method: get
+  #         cors: true
+
+  # getDocketItems:
+  #   handler: functions/handler.getDocketItems
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getDocketItems
+  #         method: get
+  #         cors: true
+
+  # getDockets:
+  #   handler: functions/handler.getDockets
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getDockets
+  #         method: get
+  #         cors: true
+
+  # getDocumentStatus:
+  #   handler: functions/handler.getDocumentStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getDocumentStatus
+  #         method: get
+  #         cors: true
+
+  # getExpense:
+  #   handler: functions/handler.getExpense
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getExpense
+  #         method: get
+  #         cors: true
+
+  # getExpenseInvoice:
+  #   handler: functions/handler.getExpenseInvoice
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getExpenseInvoice
+  #         method: get
+  #         cors: true
+
+  # getFlightGoReport:
+  #   handler: functions/handler.getFlightGoReport
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getFlightGoReport
+  #         method: get
+  #         cors: true
+
+  # getGetSignedUrl:
+  #   handler: functions/handler.getGetSignedUrl
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getGetSignedUrl
+  #         method: get
+  #         cors: true
+
+  # getInternationalReports:
+  #   handler: functions/handler.getInternationalReports
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getInternationalReports
+  #         method: get
+  #         cors: true
+
+  # getInternationalShipments:
+  #   handler: functions/handler.getInternationalShipments
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getInternationalShipments
+  #         method: get
+  #         cors: true
+
+  # getKycDocumentStatus:
+  #   handler: functions/handler.getKycDocumentStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getKycDocumentStatus
+  #         method: get
+  #         cors: true
+
+  # getKycStatus:
+  #   handler: functions/handler.getKycStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getKycStatus
+  #         method: get
+  #         cors: true
+
+  # getKycVerificationRequests:
+  #   handler: functions/handler.getKycVerificationRequests
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getKycVerificationRequests
+  #         method: get
+  #         cors: true
+
+  # getManualTransactions:
+  #   handler: functions/handler.getManualTransactions
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getManualTransactions
+  #         method: get
+  #         cors: true
+
+  # getNonVerifiedMerchants:
+  #   handler: functions/handler.getNonVerifiedMerchants
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getNonVerifiedMerchants
+  #         method: get
+  #         cors: true
+
+  # getOrder:
+  #   handler: functions/handler.getOrder
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getOrder
+  #         method: get
+  #         cors: true
+
+  # getProfile:
+  #   handler: functions/handler.getProfile
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getProfile
+  #         method: get
+  #         cors: true
+
+  # getPutSignedUrl:
+  #   handler: functions/handler.getPutSignedUrl
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getPutSignedUrl
+  #         method: get
+  #         cors: true
+
+  # getRefund:
+  #   handler: functions/handler.getRefund
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getRefund
+  #         method: get
+  #         cors: true
+
+  # getReport:
+  #   handler: functions/handler.getReport
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getReport
+  #         method: get
+  #         cors: true
+
+  # getReports:
+  #   handler: functions/handler.getReports
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getReports
+  #         method: get
+  #         cors: true
+
+  # getShipments:
+  #   handler: functions/handler.getShipments
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getShipments
+  #         method: get
+  #         cors: true
+
+  # getStatistics:
+  #   handler: functions/handler.getStatistics
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getStatistics
+  #         method: get
+  #         cors: true
+
+  # getTeamAccounts:
+  #   handler: functions/handler.getTeamAccounts
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getTeamAccounts
+  #         method: get
+  #         cors: true
+
+  # getTokenData:
+  #   handler: functions/handler.getTokenData
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getTokenData
+  #         method: get
+  #         cors: true
+
+  # getTransactions:
+  #   handler: functions/handler.getTransactions
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getTransactions
+  #         method: get
+  #         cors: true
+
+  # getVerificationRequests:
+  #   handler: functions/handler.getVerificationRequests
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getVerificationRequests
+  #         method: get
+  #         cors: true
+
+  # getVerificationStatus:
+  #   handler: functions/handler.getVerificationStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getVerificationStatus
+  #         method: get
+  #         cors: true
+
+  # getVerifiedMerchants:
+  #   handler: functions/handler.getVerifiedMerchants
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getVerifiedMerchants
+  #         method: get
+  #         cors: true
+
+  # getWarehouse:
+  #   handler: functions/handler.getWarehouse
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: getWarehouse
+  #         method: get
+  #         cors: true
+
+  # internationalOrderMail:
+  #   handler: functions/handler.internationalOrderMail
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: internationalOrderMail
+  #         method: post
+  #         cors: true
+
+  # kycFormSubmit:
+  #   handler: functions/handler.kycFormSubmit
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: kycFormSubmit
+  #         method: post
+  #         cors: true
+
+  # label:
+  #   handler: functions/handler.label
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: label
+  #         method: post
+  #         cors: true
+
+  # login:
+  #   handler: functions/handler.login
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: login
+  #         method: post
+  #         cors: true
+
+  # manualRecharge:
+  #   handler: functions/handler.manualRecharge
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: manualRecharge
+  #         method: post
+  #         cors: true
+
+  # ndr:
+  #   handler: functions/handler.ndr
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: ndr
+  #         method: post
+  #         cors: true
+
+  # price:
+  #   handler: functions/handler.price
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: price
+  #         method: post
+  #         cors: true
+
+  # priceInquiry:
+  #   handler: functions/handler.priceInquiry
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: priceInquiry
+  #         method: post
+  #         cors: true
+
+  # register:
+  #   handler: functions/handler.register
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: register
+  #         method: post
+  #         cors: true
+
+  # rejectMerchant:
+  #   handler: functions/handler.rejectMerchant
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: rejectMerchant
+  #         method: post
+  #         cors: true
+
+  # rejectMerchantKyc:
+  #   handler: functions/handler.rejectMerchantKyc
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: rejectMerchantKyc
+  #         method: post
+  #         cors: true
+
+  # schedule:
+  #   handler: functions/handler.schedule
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: schedule
+  #         method: post
+  #         cors: true
+
+  # sendResetPassword:
+  #   handler: functions/handler.sendResetPassword
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: sendResetPassword
+  #         method: post
+  #         cors: true
+
+  # sendVerifyEmail:
+  #   handler: functions/handler.sendVerifyEmail
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: sendVerifyEmail
+  #         method: post
+  #         cors: true
+
+  # serviceCheck:
+  #   handler: functions/handler.serviceCheck
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: serviceCheck
+  #         method: get
+  #         cors: true
+
+  # submitContact:
+  #   handler: functions/handler.submitContact
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: submitContact
+  #         method: post
+  #         cors: true
+
+  # track:
+  #   handler: functions/handler.track
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: track
+  #         method: post
+  #         cors: true
+
+  # updateAllOrder:
+  #   handler: functions/handler.updateAllOrder
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: updateAllOrder
+  #         method: post
+  #         cors: true
+
+  # updateDocumentStatus:
+  #   handler: functions/handler.updateDocumentStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: updateDocumentStatus
+  #         method: post
+  #         cors: true
+
+  # updateKycDocumentStatus:
+  #   handler: functions/handler.updateKycDocumentStatus
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: updateKycDocumentStatus
+  #         method: post
+  #         cors: true
+
+  # updateOrder:
+  #   handler: functions/handler.updateOrder
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: updateOrder
+  #         method: post
+  #         cors: true
+
+  # updateOrderInternational:
+  #   handler: functions/handler.updateOrderInternational
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: updateOrderInternational
+  #         method: post
+  #         cors: true
+
+  # verify:
+  #   handler: functions/handler.verify
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verify
+  #         method: post
+  #         cors: true
+
+  # verifyEmail:
+  #   handler: functions/handler.verifyEmail
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verifyEmail
+  #         method: post
+  #         cors: true
+
+  # verifyMerchant:
+  #   handler: functions/handler.verifyMerchant
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verifyMerchant
+  #         method: post
+  #         cors: true
+
+  # verifyMerchantKyc:
+  #   handler: functions/handler.verifyMerchantKyc
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verifyMerchantKyc
+  #         method: post
+  #         cors: true
+
+  # verifyRecharge:
+  #   handler: functions/handler.verifyRecharge
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verifyRecharge
+  #         method: post
+  #         cors: true
+
+  # verifyResetPassword:
+  #   handler: functions/handler.verifyResetPassword
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: verifyResetPassword
+  #         method: post
+  #         cors: true
+
+  # warehouseCreate:
+  #   handler: functions/handler.warehouseCreate
+  #   memorySize: 512
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: warehouseCreate
+  #         method: post
+  #         cors: true
+
+  warehouseUpdate:
+    handler: functions/handler.warehouseUpdate
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: warehouseUpdate
+          method: post
+          cors: true
+  test:
+    handler: functions/handler.test
+    memorySize: 512
+    timeout: 30
+    events:
+      - http:
+          path: test
+          method: get
+          cors: true

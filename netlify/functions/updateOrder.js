@@ -30,7 +30,6 @@ exports.handler = async (event) => {
         let {
             wid,
             order,
-            date,
             payMode,
             name,
             email,
@@ -52,13 +51,10 @@ exports.handler = async (event) => {
             Bstate,
             Bcountry,
             same,
+            boxes,
             orders,
             discount,
             cod,
-            weight,
-            length,
-            breadth,
-            height,
             gst,
             Cgst,
             shippingType
@@ -85,8 +81,6 @@ exports.handler = async (event) => {
           try {
             await connection.beginTransaction();
             await connection.execute(`UPDATE SHIPMENTS SET 
-              ord_id = ?,
-              ord_date = ?, 
               pay_method = ?, 
               customer_name = ?, 
               customer_email = ?, 
@@ -110,87 +104,74 @@ exports.handler = async (event) => {
               same = ?, 
               cod_amount = ?, 
               total_discount = ?, 
-              length = ?, 
-              breadth = ?, 
-              height = ?, 
-              weight = ?, 
               gst = ?, 
               customer_gst = ?,
               wid = ?,
               shipping_mode =?
               WHERE ord_id = ? AND uid = ?`, 
-              [ order, date, payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount, length, breadth, height, weight,  gst, Cgst,  wid , shippingType,order, id]
+              [ payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount,  gst, Cgst,  wid , shippingType,order, id]
             );
             
-            const [existing] = await connection.execute(`SELECT master_sku FROM ORDERS WHERE ord_id = ?`, [order])
-            let existing_skus = []
-            existing.map((sku)=>{
-                existing_skus.push(sku.master_sku)
-            })
-            let new_skus = []
-            orders.map((order)=>{
-                new_skus.push(order.master_sku)
-            })
-            let forDelete = existing_skus.filter(item => !new_skus.includes(item))
-            
-            for (let i = 0; i < orders.length; i++){
-                if (existing_skus.includes(new_skus[i])){
-                await connection.execute(`UPDATE ORDERS SET
-                    ord_id = ?,
-                    master_sku = ?, 
-                    product_name = ?, 
-                    product_quantity = ?, 
-                    tax_in_percentage = ?, 
-                    selling_price = ?, 
-                    discount = ? 
-                    WHERE ord_id = ? AND master_sku = ?`, 
-                    [order, orders[i].master_sku ,orders[i].product_name, orders[i].product_quantity, orders[i].tax_in_percentage, orders[i].selling_price, orders[i].discount, order, orders[i].master_sku]
-                  );
-                }
-                else {
-                    await connection.execute(`INSERT INTO ORDERS
-                        (ord_id,
-                        master_sku, 
-                        product_name, 
-                        product_quantity, 
-                        tax_in_percentage, 
-                        selling_price, 
-                        discount) 
-                        VALUES (?,?,?,?,?,?,?)`, 
-                        [order, orders[i].master_sku ,orders[i].product_name, orders[i].product_quantity, orders[i].tax_in_percentage, orders[i].selling_price, orders[i].discount]
-                      );
-                }
-            }
-            
-            for (let i = 0 ; i < forDelete.length ; i++){
-                await connection.execute(`DELETE FROM ORDERS WHERE master_sku = ? AND ord_id = ?`, [forDelete[i], order]);
-            }
-            
+            await connection.execute("DELETE FROM ORDERS WHERE ord_id = ?",[order]);
+            await connection.execute("DELETE FROM SHIPMENT_PACKAGES WHERE ord_id = ?",[order]);
 
+            for (let i = 0; i < boxes.length; i++) {
+                await connection.execute(
+                `INSERT INTO SHIPMENT_PACKAGES (ord_id, box_no, length, breadth, height, weight ) VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                  order,
+                  boxes[i].box_no, 
+                  boxes[i].length,
+                  boxes[i].breadth,
+                  boxes[i].height,
+                  boxes[i].weight,
+                ]
+              );
+              
+            }
+            for (let j = 0; j < orders.length; j++) {
+              await connection.execute(
+                `INSERT INTO ORDERS (ord_id, box_no, product_name, product_quantity, tax_in_percentage, selling_price) VALUES (?,?,?,?,?,?)`,
+                [
+                  order,
+                  orders[j].box_no,
+                  orders[j].product_name,
+                  orders[j].product_quantity,
+                  orders[j].tax_in_percentage,
+                  orders[j].selling_price
+                ]
+              );
+            }
             await connection.commit();
           return {
             statusCode: 200,
             body: JSON.stringify({ success:true, message: 'Details Updated', id : id}),
           };
-        } catch (error) {
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ message: error.message, error: error.message }),
-          };
-        } finally {
+        } 
+        // catch (error) {
+        //   return {
+        //     statusCode: 500,
+        //     body: JSON.stringify({ message: error.message, error: error.message }),
+        //   };
+        // }
+         finally {
           await connection.end();
         }
 
-    } catch(err){
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Something went wrong' }),
-      };
-    }
-  } catch (err) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Invalid Token' }),
-    };
-  }
+    } 
+    // catch(err){
+    //   return {
+    //     statusCode: 400,
+    //     body: JSON.stringify({ message: 'Something went wrong' }),
+    //   };
+    // }
+    finally{}
+  } 
+  // catch (err) {
+  //   return {
+  //     statusCode: 400,
+  //     body: JSON.stringify({ message: 'Invalid Token' }),
+  //   };
+  // }
+  finally{}
 };
