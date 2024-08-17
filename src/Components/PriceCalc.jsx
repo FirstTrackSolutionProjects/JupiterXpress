@@ -1,20 +1,17 @@
 import { useState, useEffect } from "react";
 
 
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, height, breadth, length}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
-    console.log({method, status, origin, dest, weight, payMode, codAmount})
+    console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity})
     const data = async () => {
       await fetch(`/.netlify/functions/price`, {
         method: 'POST',
         headers: { 'Accept': '*/*',
-          'Content-Type': 'application/json',
-          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
-          "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+          'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount, length, breadth, height}),
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity}),
         
       }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -22,7 +19,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
   }, []) 
   return (
     <>
-      <div className="w-full absolute inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+      <div className="w-full absolute z-[1] inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
         <div className="text-center text-3xl font-medium">
           CHOOSE YOUR SERVICE
         </div>
@@ -45,18 +42,32 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
 
 
 const Domestic = () => {
+  const [boxes, setBoxes] = useState([{weight : 0, length : 0, breadth : 0, height : 0}])
   const [formData, setFormData] = useState({
     method : 'S',
     status: 'Delivered',
     origin : '',
     dest : '',
-    weight : '',
     payMode : 'COD',
     codAmount : '0',
-    length : '',
-    breadth : '',
-    height : '',
+    weight : 0,
+    volume : 0,
+    quantity : 0
   })
+  useEffect(()=>{
+    let totalVolume = 0;
+    let totalWeight = 0;
+    boxes.map((box,index)=>{
+        totalVolume += box.length * box.breadth * box.height
+        totalWeight += box.weight
+    })
+    setFormData((prevData) => ({
+     ...prevData,
+      weight : totalWeight,
+      volume : totalVolume,
+      quantity : boxes.length
+    }));
+  },[boxes])
   const [showCompare, setShowCompare] = useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +80,19 @@ const Domestic = () => {
     e.preventDefault();
     setShowCompare(true)
   }
+  const handleBoxes = (index, event) => {
+    const { name, value } = event.target;
+    const updatedBoxes = [...boxes];
+    updatedBoxes[index][name] = value;
+    setBoxes(updatedBoxes);
+  };
+  const addBox = () => {
+    setBoxes([...boxes, {  length: 0 , breadth : 0 , height : 0  , weight: 0 }]);
+  };
+  const removeBox = (index) => {
+    const updatedBoxes = boxes.filter((_, i) => i !== index);
+    setBoxes(updatedBoxes);
+  };
   return (
     <>
       {showCompare && <ComparePrices {...formData} />}
@@ -129,18 +153,19 @@ const Domestic = () => {
             </div>
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Weight (In grams)</label>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+              <label htmlFor="codAmount">COD Amount</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="weight"
-                name="weight"
-                placeholder="Ex. 1500"
-                value={formData.weight}
+                id="codAmount"
+                name="codAmount"
+                placeholder="Ex. 157"
+                value={formData.codAmount}
                 onChange={handleChange}
               />
             </div>
+            
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
               <select
@@ -158,59 +183,65 @@ const Domestic = () => {
             </div>
             
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="codAmount">COD Amount</label>
-              <input
+          {boxes.map((box,index)=>(
+            <>
+              <div className="w-full relative z-0 flex mb-2 flex-wrap ">
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="weight">Weight (In grams)</label>
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="codAmount"
-                name="codAmount"
-                placeholder="Ex. 157"
-                value={formData.codAmount}
-                onChange={handleChange}
+                id="weight"
+                name="weight"
+                placeholder="Ex. 1500"
+                value = {box.weight}
+                onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="length">L (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="length"
                 name="length"
                 placeholder="Ex. 2.5"
-                value={formData.length}
-                onChange={handleChange}
+                value={box.length}
+                onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="breadth">B (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="breadth"
                 name="breadth"
                 placeholder="Ex. 2.5"
-                value={formData.breadth}
-                onChange={handleChange}
+                value={box.breadth}
+                onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="height">H (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="height"
                 name="height"
                 placeholder="Ex. 2.5"
-                value={formData.height}
-                onChange={handleChange}
+                value={box.height}
+                onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
             </div>
+            {boxes.length > 1 && <button type="button" className="absolute w-5 h-5 text-sm flex justify-center items-center top-0 right-0  border rounded-full bg-red-500 text-white" onClick={() => removeBox(index)}>X</button>}
             </div>
-            <button type="submit" className="border bg-white mx-2  py-2 px-4 rounded-3xl">
+            </>
+          ))}
+            <button type="button" className="m-2 px-5 py-1 border border-blue-500 rounded-3xl bg-white text-blue-500" onClick={addBox}>Add More Boxes</button>
+            <button type="submit" className="border bg-blue-500 text-white mx-2  py-2 px-4 rounded-3xl">
               Submit and Compare
             </button>
         </form>

@@ -14,7 +14,7 @@ const Profile = () => {
   useEffect(()=>{
     const fetchProfile = async () => {
       await fetch('/.netlify/functions/getAdminProfile', {
-        method: 'GET',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': localStorage.getItem('token'),

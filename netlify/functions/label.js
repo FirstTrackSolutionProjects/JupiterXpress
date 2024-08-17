@@ -34,7 +34,7 @@ exports.handler = async (event) => {
     const shipment = shipments[0];
     const {serviceId, categoryId} = shipment;
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
-    if (serviceId === 1) {
+    if (serviceId == 1) {
       
           const label = await fetch(`https://track.delhivery.com/api/p/packing_slip?wbns=${shipment.awb}&pdf=true`, {
             method: 'GET',
@@ -56,6 +56,54 @@ exports.handler = async (event) => {
       },
     };
     }
+    else if (serviceId == 2) {
+      const loginPayload = {
+        grant_type: "client_credentials",
+        client_id: process.env.MOVIN_CLIENT_ID,
+        client_secret: process.env.MOVIN_CLIENT_SECRET,
+        Scope: `${process.env.MOVIN_SERVER_ID}/.default`,
+      };
+      const formBody = Object.entries(loginPayload).map(
+	        ([key, value]) =>
+	        encodeURIComponent(key) + "=" + encodeURIComponent(value)
+      ).join("&");
+      const login = await fetch(`https://login.microsoftonline.com/${process.env.MOVIN_TENANT_ID}/oauth2/v2.0/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body : formBody
+      })
+      const loginRes = await login.json()
+      const token = loginRes.access_token
+      const label = await fetch(`https://apim.iristransport.co.in/rest/v2/shipment/label`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Ocp-Apim-Subscription-Key' : process.env.MOVIN_SUBSCRIPTION_KEY,
+          'Authorization': `Bearer ${token}`
+        },
+        body  : JSON.stringify({
+            "shipment_number": shipment.awb,
+            "account_number": process.env.MOVIN_ACCOUNT_NUMBER,
+            "scope": "all",
+            "label_type": "thermal"
+        })
+      }).then((response) => response.json())
+      
+    
+
+return {
+  statusCode: 200,
+  body: JSON.stringify({label : label.response, success : true}),
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+  },
+};
+}
     
   }  finally {
     connection.end()

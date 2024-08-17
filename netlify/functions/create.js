@@ -285,7 +285,8 @@ exports.handler = async (event) => {
     
    
     
-  } catch (error) {
+  } 
+  catch (error) {
     return {
       statusCode: 504,
       body: JSON.stringify({response : error, success : true}),
@@ -294,7 +295,8 @@ exports.handler = async (event) => {
         'Access-Control-Allow-Origin': '*'
       },
     };
-  }  finally {
+  }  
+  finally {
     connection.end()
   }
 };

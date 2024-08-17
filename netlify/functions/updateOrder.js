@@ -148,30 +148,30 @@ exports.handler = async (event) => {
             body: JSON.stringify({ success:true, message: 'Details Updated', id : id}),
           };
         } 
-        // catch (error) {
-        //   return {
-        //     statusCode: 500,
-        //     body: JSON.stringify({ message: error.message, error: error.message }),
-        //   };
-        // }
+        catch (error) {
+          return {
+            statusCode: 500,
+            body: JSON.stringify({ message: error.message, error: error.message }),
+          };
+        }
          finally {
           await connection.end();
         }
 
     } 
-    // catch(err){
-    //   return {
-    //     statusCode: 400,
-    //     body: JSON.stringify({ message: 'Something went wrong' }),
-    //   };
-    // }
+    catch(err){
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Something went wrong' }),
+      };
+    }
     finally{}
   } 
-  // catch (err) {
-  //   return {
-  //     statusCode: 400,
-  //     body: JSON.stringify({ message: 'Invalid Token' }),
-  //   };
-  // }
+  catch (err) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'Invalid Token' }),
+    };
+  }
   finally{}
 };

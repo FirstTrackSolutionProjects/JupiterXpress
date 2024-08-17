@@ -47,7 +47,7 @@ const AllTransactions =  () => {
     useEffect(() => {
         const getVerifiedtransaction = async () => {
             const recharge = await fetch('/.netlify/functions/getAllTransactions', {
-                method: 'GET',
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -56,7 +56,7 @@ const AllTransactions =  () => {
             const recharges = await recharge.json();
             const data = recharges.data
             const manual = await fetch('/.netlify/functions/getManualTransactions', {
-                method: 'GET',
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -65,7 +65,7 @@ const AllTransactions =  () => {
             const manuals = await manual.json();
             data.push(...manuals.data)
             const expense = await fetch('/.netlify/functions/getExpense', {
-                method: 'GET',
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -74,7 +74,7 @@ const AllTransactions =  () => {
             const expenses = await expense.json();
             data.push(...expenses.data)
             const refund = await fetch('/.netlify/functions/getRefund', {
-                method: 'GET',
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),

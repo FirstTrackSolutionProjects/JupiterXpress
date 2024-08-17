@@ -934,7 +934,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
     <>
        <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
           <div>{price.name+" "+price.weight}</div>
-          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship()}>{isLoading?"Shipping...":"Ship"}</div></div>
+          <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={price.serviceId==2?()=>{alert("This service is temporarily disabled")}:isLoading?()=>{}:()=>ship()}>{isLoading?"Shipping...":"Ship"}</div></div>
         </div>
     </>
   )
@@ -968,15 +968,18 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
           console.error('Error:', error);
           alert('An error occurred during fetching Boxes');
         });
+        let weight = 0;
+        let volume = 0;
+        boxes.map((box) => {
+          weight += parseFloat(box.weight);
+          volume += parseFloat(box.length) * parseFloat(box.width) * parseFloat(box.height)
+        })
       await fetch(`/.netlify/functions/price`, {
         method: 'POST',
-        headers: { 'Accept': '*/*',
-          'Content-Type': 'application/json',
-          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
-          "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+        headers: { 'Accept': 'application/json',
+          'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, boxes : boxes, count : boxes.length}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxes.length}),
         
       }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -1060,7 +1063,7 @@ const Card = ({ shipment }) => {
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
-          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>alert("Website is under maintenance")}>Ship</div> : null}
+          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
           {isShipped && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
           </div>

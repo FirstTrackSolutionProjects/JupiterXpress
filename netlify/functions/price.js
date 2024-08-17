@@ -3,9 +3,9 @@
 
 
 exports.handler = async (event, context) => {
-    const {method, status, origin, dest, weight, payMode, codAmount, length, breadth, height} = JSON.parse(event.body)
+    const {method, status, origin, dest, weight, payMode, codAmount,volume, quantity} = JSON.parse(event.body)
   try {
-    const netWeight = (Math.max((parseFloat(length)*parseFloat(breadth)*parseFloat(height))/5 , weight)).toString()
+    const netWeight = (Math.max(parseFloat(volume)/5 , weight)).toString()
     let responses = []
     
     const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${netWeight}&pt=${payMode}&cod=${codAmount}`, {
@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
         'Accept': '*/*'
       }
     })
-    const movinRegion = ["Madhya Pradesh, Chhattisgarh",
+    const movinRegion = ["Madhya Pradesh, Chattisgarh",
                          "Bihar, Jharkhand, Odisha",
                          "West Bengal", 
                          "Jammu & Kashmir",
@@ -14346,7 +14346,7 @@ exports.handler = async (event, context) => {
       }
     }
 
-    const movinNetWeight = (Math.max((parseFloat(length)*parseFloat(breadth)*parseFloat(height))/(method=="S"?4.5:5) , weight)).toString()
+    const movinNetWeight = (Math.max(parseFloat(volume)/(method=="S"?4.5:5) , weight)).toString()
     const originData = await fetch(`http://www.postalpincode.in/api/pincode/${origin}`)
     const destData = await fetch(`http://www.postalpincode.in/api/pincode/${dest}`)
     const originPSData = await originData.json()
@@ -14374,13 +14374,25 @@ exports.handler = async (event, context) => {
     const data2 = await response2.json();
     const price = data[0]['total_amount']
     const price2 = data2[0]['total_amount']
-    responses.push({
-      "name" : `Delhivery ${method=='S'?'Surface' : 'Express'} Light`,
-      "weight" : "500gm",
-      "price" : Math.round(price*1.3),
-      "serviceId" : "1",
-      "categoryId" : "2"
-    })
+    if (quantity == 1){
+        responses.push({
+            "name" : `Delhivery ${method=='S'?'Surface' : 'Express'} Light`,
+            "weight" : "500gm",
+            "price" : Math.round(price*1.3),
+            "serviceId" : "1",
+            "categoryId" : "2"
+          })
+          if (method=='S') {
+            responses.push({
+              "name" :  `Delhivery Surface`,
+              "weight" : "10Kg",
+              "price" : Math.round(price2*1.3),
+              "serviceId" : "1",
+              "categoryId" : "1"
+      
+            })
+          }
+    }
     if (method=='S' && movinSurfaceActive){
       responses.push({
         "name" : `Movin Surface`,
@@ -14399,16 +14411,7 @@ exports.handler = async (event, context) => {
         "categoryId" : "1"
       })
     }
-    if (method=='S') {
-      responses.push({
-        "name" :  `Delhivery Surface`,
-        "weight" : "10Kg",
-        "price" : Math.round(price2*1.3),
-        "serviceId" : "1",
-        "categoryId" : "1"
-
-      })
-    }
+    
     return {
       statusCode: 200,
       body: JSON.stringify({prices : responses}),
