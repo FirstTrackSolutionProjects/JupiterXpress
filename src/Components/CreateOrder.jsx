@@ -76,7 +76,7 @@ const schema = z.object({
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
-  const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, watch, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       payMode : 'Pre-paid',
@@ -103,7 +103,43 @@ const FullDetails = () => {
     control,
     name: 'boxes'
   });
-  
+  useEffect(()=>{
+        
+    const pinToAdd = async () => {
+     try{
+      await fetch(`https://api.postalpincode.in/pincode/${watch('postcode')}`)
+      .then(response => response.json())
+      .then(result => {
+         const city = result[0].PostOffice[0].District
+         const state = result[0].PostOffice[0].State
+         setValue('city',city)
+         setValue('state',state)
+       })
+     } catch (e) {
+      setValue('city','')
+      setValue('state','')
+     }
+    }
+  if (watch('postcode').length == 6) pinToAdd()
+},[formData.postcode])
+useEffect(()=>{
+  const pinToAdd = async () => {
+    try{
+     await fetch(`https://api.postalpincode.in/pincode/${watch('Bpostcode')}`)
+     .then(response => response.json())
+     .then(result => {
+        const city = result[0].PostOffice[0].District
+        const state = result[0].PostOffice[0].State
+        setValue('Bcity',city)
+        setValue('Bstate',state)
+      })
+    } catch (e) {
+     setValue('Bcity','')
+     setValue('Bstate','')
+    }
+   }
+ if (watch('Bpostcode').length == 6) pinToAdd()
+},[formData.Bpostcode])
 
   useEffect(() => {
     const getWarehouses = async () => {
@@ -325,6 +361,7 @@ const FullDetails = () => {
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               id="postcode"
+              pattern='^\d{6}$'
               {...register("postcode")}
               placeholder="Ex. 123456"
             />
@@ -360,6 +397,7 @@ const FullDetails = () => {
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               id="country"
+              value={"India"}
               {...register("country")}
               placeholder="Ex. USA"
             />
@@ -435,6 +473,7 @@ const FullDetails = () => {
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id="Bpostcode"
+                  pattern='^\d{6}$'
                   {...register("Bpostcode")}
                   placeholder="Ex. 123456"
                 />
@@ -470,6 +509,7 @@ const FullDetails = () => {
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id="Bcountry"
+                  value={"India"}
                   {...register("Bcountry")}
                   placeholder="Ex. USA"
                 />

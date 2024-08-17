@@ -108,6 +108,55 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         Cgst : shipment.customer_gst,
         shippingType : shipment.shipping_mode
       })
+      useEffect(()=>{
+        
+          const pinToAdd = async () => {
+           try{
+            await fetch(`https://api.postalpincode.in/pincode/${formData.postcode}`)
+            .then(response => response.json())
+            .then(result => {
+               const city = result[0].PostOffice[0].District
+               const state = result[0].PostOffice[0].State
+               setFormData((prev)=>({
+                  ...prev,
+                   city: city,
+                   state: state
+                 }))
+             })
+           } catch (e) {
+            setFormData((prev)=>({
+              ...prev,
+               city: '',
+               state: ''
+             }))
+           }
+          }
+        if (formData.postcode.length == 6) pinToAdd()
+      },[formData.postcode])
+      useEffect(()=>{
+        const pinToAdd = async () => {
+          try{
+           await fetch(`https://api.postalpincode.in/pincode/${formData.Bpostcode}`)
+           .then(response => response.json())
+           .then(result => {
+              const city = result[0].PostOffice[0].District
+              const state = result[0].PostOffice[0].State
+              setFormData((prev)=>({
+                 ...prev,
+                  Bcity: city,
+                  Bstate: state
+                }))
+            })
+          } catch (e) {
+           setFormData((prev)=>({
+             ...prev,
+              Bcity: '',
+              Bstate: ''
+            }))
+          }
+         }
+       if (formData.Bpostcode.length == 6) pinToAdd()
+      },[formData.Bpostcode])
 
       const addProduct = () => {
         setOrders([...orders, { box_no: 1 , product_name: '' , product_quantity: 0 , selling_price: 0  , tax_in_percentage: '' }]);
@@ -456,6 +505,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
                 id="country"
                 name="country"
                 placeholder="Ex. India"
+                readOnly
                 value={formData.country}
                 onChange={handleChange}
               />
@@ -1057,7 +1107,7 @@ const Card = ({ shipment }) => {
     return (
       <>
         {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment}/>}
-        <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>
+        {isManage ? <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/> : null}
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>{shipment.ord_id}</div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
@@ -1097,6 +1147,8 @@ const Card = ({ shipment }) => {
     })
     const handleSubmit = async (e) => {
       e.preventDefault();
+      // console.log(formData)
+      // return
       await fetch('/.netlify/functions/schedule', {
         method: 'POST',
         headers: {
@@ -1160,7 +1212,7 @@ const Card = ({ shipment }) => {
               <label htmlFor="pickDate">Pickup Date</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
+                type="date"
                 id="pickDate"
                 name="pickDate"
                 placeholder="YYYY-MM-DD"
@@ -1172,7 +1224,7 @@ const Card = ({ shipment }) => {
               <label htmlFor="pickTime">Pickup Time</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
+                type="time"
                 id="pickTime"
                 name="pickTime"
                 placeholder="HH:MM:SS (In 24 Hour Format)"

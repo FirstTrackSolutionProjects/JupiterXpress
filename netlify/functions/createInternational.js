@@ -83,7 +83,7 @@ exports.handler = async (event) => {
         "shipper_name": warehouse.warehouseName,
         "shipper_company_name": user.businessName ,
         "shipper_contact_no": user.phone,
-        "shipper_email": user.email,
+        "shipper_email": "xpressjupiter@gmail.com",
         "shipper_address_line_1": warehouse.address,
        
         "shipper_city": user.city,
@@ -95,7 +95,7 @@ exports.handler = async (event) => {
         "consignee_name": shipment.consignee_name,
         "consignee_company_name": shipment.consignee_company_name,
         "consignee_contact_no": shipment.consignee_contact_no,
-        "consignee_email": shipment.consignee_email,
+        "consignee_email": "xpressjupiter@gmail.com",
         "consignee_address_line_1": shipment.consignee_address_1,
         "consignee_address_line_2": shipment.consignee_address_2,
         "consignee_address_line_3": shipment.consignee_address_3,

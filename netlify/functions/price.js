@@ -5,7 +5,8 @@
 exports.handler = async (event, context) => {
     const {method, status, origin, dest, weight, payMode, codAmount,volume, quantity} = JSON.parse(event.body)
   try {
-    const netWeight = (Math.max(parseFloat(volume)/5 , weight)).toString()
+    const deliveryVolumetric = parseFloat(volume)/5;
+    const netWeight = (Math.max(deliveryVolumetric , weight)).toString()
     let responses = []
     
     const response = await fetch(`https://track.delhivery.com/api/kinko/v1/invoice/charges/.json?md=${method}&ss=${status}&d_pin=${dest}&o_pin=${origin}&cgm=${netWeight}&pt=${payMode}&cod=${codAmount}`, {
@@ -14345,8 +14346,8 @@ exports.handler = async (event, context) => {
         movinExpressActive = true;
       }
     }
-
-    const movinNetWeight = (Math.max(parseFloat(volume)/(method=="S"?4.5:5) , weight)).toString()
+    const movinVolumetric = parseFloat(volume)/(method=="S"?4.5:5)
+    const movinNetWeight = (Math.max( movinVolumetric , weight)).toString()
     const originData = await fetch(`http://www.postalpincode.in/api/pincode/${origin}`)
     const destData = await fetch(`http://www.postalpincode.in/api/pincode/${dest}`)
     const originPSData = await originData.json()
@@ -14380,7 +14381,8 @@ exports.handler = async (event, context) => {
             "weight" : "500gm",
             "price" : Math.round(price*1.3),
             "serviceId" : "1",
-            "categoryId" : "2"
+            "categoryId" : "2",
+            "chargableWeight" : netWeight
           })
           if (method=='S') {
             responses.push({
@@ -14388,7 +14390,8 @@ exports.handler = async (event, context) => {
               "weight" : "10Kg",
               "price" : Math.round(price2*1.3),
               "serviceId" : "1",
-              "categoryId" : "1"
+              "categoryId" : "1",
+              "chargableWeight" : netWeight
       
             })
           }
@@ -14399,7 +14402,8 @@ exports.handler = async (event, context) => {
         "weight" : `Min. 10Kg`,
         "price" : Math.round(parseFloat(movinPrice)),
         "serviceId" : "2",
-        "categoryId" : "2"
+        "categoryId" : "2",
+        "chargableWeight" : movinNetWeight
       })
     }
     if (method=='E' && movinExpressActive){
@@ -14408,7 +14412,8 @@ exports.handler = async (event, context) => {
         "weight" : `Min. 5Kg`,
         "price" : Math.round(parseFloat(movinPrice)),
         "serviceId" : "2",
-        "categoryId" : "1"
+        "categoryId" : "1",
+        "chargableWeight" : movinNetWeight
       })
     }
     

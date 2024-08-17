@@ -26,9 +26,10 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
         <div className="w-full p-4 ">
           {
             prices.length ? prices.map((price)=>(
-              <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-          <div>{price.name+" "+price.weight}</div>
-          <div className="absolute right-4">{`${Math.round((price.price))}`}</div>
+              <div className="w-full h-16 bg-white relative justify-center px-4 flex flex-col border-b" >
+          <div className="font-bold">{price.name+" "+price.weight}</div>
+          <div>{"Chargable Weight : "+price.chargableWeight}gm</div>
+          <div className="absolute right-4">{`₹${Math.round((price.price))}`}</div>
         </div>
             ))
           : null
