@@ -80,6 +80,8 @@ const FullDetails = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       payMode : 'Pre-paid',
+      postcode : '',
+      Bpostcode : '',
       same : 1,
       discount : 0,
       cod : 0,
@@ -121,7 +123,7 @@ const FullDetails = () => {
      }
     }
   if (watch('postcode').length == 6) pinToAdd()
-},[formData.postcode])
+},[watch('postcode')])
 useEffect(()=>{
   const pinToAdd = async () => {
     try{
@@ -139,7 +141,7 @@ useEffect(()=>{
     }
    }
  if (watch('Bpostcode').length == 6) pinToAdd()
-},[formData.Bpostcode])
+},[watch('Bpostcode')])
 
   useEffect(() => {
     const getWarehouses = async () => {
