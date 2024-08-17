@@ -22,6 +22,6 @@ netlify/.serverless
 *.njsproj
 *.sln
 *.sw?
-*.yml
+serverless.yml
 # Local Netlify folder
 .netlify
