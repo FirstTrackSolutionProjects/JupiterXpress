@@ -31,7 +31,7 @@ exports.handler = async (event) => {
 
   try {
     if (admin){
-      const [rows] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid WHERE s.awb IS NOT NULL');
+      const [rows] = await connection.execute('SELECT * FROM INTERNATIONAL_SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid JOIN USERS u ON u.uid=s.uid WHERE s.awb IS NOT NULL');
     if (rows.length > 0) {
       return {
         statusCode: 200,
