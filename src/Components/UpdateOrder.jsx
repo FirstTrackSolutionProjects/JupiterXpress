@@ -1103,8 +1103,13 @@ const Card = ({ shipment }) => {
       <>
         {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment}/>}
         {isManage ? <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/> : null}
-        <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
-          <div>{shipment.ord_id}</div>
+        <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
+          <div className="text-sm">
+            <div className="font-bold">{shipment.ord_id}</div>
+            <div >{shipment.customer_name}</div>
+            <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
+            <div>{shipment.date?shipment.date.toString().split('T')[0]+' '+shipment.date.toString().split('T')[1].split('.')[0]:null}</div>
+          </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
@@ -1262,7 +1267,12 @@ const Listing = ({ step, setStep }) => {
             .then(response => response.json())
             .then(result => {
               if (result.success) {
-                setShipments(result.order);
+                result.order.sort((a, b) => new Date(a.date) - new Date(b.date)).reverse()
+                const finalShipments = []
+                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
+                const shippedShipments = result.order.filter(shipment => shipment.awb)
+                finalShipments.push(...unShippedShipments,...shippedShipments)
+                setShipments(finalShipments);
               } else {
                 
               }
