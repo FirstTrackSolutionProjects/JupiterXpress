@@ -82,8 +82,22 @@ const Card = ({ report }) => {
   return (
     <>
       {view && <View report={report} setIsView={setIsView}/>}
-      <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
-        <div><div>{report.ord_id}</div><div>JUP{report.ref_id}</div></div>
+      <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
+        <div>
+          <div className="text-sm font-bold">
+            JUP{report.ref_id}
+            <span className="text-gray-500">({report.ord_id})</span>
+          </div>
+          <div className="text-[10px] text-gray-500">
+            {report.customer_name}
+          </div>
+          <div className="text-[10px] text-gray-500">
+            {report.awb}
+          </div>
+          <div className="text-[10px] text-gray-500">
+            {report.date?report.date.toString().split('T')[0]+' '+report.date.toString().split('T')[1].split('.')[0]:null}
+          </div>
+        </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
         {report.status}
         <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsView(true)}>View</div>

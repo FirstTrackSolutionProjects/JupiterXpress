@@ -55,8 +55,11 @@ const Card = ({ report }) => {
       <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
       <div className="text-[10px] text-gray-500">
           <div className="text-sm font-bold">JUPINT{report.iid}</div>
-          <div >{report.fullName}</div>
-          <div >{report.email}</div>
+          {
+            report.isAdmin? <><div >{report.fullName}</div>
+            <div >{report.email}</div></> : <><div >{report.consignee_name}</div>
+            </>
+          }
             <div> {report.awb?`AWB : ${report.awb}`:null}</div>
           </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
