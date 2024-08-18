@@ -52,7 +52,7 @@ const Card = ({ report }) => {
   return (
     <>
       {view && <View report={report} setIsView={setIsView}/>}
-      <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
+      <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
       <div className="text-sm">
           <div className="font-bold">JUPINT{report.iid}</div>
           <div >{report.consignee_name}</div>

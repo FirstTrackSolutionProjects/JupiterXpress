@@ -81,7 +81,7 @@ const Card = ({ report }) => {
   return (
     <>
       {view ? <View report={report} setIsView={setIsView}/> : null}
-      <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
+      <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
         <div>
           <div className="text-sm font-bold">
             JUP{report.ref_id}
