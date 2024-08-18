@@ -49,8 +49,8 @@ const Header = () => {
   return (
     <>
     {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
-    <div className="fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ">
-      <nav className="w-full relative z-3 lg:w-4/5 flex justify-evenly text-gray-700 items-center h-16">
+    <div className=" fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 flex justify-center items-center w-full h-16 ">
+      <nav className=" w-full relative z-3 lg:w-4/5 flex space-x-8 text-gray-700 items-center h-16">
         <Link to="/" className="flex items-center">
           <img src="logo.webp" alt="" className="h-8" />
           <div className="flex flex-col justify-evenly leading-4 -ml-6">
@@ -58,9 +58,11 @@ const Header = () => {
             <div className="font-bold text-blue-600">XPRESS</div>
           </div>
         </Link>
+        <div className="hidden sm:flex justify-evenly items-center">
         {navItems.map((item, index) => (
           <NavItem key={index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} />
         ))}
+        </div>
 
         {username && (
           <div className="h-16 flex space-x-3 items-center">
@@ -74,7 +76,7 @@ const Header = () => {
               </div> */}
               </>
             ):null}
-            <div className="flex space-x-4">
+            <div className="hidden sm:flex space-x-4">
               <p className="bg-white flex items-center font-medium rounded-xl px-2 py-2 cursor-pointer" onClick={()=>navigate('/dashboard')}>
                 {username}
               </p>
