@@ -1,5 +1,5 @@
 import JupiterCanvas from "./Canvas/Jupiter"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import Login from './Login'
 import { useState, useContext, useEffect } from "react"
 import Track from "./Track"
@@ -10,11 +10,7 @@ import ChooseUs from "./ChooseUs"
  
 
 const Welcome = () => {
-
-  
-  
-
-
+  const navigate = useNavigate()
   const {login , logout} = useContext(AuthContext)
   const [authMode, setAuthMode] = useState(0)
   const [track, setTrack] = useState(0)
@@ -46,7 +42,10 @@ const Welcome = () => {
               (!(loggedIn))?(<div className="flex justify-evenly w-full mt-6">
                 <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-500 hover:text-blue-500 hover:bg-white" >Get Started</div>
                 <div onClick={()=>{ setAuthMode(2);}} className="py-2 px-4 border rounded-xl border-blue-500 text-blue-500 hover:text-black hover:border-none hover:bg-blue-500" >Login Now</div>
-              </div>):null
+              </div>):(<div className="flex justify-evenly w-full mt-6">
+                <div onClick={()=>{navigate('/dashboard') }} className="py-2 px-4 rounded-xl bg-blue-500 hover:text-blue-500 hover:bg-white" >Dashboard</div>
+                
+              </div>)
             }
             </div>
 

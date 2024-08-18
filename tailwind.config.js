@@ -64,6 +64,13 @@ export default {
           'transition-duration': '0.3s',
           'transition-timing-function': 'ease-in-out',
         },
+        '.responsive-text' : {
+           ' max-width': '100%' ,
+            'font-size': 'clamp(2px, 1vw, 2px)', 
+           'white-space': 'nowrap',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis'
+        },
         '.underline-width-0': {
           'width': '0',
         },
