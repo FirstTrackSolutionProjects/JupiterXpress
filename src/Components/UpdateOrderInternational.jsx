@@ -971,7 +971,11 @@ const Card = ({ shipment }) => {
         {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
         
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
-          <div>JUPINT{shipment.iid}</div>
+          <div className="text-sm">
+          <div className="font-bold">JUPINT{shipment.iid}</div>
+          <div >{shipment.consignee_name}</div>
+            <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
+          </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
           {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
@@ -1119,7 +1123,12 @@ const Listing = ({ step, setStep }) => {
             .then(response => response.json())
             .then(result => {
               if (result.success) {
-                setShipments(result.order);
+                result.order.sort((a, b) => new Date(a.iid) - new Date(b.iid)).reverse()
+                const finalShipments = []
+                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
+                const shippedShipments = result.order.filter(shipment => shipment.awb)
+                finalShipments.push(...unShippedShipments,...shippedShipments)
+                setShipments(finalShipments);
               } else {
                 
               }
