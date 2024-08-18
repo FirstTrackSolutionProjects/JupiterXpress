@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
+const ManageForm = ({ shipment}) => {
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
 ]);
@@ -53,6 +53,7 @@ const [items, setItems] = useState([
     serviceCode: shipment.service_code,
     consigneeName : shipment.consignee_name,
     consigneeCompany : shipment.consignee_company_name,
+    countryCode : shipment.consignee_country_code,
     consigneeContact : shipment.consignee_contact_no,
     consigneeEmail : shipment.consignee_email,
     consigneeAddress : shipment.consignee_address_1,
@@ -72,7 +73,7 @@ const [items, setItems] = useState([
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch('/.netlify/functions/getAllWarehouse',{
+      await fetch('/.netlify/functions/getWarehouse',{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -281,6 +282,24 @@ const [items, setItems] = useState([
             
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
+              <label htmlFor="countryCode">Country Code</label>
+              <select required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="countryCode"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={handleChange}
+              >
+                <option value="+91">+91</option>
+                <option value="+61">+61</option>
+                <option value="+64">+64</option>
+                <option value="+971">+971</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+              </select>
+                </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeContact">Consignee Contact</label>
               <input required
@@ -460,7 +479,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="gst">Seller GST</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="gst"
@@ -561,7 +580,7 @@ const [items, setItems] = useState([
         <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
           <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
               <label htmlFor="hscode">HS Code</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="hscode"
@@ -951,7 +970,7 @@ const Card = ({ shipment }) => {
           {!isShipped && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
           </div>
         </div>
-        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>}
+        {isManage && <ManageForm  shipment={shipment} />}
       </>
     );
   };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
+const ManageForm = ({ shipment}) => {
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
 ]);
