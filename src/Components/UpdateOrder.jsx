@@ -994,47 +994,43 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   const [prices,setPrices] = useState([])
   const [boxes, setBoxes] = useState([])
   useEffect(()=>{
-    // console.log({method, status, origin, dest, weight, payMode, codAmount})
     
-
     const data = async () => {
-      await fetch('/.netlify/functions/getBoxes', {
+      const getBoxes = await fetch('/.netlify/functions/getBoxes', {
         method: 'POST',
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem('token'),
+          'Authorization': localStorage.getItem('token'), 
         },
         body: JSON.stringify({ order : shipment.ord_id}),
       })
-        .then(response => response.json())
-        .then(result => {
-          if (result.success) {
-            setBoxes(result.order)
-          } else {
-            alert('failed: ' + result.message)
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred during fetching Boxes');
-        });
-        let weight = 0;
-        let volume = 0;
-        boxes.map((box) => {
+      const boxesData = await getBoxes.json()
+      setBoxes(boxesData.order)
+      console.log(boxesData.order)
+      let weight = 0;
+      let volume = 0;
+      const volumetric = async () => {
+        boxesData.order.map((box) => {
           weight += parseFloat(box.weight);
-          volume += parseFloat(box.length) * parseFloat(box.width) * parseFloat(box.height)
+          volume += (parseFloat(box.length) * parseFloat(box.breadth) * parseFloat(box.height))
         })
-      await fetch(`/.netlify/functions/price`, {
+      }
+      await volumetric()
+      console.log({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length})
+      const getPrice = await fetch(`/.netlify/functions/price`, {
         method: 'POST',
         headers: { 'Accept': 'application/json',
-          'Content-Type': 'application/json'
+                   'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxes.length}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length}),
         
-      }).then(response => response.json()).then(result => {console.log(result); result.prices.sort((a,b)=>parseFloat(a.price) - parseFloat(b.price)) ;setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
-    }  
+      })
+      const prices = await getPrice.json()
+      setPrices(prices.prices)
+    }
     data()
-  }, []) 
+  },[])
+  
   return (
     <>
       <div className=" absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
@@ -1042,7 +1038,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
           X
         </div>
         <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR SERVICE (WAIT FOR 30 SECONDS AFTER CLICKING SHIP TO AVOID DUPLICATE ORDERS)
+          CHOOSE YOUR SERVICE
         </div>
         <div className="w-full  p-4 ">
           {
@@ -1051,7 +1047,6 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
             ))
           : null
           }
-          
         </div>
       </div>
     </>

@@ -14419,7 +14419,7 @@ exports.handler = async (event, context) => {
     
     return {
       statusCode: 200,
-      body: JSON.stringify({prices : responses}),
+      body: JSON.stringify({prices : responses, quantity : quantity}),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*', // Allow all origins (CORS)
