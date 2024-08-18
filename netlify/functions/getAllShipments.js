@@ -29,7 +29,7 @@ exports.handler = async (event) => {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [rows] = await connection.execute('SELECT * FROM SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid JOIN USERS u ON s.uid=u.uid WHERE awb IS NULL',);
+    const [rows] = await connection.execute('SELECT * FROM SHIPMENTS s JOIN WAREHOUSES w ON s.wid=w.wid JOIN USERS u ON s.uid=u.uid',);
     if (rows.length > 0) {
       return {
         statusCode: 200,

@@ -931,18 +931,19 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
 
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
-    
+    const [isShipped, setIsShipped] = useState(shipment.awb?true:false)
     return (
       <>
         {isManage ? <ManageForm setIsManage={setIsManage} shipment={shipment} isManage={isManage} isShipped={shipment.awb?true:false} /> : null}
-        <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
+        <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div>
-          <div>{shipment.ord_id}</div>
+          <div className="text-sm font-bold">{shipment.ord_id}</div>
           <div className="text-[10px] text-gray-500">{shipment.fullName}</div>
           <div className="text-[10px] text-gray-500">{shipment.email}</div>
+          <div className="text-[10px] text-gray-500">{shipment.date?shipment.date.toString().split('T')[0]+' '+shipment.date.toString().split('T')[1].split('.')[0]:null}</div>
           </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           </div>
         </div>
       </>
@@ -965,9 +966,13 @@ const Listing = ({ step, setStep }) => {
             .then(response => response.json())
             .then(result => {
               if (result.success) {
-                result.order.reverse()
-                setShipments(result.order);
-                setFilteredShipments(result.order);
+                result.order.sort((a, b) => new Date(a.date) - new Date(b.date)).reverse()
+                const finalShipments = []
+                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
+                const shippedShipments = result.order.filter(shipment => shipment.awb)
+                finalShipments.push(...unShippedShipments,...shippedShipments)
+                setShipments(finalShipments);
+                setFilteredShipments(finalShipments);
               } else {
                 alert("Failed to fetch parcels")
               }
