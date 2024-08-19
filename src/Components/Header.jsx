@@ -58,7 +58,7 @@ const Header = () => {
             <div className="font-bold text-blue-600">XPRESS</div>
           </div>
         </Link>
-        <div className="hidden sm:flex justify-evenly items-center">
+        <div className="hidden sm:flex justify-evenly items-center flex-1">
         {navItems.map((item, index) => (
           <NavItem key={index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} />
         ))}
