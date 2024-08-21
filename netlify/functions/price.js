@@ -14376,7 +14376,7 @@ exports.handler = async (event, context) => {
     const price = data[0]['total_amount']
     const price2 = data2[0]['total_amount']
     if (quantity == 1){
-        responses.push({
+        responses.push({ 
             "name" : `Delhivery ${method=='S'?'Surface' : 'Express'} Light`,
             "weight" : "500gm",
             "price" : Math.round(price*1.3),
