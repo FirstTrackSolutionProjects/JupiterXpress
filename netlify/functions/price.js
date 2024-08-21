@@ -14382,7 +14382,7 @@ exports.handler = async (event, context) => {
             "price" : Math.round(price*1.3),
             "serviceId" : "1",
             "categoryId" : "2",
-            "chargableWeight" : netWeight
+            "chargableWeight" : netWeight 
           })
           if (method=='S') {
             responses.push({
