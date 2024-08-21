@@ -14384,7 +14384,7 @@ exports.handler = async (event, context) => {
             "categoryId" : "2",
             "chargableWeight" : netWeight 
           })
-          if (method=='S') {
+          if (method=='S') { 
             responses.push({
               "name" :  `Delhivery Surface`,
               "weight" : "10Kg",
