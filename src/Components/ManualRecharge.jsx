@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ManualRecharge = () => {
     const [formData, setFormData] = useState({
         email : '',
@@ -15,7 +15,7 @@ const ManualRecharge = () => {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch('/.netlify/functions/manualRecharge', {
+        fetch(`${API_URL}/manualRecharge`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

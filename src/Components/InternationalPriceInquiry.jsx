@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const International = () => {
     const [formData, setFormData] = useState({
       status : 'Delivered',
@@ -25,7 +25,7 @@ const International = () => {
     };
     const handleSubmit = async (e) => {
       e.preventDefault();
-      await fetch('/.netlify/functions/priceInquiry', {
+      await fetch(`${API_URL}/priceInquiry`, {
         method : 'POST',
         headers : {
           'Content-Type': 'application/json',

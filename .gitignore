@@ -11,7 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-netlify/.serverless
+.serverless
+deno.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

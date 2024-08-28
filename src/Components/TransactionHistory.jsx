@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
     const date = new Date(transaction.date)
     return (
@@ -41,8 +41,8 @@ const TransactionHistory =  () => {
     const [transactions, setTransactions] = useState([])
     useEffect(() => {
         const getVerifiedtransaction = async () => {
-            const recharge = await fetch('/.netlify/functions/getTransactions', {
-                method: 'GET',
+            const recharge = await fetch(`${API_URL}/getTransactions`, {
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -50,8 +50,8 @@ const TransactionHistory =  () => {
             })
             const recharges = await recharge.json();
             const data = recharges.data
-            const manual = await fetch('/.netlify/functions/getManualTransactions', {
-                method: 'GET',
+            const manual = await fetch(`${API_URL}/getManualTransactions`, {
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -59,8 +59,8 @@ const TransactionHistory =  () => {
             })
             const manuals = await manual.json();
             data.push(...manuals.data)
-            const expense = await fetch('/.netlify/functions/getExpense', {
-                method: 'GET',
+            const expense = await fetch(`${API_URL}/getExpense`, {
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),
@@ -68,8 +68,8 @@ const TransactionHistory =  () => {
             })
             const expenses = await expense.json();
             data.push(...expenses.data)
-            const refund = await fetch('/.netlify/functions/getRefund', {
-                method: 'GET',
+            const refund = await fetch(`${API_URL}/getRefund`, {
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),

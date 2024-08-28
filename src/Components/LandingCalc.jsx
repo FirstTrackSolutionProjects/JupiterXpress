@@ -1,18 +1,15 @@
 import { useState, useEffect } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, height, breadth, length}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount})
     const data = async () => {
-      await fetch(`/.netlify/functions/price`, {
+      await fetch(`${API_URL}/price`, {
         method: 'POST',
-        headers: { 'Accept': '*/*',
-          'Content-Type': 'application/json',
-          'Authorization': 'Token 2e80e1f3f5368a861041f01bb17c694967e94138',
-          "Access-Control-Allow-Origin" : "*",
-          "Access-Control-Allow-Headers" : "Origin, X-Requested-With, Content-Type, Accept"
+        headers: { 'Accept': 'application/json',
+          'Content-Type': 'application/json'
         },
           body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount, length, breadth, height}),
         

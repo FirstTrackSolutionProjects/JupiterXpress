@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const FullDetails = () => {
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
@@ -43,7 +43,7 @@ const handleAddDocket = () => {
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch('/.netlify/functions/getWarehouse',{
+      await fetch(`${API_URL}/getWarehouse`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -104,7 +104,7 @@ const handleAddDocket = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/.netlify/functions/createOrderInternational', {
+    fetch(`${API_URL}/createOrderInternational`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { jwtDecode } from "jwt-decode"
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Recharge = ({setShowRecharge}) => {
   const [amount, setAmount] = useState(500);
   const [order, setOrder] = useState(null);
@@ -21,9 +22,12 @@ const Recharge = ({setShowRecharge}) => {
       // if (parseInt(amount) < 500){
       //   return;
       // }
-      const response = await fetch('/.netlify/functions/deliveryOrder', {
+      const response = await fetch(`${API_URL}/deliveryOrder`, {
         method: 'POST',
         body: JSON.stringify({ amount }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
       });
       const data = await response.json();
       setOrder(data);
@@ -45,7 +49,7 @@ const Recharge = ({setShowRecharge}) => {
         image: 'logo.webp',
         order_id: data.id,
         handler: async function (response) {
-          const verifyResponse = await fetch('/.netlify/functions/verifyRecharge', {
+          const verifyResponse = await fetch(`${API_URL}/verifyRecharge`, {
             method: 'POST',
             body: JSON.stringify({
               razorpay_payment_id: response.razorpay_payment_id,
@@ -54,6 +58,9 @@ const Recharge = ({setShowRecharge}) => {
               uid: id,
               amount: amount,
             }),
+            headers: {
+              'Content-Type': 'application/json'
+            },
           });
           const verifyData = await verifyResponse.json();
           if (verifyData.success) {
@@ -91,7 +98,7 @@ const Recharge = ({setShowRecharge}) => {
       <input
         type="number"
         value={amount}
-        min={500}
+        min={1}
         onChange={(e) => setAmount(e.target.value)}
         className='w-full border py-2 px-4 rounded-3xl'
       />

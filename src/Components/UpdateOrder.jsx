@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     const [boxes, setBoxes] = useState([
       { box_no: 1 , length : 0 , breadth: 0 , height: 0  , weight : 0 }
@@ -10,7 +10,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     const [warehouses, setWarehouses] = useState([])
     useEffect(()=>{
       const getWarehouses = async () => {
-        await fetch('/.netlify/functions/getWarehouse',{
+        await fetch(`${API_URL}/getWarehouse`,{
           method : 'POST',
           headers : {
             'Accept': 'application/json',
@@ -20,7 +20,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         }).then(response => response.json()).then(result => setWarehouses(result.rows))
       }
       getWarehouses();
-        fetch('/.netlify/functions/getOrder', {
+        fetch(`${API_URL}/getOrder`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
               console.error('Error:', error);
               alert('An error occurred during fetching Order');
             });
-            fetch('/.netlify/functions/getBoxes', {
+            fetch(`${API_URL}/getBoxes`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -243,7 +243,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
       itemFlag = 0
     }
     
-        fetch('/.netlify/functions/updateOrder', {
+        fetch(`${API_URL}/updateOrder`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -932,8 +932,8 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
   const [isLoading, setIsLoading] = useState(false)
   const ship = async () => {
     setIsLoading(true)
-    const getBalance = await fetch('/.netlify/functions/getBalance', {
-      method: 'GET',
+    const getBalance = await fetch(`${API_URL}/getBalance`, {
+      method: 'POST',
       headers : {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -948,7 +948,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
         return;
       }
     }
-    fetch('/.netlify/functions/create', {
+    fetch(`${API_URL}/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -959,7 +959,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
     }).then(response => response.json()).then(async result => {
       if (result.success){
         setIsShipped(true)
-        await fetch('/.netlify/functions/domesticOrderMail',{
+        await fetch(`${API_URL}/domesticOrderMail`,{
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -996,7 +996,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   useEffect(()=>{
     
     const data = async () => {
-      const getBoxes = await fetch('/.netlify/functions/getBoxes', {
+      const getBoxes = await fetch(`${API_URL}/getBoxes`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -1017,7 +1017,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
       }
       await volumetric()
       console.log({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length})
-      const getPrice = await fetch(`/.netlify/functions/price`, {
+      const getPrice = await fetch(`${API_URL}/price`, {
         method: 'POST',
         headers: { 'Accept': 'application/json',
                    'Content-Type': 'application/json'
@@ -1059,7 +1059,7 @@ const Card = ({ shipment }) => {
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
     const [isCancelled, setIsCancelled] = useState(shipment.cancelled?true:false);
     const getLabel = async () => {
-      await fetch('/.netlify/functions/label', {
+      await fetch(`${API_URL}/label`, {
         method : 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1080,7 +1080,7 @@ const Card = ({ shipment }) => {
     const cancelShipment = async () => {
       const cancel = confirm('Do you want to cancel this shipment?');
       if (!cancel) return;
-      await fetch('/.netlify/functions/cancelShipment', {
+      await fetch(`${API_URL}/cancelShipment`, {
         method : 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1125,7 +1125,7 @@ const Card = ({ shipment }) => {
     const [warehouses, setWarehouses] = useState([]);
     useEffect(() => {
       const getWarehouses = async () => {
-        const response = await fetch('/.netlify/functions/getWarehouse', {
+        const response = await fetch(`${API_URL}/getWarehouse`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -1149,7 +1149,7 @@ const Card = ({ shipment }) => {
       e.preventDefault();
       // console.log(formData)
       // return
-      await fetch('/.netlify/functions/schedule', {
+      await fetch(`${API_URL}/schedule`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1257,7 +1257,7 @@ const Listing = ({ step, setStep }) => {
     const [pickup, setPickup] = useState(false);
     useEffect(() => {
 
-        fetch('/.netlify/functions/getShipments', {
+        fetch(`${API_URL}/getShipments`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

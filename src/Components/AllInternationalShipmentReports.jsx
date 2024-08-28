@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
@@ -20,7 +20,7 @@ const [items, setItems] = useState([
 ]);
   useEffect(() => {
     const getDockets = async () => {
-      await fetch('/.netlify/functions/getDockets',{
+      await fetch(`${API_URL}/getDockets`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -32,7 +32,7 @@ const [items, setItems] = useState([
      .then(response => response.json()).then(result => {setDockets(result.dockets); console.log(result.dockets)})
     }
     const getItems = async () => {
-      await fetch('/.netlify/functions/getDocketItems',{
+      await fetch(`${API_URL}/getDocketItems`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -73,7 +73,7 @@ const [items, setItems] = useState([
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch('/.netlify/functions/getWarehouse',{
+      await fetch(`${API_URL}/getWarehouse`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -169,7 +169,7 @@ const [items, setItems] = useState([
       itemFlag = 0
     }
 
-    fetch('/.netlify/functions/updateOrderInternational', {
+    fetch(`${API_URL}/updateOrderInternational`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -463,12 +463,12 @@ const [items, setItems] = useState([
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="shipmentType">Shipment Type</label>
+              <label htmlFor="shippingType">Shipment Type</label>
               <select required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                id="shipmentType"
-                name="shipmentType"
+                id="shippingType"
+                name="shippingType"
                 value={formData.shippingType}
                 onChange={handleChange}
               >
@@ -934,7 +934,7 @@ const Card = ({ shipment }) => {
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
     const handleShip = async () => {
       setIsLoading(true)
-      await fetch('/.netlify/functions/createInternational',{
+      await fetch(`${API_URL}/createInternational`,{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -983,7 +983,7 @@ const Card = ({ shipment }) => {
     const [warehouses, setWarehouses] = useState([]);
     useEffect(() => {
       const getWarehouses = async () => {
-        const response = await fetch('/.netlify/functions/getWarehouse', {
+        const response = await fetch(`${API_URL}/getWarehouse`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -1004,7 +1004,7 @@ const Card = ({ shipment }) => {
     })
     const handleSubmit = async (e) => {
       e.preventDefault();
-      await fetch('/.netlify/functions/schedule', {
+      await fetch(`${API_URL}/schedule`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1106,7 +1106,7 @@ const Listing = ({ step, setStep }) => {
     const [pickup, setPickup] = useState(false);
     useEffect(() => {
 
-        fetch('/.netlify/functions/getInternationalShipments', {
+        fetch(`${API_URL}/getInternationalShipments`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

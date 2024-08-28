@@ -1,9 +1,9 @@
 import { useEffect , useState  } from 'react'
 
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const View = ({request, kycId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, accountNumber, ifsc, bank}) => {
     const handleApprove = async () => {
-        await fetch('/.netlify/functions/verifyMerchantKyc', {
+        await fetch(`${API_URL}/verifyMerchantKyc`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -14,7 +14,7 @@ const View = ({request, kycId, uid ,fullName, email, phone, gst, setView, busine
     }
     const [profilePhoto, setProfilePhoto] = useState(null)
     const handleReject = async () => {
-        await fetch('/.netlify/functions/rejectMerchantKyc', {
+        await fetch(`${API_URL}/rejectMerchantKyc`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -25,7 +25,7 @@ const View = ({request, kycId, uid ,fullName, email, phone, gst, setView, busine
     }
     useEffect(()=>{
         const getProfilePhoto = async () => {
-            await fetch('/.netlify/functions/getGetSignedUrl', {
+            await fetch(`${API_URL}/getGetSignedUrl`, {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',
@@ -38,7 +38,7 @@ const View = ({request, kycId, uid ,fullName, email, phone, gst, setView, busine
         getProfilePhoto()
     })
     const handleDownload = async (name) => {
-        await fetch('/.netlify/functions/getGetSignedUrl', {
+        await fetch(`${API_URL}/getGetSignedUrl`, {
         method : 'POST',
         headers : {
             'Content-Type' : 'application/json',
@@ -122,8 +122,8 @@ const KYCRequests =  () => {
     const [requests, setRequests] = useState([])
     useEffect(() => {
         const getVerificationRequests = async () => {
-            const response = await fetch('/.netlify/functions/getKycVerificationRequests', {
-                method: 'GET',
+            const response = await fetch(`${API_URL}/getKycVerificationRequests`, {
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),

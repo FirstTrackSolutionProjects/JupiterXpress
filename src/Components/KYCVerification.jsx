@@ -1,346 +1,5 @@
-// import React, { useState, useEffect } from "react";
-
-// const UploadForm = () => {
-//   const [formData, setFormData] = useState({
-//     accountNumber: '',
-//     ifsc : '',
-//     bank : '',
-//     gst : '',
-//     msme : '',
-//     cin : ''
-//   })
-//   const [fileData, setFileData] = useState({
-//     aadharDoc: null,
-//     panDoc: null,
-//     gstDoc: null,
-//     cancelledCheque: null,
-//     selfieDoc: null,
-//   });
-//   const [uploadStatus, setUploadStatus] = useState({
-//     aadharDoc: false,
-//     panDoc: false,
-//     gstDoc: false,
-//     cancelledCheque: false,
-//     selfieDoc: false,
-//   });
-//   useEffect(() => {
-//     const getDocumentStatus = async () => {
-//       await fetch('/.netlify/functions/getDocumentStatus', {
-//         method: 'GET',
-//         headers: { 'Content-Type': 'application/json',
-//           'Accept': 'application/json',
-//           'Authorization': localStorage.getItem('token')
-//         }
-//       }).then(response => response.json()).then((result) => {
-//         setUploadStatus({
-//           aadharDoc: result.message.aadharDoc?(true):(false),
-//           panDoc: result.message.panDoc?(true):(false),
-//           gstDoc: result.message.gstDoc?(true):(false),
-//           cancelledCheque: result.message.cancelledCheque?(true):(false),
-//           selfieDoc: result.message.selfieDoc?(true):(false)
-//         })
-//       })
-//     }
-//     getDocumentStatus()
-//   }, [])
-//   const handleFileChange = (e) => {
-//     const { name, files } = e.target;
-//     setFileData((prevData) => ({
-//       ...prevData,
-//       [name]: files[0],
-//     }));
-//   };
-
-//   const handleUpload = async (name) => {
-//     // Fetch signed URL from backend
-//     const response  = await fetch ('/.netlify/functions/getTokenData', {
-//       method: 'GET',
-//       headers: {
-//         'Authorization' : localStorage.getItem('token'),
-//       }
-//     })
-//     const tokenData = await response.json();
-//     const id = tokenData.id;
-//     const key  = `merchant/${id}/kycDocs//${name}`
-//     await fetch(`/.netlify/functions/getPutSignedUrl`, {
-//       method: "POST",
-//       headers: {
-//         'Authorization': localStorage.getItem("token"),
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json'
-//       },
-//       body: JSON.stringify({filename : key, filetype : fileData[name].type})
-//     })
-//       .then((response) => response.json())
-//       .then(async (data) => {
-//         const { uploadURL } = data;
-//         await fetch(uploadURL, {
-//           method: "PUT",
-//           headers: {
-//             'Content-Type': fileData[name].type
-//           },
-//           body: fileData[name],
-//         });
-//         await fetch(`/.netlify/functions/updateDocumentStatus`, {
-//           method: 'POST',
-//           headers : {
-//             'Content-Type' : 'application/json',
-//             'Accept' : 'application/json',
-//             'Authorization' : localStorage.getItem('token')
-//           },
-//           body : JSON.stringify({name : name, key : key})
-//         })
-//         alert("Success");
-//       })
-//       .then(() => {
-//         setUploadStatus((prevStatus) => ({
-//           ...prevStatus,
-//           [name]: true,
-//         }));
-//       })
-//       .catch((error) => alert(error.message));
-//   };
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prevData) => ({
-//      ...prevData,
-//       [name]: value,
-//     }));
-//   }
-//   const handleSubmit= async (e) => {
-//     e.preventDefault();
-//     if (!(uploadStatus.aadharDoc && uploadStatus.panDoc && uploadStatus.cancelledCheque && uploadStatus.selfieDoc)){
-//       alert("Please upload all required documents")
-//       return;
-//     }
-//     await fetch(`/.netlify/functions/completeVerificationRequest`, {
-//       method: 'GET',
-//       headers : {
-//         'Content-Type' : 'application/json',
-//         'Accept' : 'application/json',
-//         'Authorization' : localStorage.getItem('token')
-//       }
-//   }).then(response => response.json()).then(result => alert(result.message));
-// }
-//   return (
-//     <form className="w-[1024px] flex flex-col bg-white pt-8 px-4" onSubmit={handleSubmit}>
-//       {/* File input required fields */}
-//       <div className="w-full flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="bank">Bank Name*</label>
-//           <input required
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="bank"
-//             onChange={handleChange}
-//             value={formData.bank}
-//             id="bank"
-//             name="bank"
-//             placeholder="Enter bank"
-//           />
-//         </div>
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="accountNumber">Account Number*</label>
-//           <input required
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="text"
-//             onChange={handleChange}
-//             value={formData.accountNumber}
-//             id="accountNumber"
-//             name="accountNumber"
-//             placeholder="Enter Account Number"
-//           />
-//         </div>
-//       </div>
-//       <div className="w-full flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="ifsc">IFSC*</label>
-//           <input required
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="text"
-//             onChange={handleChange}
-//             value={formData.ifsc}
-//             id="ifsc"
-//             name="ifsc"
-//             placeholder="Enter ifsc"
-//           />
-//         </div>
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="msme">MSME/UDYOG Number</label>
-//           <input
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="text"
-//             onChange={handleChange}
-//             value={formData.msme}
-//             id="msme"
-//             name="msme"
-//             placeholder="Enter msme"
-//           />
-//         </div>
-//       </div>
-//       <div className="w-full flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="gst">GSTIN Number</label>
-//           <input
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="text"
-//             onChange={handleChange}
-//             value={formData.gst}
-//             id="gst"
-//             name="gst"
-//             placeholder="Enter gst"
-//           />
-//         </div>
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-//           <label htmlFor="cin">CIN</label>
-//           <input required
-//             className="w-full border py-2 px-4 rounded-3xl"
-//             type="text"
-//             onChange={handleChange}
-//             value={formData.cin}
-//             id="cin"
-//             name="cin"
-//             placeholder="Enter CIN"
-//           />
-//         </div>
-//       </div>
-//       <div className="w-full flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//           <label htmlFor="aadharDoc">Aadhar Card (Both Sides) *</label>
-//           <input
-//             className="w-full border leading-8 rounded-3xl"
-//             type="file"
-//             onChange={handleFileChange}
-//             id="aadharDoc"
-//             name="aadharDoc"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => handleUpload("aadharDoc")}
-//             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//           >
-//             Upload
-//           </button>
-//           {uploadStatus.aadharDoc && <span>✔️</span>}
-//         </div>
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//           <label htmlFor="panDoc">PAN Card (Front Side) *</label>
-//           <input
-//             className="w-full border leading-8 rounded-3xl"
-//             type="file"
-//             onChange={handleFileChange}
-//             id="panDoc"
-//             name="panDoc"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => handleUpload("panDoc")}
-//             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//           >
-//             Upload
-//           </button>
-//           {uploadStatus.panDoc && <span>✔️</span>}
-//         </div>
-//       </div>
-//       <div className="w-full flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//           <label htmlFor="gstDoc">GST Certificate </label>
-//           <input
-//             className="w-full border leading-8 rounded-3xl"
-//             type="file"
-//             onChange={handleFileChange}
-//             id="gstDoc"
-//             name="gstDoc"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => handleUpload("gstDoc")}
-//             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//           >
-//             Upload
-//           </button>
-//           {uploadStatus.gstDoc && <span>✔️</span>}
-//         </div>
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//           <label htmlFor="cancelledCheque">Cancelled Cheque *</label>
-//           <input
-//             className="w-full border leading-8 rounded-3xl"
-//             type="file"
-//             onChange={handleFileChange}
-//             id="cancelledCheque"
-//             name="cancelledCheque"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => handleUpload("cancelledCheque")}
-//             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//           >
-//             Upload
-//           </button>
-//           {uploadStatus.cancelledCheque && <span>✔️</span>}
-//         </div>
-//       </div>
-//       <div className="w-1/2 flex mb-2 flex-wrap ">
-//         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//           <label htmlFor="selfieDoc">Upload your selfie *</label>
-//           <input
-//             className="w-full border leading-8 rounded-3xl"
-//             type="file"
-//             onChange={handleFileChange}
-//             id="selfieDoc"
-//             name="selfieDoc"
-//           />
-//           <button
-//             type="button"
-//             onClick={() => handleUpload("selfieDoc")}
-//             className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//           >
-//             Upload
-//           </button>
-//           {uploadStatus.selfieDoc && <span>✔️</span>}
-//         </div>
-//         {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-//                   <label htmlFor="panDoc">PAN Card (Front Side) *</label>
-//                   <input required className="w-full border leading-8 rounded-3xl" type="file" onChange={handleFileChange} id="panDoc" name="panDoc" />
-//                   <button type='button' onClick={() => handleUpload('aadharDoc')} className="px-5 py-1 border rounded-3xl bg-blue-500 text-white">Upload</button>
-//                   {uploadStatus.panDoc && <span>✔️</span>}
-//               </div> */}
-//       </div>
-//       <div className="px-2 space-x-4 mb-4">
-//         <button
-//           type="submit"
-//           className="px-5 py-1 border rounded-3xl bg-blue-500 text-white"
-//         >
-//           Submit
-//         </button>
-//       </div>
-//       {/* Add similar file inputs for other documents */}
-//     </form>
-//   );
-// };
-
-
-// const KYCVerification = () => {
-//   return (
-//     <>
-     
-//       <div className="w-full flex flex-col items-center">
-//         <div className="w-full flex flex-col items-center p-8 bg-white">
-//           <div className="text-center text-3xl font-medium">
-//             KYC Verification
-//           </div>
-          
-//             <UploadForm />
-   
-//         </div>
-//       </div>
-      
-//     </>
-//   );
-// };
-
-// export default KYCVerification;
-
 import React, { useState, useEffect} from "react";
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const FileUploadForm = ({reqId}) => {
   const [fileData, setFileData] = useState({
@@ -359,8 +18,8 @@ const FileUploadForm = ({reqId}) => {
   });
   useEffect(() => {
     const getDocumentStatus = async () => {
-      await fetch('/.netlify/functions/getKycDocumentStatus', {
-        method: 'GET',
+      await fetch(`${API_URL}/getKycDocumentStatus`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': localStorage.getItem('token')
@@ -387,8 +46,8 @@ const FileUploadForm = ({reqId}) => {
 
   const handleUpload = async (name) => {
     // Fetch signed URL from backend
-    const response  = await fetch ('/.netlify/functions/getTokenData', {
-      method: 'GET',
+    const response  = await fetch (`${API_URL}/getTokenData`, {
+      method: 'POST',
       headers: {
         'Authorization' : localStorage.getItem('token'),
       }
@@ -396,7 +55,7 @@ const FileUploadForm = ({reqId}) => {
     const tokenData = await response.json();
     const id = tokenData.id;
     const key  = `merchant/${id}/kycDocs/${reqId}/${name}`
-    await fetch(`/.netlify/functions/getPutSignedUrl`, {
+    await fetch(`${API_URL}/getPutSignedUrl`, {
       method: "POST",
       headers: {
         'Authorization': localStorage.getItem("token"),
@@ -415,7 +74,7 @@ const FileUploadForm = ({reqId}) => {
           },
           body: fileData[name],
         });
-        await fetch(`/.netlify/functions/updateKycDocumentStatus`, {
+        await fetch(`${API_URL}/updateKycDocumentStatus`, {
           method: 'POST',
           headers : {
             'Content-Type' : 'application/json',
@@ -441,8 +100,8 @@ const FileUploadForm = ({reqId}) => {
       alert("Please upload all required documents")
       return;
     }
-    await fetch(`/.netlify/functions/completeKycVerificationRequest`, {
-      method: 'GET',
+    await fetch(`${API_URL}/completeKycVerificationRequest`, {
+      method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
         'Accept' : 'application/json',
@@ -588,7 +247,7 @@ const TextForm = ({ onNext, setReqId }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("/.netlify/functions/kycFormSubmit", {
+    fetch(`${API_URL}/kycFormSubmit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -797,8 +456,8 @@ const KYCVerification = () => {
   const [step, setStep] = useState(1);
   useEffect(() => {
     const getStatus = async () => {
-      await fetch('/.netlify/functions/getKycStatus', {
-        method: 'GET',
+      await fetch(`${API_URL}/getKycStatus`, {
+        method: 'POST',
         headers: {
           'Authorization': localStorage.getItem('token'),
           'Content-Type' : 'application/json',

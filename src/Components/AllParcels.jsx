@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
   const [boxes, setBoxes] = useState([
     { box_no: 1 , length : 0 , breadth: 0 , height: 0  , weight : 0 }
@@ -10,7 +10,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
   const [warehouses, setWarehouses] = useState([])
   useEffect(()=>{
     const getWarehouses = async () => {
-      await fetch('/.netlify/functions/getAllWarehouse',{
+      await fetch(`${API_URL}/getAllWarehouse`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -20,7 +20,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
       }).then(response => response.json()).then(result => setWarehouses(result.rows))
     }
     getWarehouses();
-      fetch('/.netlify/functions/getOrder', {
+      fetch(`${API_URL}/getOrder`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             console.error('Error:', error);
             alert('An error occurred during fetching Order');
           });
-          fetch('/.netlify/functions/getBoxes', {
+          fetch(`${API_URL}/getBoxes`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -243,7 +243,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     itemFlag = 0
   }
   
-      fetch('/.netlify/functions/updateOrder', {
+      fetch(`${API_URL}/updateOrder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -956,7 +956,7 @@ const Listing = ({ step, setStep }) => {
     const [filteredShipments, setFilteredShipments] = useState([]);
     useEffect(() => {
 
-        fetch('/.netlify/functions/getAllShipments', {
+        fetch(`${API_URL}/getAllShipments`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

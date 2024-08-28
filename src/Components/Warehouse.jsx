@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+const API_URL = import.meta.env.VITE_APP_API_URL
 const AddForm = ({ mode, setMode }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -21,7 +22,7 @@ const AddForm = ({ mode, setMode }) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("/.netlify/functions/warehouseCreate", {
+    fetch(`${API_URL}/warehouseCreate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -202,7 +203,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("/.netlify/functions/warehouseUpdate", {
+    fetch(`${API_URL}/warehouseUpdate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -322,7 +323,7 @@ const Listing = ({ mode, setMode }) => {
   const [warehouses, setWarehouses] = useState([]);
   useEffect(() => {
     const getWarehouses = async () => {
-      const response = await fetch("/.netlify/functions/getWarehouse", {
+      const response = await fetch(`${API_URL}/getWarehouse`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

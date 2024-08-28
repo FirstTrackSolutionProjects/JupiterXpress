@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../Components/Header'
 import Footer from '../Components/Footer'
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Form = () => {
     const [formData,setFormData] = useState({
         awb : ''
@@ -27,7 +27,7 @@ const Form = () => {
         try{
             e.preventDefault();
         } catch (e) {}
-        const data = await fetch('/.netlify/functions/track', {
+        const data = await fetch(`${API_URL}/track`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

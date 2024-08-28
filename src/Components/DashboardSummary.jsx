@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { jwtDecode } from "jwt-decode"
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const DashboardSummaryCard = ({title, number}) => {
   return (
@@ -20,8 +20,8 @@ const DashboardSummary = () => {
   const admin = jwtDecode(localStorage.getItem('token')).admin
   useEffect(() => {
       const getStatistics = async () => {
-        await fetch(`/.netlify/functions/getStatistics`, {
-          method: 'GET',
+        await fetch(`${API_URL}/getStatistics`, {
+          method: 'POST',
           headers: { 'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('token'),

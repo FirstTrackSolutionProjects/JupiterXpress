@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const schema = z.object({
   wid: z.string().min(1, "Pickup Warehouse Name is required"),
   // order: z.string().min(1, "Order ID is required"),
@@ -145,7 +145,7 @@ useEffect(()=>{
 
   useEffect(() => {
     const getWarehouses = async () => {
-      const response = await fetch('/.netlify/functions/getWarehouse', {
+      const response = await fetch(`${API_URL}/getWarehouse`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -188,7 +188,7 @@ useEffect(()=>{
       itemFlag = 0
     }
     try {
-      const response = await fetch('/.netlify/functions/createOrder', {
+      const response = await fetch(`${API_URL}/createOrder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

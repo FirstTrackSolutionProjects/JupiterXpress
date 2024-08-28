@@ -4,7 +4,7 @@ import Footer from "../Components/Footer";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const FileUploadForm = () => {
   const [reqId, setReqId] = useState(null)
   const [fileData, setFileData] = useState({
@@ -23,8 +23,8 @@ const FileUploadForm = () => {
   });
   useEffect(() => {
     const getDocumentStatus = async () => {
-      await fetch('/.netlify/functions/getDocumentStatus', {
-        method: 'GET',
+      await fetch(`${API_URL}/getDocumentStatus`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': localStorage.getItem('token')
@@ -52,8 +52,8 @@ const FileUploadForm = () => {
 
   const handleUpload = async (name) => {
     // Fetch signed URL from backend
-    const response  = await fetch ('/.netlify/functions/getTokenData', {
-      method: 'GET',
+    const response  = await fetch (`${API_URL}/getTokenData`, {
+      method: 'POST',
       headers: {
         'Authorization' : localStorage.getItem('token'),
       }
@@ -61,7 +61,7 @@ const FileUploadForm = () => {
     const tokenData = await response.json();
     const id = tokenData.id;
     const key  = `merchant/${id}/verificationDocs/${reqId}/${name}`
-    await fetch(`/.netlify/functions/getPutSignedUrl`, {
+    await fetch(`${API_URL}/getPutSignedUrl`, {
       method: "POST",
       headers: {
         'Authorization': localStorage.getItem("token"),
@@ -80,7 +80,7 @@ const FileUploadForm = () => {
           },
           body: fileData[name],
         });
-        await fetch(`/.netlify/functions/updateDocumentStatus`, {
+        await fetch(`${API_URL}/updateDocumentStatus`, {
           method: 'POST',
           headers : {
             'Content-Type' : 'application/json',
@@ -106,8 +106,8 @@ const FileUploadForm = () => {
       alert("Please upload all required documents")
       return;
     }
-    await fetch(`/.netlify/functions/completeVerificationRequest`, {
-      method: 'GET',
+    await fetch(`${API_URL}/completeVerificationRequest`, {
+      method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
         'Accept' : 'application/json',
@@ -260,7 +260,7 @@ const TextForm = ({ onNext }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("/.netlify/functions/verify", {
+    fetch(`${API_URL}/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -470,8 +470,8 @@ const Verify = () => {
 
   useEffect(() => {
     const getStatus = async () => {
-      await fetch('/.netlify/functions/getVerificationStatus', {
-        method: 'GET',
+      await fetch(`${API_URL}/getVerificationStatus`, {
+        method: 'POST',
         headers: {
           'Authorization': localStorage.getItem('token'),
           'Content-Type' : 'application/json',

@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
 import ResetPassword from "./ResetPassword";
+const API_URL = import.meta.env.VITE_APP_API_URL
 const LoginForm = ({authMode}) => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ const LoginForm = ({authMode}) => {
     event.preventDefault();  // Prevent the default form submission
     
     // Make the API call
-    await fetch('/.netlify/functions/login', {
+    await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ const LoginForm = ({authMode}) => {
       .then(response => response.json())
       .then(async (result) => {
         if (result.success) {
-          await fetch('/.netlify/functions/emailVerified',{
+          await fetch(`${API_URL}/emailVerified`,{
             method : 'POST',
             headers: {'Content-Type': 'application/json',
               'Accept': 'application/json'},
@@ -113,7 +114,7 @@ const RegisterForm = ({authMode}) => {
       alert('Both Password and Confirm Password must match');
       return;
     }
-    const response = await fetch('/.netlify/functions/serviceCheck', {
+    const response = await fetch(`${API_URL}/serviceCheck`, {
       method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
@@ -129,7 +130,7 @@ const RegisterForm = ({authMode}) => {
     }
     
     
-    fetch('/.netlify/functions/register', {
+    fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -195,7 +196,7 @@ const OtpVerification = ({email, setIsOtp, token}) => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await fetch('/.netlify/functions/verifyEmail', {
+    await fetch(`${API_URL}/verifyEmail`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -215,7 +216,7 @@ const OtpVerification = ({email, setIsOtp, token}) => {
   }
   const handleOtp = async (e) => {
     e.preventDefault();
-    await fetch('/.netlify/functions/sendVerifyEmail', {
+    await fetch(`${API_URL}/sendVerifyEmail`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
             'Accept': 'application/json',

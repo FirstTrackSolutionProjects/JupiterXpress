@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const View  = ({report, setIsView}) => {
   const [status, setStatus] = useState(null)
   useEffect(() => {
     
     const getReport = async () => {
-      const response = await fetch('/.netlify/functions/getReport', {
+      const response = await fetch(`${API_URL}/getReport`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ const Card = ({ report }) => {
   const cancelShipment = async () => {
     const cancel = confirm('Do you want to cancel this shipment?');
     if (!cancel) return;
-    await fetch('/.netlify/functions/cancelShipment', {
+    await fetch(`${API_URL}/cancelShipment`, {
       method : 'POST',
       headers: {
         'Accept': 'application/json',
@@ -115,7 +115,7 @@ const Listing = () => {
     const [filteredReports, setFilteredReports] = useState([]);
   useEffect(() => {
 
-      fetch('/.netlify/functions/getAllReports', {
+      fetch(`${API_URL}/getAllReports`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

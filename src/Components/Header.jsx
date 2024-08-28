@@ -6,6 +6,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import Recharge from "./Wallet/Recharge";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Header = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
@@ -27,15 +28,17 @@ const Header = () => {
       }
     };
     const fetchBalance = async () => {
+      console.log("Fetching balance")
       const balance = await fetch(
-        `/.netlify/functions/getBalance`,{
+        `${API_URL}/getBalance`,{
+          method : 'POST',
           headers:{
-            "authorization":localStorage.getItem("token"),
+            "Authorization":localStorage.getItem("token"),
           }
         }
       )
         .then((response) => response.json())
-        .then((result) => result.balance);
+        .then((result) => {console.log(result); return result.balance});
       if (balance) {
         setBalance(balance);
       }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Profile = () => {
   const admin = jwtDecode(localStorage.getItem('token')).admin;
   const INITIAL_STATE = {
@@ -41,8 +42,8 @@ const Profile = () => {
     ifsc : ''
   })
   useEffect(()=>{
-    fetch('/.netlify/functions/getProfile', {
-      method: 'GET',
+    fetch(`${API_URL}/getProfile`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json',
         'Accept': 'application/json',
         'Authorization': localStorage.getItem('token'),

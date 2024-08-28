@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
+const API_URL = import.meta.env.VITE_APP_API_URL
 const Profile = () => {
   const admin = jwtDecode(localStorage.getItem('token')).admin;
   const [profileData,  setProfileData] = useState({
@@ -13,7 +14,7 @@ const Profile = () => {
   })
   useEffect(()=>{
     const fetchProfile = async () => {
-      await fetch('/.netlify/functions/getAdminProfile', {
+      await fetch(`${API_URL}/getAdminProfile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',

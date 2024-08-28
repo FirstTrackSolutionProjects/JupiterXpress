@@ -1,9 +1,9 @@
 import { useEffect , useState  } from 'react'
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, setView, businessName, cin, aadhar_number, pan_number, address, city, state, pin, accountNumber, ifsc, bank}) => {
     const [isActivated, setIsActivated] = useState(isActive)
     const activate = () => {
-        fetch('/.netlify/functions/activateUser', {
+        fetch(`${API_URL}/activateUser`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -14,7 +14,7 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
         }).then(response => response.json()).then(result => alert(result.message)).then(()=>setIsActivated(true));
     }
     const deactivate = () => {
-        fetch('/.netlify/functions/deactivateUser', {
+        fetch(`${API_URL}/deactivateUser`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
     const [profilePhoto, setProfilePhoto] = useState(null)
     useEffect(()=>{
         const getProfilePhoto = async () => {
-            await fetch('/.netlify/functions/getGetSignedUrl', {
+            await fetch(`${API_URL}/getGetSignedUrl`, {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',
@@ -40,7 +40,7 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
         getProfilePhoto()
     })
     const handleDownload = async (name) => {
-        await fetch('/.netlify/functions/getGetSignedUrl', {
+        await fetch(`${API_URL}/getGetSignedUrl`, {
         method : 'POST',
         headers : {
             'Content-Type' : 'application/json',
@@ -126,7 +126,7 @@ const MerchantManage =  () => {
     useEffect(() => {
         const getVerifiedMerchant = async () => {
             const response = await fetch('/.netlify/functions/getVerifiedMerchants', {
-                method: 'GET',
+                method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token'),

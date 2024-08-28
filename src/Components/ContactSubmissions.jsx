@@ -1,9 +1,9 @@
 import { useEffect , useState  } from 'react'
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, account_number, ifsc, bank}) => {
     const handleApprove = async () => {
-        await fetch('/.netlify/functions/verifyMerchant', {
+        await fetch(`${API_URL}/verifyMerchant`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -13,7 +13,7 @@ const View = ({reqId, uid ,fullName, email, phone, gst, setView, businessName, c
         }).then(response => response.json()).then(result => alert(result.message));
     }
     const handleReject = async () => {
-        await fetch('/.netlify/functions/rejectMerchant', {
+        await fetch(`${API_URL}/rejectMerchant`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -87,7 +87,7 @@ const ContactSubmissions =  () => {
     const [requests, setRequests] = useState([])
     useEffect(() => {
         const getVerificationRequests = async () => {
-            const response = await fetch('/.netlify/functions/getContactRequest', {
+            const response = await fetch(`${API_URL}/getContactRequest`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',

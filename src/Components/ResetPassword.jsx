@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ResetPassword = ({reset, setReset}) => {
     const INITIAL_STATE = {
         email : '',
@@ -11,7 +11,7 @@ const ResetPassword = ({reset, setReset}) => {
 
     const handleOtp = async (e) => {
         e.preventDefault();
-        await fetch('/.netlify/functions/sendResetPassword', {
+        await fetch(`${API_URL}/sendResetPassword`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -27,7 +27,7 @@ const ResetPassword = ({reset, setReset}) => {
             alert('New password must match the Confirm new password')
             return;
         }
-        await fetch('/.netlify/functions/verifyResetPassword', {
+        await fetch(`${API_URL}/verifyResetPassword`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',

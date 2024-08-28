@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ChangePassword = () => {
     const INITIAL_STATE = {
         oldPassword : '',
@@ -13,7 +13,7 @@ const ChangePassword = () => {
             alert('New password must match the Confirm new password')
             return;
         }
-        await fetch('/.netlify/functions/changePassword', {
+        await fetch(`${API_URL}/changePassword`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',

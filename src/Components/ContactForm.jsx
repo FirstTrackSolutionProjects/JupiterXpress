@@ -1,5 +1,5 @@
 import { useState } from "react";
-import emailjs from 'emailjs-com';
+const API_URL = import.meta.env.VITE_APP_API_URL
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -38,7 +38,7 @@ const ContactForm = () => {
     //     alert('Error sending email. Please try again.');
     //     setIsSending(false);
     //   });
-    fetch('/.netlify/functions/submitContact', {
+    fetch(`${API_URL}/submitContact`, {
       method: 'POST',
       headers : {
         'Authorization' : localStorage.getItem('token'),
