@@ -201,40 +201,59 @@ exports.handler = async (event) => {
               ship_from_zipcode: warehouse.pin,
               ship_from_email: "xpressjupiter@gmail.com",
               ship_from_phone: users[0].phone,
-              shipment_date: "2024-08-12",
+              shipment_date: shipment.pickup_date,
               shipment_priority: categoryId == 1 ? 'Express End of Day' : 'Standard Premium',
               ship_to_first_name: shipment.customer_name.split(" ")[0],
               ship_to_last_name: shipment.customer_name.split(" ")[1],
               ship_to_company: "Customer",
               ship_to_address_line1: shipment.shipping_address,
               ship_to_address_line2: shipment.shipping_address_2,
+              ship_to_address_line3: shipment.shipping_address_2,
               ship_to_zipcode: shipment.shipping_postcode,
               ship_to_phone: shipment.customer_mobile,
               ship_to_email: email,
+              package_type: "Package",
               total_weight: shipment.weight,
               invoice_value: shipment.cod_amount,
               invoice_currency: "INR",
-              payment_type: shipment.pay_method === 'topay' ? 'COD' : 'Prepaid',
-              description: product_description,
-              quantity: 1,
-              service_type: "1",
-              ship_to_reference: `${order} - ${refId}`
-            }
+              payment_type: 'Prepaid',
+              goods_general_description: product_description,
+              goods_value : total_amount.toString(),
+              bill_to : "Shipper",
+              include_insurance: "No",
+              email_notification: "Yes",
+              mobile_notification: "Yes",
+              add_adult_signature: "Yes",
+              cash_on_delivery: "No"
+            },
+            package : []
           }
         ]
       };
+      boxes.map((box,index)=>{
+        req.payload[0].package.push({
+          "package_unique_id": `PACK_${index+1}`,
+          "length": box.length,
+          "width": box.breadth,
+          "height": box.length,
+          "weight_actual": parseInt(box.weight)/1000,
+          "identical_package_count": 1
+        })
+      })
 
-      const responseDta = await fetch(`https://api-mstaging.movin.in/v1/shipments`, {
+      const responseDta = await fetch(`https://apim.iristransport.co.in/rest/v2/shipment/sync/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'Ocp-Apim-Subscription-Key' : process.env.MOVIN_SUBSCRIPTION_KEY
         },
         body: JSON.stringify(req)
       });
 
       const response = await responseDta.json();
+      console.log(response)
       if (response.error) {
         return {
           status: 200,
@@ -244,7 +263,7 @@ exports.handler = async (event) => {
       }
 
       await connection.beginTransaction();
-      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.shipment_response.forward_shipment_number, order]);
+      await connection.execute('UPDATE SHIPMENTS set serviceId = ?, categoryId = ?, awb = ? WHERE ord_id = ?', [serviceId, categoryId, response.response.success[`JUP${refId}`].parent_shipment_number[0], order]);
       await connection.execute('INSERT INTO SHIPMENT_REPORTS VALUES (?,?,?)', [refId, order, "SHIPPED"]);
       if (shipment.pay_method != "topay") {
         await connection.execute('UPDATE WALLET SET balance = balance - ? WHERE uid = ?', [price, id]);
@@ -268,12 +287,14 @@ exports.handler = async (event) => {
         success: true
       };
     }
-  } catch (err) {
-    return {
-      status: 200,
-      message: err.message
-    };
-  } finally {
+  } 
+  // catch (err) {
+  //   return {
+  //     status: 500,
+  //     message: err.message
+  //   };
+  // }
+   finally {
     await connection.end();
   }
 };

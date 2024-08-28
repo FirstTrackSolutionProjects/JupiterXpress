@@ -56,7 +56,9 @@ exports.handler = async (event) => {
             cod,
             gst,
             Cgst,
-            shippingType
+            shippingType,
+            pickupDate,
+            pickupTime
           } = event.body;
           const connection = await mysql.createConnection(dbConfig);
           if (admin){
@@ -106,9 +108,11 @@ exports.handler = async (event) => {
               gst = ?, 
               customer_gst = ?,
               wid = ?,
-              shipping_mode =?
+              shipping_mode =?,
+              pickup_date =?,
+              pickup_time =?
               WHERE ord_id = ? AND uid = ?`, 
-              [ payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount,  gst, Cgst,  wid , shippingType,order, id]
+              [ payMode, name, email, phone, address, addressType, address2, addressType2, country, state, city, postcode, Baddress, BaddressType, Baddress2, BaddressType2, Bcountry, Bstate, Bcity, Bpostcode, same ,cod, discount,  gst, Cgst,  wid , shippingType, pickupDate, pickupTime , order, id]
             );
             
             await connection.execute("DELETE FROM ORDERS WHERE ord_id = ?",[order]);

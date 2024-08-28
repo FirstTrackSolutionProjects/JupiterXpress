@@ -73,6 +73,9 @@ const schema = z.object({
   shippingType: z.enum(['Surface', 'Express']),
   gst: z.string(),
   Cgst: z.string().optional(),
+  pickupDate : z.string(),
+  pickupTime :z.preprocess((a) => a+':00', z.string()) 
+
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -232,30 +235,26 @@ useEffect(()=>{
           </div>
         </div>
         
-        {/* <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="order">Order Id</label>
-            <input
+        <div className="w-full flex mb-2 flex-wrap">
+        <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="pickupDate">Pickup Date</label>
+            <input required
               className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="order"
-              {...register("order")}
-              placeholder="Ex. ORDER123456"
+              type="date"
+              id="pickupDate"
+              {...register("pickupDate")}
             />
-            {errors.order && <span className='text-red-500'>{errors.order.message}</span>}
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="date">Order Date</label>
-            <input
+            <label htmlFor="pickupTime">Pickup Time</label>
+            <input required
               className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="date"
-              {...register("date")}
-              placeholder="Ex. 13/05/2024"
+              type="time"
+              id="pickupTime"
+              {...register("pickupTime")}
             />
-            {errors.date && <span className='text-red-500'>{errors.date.message}</span>}
           </div>
-        </div> */}
+        </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="payMode">Payment Method</label>

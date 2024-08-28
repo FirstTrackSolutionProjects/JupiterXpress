@@ -53,9 +53,10 @@ exports.handler = async (event) => {
         cod,
         gst,
         Cgst,
-        shippingType
+        shippingType,
+        pickupDate,
+        pickupTime
       } = event.body;
-
       if (same) {
         Baddress = address;
         BaddressType = addressType;
@@ -104,8 +105,10 @@ exports.handler = async (event) => {
   customer_gst,
   wid,
   same,
-  shipping_mode
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?)`,
+  shipping_mode,
+  pickup_date,
+  pickup_time
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?,?, ?,?,?)`,
           [
             id,
             order,
@@ -135,7 +138,9 @@ exports.handler = async (event) => {
             Cgst,
             wid,
             same,
-            shippingType
+            shippingType,
+            pickupDate,
+            pickupTime
           ]
         );
         for (let i = 0; i < boxes.length; i++) {
