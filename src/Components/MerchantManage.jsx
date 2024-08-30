@@ -125,7 +125,7 @@ const MerchantManage =  () => {
     const [filteredMerchants, setFilteredMerchants] = useState([]);
     useEffect(() => {
         const getVerifiedMerchant = async () => {
-            const response = await fetch('/.netlify/functions/getVerifiedMerchants', {
+            const response = await fetch(`${API_URL}/getVerifiedMerchants`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
