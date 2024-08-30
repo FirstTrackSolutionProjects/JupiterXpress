@@ -1,5 +1,46 @@
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+const DelhiveryCard = ({report, status}) => {
+  return (
+    <div>
+              <p>AWB : {report.awb}</p>
+              <p>Ref Id: JUP{report.ref_id}</p>
+              <p>Status : {status.Status.Status}</p>
+              {
+                (status.Scans).map((scan,index)=> {
+                  const timestamp = scan.ScanDetail.ScanDateTime;
+                  const date = new Date(timestamp);
+                  const formattedTimestamp = date.getFullYear() + "-" +
+                    String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                    String(date.getDate()).padStart(2, '0') + " " +
+                    String(date.getHours()).padStart(2, '0') + ":" +
+                    String(date.getMinutes()).padStart(2, '0');
+                  return (
+                  <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
+                  )
+              })
+              }
+            </div>
+  )
+}
+
+const MovinCard = ({report, status}) => {
+  return (
+    <div>
+              <p>AWB : {report.awb}</p>
+              { status.length  ?
+                (status).map((scan,index)=> {
+                  <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.timestamp}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.package_status}</div>
+            </div> 
+              }) : "Shipment is not yet picked up"
+              }
+            </div>
+  )
+}
+
 const View  = ({report, setIsView}) => {
   const [status, setStatus] = useState(null)
   useEffect(() => {
@@ -25,25 +66,7 @@ const View  = ({report, setIsView}) => {
           <div className="bg-white p-4  border">
             <div onClick={()=>setIsView(false)}>X</div>
             {
-              status ? <div>
-              <p>AWB : {report.awb}</p>
-              <p>Ref Id: JUP{report.ref_id}</p>
-              <p>{status.Status.Status}</p>
-              {
-                (status.Scans).map((scan,index)=> {
-                  const timestamp = scan.ScanDetail.ScanDateTime;
-                  const date = new Date(timestamp);
-                  const formattedTimestamp = date.getFullYear() + "-" +
-                    String(date.getMonth() + 1).padStart(2, '0') + "-" +
-                    String(date.getDate()).padStart(2, '0') + " " +
-                    String(date.getHours()).padStart(2, '0') + ":" +
-                    String(date.getMinutes()).padStart(2, '0');
-                  return (
-                  <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
-                  )
-              })
-              }
-            </div> : "Loading..."
+              status ? report.serviceId == 1 ? <DelhiveryCard report={report} status={status}/> : <MovinCard report={report} status={status}/> : "Loading..."
             }
           </div>
       </div>

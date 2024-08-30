@@ -217,7 +217,7 @@ exports.handler = async (event) => {
               invoice_value: shipment.cod_amount,
               invoice_currency: "INR",
               payment_type: 'Prepaid',
-              goods_general_description: product_description,
+              goods_general_description: "Shipment Items",
               goods_value : total_amount.toString(),
               bill_to : "Shipper",
               include_insurance: "No",
