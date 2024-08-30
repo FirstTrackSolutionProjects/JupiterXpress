@@ -428,6 +428,8 @@ exports.handler = async (event) => {
     const id = verified.id;
     let {wid, pickTime, pickDate, packages, serviceId} = event.body;
     const [warehouses] = await connection.execute('SELECT * FROM WAREHOUSES WHERE uid = ? AND wid = ?', [id, wid]);
+    const [users] = await connection.execute('SELECT * FROM USERS WHERE uid = ?',[id])
+    const user = users[0]
     const warehouse = warehouses[0]
     // const [orders] = await connection.execute('SELECT * FROM ORDERS WHERE ord_id = ? ', [order]);
    
@@ -491,15 +493,14 @@ exports.handler = async (event) => {
       const pickupCity = pickupLocRes.PostOffice[0].District
       const pickupState = IndianStateInfo[pickupLocRes.PostOffice[0].State]
       const schedulePayload  = {
-        
           "account": process.env.MOVIN_ACCOUNT_NUMBER,
           "pickup_date":pickDate,
           "pickup_time_start": pickTime,
           "service_type": serviceId[1] == 1?"Standard Premium":"Express End of Day",
-          "address_first_name": "Jupiter",
-          "address_last_name": "Xpress",
+          "address_first_name": warehouse.warehouseName,
+          "address_last_name": "",
           "address_email": "xpressjupiter@gmail.com",
-          "address_phone": "9876543210",
+          "address_phone": user.phone,
           "address_address_line1": warehouse.address,
           "address_address_line2": warehouse.address,
           "address_address_line3": warehouse.address,
@@ -507,7 +508,6 @@ exports.handler = async (event) => {
           "address_city": pickupCity,
           "address_state": pickupState.state_code,
           "pickup_reason": "Parcel Pickup"
-          
       }
       const schedule = await fetch(`https://apim.iristransport.co.in/rest/v2/pickup/create`, {
         method: 'POST',

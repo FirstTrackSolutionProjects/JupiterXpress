@@ -586,7 +586,7 @@ useEffect(()=>{
             <button
               type="button"
               className="bg-blue-500 text-white px-4 py-2 rounded-3xl"
-              onClick={() => boxes.append({ box_no: watch('boxes').length, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
+              onClick={() => boxes.append({ box_no: watch('boxes').length+1, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
             >
               Add Boxes
             </button>
