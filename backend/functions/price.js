@@ -14367,10 +14367,10 @@ exports.handler = async (event, context) => {
       }
     }
     let movinPrice = parseFloat(movinPrices[method][i][j])*parseFloat(movinNetWeight)/1000;
-    movinPrice = movinPrice + 10.10;
+    movinPrice = movinPrice*1.1010;
     movinPrice = movinPrice + 30;
     movinPrice = movinPrice*1.18;
-    movinPrice = movinPrice*(method=="E"?1.4:1.5);
+    movinPrice = movinPrice*(method=="E"?1.4:1.4);
     const data = await response.json();
     const data2 = await response2.json();
     const price = data[0]['total_amount']
