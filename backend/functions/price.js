@@ -14347,7 +14347,7 @@ exports.handler = async (event, context) => {
       }
     }
     const movinVolumetric = parseFloat(volume)/(method=="S"?4.5:5)
-    const movinNetWeight = (Math.max( movinVolumetric , weight)).toString()
+    const movinNetWeight = (Math.max(method=="S"?10000:5000,Math.max( movinVolumetric , weight))).toString()
     const originData = await fetch(`http://www.postalpincode.in/api/pincode/${origin}`)
     const destData = await fetch(`http://www.postalpincode.in/api/pincode/${dest}`)
     const originPSData = await originData.json()
