@@ -426,6 +426,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="address"
               name="address"
               placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -442,6 +443,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="address2"
               name="address2"
               placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -558,6 +560,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="Baddress"
               name="Baddress"
               placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -573,6 +576,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="Baddress2"
               name="Baddress2"
               placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
