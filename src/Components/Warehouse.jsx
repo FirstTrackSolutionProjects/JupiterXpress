@@ -104,6 +104,7 @@ const AddForm = ({ mode, setMode }) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="address"
               name="address"
               placeholder="Enter Address"
@@ -273,6 +274,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
+              maxLength={50}
               id="address"
               name="address"
               placeholder="Enter Address"
