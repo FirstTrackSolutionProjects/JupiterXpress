@@ -59,8 +59,8 @@ const Domestic = () => {
     let totalVolume = 0;
     let totalWeight = 0;
     boxes.map((box,index)=>{
-        totalVolume += box.length * box.breadth * box.height
-        totalWeight += box.weight
+        totalVolume += parseFloat(box.length) * parseFloat(box.breadth) * parseFloat(box.height)
+        totalWeight += parseFloat(box.weight)
     })
     setFormData((prevData) => ({
      ...prevData,
