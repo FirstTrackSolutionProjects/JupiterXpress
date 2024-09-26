@@ -5,7 +5,7 @@ export const navItems = [
     },
     {
         name : 'Tracking',
-        url : '/tracking',
+        url : '/tracking'
     },
     {
         name : 'Pricing',

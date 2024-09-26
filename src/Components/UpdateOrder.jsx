@@ -1087,6 +1087,7 @@ const Card = ({ shipment }) => {
     const [isShip, setIsShip] = useState(false);
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
     const [isCancelled, setIsCancelled] = useState(shipment.cancelled?true:false);
+    const [isCancelling, setIsCancelling] = useState(false)
     const getLabel = async () => {
       await fetch(`${API_URL}/label`, {
         method : 'POST',
@@ -1109,6 +1110,7 @@ const Card = ({ shipment }) => {
     const cancelShipment = async () => {
       const cancel = confirm('Do you want to cancel this shipment?');
       if (!cancel) return;
+      setIsCancelling(true);
       await fetch(`${API_URL}/cancelShipment`, {
         method : 'POST',
         headers: {
@@ -1120,12 +1122,15 @@ const Card = ({ shipment }) => {
       }).then(response => response.json()).then(async result => {
         if (result.message.status){
           setIsCancelled(true)
+          setIsCancelling(false);
           alert(result.message.remark)
         }
         else{
           alert("Your shipment has not been cancelled")
+          setIsCancelling(false);
           console.log(result.message)
         }
+        setIsCancelling(false);
       })
     }
     return (
@@ -1143,7 +1148,7 @@ const Card = ({ shipment }) => {
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
           {isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>getLabel()}>Label</div> : null}
           {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsShip(true)}>Ship</div> : null}
-          {isShipped && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
+          {isShipped && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling?()=>{}:()=>cancelShipment()}>{isCancelling?"Cancelling...":"Cancel"}</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
           </div>
         </div>
