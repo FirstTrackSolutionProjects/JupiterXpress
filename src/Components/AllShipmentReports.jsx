@@ -46,7 +46,7 @@ const View  = ({report, setIsView}) => {
   useEffect(() => {
     
     const getReport = async () => {
-      const response = await fetch(`${API_URL}/getReport`, {
+      const response = await fetch(`${API_URL}/shipment/domestic/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const Card = ({ report }) => {
   const cancelShipment = async () => {
     const cancel = confirm('Do you want to cancel this shipment?');
     if (!cancel) return;
-    await fetch(`${API_URL}/cancelShipment`, {
+    await fetch(`${API_URL}/shipment/cancel`, {
       method : 'POST',
       headers: {
         'Accept': 'application/json',
@@ -138,7 +138,7 @@ const Listing = () => {
     const [filteredReports, setFilteredReports] = useState([]);
   useEffect(() => {
 
-      fetch(`${API_URL}/getAllReports`, {
+      fetch(`${API_URL}/shipment/domestic/reports/all`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
