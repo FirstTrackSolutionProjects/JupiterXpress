@@ -10,7 +10,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
   const [warehouses, setWarehouses] = useState([])
   useEffect(()=>{
     const getWarehouses = async () => {
-      await fetch(`${API_URL}/getAllWarehouse`,{
+      await fetch(`${API_URL}/warehouse/warehouses/all`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -20,7 +20,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
       }).then(response => response.json()).then(result => setWarehouses(result.rows))
     }
     getWarehouses();
-      fetch(`${API_URL}/getOrder`, {
+      fetch(`${API_URL}/order/domestic`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
             console.error('Error:', error);
             alert('An error occurred during fetching Order');
           });
-          fetch(`${API_URL}/getBoxes`, {
+          fetch(`${API_URL}/order/domestic/boxes`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -245,7 +245,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     itemFlag = 0
   }
   
-      fetch(`${API_URL}/updateOrder`, {
+      fetch(`${API_URL}/order/domestic/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -986,7 +986,7 @@ const Listing = ({ step, setStep }) => {
     const [filteredShipments, setFilteredShipments] = useState([]);
     useEffect(() => {
 
-        fetch(`${API_URL}/getAllShipments`, {
+        fetch(`${API_URL}/order/domestic/all`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
