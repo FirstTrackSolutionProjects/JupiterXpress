@@ -22,7 +22,7 @@ const Recharge = ({setShowRecharge}) => {
       // if (parseInt(amount) < 500){
       //   return;
       // }
-      const response = await fetch(`${API_URL}/deliveryOrder`, {
+      const response = await fetch(`${API_URL}/wallet/razorpay/CreateOrderId`, {
         method: 'POST',
         body: JSON.stringify({ amount }),
         headers: {
@@ -49,7 +49,7 @@ const Recharge = ({setShowRecharge}) => {
         image: 'logo.webp',
         order_id: data.id,
         handler: async function (response) {
-          const verifyResponse = await fetch(`${API_URL}/verifyRecharge`, {
+          const verifyResponse = await fetch(`${API_URL}/wallet/verify/recharge`, {
             method: 'POST',
             body: JSON.stringify({
               razorpay_payment_id: response.razorpay_payment_id,
