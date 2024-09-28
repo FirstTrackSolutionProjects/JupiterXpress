@@ -124,7 +124,7 @@ const Card = ({ report }) => {
         {report.status}
         <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsView(true)}>View</div>
     
-        {isShipped && !isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
+        {isShipped && !isCancelled && report.serviceId==1? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={()=>cancelShipment()}>Cancel</div> : null}
         {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
         </div>
       </div>
@@ -167,15 +167,20 @@ const Listing = () => {
 }
 useEffect(()=>{
     if (email==""){
-        setFilteredReports(reports)
+        setFilteredReports([])
+        setTimeout(() =>{
+          setFilteredReports(reports)
+        })
         return;
     }
-    const filtered = reports.filter(report => 
+    setFilteredReports([])
+    setTimeout(()=>{
+      const filtered = reports.filter(report => 
         ((report.email).startsWith(email))
       );
-  
       setFilteredReports(filtered);
       console.log(filtered)
+    })
 },[email])
   return (
     <>
