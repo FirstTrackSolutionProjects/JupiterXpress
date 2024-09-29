@@ -24,7 +24,7 @@ const MerchantManage =  () => {
     const [merchants, setMerchants] = useState([    ])
     useEffect(() => {
         const getVerifiedMerchant = async () => {
-            const response = await fetch(`${API_URL}/getNonVerifiedMerchants`, {
+            const response = await fetch(`${API_URL}/merchant/unverified`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
