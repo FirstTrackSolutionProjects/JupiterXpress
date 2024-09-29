@@ -23,7 +23,7 @@ const FileUploadForm = () => {
   });
   useEffect(() => {
     const getDocumentStatus = async () => {
-      await fetch(`${API_URL}/getDocumentStatus`, {
+      await fetch(`${API_URL}/verification/documentStatus`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -52,7 +52,7 @@ const FileUploadForm = () => {
 
   const handleUpload = async (name) => {
     // Fetch signed URL from backend
-    const response  = await fetch (`${API_URL}/getTokenData`, {
+    const response  = await fetch (`${API_URL}/auth/token/decode`, {
       method: 'POST',
       headers: {
         'Authorization' : localStorage.getItem('token'),
@@ -61,7 +61,7 @@ const FileUploadForm = () => {
     const tokenData = await response.json();
     const id = tokenData.id;
     const key  = `merchant/${id}/verificationDocs/${reqId}/${name}`
-    await fetch(`${API_URL}/getPutSignedUrl`, {
+    await fetch(`${API_URL}/s3/putUrl`, {
       method: "POST",
       headers: {
         'Authorization': localStorage.getItem("token"),
@@ -80,7 +80,7 @@ const FileUploadForm = () => {
           },
           body: fileData[name],
         });
-        await fetch(`${API_URL}/updateDocumentStatus`, {
+        await fetch(`${API_URL}/verification/documentStatus/update`, {
           method: 'POST',
           headers : {
             'Content-Type' : 'application/json',
@@ -106,7 +106,7 @@ const FileUploadForm = () => {
       alert("Please upload all required documents")
       return;
     }
-    await fetch(`${API_URL}/completeVerificationRequest`, {
+    await fetch(`${API_URL}/verification/submit`, {
       method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
@@ -260,7 +260,7 @@ const TextForm = ({ onNext }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_URL}/verify`, {
+    fetch(`${API_URL}/verification/createIncompleteVerifyRequest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -470,7 +470,7 @@ const Verify = () => {
 
   useEffect(() => {
     const getStatus = async () => {
-      await fetch(`${API_URL}/getVerificationStatus`, {
+      await fetch(`${API_URL}/verification/incomplete`, {
         method: 'POST',
         headers: {
           'Authorization': localStorage.getItem('token'),
