@@ -11,7 +11,7 @@ const ResetPassword = ({reset, setReset}) => {
 
     const handleOtp = async (e) => {
         e.preventDefault();
-        await fetch(`${API_URL}/sendResetPassword`, {
+        await fetch(`${API_URL}/password/forgot/otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -27,7 +27,7 @@ const ResetPassword = ({reset, setReset}) => {
             alert('New password must match the Confirm new password')
             return;
         }
-        await fetch(`${API_URL}/verifyResetPassword`, {
+        await fetch(`${API_URL}/password/forgot/reset`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',
