@@ -18,7 +18,7 @@ const FileUploadForm = ({reqId}) => {
   });
   useEffect(() => {
     const getDocumentStatus = async () => {
-      await fetch(`${API_URL}/getKycDocumentStatus`, {
+      await fetch(`${API_URL}/kyc/documentStatus`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -46,7 +46,7 @@ const FileUploadForm = ({reqId}) => {
 
   const handleUpload = async (name) => {
     // Fetch signed URL from backend
-    const response  = await fetch (`${API_URL}/getTokenData`, {
+    const response  = await fetch (`${API_URL}/auth/token/decode`, {
       method: 'POST',
       headers: {
         'Authorization' : localStorage.getItem('token'),
@@ -55,7 +55,7 @@ const FileUploadForm = ({reqId}) => {
     const tokenData = await response.json();
     const id = tokenData.id;
     const key  = `merchant/${id}/kycDocs/${reqId}/${name}`
-    await fetch(`${API_URL}/getPutSignedUrl`, {
+    await fetch(`${API_URL}/s3/putUrl`, {
       method: "POST",
       headers: {
         'Authorization': localStorage.getItem("token"),
@@ -74,7 +74,7 @@ const FileUploadForm = ({reqId}) => {
           },
           body: fileData[name],
         });
-        await fetch(`${API_URL}/updateKycDocumentStatus`, {
+        await fetch(`${API_URL}/kyc/documentStatus/update`, {
           method: 'POST',
           headers : {
             'Content-Type' : 'application/json',
@@ -100,7 +100,7 @@ const FileUploadForm = ({reqId}) => {
       alert("Please upload all required documents")
       return;
     }
-    await fetch(`${API_URL}/completeKycVerificationRequest`, {
+    await fetch(`${API_URL}/kyc/submit`, {
       method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
@@ -247,7 +247,7 @@ const TextForm = ({ onNext, setReqId }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_URL}/kycFormSubmit`, {
+    fetch(`${API_URL}/kyc/submit/incomplete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -456,7 +456,7 @@ const KYCVerification = () => {
   const [step, setStep] = useState(1);
   useEffect(() => {
     const getStatus = async () => {
-      await fetch(`${API_URL}/getKycStatus`, {
+      await fetch(`${API_URL}/kyc/incomplete`, {
         method: 'POST',
         headers: {
           'Authorization': localStorage.getItem('token'),
