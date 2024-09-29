@@ -1018,14 +1018,15 @@ const Listing = ({ step, setStep }) => {
     }
     useEffect(()=>{
         if (email==""){
-            setFilteredShipments(shipments)
+            setFilteredShipments([]);
+            setTimeout(()=>setFilteredShipments(shipments))
             return;
         }
         const filtered = shipments.filter(shipment => 
             ((shipment.email).startsWith(email))
           );
-      
-          setFilteredShipments(filtered);
+          setFilteredShipments([]);
+          setTimeout(()=>setFilteredShipments(filtered));
           console.log(filtered)
     },[email])
     return (
