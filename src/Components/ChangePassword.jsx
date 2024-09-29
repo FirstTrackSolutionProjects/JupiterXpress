@@ -13,7 +13,7 @@ const ChangePassword = () => {
             alert('New password must match the Confirm new password')
             return;
         }
-        await fetch(`${API_URL}/changePassword`, {
+        await fetch(`${API_URL}/password/change`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
                 'Accept': 'application/json',
