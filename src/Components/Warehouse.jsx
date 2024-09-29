@@ -22,7 +22,7 @@ const AddForm = ({ mode, setMode }) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_URL}/warehouseCreate`, {
+    fetch(`${API_URL}/warehouse/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -204,7 +204,7 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_URL}/warehouseUpdate`, {
+    fetch(`${API_URL}/warehouse/update`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -325,7 +325,7 @@ const Listing = ({ mode, setMode }) => {
   const [warehouses, setWarehouses] = useState([]);
   useEffect(() => {
     const getWarehouses = async () => {
-      const response = await fetch(`${API_URL}/getWarehouse`, {
+      const response = await fetch(`${API_URL}/warehouse/warehouses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
