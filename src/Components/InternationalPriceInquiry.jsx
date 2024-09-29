@@ -25,7 +25,7 @@ const International = () => {
     };
     const handleSubmit = async (e) => {
       e.preventDefault();
-      await fetch(`${API_URL}/priceInquiry`, {
+      await fetch(`${API_URL}/shipment/international/price/inquiry`, {
         method : 'POST',
         headers : {
           'Content-Type': 'application/json',
