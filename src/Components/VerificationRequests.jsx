@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 
 const View = ({request, reqId, uid ,fullName, email, phone, gst, setView, businessName, cin, aadhar_number, pan_number, address, city,  state, pin, accountNumber, ifsc, bank}) => {
     const handleApprove = async () => {
-        await fetch(`${API_URL}/verifyMerchant`, {
+        await fetch(`${API_URL}/verification/request/accept`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -14,7 +14,7 @@ const View = ({request, reqId, uid ,fullName, email, phone, gst, setView, busine
     }
     const [profilePhoto, setProfilePhoto] = useState(null)
     const handleReject = async () => {
-        await fetch(`${API_URL}/rejectMerchant`, {
+        await fetch(`${API_URL}/verification/request/reject`, {
             method: 'POST',
             headers: { 'Content-Type' : 'application/json',
                 'Accept' : 'application/json',
@@ -25,7 +25,7 @@ const View = ({request, reqId, uid ,fullName, email, phone, gst, setView, busine
     }
     useEffect(()=>{
         const getProfilePhoto = async () => {
-            await fetch(`${API_URL}/getGetSignedUrl`, {
+            await fetch(`${API_URL}/s3/getUrl`, {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',
@@ -38,7 +38,7 @@ const View = ({request, reqId, uid ,fullName, email, phone, gst, setView, busine
         getProfilePhoto()
     })
     const handleDownload = async (name) => {
-        await fetch(`${API_URL}/getGetSignedUrl`, {
+        await fetch(`${API_URL}/s3/getUrl`, {
         method : 'POST',
         headers : {
             'Content-Type' : 'application/json',
@@ -123,7 +123,7 @@ const VerificationRequests =  () => {
     const [requests, setRequests] = useState([])
     useEffect(() => {
         const getVerificationRequests = async () => {
-            const response = await fetch(`${API_URL}/getVerificationRequests`, {
+            const response = await fetch(`${API_URL}/verification/requests`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
