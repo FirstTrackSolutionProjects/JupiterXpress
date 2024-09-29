@@ -43,7 +43,7 @@ const handleAddDocket = () => {
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch(`${API_URL}/getWarehouse`,{
+      await fetch(`${API_URL}/warehouse/warehouses`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -104,7 +104,7 @@ const handleAddDocket = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`${API_URL}/createOrderInternational`, {
+    fetch(`${API_URL}/order/international/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
