@@ -15,7 +15,7 @@ const ManualRecharge = () => {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`${API_URL}/manualRecharge`, {
+        fetch(`${API_URL}/wallet/manualRecharge`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
