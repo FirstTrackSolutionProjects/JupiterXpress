@@ -14,7 +14,7 @@ const ServiceCheck = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-     await fetch(`${API_URL}/serviceCheck`, {
+     await fetch(`${API_URL}/service/check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ const ServiceCheck = () => {
       },
       body: JSON.stringify({code : formData.source})
     }).then(response => response.json()).then(data => (data.data.delivery_codes.length)?alert("We are available at the Source"):alert("We are not available at the source"))
-    const isDestination = await fetch(`${API_URL}/serviceCheck`, {
+    const isDestination = await fetch(`${API_URL}/service/check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
