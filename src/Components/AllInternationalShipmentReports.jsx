@@ -73,7 +73,7 @@ const [items, setItems] = useState([
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch(`${API_URL}/warehouse/warehouses`,{
+      await fetch(`${API_URL}/warehouse/warehouses/all`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -983,7 +983,7 @@ const Card = ({ shipment }) => {
     const [warehouses, setWarehouses] = useState([]);
     useEffect(() => {
       const getWarehouses = async () => {
-        const response = await fetch(`${API_URL}/warehouse/warehouses`, {
+        const response = await fetch(`${API_URL}/warehouse/warehouses/all`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
