@@ -27,7 +27,7 @@ const Form = () => {
         try{
             e.preventDefault();
         } catch (e) {}
-        const data = await fetch(`${API_URL}/track`, {
+        const data = await fetch(`${API_URL}/shipment/track`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
