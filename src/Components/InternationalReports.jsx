@@ -5,7 +5,7 @@ const View  = ({report, setIsView}) => {
   useEffect(() => {
     
     const getReport = async () => {
-      const response = await fetch(`${API_URL}/getFlightGoReport`, {
+      const response = await fetch(`${API_URL}/shipment/international/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ const Listing = () => {
   const [reports, setReports] = useState([])
   useEffect(() => {
 
-      fetch(`${API_URL}/getInternationalReports`, {
+      fetch(`${API_URL}/shipment/international/all`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
