@@ -20,7 +20,7 @@ const [items, setItems] = useState([
 ]);
   useEffect(() => {
     const getDockets = async () => {
-      await fetch(`${API_URL}/getDockets`,{
+      await fetch(`${API_URL}/order/international/dockets`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -32,7 +32,7 @@ const [items, setItems] = useState([
      .then(response => response.json()).then(result => {setDockets(result.dockets); console.log(result.dockets)})
     }
     const getItems = async () => {
-      await fetch(`${API_URL}/getDocketItems`,{
+      await fetch(`${API_URL}/order/international/items`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -73,7 +73,7 @@ const [items, setItems] = useState([
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch(`${API_URL}/getWarehouse`,{
+      await fetch(`${API_URL}/warehouse/warehouses`,{
         method : 'POST',
         headers : {
           'Accept': 'application/json',
@@ -169,7 +169,7 @@ const [items, setItems] = useState([
       itemFlag = 0
     }
 
-    fetch(`${API_URL}/updateOrderInternational`, {
+    fetch(`${API_URL}/order/international/update`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -934,7 +934,7 @@ const Card = ({ shipment }) => {
     const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
     const handleShip = async () => {
       setIsLoading(true)
-      await fetch(`${API_URL}/createInternational`,{
+      await fetch(`${API_URL}/shipment/international/create`,{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -946,14 +946,14 @@ const Card = ({ shipment }) => {
         })
     }).then(response => response.json()).then(async result => {
       if (result.success){
-        await fetch(`${API_URL}/internationalOrderMail`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': localStorage.getItem('token')
-          }
-        })
+        // await fetch(`${API_URL}/internationalOrderMail`, {
+        //   method: 'POST',
+        //   headers: {
+        //       'Content-Type': 'application/json',
+        //       'Accept': 'application/json',
+        //       'Authorization': localStorage.getItem('token')
+        //   }
+        // })
         alert('Shipment created successfully')
         setIsLoading(false)
         setIsShipped(true)
@@ -992,7 +992,7 @@ const Card = ({ shipment }) => {
     const [warehouses, setWarehouses] = useState([]);
     useEffect(() => {
       const getWarehouses = async () => {
-        const response = await fetch(`${API_URL}/getWarehouse`, {
+        const response = await fetch(`${API_URL}/warehouse/warehouses`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -1013,7 +1013,7 @@ const Card = ({ shipment }) => {
     })
     const handleSubmit = async (e) => {
       e.preventDefault();
-      await fetch(`${API_URL}/schedule`, {
+      await fetch(`${API_URL}/shipment/domestic/pickup/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1115,7 +1115,7 @@ const Listing = ({ step, setStep }) => {
     const [pickup, setPickup] = useState(false);
     useEffect(() => {
 
-        fetch(`${API_URL}/getInternationalShipments`, {
+        fetch(`${API_URL}/order/international/all`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
