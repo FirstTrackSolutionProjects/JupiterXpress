@@ -20,7 +20,7 @@ const DashboardSummary = () => {
   const admin = jwtDecode(localStorage.getItem('token')).admin
   useEffect(() => {
       const getStatistics = async () => {
-        await fetch(`${API_URL}/getStatistics`, {
+        await fetch(`${API_URL}/dashboard/statistics`, {
           method: 'POST',
           headers: { 'Accept': 'application/json',
             'Content-Type': 'application/json',
