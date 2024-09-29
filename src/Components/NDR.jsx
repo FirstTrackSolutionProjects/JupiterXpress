@@ -45,7 +45,7 @@ const View  = ({report, setIsView}) => {
   useEffect(() => {
     
     const getReport = async () => {
-      const response = await fetch(`${API_URL}/getReport`, {
+      const response = await fetch(`${API_URL}/shipment/domestic/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ const Listing = () => {
   const [reports, setReports] = useState([])
   useEffect(() => {
 
-      fetch(`${API_URL}/getReports`, {
+      fetch(`${API_URL}/shipment/domestic/reports`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
