@@ -38,7 +38,7 @@ const ContactForm = () => {
     //     alert('Error sending email. Please try again.');
     //     setIsSending(false);
     //   });
-    fetch(`${API_URL}/submitContact`, {
+    fetch(`${API_URL}/contact/submit`, {
       method: 'POST',
       headers : {
         'Authorization' : localStorage.getItem('token'),
