@@ -25,7 +25,7 @@ const LoginForm = ({authMode}) => {
     event.preventDefault();  // Prevent the default form submission
     
     // Make the API call
-    await fetch(`${API_URL}/login`, {
+    await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ const LoginForm = ({authMode}) => {
       .then(response => response.json())
       .then(async (result) => {
         if (result.success) {
-          await fetch(`${API_URL}/emailVerified`,{
+          await fetch(`${API_URL}/email/verification/isVerified`,{
             method : 'POST',
             headers: {'Content-Type': 'application/json',
               'Accept': 'application/json'},
@@ -114,7 +114,7 @@ const RegisterForm = ({authMode}) => {
       alert('Both Password and Confirm Password must match');
       return;
     }
-    const response = await fetch(`${API_URL}/serviceCheck`, {
+    const response = await fetch(`${API_URL}/service/check`, {
       method: 'POST',
       headers : {
         'Content-Type' : 'application/json',
@@ -130,7 +130,7 @@ const RegisterForm = ({authMode}) => {
     }
     
     
-    fetch(`${API_URL}/register`, {
+    fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ const OtpVerification = ({email, setIsOtp, token}) => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await fetch(`${API_URL}/verifyEmail`, {
+    await fetch(`${API_URL}/email/verification/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -216,7 +216,7 @@ const OtpVerification = ({email, setIsOtp, token}) => {
   }
   const handleOtp = async (e) => {
     e.preventDefault();
-    await fetch(`${API_URL}/sendVerifyEmail`, {
+    await fetch(`${API_URL}/email/verification/request/otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
             'Accept': 'application/json',
