@@ -46,7 +46,7 @@ const AllTransactions =  () => {
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     useEffect(() => {
         const getVerifiedtransaction = async () => {
-            const recharge = await fetch(`${API_URL}/getAllTransactions`, {
+            const recharge = await fetch(`${API_URL}/wallet/recharges`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const AllTransactions =  () => {
             })
             const recharges = await recharge.json();
             const data = recharges.data
-            const manual = await fetch(`${API_URL}/getManualTransactions`, {
+            const manual = await fetch(`${API_URL}/wallet/manualRecharges`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const AllTransactions =  () => {
             })
             const manuals = await manual.json();
             data.push(...manuals.data)
-            const expense = await fetch(`${API_URL}/getExpense`, {
+            const expense = await fetch(`${API_URL}/wallet/expenses`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const AllTransactions =  () => {
             })
             const expenses = await expense.json();
             data.push(...expenses.data)
-            const refund = await fetch(`${API_URL}/getRefund`, {
+            const refund = await fetch(`${API_URL}/wallet/refunds`, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json',
                     'Content-Type': 'application/json',
