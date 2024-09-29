@@ -30,7 +30,7 @@ const Header = () => {
     const fetchBalance = async () => {
       console.log("Fetching balance")
       const balance = await fetch(
-        `${API_URL}/getBalance`,{
+        `${API_URL}/wallet/balance`,{
           method : 'POST',
           headers:{
             "Authorization":localStorage.getItem("token"),
