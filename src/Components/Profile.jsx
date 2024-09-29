@@ -42,7 +42,7 @@ const Profile = () => {
     ifsc : ''
   })
   useEffect(()=>{
-    fetch(`${API_URL}/getProfile`, {
+    fetch(`${API_URL}/merchant/profile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
         'Accept': 'application/json',
