@@ -10,7 +10,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
     const [warehouses, setWarehouses] = useState([])
     useEffect(()=>{
       const getWarehouses = async () => {
-        await fetch(`${API_URL}/getWarehouse`,{
+        await fetch(`${API_URL}/warehouse/warehouses`,{
           method : 'POST',
           headers : {
             'Accept': 'application/json',
@@ -20,7 +20,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
         }).then(response => response.json()).then(result => setWarehouses(result.rows))
       }
       getWarehouses();
-        fetch(`${API_URL}/getOrder`, {
+        fetch(`${API_URL}/order/domestic`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
               console.error('Error:', error);
               alert('An error occurred during fetching Order');
             });
-            fetch(`${API_URL}/getBoxes`, {
+            fetch(`${API_URL}/order/domestic/boxes`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -245,7 +245,7 @@ const ManageForm = ({isManage, setIsManage,  shipment, isShipped}) => {
       itemFlag = 0
     }
     
-        fetch(`${API_URL}/updateOrder`, {
+        fetch(`${API_URL}/order/domestic/update`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -961,7 +961,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
   const [isLoading, setIsLoading] = useState(false)
   const ship = async () => {
     setIsLoading(true)
-    const getBalance = await fetch(`${API_URL}/getBalance`, {
+    const getBalance = await fetch(`${API_URL}/wallet/balance`, {
       method: 'POST',
       headers : {
         'Content-Type': 'application/json',
@@ -977,7 +977,7 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
         return;
       }
     }
-    fetch(`${API_URL}/create`, {
+    fetch(`${API_URL}/shipment/domestic/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -988,14 +988,14 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
     }).then(response => response.json()).then(async result => {
       if (result.success){
         setIsShipped(true)
-        await fetch(`${API_URL}/domesticOrderMail`,{
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          }
-        })
+        // await fetch(`${API_URL}/domesticOrderMail`,{
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     'Accept': 'application/json',
+        //     'Authorization': localStorage.getItem('token'),
+        //   }
+        // })
         console.log(result)
         alert("Your shipment has been created successfully")
         setIsLoading(false)
@@ -1025,7 +1025,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
   useEffect(()=>{
     
     const data = async () => {
-      const getBoxes = await fetch(`${API_URL}/getBoxes`, {
+      const getBoxes = await fetch(`${API_URL}/order/domestic/boxes`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -1046,7 +1046,7 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
       }
       await volumetric()
       console.log({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length})
-      const getPrice = await fetch(`${API_URL}/price`, {
+      const getPrice = await fetch(`${API_URL}/shipment/domestic/price`, {
         method: 'POST',
         headers: { 'Accept': 'application/json',
                    'Content-Type': 'application/json'
@@ -1089,7 +1089,7 @@ const Card = ({ shipment }) => {
     const [isCancelled, setIsCancelled] = useState(shipment.cancelled?true:false);
     const [isCancelling, setIsCancelling] = useState(false)
     const getLabel = async () => {
-      await fetch(`${API_URL}/label`, {
+      await fetch(`${API_URL}/shipment/domestic/label`, {
         method : 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1111,7 +1111,7 @@ const Card = ({ shipment }) => {
       const cancel = confirm('Do you want to cancel this shipment?');
       if (!cancel) return;
       setIsCancelling(true);
-      await fetch(`${API_URL}/cancelShipment`, {
+      await fetch(`${API_URL}/shipment/cancel`, {
         method : 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1159,7 +1159,7 @@ const Card = ({ shipment }) => {
     const [warehouses, setWarehouses] = useState([]);
     useEffect(() => {
       const getWarehouses = async () => {
-        const response = await fetch(`${API_URL}/getWarehouse`, {
+        const response = await fetch(`${API_URL}/warehouse/warehouses`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -1183,7 +1183,7 @@ const Card = ({ shipment }) => {
       e.preventDefault();
       // console.log(formData)
       // return
-      await fetch(`${API_URL}/schedule`, {
+      await fetch(`${API_URL}/shipment/domestic/pickup/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1291,7 +1291,7 @@ const Listing = ({ step, setStep }) => {
     const [pickup, setPickup] = useState(false);
     useEffect(() => {
 
-        fetch(`${API_URL}/getShipments`, {
+        fetch(`${API_URL}/order/domestic/all`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
