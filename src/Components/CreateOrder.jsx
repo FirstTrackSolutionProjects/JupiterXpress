@@ -148,7 +148,7 @@ useEffect(()=>{
 
   useEffect(() => {
     const getWarehouses = async () => {
-      const response = await fetch(`${API_URL}/getWarehouse`, {
+      const response = await fetch(`${API_URL}/warehouse/warehouses`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -191,7 +191,7 @@ useEffect(()=>{
       itemFlag = 0
     }
     try {
-      const response = await fetch(`${API_URL}/createOrder`, {
+      const response = await fetch(`${API_URL}/order/domestic/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
