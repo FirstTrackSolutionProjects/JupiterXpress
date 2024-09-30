@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import Welcome from '../Components/Welcome'
 import Header from '../Components/HeroHeader'
 import StarsCanvas from '../Components/Canvas/Stars'
-import Footer from '../Components/Footer'
 import ChooseUs from '../Components/ChooseUs'
 import LandingInfo from '../Components/LandingInfo'
 import ReachCount from '../Components/ReachCount'
@@ -29,8 +28,6 @@ const Index = () => {
         <div className='md:p-2 text-xl md:text-3xl text-white font-bold text-center'>Our Trusted Partners</div>
       <TrustedPartners/>
       </div>
-      <Footer />
-      
     </>
   )
 }
