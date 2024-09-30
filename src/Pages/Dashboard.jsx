@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext} from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardMain from "../Components/DashboardMain"
-import Header from "../Components/Header"
 import MenuItem from "../Components/MenuItem"
 import { menuItems } from "../Constants"
 import { jwtDecode } from "jwt-decode"
@@ -69,7 +68,6 @@ const Dashboard = () => {
   return (
      <>
         <>
-            <Header/>
             <div className="absolute inset-0 flex  pt-16">
               <div className="min-w-[250px]  md:block hidden  h-full relative bg-blue-100 overflow-y-auto overflow-x-hidden">
                 {menuItems.map((item,index) =>{
