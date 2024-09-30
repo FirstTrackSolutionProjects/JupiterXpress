@@ -24,19 +24,24 @@ const DelhiveryCard = ({report, status}) => {
   )
 }
 
-const MovinCard = ({report, status}) => {
+const MovinCard = ({ report, status }) => {
   return (
-    <div>
-              <p>AWB : {report.awb}</p>
-              { status.length  ?
-                (status).map((scan,index)=> {
-                  <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
-                <div>{scan.timestamp}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.package_status}</div>
-            </div> 
-              }) : "Shipment is not yet picked up"
-              }
+    <div className="flex flex-col">
+      <p className="mt-5">AWB : {report.awb}</p>
+      {status.scans?.length ? <p className="mb-5">Currently At : {status?.latestLocation}</p> : null}
+      {status.scans?.length ?
+        (status.scans).reverse().map((scan, index) => {
+          const date = scan.timestamp
+          const formattedTimestamp = timestampToDate(date);
+          return (
+            <div className="flex space-x-5">
+              <div>{formattedTimestamp}</div>
+              <div>{scan.package_status}</div>
             </div>
+          )
+        }) : "Shipment is not yet picked up"
+      }
+    </div>
   )
 }
 
@@ -53,10 +58,11 @@ const View  = ({report, setIsView}) => {
           'Authorization': localStorage.getItem('token'),
         },
         body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId : report.categoryId })
+      }).then(response => response.json()).then(result => {
+        if (result.success){
+          setStatus(result.data)
+        }
       })
-      const data = await response.json();
-      setStatus(data.data);
-      console.log(report);
     }
     getReport();
   },[])
