@@ -1,11 +1,7 @@
-import React from 'react'
-import Footer from '../Components/Footer'
-import Header from '../Components/Header'
 
 const TnC = () => {
   return (
     <>
-    <Header />
     <div className='w-full pt-32 px-6  sm:px-32 pb-16 font-serif text-xl'>
       <p className='text-2xl font-serif font-bold'>Terms & Conditions</p>
       <br />
@@ -75,7 +71,6 @@ const TnC = () => {
       <br />
       <p>By using our Site and Services, you agree to the terms of these Terms and Conditions. Thank you for choosing Jupiter Xpress for your logistics and shipping needs.</p>
     </div>
-    <Footer/>
     </>
   )
 }
