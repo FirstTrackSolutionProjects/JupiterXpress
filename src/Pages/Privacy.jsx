@@ -1,11 +1,8 @@
 import React from 'react'
-import Header from '../Components/Header'
-import Footer from '../Components/Footer'
 
 const Privacy = () => {
   return (
     <>
-    <Header />
     <div className='w-full pt-32 px-6  sm:px-32 pb-16 font-serif text-xl'>
       <p className='text-2xl font-serif font-bold'>Privacy & Policy</p>
       <br />
@@ -85,7 +82,6 @@ const Privacy = () => {
       <br />
       <p>By using our Site and Services, you agree to the terms of this Privacy Policy. Thank you for trusting Jupiter Xpress with your logistics and shipping needs.</p>
     </div>
-    <Footer />
     </>
   )
 }
