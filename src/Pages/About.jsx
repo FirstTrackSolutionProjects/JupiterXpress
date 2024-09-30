@@ -1,6 +1,5 @@
 
-import Header from "../Components/Header"
-import Footer from "../Components/Footer"
+
 import ServiceCard from "../Components/ServiceCard"
 import ReasonCard from "../Components/ReasonCard"
 
@@ -8,8 +7,6 @@ import ReasonCard from "../Components/ReasonCard"
 const About = () => {
   return (
     <>
-    <Header />
-    
     <div className={`relative space-y-10 min-h-screen p-6 md:p-12  z-0 bg-center  bg-no-repeat bg-fixed bg-[url('/src/assets/about.jpg')] bg-cover flex flex-col justify-center items-center overflow-auto`}>
 
      <div className="w-full relative z-20 space-y-5 max-w-[1024px] border p-4 mt-12 sm:mt-16 rounded-xl bg-[rgba(255,255,255,0.9)]">
@@ -58,7 +55,6 @@ const About = () => {
      {/* <Carousel images={['logo.webp', 'ContactBg.jpg']} /> */}
       
     </div>
-    <Footer/>
     </>
   )
 }
