@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Header from '../Components/Header'
-import Footer from '../Components/Footer'
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Form = () => {
     const [formData,setFormData] = useState({
