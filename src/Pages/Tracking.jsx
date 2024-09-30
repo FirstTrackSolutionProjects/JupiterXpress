@@ -125,9 +125,7 @@ const Result = ({data}) => {
 const DomesticTracking = () => {
   return (
     <>
-        <Header />
         <Form />
-        <Footer />
     </>
   )
 }
