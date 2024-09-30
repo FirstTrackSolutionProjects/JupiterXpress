@@ -1,4 +1,4 @@
-import {Route, Routes} from 'react-router-dom'
+import {Route, Routes, useLocation} from 'react-router-dom'
 import Index from './Pages/Index'
 import Menu from './Components/Menu'
 import Contact from './Pages/Contact'
@@ -12,12 +12,15 @@ import DomesticPrice from './Pages/DomesticPrice'
 import InternationalPrice from './Pages/InternationalPrice'
 import Verify from './Pages/Verify'
 import Tracking from './Pages/Tracking'
+import Header from './Components/Header'
+import Footer from './Components/Footer'
 const App = () => {
+  const location = useLocation()
   return (
     <>
       
         <Menu />
-        
+        {location.pathname !== "/"?<Header/>:null}
         <Routes>
         <Route index element={<Index />} />
         <Route path='/contact-send' element={<Contact/>} />
@@ -34,7 +37,7 @@ const App = () => {
 
         <Route path='*' element={<Index />} />
       </Routes>
-      
+      {location.pathname !== '/dashboard'?<Footer/>:null}
       
     </>
   )
