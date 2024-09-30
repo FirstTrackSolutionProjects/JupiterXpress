@@ -1,12 +1,9 @@
 import React from 'react'
 import ContactForm from '../Components/ContactForm'
-import Header from '../Components/Header'
 import ContactDetails from '../Components/ContactDetails'
-import Footer from '../Components/Footer'
 const Contact = () => {
   return (
     <>
-    <Header />
     <div className='relative lg:h-screen z-0 bg-center  bg-no-repeat bg-fixed bg-[url("/src/assets/contact.avif")] bg-cover flex flex-col justify-center items-center overflow-auto'>
     <div className="absolute z-10 h-full w-full bg-[rgba(0,0,0,0.2)]">
     </div>
@@ -19,7 +16,6 @@ const Contact = () => {
       </div>
       
     </div>
-    <Footer/>
     </>
   )
 }
