@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -513,7 +511,6 @@ const Verify = () => {
 
   return (
     <>
-      <Header />
       <div className="w-full flex flex-col items-center pt-16">
         <div className="w-full flex flex-col items-center p-8">
           <div className="text-center text-3xl font-medium">
@@ -526,7 +523,6 @@ const Verify = () => {
           )}
         </div>
       </div>
-      <Footer />
     </>
   );
 };
