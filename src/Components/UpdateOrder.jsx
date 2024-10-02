@@ -1003,7 +1003,8 @@ const ShipCard = ({price, shipment, setIsShipped, setIsShip}) => {
         
       }
       else{
-        alert("Your shipment has not been created")
+        const failureReason = result.message || "Your shipment has not been created";
+        alert(failureReason)
         console.log(result)
         setIsLoading(false)
       }
