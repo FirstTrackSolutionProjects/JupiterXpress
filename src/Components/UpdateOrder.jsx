@@ -1046,13 +1046,13 @@ const ShipList = ({shipment, setIsShip, setIsShipped}) => {
         })
       }
       await volumetric()
-      console.log({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length})
+      console.log({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length, boxes : boxesData.order})
       const getPrice = await fetch(`${API_URL}/shipment/domestic/price`, {
         method: 'POST',
         headers: { 'Accept': 'application/json',
                    'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length}),
+          body : JSON.stringify({method: shipment.shipping_mode=="Surface"?"S":"E", status : "Delivered", origin : shipment.pin, dest : shipment.shipping_postcode, payMode : shipment.pay_method == "topay"?"COD":shipment.pay_method, codAmount : shipment.cod_amount, volume, weight, quantity : boxesData.order.length, boxes : boxesData.order}),
         
       })
       const prices = await getPrice.json()
