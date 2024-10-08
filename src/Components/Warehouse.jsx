@@ -325,6 +325,7 @@ const WarehouseServiceCard = ({name, id, isCreated}) => {
 const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
   const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [allSuccess, setAllSuccess] = useState(true);
   useEffect(() => {
     const getServices = async () => {
       const checkWarehouse = await fetch(`${API_URL}/warehouse/check`, {
@@ -339,6 +340,7 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
         .then((response) => response.json())
         .catch((error) => console.error(error));
       setServices(checkWarehouse.response);
+      setAllSuccess(checkWarehouse.all_created)
       setIsLoading(false);
     };
     getServices();
@@ -352,6 +354,10 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
         >
           X
         </div>
+        { allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
+          <div>Warehouse failed to create on some services</div>
+          <div className="p-3 bg-yellow-500 font-bold">Retry</div>
+          </div> : ""}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
         {(services && services.length) ? services.map((service, index) => (
           <WarehouseServiceCard key={index} name={service.service_name} id={service.service_id} isCreated={service.warehouse_created} />
