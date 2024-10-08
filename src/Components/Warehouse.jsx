@@ -326,6 +326,25 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
   const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [allSuccess, setAllSuccess] = useState(true);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const retryWarehouseCreation = async () => {
+    setIsRetrying(true);
+    const retryRequest = await fetch(`${API_URL}/warehouse/create/retry`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": localStorage.getItem("token"),
+      },
+      body: JSON.stringify({wid})
+    })
+    const retryResponse = await retryRequest.json();
+    if (retryResponse.success) {
+      setAllSuccess(retryResponse.all_created);
+      setServices(retryResponse.response)
+    }
+    setIsRetrying(false)
+  }
   useEffect(() => {
     const getServices = async () => {
       const checkWarehouse = await fetch(`${API_URL}/warehouse/check`, {
@@ -354,9 +373,9 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
         >
           X
         </div>
-        { allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
+        { !allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
           <div>Warehouse failed to create on some services</div>
-          <div className="p-3 bg-yellow-500 font-bold">Retry</div>
+          <div onClick={isRetrying ? ()=>{} : ()=>{retryWarehouseCreation()}} className="p-3 bg-yellow-500 font-bold">{isRetrying?"Creating...":"Retry"}</div>
           </div> : ""}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
         {(services && services.length) ? services.map((service, index) => (
