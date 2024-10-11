@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-const HeroHeader = () => {
+const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const [username, setUsername] = useState("");
@@ -50,6 +50,7 @@ const HeroHeader = () => {
             </div>
           </div>
         )}
+        <button onClick={()=>setSpaceTheme((prev)=>!prev)}>{spaceTheme?"Switch to non-space":"Switch to space"}</button>
       </nav>
     </div>
   )
