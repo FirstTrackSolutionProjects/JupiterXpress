@@ -114,7 +114,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     invoiceNumber: shipment.invoice_number,
     invoiceDate: shipment.invoice_date,
     invoiceAmount: shipment.invoice_amount,
-    invoiceUrl: shipment.invoice_url
+    invoiceUrl: shipment.invoice_url,
+    isB2B: shipment.is_b2b
   })
   useEffect(() => {
 
@@ -869,70 +870,87 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             </div>
           ))}
           <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="invoiceNumber">Invoice Number</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="invoiceNumber"
-                name="invoiceNumber"
-                placeholder="Enter invoice Number"
-                value={formData.invoiceNumber}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="invoiceDate">Invoice Date</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="date"
-                id="invoiceDate"
-                name="invoiceDate"
-                value={formData.invoiceDate}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="invoiceAmount">Invoice Amount</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                min={1}
-                id="invoiceAmount"
-                name="invoiceAmount"
-                placeholder="Enter Invoice Amount"
-                value={formData.invoiceAmount}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="invoice">Invoice</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="file"
-                id="invoice"
-                name="invoice"
-                onChange={handleInvoice}
-              />
-              <a type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
-              <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={uploadInvoice}>Update</button>
-            </div>
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="ewaybill">E-Waybill</label>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-x-4 flex items-center">
             <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="ewaybill"
-              name="ewaybill"
-              placeholder="Enter Customer GST"
-              value={formData.ewaybill}
+              className=""
+              type="checkbox"
+              checked={formData.isB2B}
+              id="isB2B"
+              name="isB2B"
+              value={formData.isB2B}
               onChange={handleChange}
             />
+            <label htmlFor="isB2B" >Is this is a B2B shipment?</label>
+
           </div>
+          {
+            formData.isB2B ? <>
+              <div className="w-full flex mb-2 flex-wrap ">
+                <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                  <label htmlFor="invoiceNumber">Invoice Number</label>
+                  <input required
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="text"
+                    id="invoiceNumber"
+                    name="invoiceNumber"
+                    placeholder="Enter invoice Number"
+                    value={formData.invoiceNumber}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                  <label htmlFor="invoiceDate">Invoice Date</label>
+                  <input required
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="date"
+                    id="invoiceDate"
+                    name="invoiceDate"
+                    value={formData.invoiceDate}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="w-full flex mb-2 flex-wrap ">
+                <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                  <label htmlFor="invoiceAmount">Invoice Amount</label>
+                  <input required
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="number"
+                    min={1}
+                    id="invoiceAmount"
+                    name="invoiceAmount"
+                    placeholder="Enter Invoice Amount"
+                    value={formData.invoiceAmount}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                  <label htmlFor="invoice">Invoice</label>
+                  <input
+                    className="w-full border py-2 px-4 rounded-3xl"
+                    type="file"
+                    id="invoice"
+                    name="invoice"
+                    onChange={handleInvoice}
+                  />
+                  <a type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
+                  <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={uploadInvoice}>Update</button>
+                </div>
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="ewaybill">E-Waybill</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="ewaybill"
+                  name="ewaybill"
+                  placeholder="Enter Customer GST"
+                  value={formData.ewaybill}
+                  onChange={handleChange}
+                />
+              </div>
+            </> : null
+          }
           <div className="w-full flex mb-2 flex-wrap ">
 
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
