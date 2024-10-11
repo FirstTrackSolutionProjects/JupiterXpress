@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid"
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   const [boxes, setBoxes] = useState([
@@ -108,7 +109,12 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     Cgst: shipment.customer_gst,
     shippingType: shipment.shipping_mode,
     pickupDate: shipment.pickup_date,
-    pickupTime: shipment.pickup_time
+    pickupTime: shipment.pickup_time,
+    ewaybill: shipment.ewaybill,
+    invoiceNumber: shipment.invoice_number,
+    invoiceDate: shipment.invoice_date,
+    invoiceAmount: shipment.invoice_amount,
+    invoiceUrl: shipment.invoice_url
   })
   useEffect(() => {
 
@@ -213,6 +219,55 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+  const [invoice, setInvoice] = useState(null)
+  const handleInvoice = (e) => {
+    const { files } = e.target;
+    setInvoice(files[0])
+  }
+  const uploadInvoice = async () => {
+    if (!invoice) {
+      return;
+    }
+    const invoiceUuid = uuidv4();
+    const key = `invoice/${invoiceUuid}`;
+    const filetype = invoice.type;
+
+
+    const putUrlReq = await fetch(`${API_URL}/getPutSignedUrl`, {
+      method: "POST",
+      headers: {
+        'Authorization': localStorage.getItem("token"),
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ filename: key, filetype: filetype, isPublic: true }),
+    }).catch(err => { console.error(err); alert("err"); return });
+    const putUrlRes = await putUrlReq.json();
+
+    const uploadURL = putUrlRes.uploadURL;
+    await fetch(uploadURL, {
+      method: "PUT",
+      headers: {
+        'Content-Type': filetype
+      },
+      body: invoice,
+    }).then(response => {
+      if (response.status == 200) {
+        setFormData((prev) => ({
+          ...prev,
+          invoiceUrl: key
+        }))
+        alert("Invoice uploaded successfully!");
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          invoiceUrl: null
+        }))
+        alert("Failed to upload invoice!");
+      }
+    })
+
+  }
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData)
@@ -347,20 +402,10 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 onChange={handleChange}
               />
             </div>
-            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="date">Order Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="date"
-                name="date"
-                placeholder="Ex. 13/05/2024"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </div> */}
 
           </div>
+
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="payMode">Payment Method</label>
@@ -825,6 +870,70 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
           ))}
           <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
           <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="invoiceNumber">Invoice Number</label>
+              <input required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="invoiceNumber"
+                name="invoiceNumber"
+                placeholder="Enter invoice Number"
+                value={formData.invoiceNumber}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="invoiceDate">Invoice Date</label>
+              <input required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="date"
+                id="invoiceDate"
+                name="invoiceDate"
+                value={formData.invoiceDate}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="invoiceAmount">Invoice Amount</label>
+              <input required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="number"
+                min={1}
+                id="invoiceAmount"
+                name="invoiceAmount"
+                placeholder="Enter Invoice Amount"
+                value={formData.invoiceAmount}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="invoice">Invoice</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="file"
+                id="invoice"
+                name="invoice"
+                onChange={handleInvoice}
+              />
+              <a type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
+              <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={uploadInvoice}>Update</button>
+            </div>
+          </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="ewaybill">E-Waybill</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="ewaybill"
+              name="ewaybill"
+              placeholder="Enter Customer GST"
+              value={formData.ewaybill}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
 
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="discount">Discount</label>
@@ -947,7 +1056,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 onChange={handleChange}
               />
             </div>
-
           </div>
           <button disabled={isShipped} className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
         </form>
@@ -973,6 +1081,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
     if ((parseFloat(balance) < parseFloat(price.price))) {
       if (shipment.pay_method !== "topay") {
         alert('Insufficient balance')
+        setIsLoading(false)
         return;
       }
     }
@@ -987,14 +1096,6 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
     }).then(response => response.json()).then(async result => {
       if (result.success) {
         setIsShipped(true)
-        // await fetch(`${API_URL}/domesticOrderMail`,{
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     'Accept': 'application/json',
-        //     'Authorization': localStorage.getItem('token'),
-        //   }
-        // })
         console.log(result)
         alert("Your shipment has been created successfully")
         setIsLoading(false)
@@ -1172,8 +1273,8 @@ const Card = ({ shipment }) => {
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>
-          {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing?()=>{}:()=>refreshShipment()}>{isRefreshing?'Refreshing...':'Refresh'}</div>}
-          {isShipped && !isProcessing? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
+          {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
+          {isShipped && !isProcessing ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
           {isShipped && !isProcessing && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
