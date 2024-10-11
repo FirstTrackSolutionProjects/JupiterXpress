@@ -177,8 +177,6 @@ const FullDetails = () => {
   }, []);
 
   const onSubmit = async (data) => {
-    alert("Submitted!")
-    return
     let boxFlag = 0
     for (let i = 0; i < data.boxes.length; i++) {
       for (let j = 0; j < data.orders.length; j++) {
