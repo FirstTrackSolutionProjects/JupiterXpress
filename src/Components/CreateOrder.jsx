@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 const API_URL = import.meta.env.VITE_APP_API_URL
@@ -66,40 +67,47 @@ const schema = z.object({
   ),
   discount: z.preprocess(
     (a) => parseInt(a, 10),
-    z.number().min(0,"Must be a non-negative number")),
+    z.number().min(0, "Must be a non-negative number")),
   cod: z.preprocess(
     (a) => parseInt(a, 10),
     z.number().min(0, "COD must be a positive number")),
   shippingType: z.enum(['Surface', 'Express']),
   gst: z.string(),
   Cgst: z.string().optional(),
-  pickupDate : z.string(),
-  pickupTime :z.preprocess((a) => a+':00', z.string()) 
-
+  pickupDate: z.string(),
+  pickupTime: z.preprocess((a) => a + ':00', z.string()),
+  ewaybill: z.string().optional(),
+  invoiceNumber: z.string().min(1),
+  invoiceDate: z.string(),
+  invoiceAmount: z.preprocess(
+    (a) => parseInt(a, 10),
+    z.number().min(1, "Invoice Amount must be a positive number")),
+  invoiceUrl: z.string().min(1),
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
   const { register, control, handleSubmit, watch, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      payMode : 'Pre-paid',
-      postcode : '',
-      Bpostcode : '',
-      same : 1,
-      discount : 0,
-      cod : 0,
-      addressType : "home",
-      addressType2 : "office",
-      BaddressType : "home",
-      BaddressType2 : "office",
-      shippingType : "Surface",
+      payMode: 'Pre-paid',
+      postcode: '',
+      Bpostcode: '',
+      same: true,
+      discount: 0,
+      cod: 0,
+      addressType: "home",
+      addressType2: "office",
+      BaddressType: "home",
+      BaddressType2: "office",
+      shippingType: "Surface",
       orders: [{ box_no: '1', product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: 0 }],
-      boxes: [{ box_no: 1, length : 0, breadth : 0, height : 0, weight : 0}]
+      boxes: [{ box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }],
+      invoiceAmount: 0
     }
   });
   useEffect(() => {
     console.log(errors)
-  },[errors])
+  }, [errors])
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'orders'
@@ -108,43 +116,43 @@ const FullDetails = () => {
     control,
     name: 'boxes'
   });
-  useEffect(()=>{
-        
+  useEffect(() => {
+
     const pinToAdd = async () => {
-     try{
-      await fetch(`https://api.postalpincode.in/pincode/${watch('postcode')}`)
-      .then(response => response.json())
-      .then(result => {
-         const city = result[0].PostOffice[0].District
-         const state = result[0].PostOffice[0].State
-         setValue('city',city)
-         setValue('state',state)
-       })
-     } catch (e) {
-      setValue('city','')
-      setValue('state','')
-     }
+      try {
+        await fetch(`https://api.postalpincode.in/pincode/${watch('postcode')}`)
+          .then(response => response.json())
+          .then(result => {
+            const city = result[0].PostOffice[0].District
+            const state = result[0].PostOffice[0].State
+            setValue('city', city)
+            setValue('state', state)
+          })
+      } catch (e) {
+        setValue('city', '')
+        setValue('state', '')
+      }
     }
-  if (watch('postcode').length == 6) pinToAdd()
-},[watch('postcode')])
-useEffect(()=>{
-  const pinToAdd = async () => {
-    try{
-     await fetch(`https://api.postalpincode.in/pincode/${watch('Bpostcode')}`)
-     .then(response => response.json())
-     .then(result => {
-        const city = result[0].PostOffice[0].District
-        const state = result[0].PostOffice[0].State
-        setValue('Bcity',city)
-        setValue('Bstate',state)
-      })
-    } catch (e) {
-     setValue('Bcity','')
-     setValue('Bstate','')
+    if (watch('postcode').length == 6) pinToAdd()
+  }, [watch('postcode')])
+  useEffect(() => {
+    const pinToAdd = async () => {
+      try {
+        await fetch(`https://api.postalpincode.in/pincode/${watch('Bpostcode')}`)
+          .then(response => response.json())
+          .then(result => {
+            const city = result[0].PostOffice[0].District
+            const state = result[0].PostOffice[0].State
+            setValue('Bcity', city)
+            setValue('Bstate', state)
+          })
+      } catch (e) {
+        setValue('Bcity', '')
+        setValue('Bstate', '')
+      }
     }
-   }
- if (watch('Bpostcode').length == 6) pinToAdd()
-},[watch('Bpostcode')])
+    if (watch('Bpostcode').length == 6) pinToAdd()
+  }, [watch('Bpostcode')])
 
   useEffect(() => {
     const getWarehouses = async () => {
@@ -166,11 +174,11 @@ useEffect(()=>{
     let boxFlag = 0
     for (let i = 0; i < data.boxes.length; i++) {
       for (let j = 0; j < data.orders.length; j++) {
-        if (parseInt(data.orders[j].box_no) == i+1){
+        if (parseInt(data.orders[j].box_no) == i + 1) {
           boxFlag = 1
         }
       }
-      if (boxFlag == 0){
+      if (boxFlag == 0) {
         alert('Please make sure every box has some items')
         return
       }
@@ -180,11 +188,11 @@ useEffect(()=>{
     let itemFlag = 0
     for (let i = 0; i < data.orders.length; i++) {
       for (let j = 0; j < data.boxes.length; j++) {
-        if (data.orders[i].box_no == data.boxes[j].box_no){
+        if (data.orders[i].box_no == data.boxes[j].box_no) {
           itemFlag = 1
         }
       }
-      if (itemFlag == 0){
+      if (itemFlag == 0) {
         alert('Some items have invalid box no.')
         return
       }
@@ -211,6 +219,52 @@ useEffect(()=>{
       alert('An error occurred during Order');
     }
   };
+  const [invoice, setInvoice] = useState(null);
+  const handleInvoice = (e) => {
+    const { files } = e.target;
+    setInvoice(files[0]);
+  };
+
+  const handleInvoiceUpload = async () => {
+    if (!invoice) {
+      return;
+    }
+    const invoiceUuid = uuidv4();
+    const key = `invoice/${invoiceUuid}`;
+    const filetype = invoice.type;
+
+
+    const putUrlReq = await fetch(`${API_URL}/s3/putUrl`, {
+      method: "POST",
+      headers: {
+        'Authorization': localStorage.getItem("token"),
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ filename: key, filetype: filetype, isPublic: true }),
+    }).catch(err => { console.error(err); alert("err"); return });
+    const putUrlRes = await putUrlReq.json();
+
+    const uploadURL = putUrlRes.uploadURL;
+    await fetch(uploadURL, {
+      method: "PUT",
+      headers: {
+        'Content-Type': filetype
+      },
+      body: invoice,
+    }).then(response => {
+      if (response.status == 200) {
+        setValue("invoiceUrl", key);
+        alert("Invoice uploaded successfully!");
+      } else {
+        setValue("invoiceUrl", null)
+        alert("Failed to upload invoice!");
+      }
+    })
+
+
+
+  }
 
   return (
     <div className="w-full p-4 flex flex-col items-center">
@@ -234,9 +288,9 @@ useEffect(()=>{
             {errors.wid && <span className='text-red-500'>{errors.wid.message}</span>}
           </div>
         </div>
-        
+
         <div className="w-full flex mb-2 flex-wrap">
-        <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="pickupDate">Pickup Date</label>
             <input required
               className="w-full border py-2 px-4 rounded-3xl"
@@ -535,7 +589,7 @@ useEffect(()=>{
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id={`boxes[${index}].box_no`}
-                  value = {index+1}
+                  value={index + 1}
                   disabled
                   {...register(`boxes[${index}].box_no`)}
                 />
@@ -590,7 +644,7 @@ useEffect(()=>{
             <button
               type="button"
               className="bg-blue-500 text-white px-4 py-2 rounded-3xl"
-              onClick={() => boxes.append({ box_no: watch('boxes').length+1, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
+              onClick={() => boxes.append({ box_no: watch('boxes').length + 1, product_name: '', product_quantity: 0, selling_price: 0, discount: '', tax_in_percentage: 0 })}
             >
               Add Boxes
             </button>
@@ -665,6 +719,67 @@ useEffect(()=>{
         </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="invoiceNumber">Invoice Number</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="invoiceNumber"
+              {...register("invoiceNumber")}
+            />
+            {errors.invoiceNumber && <span className='text-red-500'>{errors.invoiceNumber.message}</span>}
+          </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="invoiceDate">Invoice Date</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="date"
+              id="invoiceDate"
+              {...register("invoiceDate")}
+            />
+            {errors.invoiceDate && <span className='text-red-500'>{errors.invoiceDate.message}</span>}
+          </div>
+        </div>
+        <div className="w-full flex mb-2 flex-wrap">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="invoiceAmount">Invoice Amount</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="number"
+              id="invoiceAmount"
+              {...register("invoiceAmount")}
+            />
+            {errors.invoiceAmount && <span className='text-red-500'>{errors.invoiceAmount.message}</span>}
+          </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="invoice">Invoice</label>
+
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="file"
+              id="invoice"
+              onChange={handleInvoice}
+            />
+            {errors.invoiceUrl && <span className='text-red-500'>{errors.invoiceUrl.message}</span>}
+            <button
+              className="bg-blue-500 text-white px-6 py-2 rounded-3xl"
+              onClick={handleInvoiceUpload}
+            >
+              Upload
+            </button>
+            {errors.cod && <span className='text-red-500'>{errors.cod.message}</span>}
+          </div>
+        </div>
+        <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+          <label htmlFor="ewaybill">E-Waybill</label>
+          <input
+            className="w-full border py-2 px-4 rounded-3xl"
+            type="text"
+            id="ewaybill"
+            {...register("ewaybill")}
+          />
+        </div>
+        <div className="w-full flex mb-2 flex-wrap">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="discount">Discount</label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
@@ -679,7 +794,7 @@ useEffect(()=>{
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="number"
-              min={watch("payMode") == "Pre-paid"?0:1}
+              min={watch("payMode") == "Pre-paid" ? 0 : 1}
               id="cod"
               {...register("cod")}
             />
@@ -699,11 +814,11 @@ useEffect(()=>{
             </select>
             {errors.shippingType && <span className='text-red-500'>{errors.shippingType.message}</span>}
           </div>
-         
+
         </div>
-       
+
         <div className="w-full flex mb-2 flex-wrap">
-         
+
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="gst">Seller GSTIN</label>
             <input
@@ -714,18 +829,18 @@ useEffect(()=>{
             />
             {errors.gst && <span className='text-red-500'>{errors.gst.message}</span>}
           </div>
-          
+
         </div>
         <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="Cgst">Customer GSTIN(For B2B)</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="Cgst"
-              {...register("Cgst")}
-            />
-            {errors.Cgst && <span className='text-red-500'>{errors.Cgst.message}</span>}
-          </div>
+          <label htmlFor="Cgst">Customer GSTIN(For B2B)</label>
+          <input
+            className="w-full border py-2 px-4 rounded-3xl"
+            type="text"
+            id="Cgst"
+            {...register("Cgst")}
+          />
+          {errors.Cgst && <span className='text-red-500'>{errors.Cgst.message}</span>}
+        </div>
         <div className="w-full flex justify-center mt-4">
           <button
             className="bg-green-500 text-white px-6 py-2 rounded-3xl"
