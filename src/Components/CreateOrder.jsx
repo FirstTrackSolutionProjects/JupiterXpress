@@ -77,12 +77,16 @@ const schema = z.object({
   pickupDate: z.string(),
   pickupTime: z.preprocess((a) => a + ':00', z.string()),
   ewaybill: z.string().optional(),
-  invoiceNumber: z.string().min(1),
+  invoiceNumber: z.string(),
   invoiceDate: z.string(),
   invoiceAmount: z.preprocess(
     (a) => parseInt(a, 10),
     z.number().min(1, "Invoice Amount must be a positive number")),
-  invoiceUrl: z.string().min(1),
+  invoiceUrl: z.string().optional(),
+  isB2B: z.boolean()
+}).refine((data) => !data.isB2B || (data.isB2B && !!data.invoiceUrl), {
+  message: "Invoice is required for B2B shipments",
+  path: ["invoiceUrl"],
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -102,7 +106,9 @@ const FullDetails = () => {
       shippingType: "Surface",
       orders: [{ box_no: '1', product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: 0 }],
       boxes: [{ box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }],
-      invoiceAmount: 0
+      invoiceAmount: 1,
+      isB2B: false,
+      invoiceUrl: ''
     }
   });
   useEffect(() => {
@@ -171,6 +177,8 @@ const FullDetails = () => {
   }, []);
 
   const onSubmit = async (data) => {
+    alert("Submitted!")
+    return
     let boxFlag = 0
     for (let i = 0; i < data.boxes.length; i++) {
       for (let j = 0; j < data.orders.length; j++) {
@@ -717,67 +725,80 @@ const FullDetails = () => {
             </button>
           </div>
         </div>
-        <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="invoiceNumber">Invoice Number</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              id="invoiceNumber"
-              {...register("invoiceNumber")}
-            />
-            {errors.invoiceNumber && <span className='text-red-500'>{errors.invoiceNumber.message}</span>}
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="invoiceDate">Invoice Date</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="date"
-              id="invoiceDate"
-              {...register("invoiceDate")}
-            />
-            {errors.invoiceDate && <span className='text-red-500'>{errors.invoiceDate.message}</span>}
-          </div>
-        </div>
-        <div className="w-full flex mb-2 flex-wrap">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="invoiceAmount">Invoice Amount</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="number"
-              id="invoiceAmount"
-              {...register("invoiceAmount")}
-            />
-            {errors.invoiceAmount && <span className='text-red-500'>{errors.invoiceAmount.message}</span>}
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="invoice">Invoice</label>
-
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="file"
-              id="invoice"
-              onChange={handleInvoice}
-            />
-            {errors.invoiceUrl && <span className='text-red-500'>{errors.invoiceUrl.message}</span>}
-            <button
-              className="bg-blue-500 text-white px-6 py-2 rounded-3xl"
-              onClick={handleInvoiceUpload}
-            >
-              Upload
-            </button>
-            {errors.cod && <span className='text-red-500'>{errors.cod.message}</span>}
-          </div>
-        </div>
-        <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-          <label htmlFor="ewaybill">E-Waybill</label>
+        <div className="w-full flex mb-2 items-center">
           <input
-            className="w-full border py-2 px-4 rounded-3xl"
-            type="text"
-            id="ewaybill"
-            {...register("ewaybill")}
+            className="mr-2"
+            type="checkbox"
+            id="isB2B"
+            {...register("isB2B")}
           />
+          <label htmlFor="isB2B">Is this a B2B shipment?</label>
         </div>
+        {
+          watch("isB2B") ? <>
+            <div className="w-full flex mb-2 flex-wrap">
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="invoiceNumber">Invoice Number</label>
+                <input required={watch("isB2B")}
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="invoiceNumber"
+                  {...register("invoiceNumber")}
+                />
+                {errors.invoiceNumber && <span className='text-red-500'>{errors.invoiceNumber.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="invoiceDate">Invoice Date</label>
+                <input required={watch("isB2B")}
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="date"
+                  id="invoiceDate"
+                  {...register("invoiceDate")}
+                />
+                {errors.invoiceDate && <span className='text-red-500'>{errors.invoiceDate.message}</span>}
+              </div>
+            </div>
+            <div className="w-full flex mb-2 flex-wrap">
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="invoiceAmount">Invoice Amount</label>
+                <input required={watch("isB2B")}
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="number"
+                  id="invoiceAmount"
+                  {...register("invoiceAmount")}
+                />
+                {errors.invoiceAmount && <span className='text-red-500'>{errors.invoiceAmount.message}</span>}
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="invoice">Invoice</label>
+
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="file"
+                  id="invoice"
+                  onChange={handleInvoice}
+                />
+                {errors.invoiceUrl && <span className='text-red-500'>{errors.invoiceUrl.message}</span>}
+                <button
+                  className="bg-blue-500 text-white px-6 py-2 rounded-3xl"
+                  onClick={handleInvoiceUpload}
+                >
+                  Upload
+                </button>
+                {errors.cod && <span className='text-red-500'>{errors.cod.message}</span>}
+              </div>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="ewaybill">E-Waybill</label>
+              <input required={watch("isB2B")}
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="ewaybill"
+                {...register("ewaybill")}
+              />
+            </div>
+          </> : null
+        }
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="discount">Discount</label>
