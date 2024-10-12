@@ -99,15 +99,17 @@ const MovinCard = ({ scan }) => {
 }
 
 const ShipRocketCard = ({ scan }) => {
-    return (
-        <>
-            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
-                <div>{scan.timestamp}</div>
-                <div>{scan.location}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.remarks}</div>
-            </div>
-        </>
-    )
+  return (
+    <>
+      <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+        <div className='flex flex-col items-center justify-center'>
+          <div className='font-bold'>{scan.remarks}</div>
+          <div>{scan.location}</div>
+          <div>{scan.timestamp}</div>
+        </div>
+      </div>
+    </>
+  )
 }
 
 const Result = ({ data }) => {
@@ -126,7 +128,7 @@ const Result = ({ data }) => {
                 {data?.id == 3 ? data?.data.map((scan, index) => (
                     <MovinCard key={index} scan={scan} />
                 )) : null}
-                {data?.id == 4 ? data?.data.map((scan, index) => (
+                {data?.id == 4 ? data?.data.reverse().map((scan, index) => (
                     <ShipRocketCard key={index} scan={scan} />
                 )) : null}
             </div>
