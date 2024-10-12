@@ -234,7 +234,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     const filetype = invoice.type;
 
 
-    const putUrlReq = await fetch(`${API_URL}/getPutSignedUrl`, {
+    const putUrlReq = await fetch(`${API_URL}/s3/putUrl`, {
       method: "POST",
       headers: {
         'Authorization': localStorage.getItem("token"),
