@@ -944,7 +944,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="ewaybill"
                   name="ewaybill"
-                  placeholder="Enter Customer GST"
+                  placeholder="Enter E-waybill Number"
                   value={formData.ewaybill}
                   onChange={handleChange}
                 />
