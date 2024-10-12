@@ -939,7 +939,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               </div>
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="ewaybill">E-Waybill</label>
-                <input
+                <input required={formData.invoiceAmount >= 50000 && formData.isB2B}
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id="ewaybill"
