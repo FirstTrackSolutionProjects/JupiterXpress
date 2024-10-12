@@ -1,7 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
-const AddForm = ({ mode, setMode }) => {
+const AddForm = ({ setMode }) => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -32,15 +32,20 @@ const AddForm = ({ mode, setMode }) => {
       body: JSON.stringify(formData),
     })
       .then((response) => response.json())
-      .then((result) => alert(result.message))
+      .then((result) => {
+        if (result.success) {
+          alert("Creating Warehouse...");
+          setMode(0);
+        } else {
+          alert(result.message);
+        }
+      })
       .catch((error) => alert(error.message));
   };
   return (
     <>
       <div
-        className={`w-full p-4 flex flex-col items-center space-y-6 ${
-          mode == 1 ? "" : "hidden"
-        }`}
+        className={`w-full p-4 flex flex-col items-center space-y-6`}
       >
         <div className="w-[728px] h-16 px-4  relative flex">
           <div className="text-2xl font-medium">ADD WAREHOUSE</div>
@@ -188,7 +193,7 @@ const AddForm = ({ mode, setMode }) => {
   );
 };
 
-const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
+const ManageForm = ({ isManage, setIsManage, name, address, pin, phone }) => {
   const [formData, setFormData] = useState({
     name: name,
     phone: phone,
@@ -220,9 +225,8 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
   return (
     <>
       <div
-        className={`absolute  z-20 bg-white w-full p-4 flex flex-col items-center space-y-6 ${
-          isManage ? "" : "hidden"
-        }`}
+        className={`absolute  z-20 bg-white w-full p-4 flex flex-col items-center space-y-6 ${isManage ? "" : "hidden"
+          }`}
       >
         <div className="w-[728px] h-16 px-4  relative flex">
           <div className="text-2xl font-medium">MANAGE WAREHOUSE</div>
@@ -308,20 +312,118 @@ const ManageForm = ({isManage, setIsManage, name, address, pin, phone}) => {
   );
 };
 
-const Card = ({ name, address, pin, phone }) => {
+const WarehouseServiceCard = ({name, id, isCreated}) => {
+  return (
+    <>
+      <div className="text-center bg-gray-600 rounded-lg py-3 px-3 font-bold text-white">
+        {name}<br/>{isCreated?<p className="text-green-400">Warehouse Online</p>:<p className="text-red-500">Failed to Create Warehouse</p>}
+      </div>
+    </>
+  )
+}
+
+const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
+  const [services, setServices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [allSuccess, setAllSuccess] = useState(true);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const retryWarehouseCreation = async () => {
+    setIsRetrying(true);
+    const retryRequest = await fetch(`${API_URL}/warehouse/create/retry`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": localStorage.getItem("token"),
+      },
+      body: JSON.stringify({wid})
+    })
+    const retryResponse = await retryRequest.json();
+    if (retryResponse.success) {
+      setAllSuccess(retryResponse.all_created);
+      setServices(retryResponse.response)
+    }
+    setIsRetrying(false)
+  }
+  useEffect(() => {
+    const getServices = async () => {
+      const checkWarehouse = await fetch(`${API_URL}/warehouse/check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": localStorage.getItem("token"),
+        },
+        body: JSON.stringify({wid}),
+      })
+        .then((response) => response.json())
+        .catch((error) => console.error(error));
+      setServices(checkWarehouse.response);
+      setAllSuccess(checkWarehouse.all_created)
+      setIsLoading(false);
+    };
+    getServices();
+  }, [wid]);
+  return (
+    <>
+      <div className="w-full relative pt-6">
+        <div 
+        className="absolute top-3 right-3 w-9 h-6 bg-slate-600 text-white flex justify-center items-center rounded-lg"
+        onClick={()=>setCheckWarehouse(false)}
+        >
+          X
+        </div>
+        { !allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
+          <div>Warehouse failed to create on some services</div>
+          <div onClick={isRetrying ? ()=>{} : ()=>{retryWarehouseCreation()}} className="p-3 bg-yellow-500 font-bold">{isRetrying?"Creating...":"Retry"}</div>
+          </div> : ""}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+        {(services && services.length) ? services.map((service, index) => (
+          <WarehouseServiceCard key={index} name={service.service_name} id={service.service_id} isCreated={service.warehouse_created} />
+        )): isLoading?"Loading...":"Something went wrong while fetching services"}
+      </div>
+      </div>
+    </>
+  )
+}
+
+const Card = ({ name, address, pin, phone, wid, justCreated }) => {
   const [isManage, setIsManage] = useState(false);
+  const [checkWarehouse, setCheckWarehouse] = useState(justCreated?true:false);
+  useEffect(() => {
+    const seenJustCreated = async () => {
+      await fetch(`${API_URL}/warehouse/new/seen`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": localStorage.getItem("token"),
+        },
+        body: JSON.stringify({wid}),
+      })
+        .then((response) => response.json())
+        .catch((error) => console.error(error))
+    }
+    if (justCreated){
+      seenJustCreated();
+    }
+  },[])
   return (
     <>
       <ManageForm isManage={isManage} setIsManage={setIsManage} name={name} address={address} pin={pin} phone={phone} />
       <div className="w-full h-16 bg-white relative items-center px-8 flex border-b">
         <div>{name}</div>
-        <div className="absolute right-8 cursor-pointer" onClick={()=>setIsManage(true)}>Manage</div>
+        <div className="absolute right-8">
+          <div className="cursor-pointer" onClick={() => setIsManage(true)}>Manage</div>
+          <div className="cursor-pointer" onClick={() => setCheckWarehouse(true)}>Check</div>
+        </div>
       </div>
+      {checkWarehouse ? <WarehouseServiceList wid={wid} setCheckWarehouse={setCheckWarehouse} /> : null}
     </>
   );
 };
 
-const Listing = ({ mode, setMode }) => {
+const Listing = ({ setMode }) => {
   const [warehouses, setWarehouses] = useState([]);
   useEffect(() => {
     const getWarehouses = async () => {
@@ -343,9 +445,7 @@ const Listing = ({ mode, setMode }) => {
   return (
     <>
       <div
-        className={`w-full p-4 flex flex-col items-center space-y-6 ${
-          mode == 0 ? "" : "hidden"
-        }`}
+        className={`w-full p-4 flex flex-col items-center space-y-6`}
       >
         <div className="w-full h-16 px-4  relative flex">
           <div className="text-2xl font-medium">WAREHOUSES</div>
@@ -361,7 +461,7 @@ const Listing = ({ mode, setMode }) => {
         </div>
         <div className="w-full">
           {warehouses.map((warehouse, index) => (
-            <Card name={warehouse.warehouseName} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pin} />
+            <Card name={warehouse.warehouseName} address={warehouse.address} phone={warehouse.phone} pin={warehouse.pin} wid={warehouse.wid} justCreated={warehouse.just_created} />
           ))}
         </div>
       </div>
@@ -374,8 +474,7 @@ const Warehouse = () => {
   return (
     <>
       <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-        <Listing mode={mode} setMode={setMode} />
-        <AddForm mode={mode} setMode={setMode} />
+        {mode == 0? <Listing setMode={setMode} /> : <AddForm setMode={setMode} />}
       </div>
     </>
   );
