@@ -87,6 +87,9 @@ const schema = z.object({
 }).refine((data) => !data.isB2B || (data.isB2B && !!data.invoiceUrl), {
   message: "Invoice is required for B2B shipments",
   path: ["invoiceUrl"],
+}).refine((data) => data.invoiceAmount < 50000 || (data.ewaybill && data.ewaybill.length > 0), {
+  message: "Ewaybill is required for invoice amount of at least 50000",
+  path: ["ewaybill"], // Error path
 });
 const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -788,12 +791,13 @@ const FullDetails = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="ewaybill">E-Waybill</label>
-              <input required={watch("isB2B")}
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="ewaybill"
                 {...register("ewaybill")}
               />
+              {errors.ewaybill && <span className='text-red-500'>{errors.ewaybill.message}</span>}
             </div>
           </> : null
         }
