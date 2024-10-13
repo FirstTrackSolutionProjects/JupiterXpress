@@ -9,6 +9,13 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
   const { logout } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (!theme) {
+      setSpaceTheme(true);
+      localStorage.setItem("theme", "space");
+    } else {
+      setSpaceTheme(theme === "space");
+    }
     const isAuthenticated = () => {
       const token = localStorage.getItem("token");
       if (!token) return false;
@@ -62,7 +69,7 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
         <input 
           type="checkbox" 
           checked={spaceTheme} 
-          onChange={() => setSpaceTheme(!spaceTheme)} 
+          onChange={() => {setSpaceTheme((prev)=>{localStorage.setItem('theme', !prev?'space':'non-space'); return !prev }); }} 
           style={{ display: 'none' }} // Hides the default checkbox
         />
         <span style={{
