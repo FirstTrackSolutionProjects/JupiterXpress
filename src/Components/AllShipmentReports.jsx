@@ -11,7 +11,7 @@ const timestampToDate = (timestamp) => {
   return formattedTimestamp;
 }
 
-const DelhiveryCard = ({ report, status }) => {
+const DelhiveryStatusCard = ({ report, status }) => {
   return (
     <div>
       <p>AWB : {report.awb}</p>
@@ -30,7 +30,7 @@ const DelhiveryCard = ({ report, status }) => {
   )
 }
 
-const MovinCard = ({ report, status }) => {
+const MovinStatusCard = ({ report, status }) => {
   return (
     <div className="flex flex-col">
       <p className="mt-5">AWB : {report.awb}</p>
@@ -51,10 +51,30 @@ const MovinCard = ({ report, status }) => {
   )
 }
 
+const ShipRocketStatusCard = ({ report, status }) => {
+  return (
+    <div className="flex flex-col">
+      <p className="mt-5">AWB : {report.awb}</p>
+
+      {status.length ?
+        (status).reverse().map((scan, index) => {
+          const date = scan.timestamp
+          const formattedTimestamp = timestampToDate(date);
+          return (
+            <div>{formattedTimestamp} | {scan.location} | {scan.remarks} </div>
+          )
+        }) : "Shipment is not yet picked up"
+      }
+    </div>
+  )
+}
+
 const View = ({ report, setIsView }) => {
   const [status, setStatus] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
   useEffect(() => {
     const getReport = async () => {
+      setIsLoading(true)
       const response = await fetch(`${API_URL}/shipment/domestic/report`, {
         method: 'POST',
         headers: {
@@ -67,7 +87,9 @@ const View = ({ report, setIsView }) => {
         if (result.success) {
           setStatus(result.data)
         }
+        setIsLoading(false)
       })
+      setIsLoading(false)
     }
     getReport();
   }, [])
@@ -82,7 +104,16 @@ const View = ({ report, setIsView }) => {
         <div className="bg-white p-4  border">
           <div onClick={() => setIsView(false)}>X</div>
           {
-            status ? report.serviceId == 1 ? <DelhiveryCard report={report} status={status} /> : <MovinCard report={report} status={status} /> : "Loading..."
+              isLoading? <div>Loading...</div> : null
+          }
+          {
+            status && report.serviceId == 1 ? <DelhiveryStatusCard report={report} status={status} /> : null
+          }
+          {
+            status && report.serviceId == 2 ? <MovinStatusCard report={report} status={status} /> : null
+          }
+          {
+            status && report.serviceId == 3 ? <ShipRocketStatusCard report={report} status={status} /> : null
           }
         </div>
       </div>
