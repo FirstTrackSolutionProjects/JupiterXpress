@@ -28,7 +28,7 @@ const Welcome = () => {
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
           <div className={` transition-width duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
-            <div className='relative flex flex-col justify-center items-center py-6'>
+            <div className='relative flex flex-col justify-center items-center py-6 min-w-96'>
             <div className="lg:text-[12px] text-[9px] ">JUPITER <i className="text-blue-400 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </div>
           <div className="lg:text-[12px] text-[9px] mb-4"> <i className="text-blue-400 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</div>
               <div className=' text-left lg:text-7xl  text-5xl  font-bold italic'>JUPITER</div>
