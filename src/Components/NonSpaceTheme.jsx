@@ -24,8 +24,8 @@ const WelcomeNonSpace = () => {
     <div className='absolute inset-0 flex md:flex-row flex-col-reverse items-center justify-center text-black font-inter'>
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
-          <div className={` transition-all duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
-            <div className='relative flex flex-col justify-center items-center py-6'>
+          <div className={` transition-width duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
+            <div className='relative flex flex-col justify-center items-center py-6 min-w-96'>
             <div className="md:text-[13px] text-[9px] ">JUPITER <span className="text-blue-600 m-1">XPRESS</span>Delivering <span className="text-blue-600 m-1">DOMESTIC</span> AND </div>
           <div className="md:text-[13px] text-[9px] mb-4"> <span className="text-blue-600"> INTERNATIONAL  </span>   Shipment from Your Doorstep to the World!!</div>
               <div className=' text-left md:text-6xl  text-5xl text-blue-600   font-bold italic'>JUPITER</div>
@@ -55,7 +55,7 @@ const WelcomeNonSpace = () => {
                 </div>*/}
 {/*Slider added*/}
             </div>
-          <div className={`sm:w-[400px] sm:h-[400px] md:w-[600px] md:h-[600px] lg:w-[600px] lg:h-[600px] w-[350px] h-[350px] relative sm:py-8 transition-all md:-m-10  duration-1000 flex items-center justify-center`}>
+          <div className={`sm:w-[400px] sm:h-[400px] md:w-[600px] md:h-[600px] lg:w-[600px] lg:h-[600px] w-[350px] h-[350px] relative sm:py-8 transition-transform md:-m-10  duration-1000 flex items-center justify-center`}>
             <JupiterCanvas authMode={authMode} />
             <button onClick={()=>setTrack(1)} className="absolute border rounded-xl border-white text-white py-2 px-4 font-medium bg-[rgba(0,0,0,0.7)] font hover:bg-blue-600 hover:border-none hover:py-3 hover:px-6 hover:text-white transition-all duration-300 ">Track Parcel</button>
           </div>
