@@ -32,7 +32,7 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
           ))
         }
         {username && (
-          <div className="h-16 flex space-x-3 items-center text-white">
+          <div className={`h-16 flex space-x-3 items-center ${spaceTheme?"text-white":"text-black"}`}>
             <div className="flex space-x-4">
               <p className="flex items-center font-medium rounded-xl px-2 py-2" onClick={()=>navigate('/dashboard')}>
                 {username}
