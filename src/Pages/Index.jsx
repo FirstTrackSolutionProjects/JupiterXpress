@@ -7,6 +7,7 @@ import CalcComp from '../Components/CalcComp'
 import Industry from '../Components/Industry'
 import TrustedPartners from '../Components/TrustedPartners'
 import WelcomeSpaceTheme from '../Components/WelcomeSpaceTheme'
+import NonSpaceTheme from '../Components/NonSpaceTheme'
 const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   const [spaceTheme, setSpaceTheme] = useState(true)
@@ -14,7 +15,8 @@ const Index = () => {
     <>
       <Header setLoggedIn={setLoggedIn} spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
       {
-        spaceTheme? <WelcomeSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn}  /> : null
+        spaceTheme? <WelcomeSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn}  /> : <div className={{
+          backgroundColor: spaceTheme ? null : 'bg-indigo-200'}}> <NonSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn} /></div>
       }
       <ChooseUs/>
       <LandingInfo/>
