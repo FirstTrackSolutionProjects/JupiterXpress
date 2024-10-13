@@ -85,7 +85,7 @@ const View = ({ report, setIsView }) => {
         body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId: report.categoryId }),
       }).then(response => response.json()).then((result) => {
         if (result.success) {
-          setStatus(result.data)
+          setStatus(result.data || [])
         }
         setIsLoading(false)
       })
