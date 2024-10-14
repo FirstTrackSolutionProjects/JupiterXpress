@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
-    console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity})
+    console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
     const data = async () => {
       await fetch(`${API_URL}/shipment/domestic/price`, {
         method: 'POST',
         headers: { 'Accept': '*/*',
           'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity}),
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes}),
         
       }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -96,7 +96,7 @@ const Domestic = () => {
   };
   return (
     <>
-      {showCompare && <ComparePrices {...formData} />}
+      {showCompare && <ComparePrices {...formData} boxes={boxes} />}
       <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
