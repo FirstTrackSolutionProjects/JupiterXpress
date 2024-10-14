@@ -1,4 +1,5 @@
 import {Route, Routes, useLocation} from 'react-router-dom'
+import { useState } from 'react'
 import Index from './Pages/Index'
 import Menu from './Components/Menu'
 import Contact from './Pages/Contact'
@@ -16,10 +17,11 @@ import Header from './Components/Header'
 import Footer from './Components/Footer'
 const App = () => {
   const location = useLocation()
+  const [spaceTheme, setSpaceTheme] = useState(true)
   return (
     <>
       
-        <Menu />
+        <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
         <Route index element={<Index />} />
