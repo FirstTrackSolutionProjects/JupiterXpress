@@ -77,8 +77,8 @@ const schema = z.object({
   pickupDate: z.string(),
   pickupTime: z.preprocess((a) => a + ':00', z.string()),
   ewaybill: z.string().optional(),
-  invoiceNumber: z.string(),
-  invoiceDate: z.string(),
+  invoiceNumber: z.string().optional(),
+  invoiceDate: z.string().optional(),
   invoiceAmount: z.preprocess(
     (a) => parseInt(a, 10),
     z.number().min(1, "Invoice Amount must be a positive number")),
