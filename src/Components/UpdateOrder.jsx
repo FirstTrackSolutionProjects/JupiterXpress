@@ -926,7 +926,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                   <label htmlFor="invoice">Invoice</label>
-                  <input
+                  <input required={(formData.invoiceUrl)?false:true}
                     className="w-full border py-2 px-4 rounded-3xl"
                     type="file"
                     id="invoice"
