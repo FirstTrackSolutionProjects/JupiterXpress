@@ -8,6 +8,7 @@ import Industry from '../Components/Industry'
 import TrustedPartners from '../Components/TrustedPartners'
 import WelcomeSpaceTheme from '../Components/WelcomeSpaceTheme'
 import NonSpaceTheme from '../Components/NonSpaceTheme'
+import ServicesSection from '../Components/ServicesSection'
 const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   const [spaceTheme, setSpaceTheme] = useState(true)
@@ -20,6 +21,7 @@ const Index = () => {
       }
       <ChooseUs/>
       <LandingInfo/>
+      <ServicesSection/>
       <CalcComp/>
       <Industry/>
       <ReachCount/>
