@@ -1171,7 +1171,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b }),
+        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b, invoiceAmount:shipment.invoice_amount }),
 
       })
       const prices = await getPrice.json()
