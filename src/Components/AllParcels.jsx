@@ -465,7 +465,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                maxLength={50}
+                maxLength={100}
                 id="address"
                 name="address"
                 placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -573,7 +573,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  maxLength={50}
+                  maxLength={100}
                   id="Baddress"
                   name="Baddress"
                   placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
