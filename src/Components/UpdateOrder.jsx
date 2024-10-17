@@ -482,19 +482,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Alternate Shipping Address</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              name="address2"
-              placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-              value={formData.address2}
-              onChange={handleChange}
-            />
-          </div>
+          
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
@@ -510,20 +498,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <option value="office">Office</option>
               </select>
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType2"
-                name="addressType2"
-                value={formData.addressType2}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
+            
 
           </div>
 
@@ -615,19 +590,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress2">Alternate Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                maxLength={50}
-                id="Baddress2"
-                name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress2}
-                onChange={handleChange}
-              />
-            </div>
             <div className="w-full flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="BaddressType">Billing Address Type</label>
@@ -638,22 +600,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   name="BaddressType"
                   placeholder="Home or Office"
                   value={formData.BaddressType}
-                  onChange={handleChange}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-              </div>
-
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  id="BaddressType2"
-                  name="BaddressType2"
-                  placeholder="Home or Office"
-                  value={formData.BaddressType2}
                   onChange={handleChange}
                 >
                   <option value="home">Home</option>
