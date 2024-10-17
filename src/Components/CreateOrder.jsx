@@ -391,18 +391,6 @@ const FullDetails = () => {
             </select>
             {errors.addressType && <span className='text-red-500'>{errors.addressType.message}</span>}
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="addressType2">Shipping Address Type 2</label>
-            <select
-              className="w-full border py-2 px-4 rounded-3xl"
-              id="addressType2"
-              {...register("addressType2")}
-            >
-              <option value="home">Home</option>
-              <option value="office">Office</option>
-            </select>
-            {errors.addressType2 && <span className='text-red-500'>{errors.addressType2.message}</span>}
-          </div>
         </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -492,18 +480,6 @@ const FullDetails = () => {
                   <option value="office">Office</option>
                 </select>
                 {errors.BaddressType && <span className='text-red-500'>{errors.BaddressType.message}</span>}
-              </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Billing Address Type 2</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  id="BaddressType2"
-                  {...register("BaddressType2")}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-                {errors.BaddressType2 && <span className='text-red-500'>{errors.BaddressType2.message}</span>}
               </div>
             </div>
             <div className="w-full flex mb-2 flex-wrap">
