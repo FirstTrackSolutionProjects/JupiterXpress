@@ -381,18 +381,6 @@ const FullDetails = () => {
             />
             {errors.address && <span className='text-red-500'>{errors.address.message}</span>}
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Shipping Address 2</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              {...register("address2")}
-              placeholder="Ex. Apt 456"
-            />
-            {errors.address2 && <span className='text-red-500'>{errors.address2.message}</span>}
-          </div>
         </div>
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -494,18 +482,6 @@ const FullDetails = () => {
                   placeholder="Ex. 123 Street"
                 />
                 {errors.Baddress && <span className='text-red-500'>{errors.Baddress.message}</span>}
-              </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="Baddress2">Billing Address 2</label>
-                <input
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  maxLength={50}
-                  id="Baddress2"
-                  {...register("Baddress2")}
-                  placeholder="Ex. Apt 456"
-                />
-                {errors.Baddress2 && <span className='text-red-500'>{errors.Baddress2.message}</span>}
               </div>
             </div>
             <div className="w-full flex mb-2 flex-wrap">
