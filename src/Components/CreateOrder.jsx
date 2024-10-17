@@ -13,18 +13,14 @@ const schema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().regex(/^\d{10}$/, "Invalid phone number"),
   address: z.string().min(1, "Shipping address is required"),
-  address2: z.string().optional(),
   addressType: z.enum(['home', 'office']),
-  addressType2: z.enum(['home', 'office']).optional(),
   postcode: z.string().regex(/^\d{6}$/, "Invalid postcode"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
   same: z.boolean(),
   Baddress: z.string().optional(),
-  Baddress2: z.string().optional(),
   BaddressType: z.enum(['home', 'office']).optional(),
-  BaddressType2: z.enum(['home', 'office']).optional(),
   Bpostcode: z.string().optional(),
   Bcity: z.string().optional(),
   Bstate: z.string().optional(),
@@ -103,9 +99,7 @@ const FullDetails = () => {
       discount: 0,
       cod: 0,
       addressType: "home",
-      addressType2: "office",
       BaddressType: "home",
-      BaddressType2: "office",
       shippingType: "Surface",
       orders: [{ box_no: '1', product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: 0 }],
       boxes: [{ box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }],
@@ -368,33 +362,20 @@ const FullDetails = () => {
             {errors.phone && <span className='text-red-500'>{errors.phone.message}</span>}
           </div>
         </div>
+
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="address">Shipping Address</label>
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
-              maxLength={50}
+              maxLength={100}
               id="address"
               {...register("address")}
               placeholder="Ex. 123 Street"
             />
             {errors.address && <span className='text-red-500'>{errors.address.message}</span>}
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Shipping Address 2</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              {...register("address2")}
-              placeholder="Ex. Apt 456"
-            />
-            {errors.address2 && <span className='text-red-500'>{errors.address2.message}</span>}
-          </div>
-        </div>
-        <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="addressType">Shipping Address Type</label>
             <select
@@ -406,18 +387,6 @@ const FullDetails = () => {
               <option value="office">Office</option>
             </select>
             {errors.addressType && <span className='text-red-500'>{errors.addressType.message}</span>}
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="addressType2">Shipping Address Type 2</label>
-            <select
-              className="w-full border py-2 px-4 rounded-3xl"
-              id="addressType2"
-              {...register("addressType2")}
-            >
-              <option value="home">Home</option>
-              <option value="office">Office</option>
-            </select>
-            {errors.addressType2 && <span className='text-red-500'>{errors.addressType2.message}</span>}
           </div>
         </div>
         <div className="w-full flex mb-2 flex-wrap">
@@ -488,24 +457,12 @@ const FullDetails = () => {
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  maxLength={50}
+                  maxLength={100}
                   id="Baddress"
                   {...register("Baddress")}
                   placeholder="Ex. 123 Street"
                 />
                 {errors.Baddress && <span className='text-red-500'>{errors.Baddress.message}</span>}
-              </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="Baddress2">Billing Address 2</label>
-                <input
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  maxLength={50}
-                  id="Baddress2"
-                  {...register("Baddress2")}
-                  placeholder="Ex. Apt 456"
-                />
-                {errors.Baddress2 && <span className='text-red-500'>{errors.Baddress2.message}</span>}
               </div>
             </div>
             <div className="w-full flex mb-2 flex-wrap">
@@ -520,18 +477,6 @@ const FullDetails = () => {
                   <option value="office">Office</option>
                 </select>
                 {errors.BaddressType && <span className='text-red-500'>{errors.BaddressType.message}</span>}
-              </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Billing Address Type 2</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  id="BaddressType2"
-                  {...register("BaddressType2")}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-                {errors.BaddressType2 && <span className='text-red-500'>{errors.BaddressType2.message}</span>}
               </div>
             </div>
             <div className="w-full flex mb-2 flex-wrap">

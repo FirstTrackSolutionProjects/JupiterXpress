@@ -84,17 +84,13 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     email: shipment.customer_email,
     phone: shipment.customer_mobile,
     address: shipment.shipping_address,
-    address2: shipment.shipping_address_2,
     addressType: shipment.shipping_address_type,
-    addressType2: shipment.shipping_address_type_2,
     postcode: shipment.shipping_postcode,
     city: shipment.shipping_city,
     state: shipment.shipping_state,
     country: shipment.shipping_country,
     Baddress: shipment.billing_address,
-    Baddress2: shipment.billing_address_2,
     BaddressType: shipment.billing_address_type,
-    BaddressType2: shipment.billing_address_type_2,
     Bpostcode: shipment.billing_postcode,
     Bcity: shipment.billing_city,
     Bstate: shipment.billing_state,
@@ -463,13 +459,14 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             </div>
 
           </div>
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="address">Shipping Address</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                maxLength={50}
+                maxLength={100}
                 id="address"
                 name="address"
                 placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -477,24 +474,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 onChange={handleChange}
               />
             </div>
-
-
-
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Alternate Shipping Address</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              name="address2"
-              placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-              value={formData.address2}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
               <select
@@ -503,20 +482,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 id="addressType"
                 name="addressType"
                 value={formData.addressType}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType2"
-                name="addressType2"
-                value={formData.addressType2}
                 onChange={handleChange}
               >
                 <option value="home">Home</option>
@@ -603,7 +568,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  maxLength={50}
+                  maxLength={100}
                   id="Baddress"
                   name="Baddress"
                   placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -614,19 +579,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress2">Alternate Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                maxLength={50}
-                id="Baddress2"
-                name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress2}
-                onChange={handleChange}
-              />
-            </div>
+
             <div className="w-full flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="BaddressType">Billing Address Type</label>
@@ -644,21 +597,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </select>
               </div>
 
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  id="BaddressType2"
-                  name="BaddressType2"
-                  placeholder="Home or Office"
-                  value={formData.BaddressType2}
-                  onChange={handleChange}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-              </div>
 
             </div>
 
@@ -1083,85 +1021,84 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
 const Card = ({ shipment }) => {
-    const [isManage, setIsManage] = useState(false);
-    const [isShipped, setIsShipped] = useState(shipment.awb?true:false)
-    return (
-      <>
-        {isManage ? <ManageForm setIsManage={setIsManage} shipment={shipment} isManage={isManage} isShipped={shipment.awb?true:false} /> : null}
-        <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
-          <div>
+  const [isManage, setIsManage] = useState(false);
+  const [isShipped, setIsShipped] = useState(shipment.awb ? true : false)
+  return (
+    <>
+      {isManage ? <ManageForm setIsManage={setIsManage} shipment={shipment} isManage={isManage} isShipped={shipment.awb ? true : false} /> : null}
+      <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
+        <div>
           <div className="text-sm font-bold">{shipment.ord_id}</div>
           <div className="text-[10px] text-gray-500">{shipment.fullName}</div>
           <div className="text-[10px] text-gray-500">{shipment.email}</div>
-          <div className="text-[10px] text-gray-500">{shipment.date?shipment.date.toString().split('T')[0]+' '+shipment.date.toString().split('T')[1].split('.')[0]:null}</div>
-          </div>
-          <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(true)}>{isShipped?"View":"Manage"}</div>
-          </div>
+          <div className="text-[10px] text-gray-500">{shipment.date ? shipment.date.toString().split('T')[0] + ' ' + shipment.date.toString().split('T')[1].split('.')[0] : null}</div>
         </div>
-      </>
-    );
-  };
+        <div className="absolute right-4 sm:right-8 flex space-x-2">
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const Listing = ({ step, setStep }) => {
-    const [shipments, setShipments] = useState([])
-    const [email, setEmail] = useState('');
-    const [filteredShipments, setFilteredShipments] = useState([]);
-    useEffect(() => {
+  const [shipments, setShipments] = useState([])
+  const [email, setEmail] = useState('');
+  const [filteredShipments, setFilteredShipments] = useState([]);
+  useEffect(() => {
 
-        fetch(`${API_URL}/order/domestic/all`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-          })
-            .then(response => response.json())
-            .then(result => {
-              if (result.success) {
-                result.order.sort((a, b) => new Date(a.date) - new Date(b.date)).reverse()
-                const finalShipments = []
-                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
-                const shippedShipments = result.order.filter(shipment => shipment.awb)
-                finalShipments.push(...unShippedShipments,...shippedShipments)
-                setShipments(finalShipments);
-                setFilteredShipments(finalShipments);
-              } else {
-                alert("Failed to fetch parcels")
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred during Order');
-            });
-    },[]);
-    const handleEmailChange = (e) => {
-        const query = e.target.value;
-        setEmail(query);
-    }
-    useEffect(()=>{
-        if (email==""){
-            setFilteredShipments([]);
-            setTimeout(()=>setFilteredShipments(shipments))
-            return;
+    fetch(`${API_URL}/order/domestic/all`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      },
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          result.order.sort((a, b) => new Date(a.date) - new Date(b.date)).reverse()
+          const finalShipments = []
+          const unShippedShipments = result.order.filter(shipment => !shipment.awb)
+          const shippedShipments = result.order.filter(shipment => shipment.awb)
+          finalShipments.push(...unShippedShipments, ...shippedShipments)
+          setShipments(finalShipments);
+          setFilteredShipments(finalShipments);
+        } else {
+          alert("Failed to fetch parcels")
         }
-        const filtered = shipments.filter(shipment => 
-            ((shipment.email).startsWith(email))
-          );
-          setFilteredShipments([]);
-          setTimeout(()=>setFilteredShipments(filtered));
-          console.log(filtered)
-    },[email])
-    return (
-      <>
-        <div
-          className={`w-full p-4 flex flex-col items-center space-y-6 ${
-            step == 0 ? "" : "hidden"
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during Order');
+      });
+  }, []);
+  const handleEmailChange = (e) => {
+    const query = e.target.value;
+    setEmail(query);
+  }
+  useEffect(() => {
+    if (email == "") {
+      setFilteredShipments([]);
+      setTimeout(() => setFilteredShipments(shipments))
+      return;
+    }
+    const filtered = shipments.filter(shipment =>
+      ((shipment.email).startsWith(email))
+    );
+    setFilteredShipments([]);
+    setTimeout(() => setFilteredShipments(filtered));
+    console.log(filtered)
+  }, [email])
+  return (
+    <>
+      <div
+        className={`w-full p-4 flex flex-col items-center space-y-6 ${step == 0 ? "" : "hidden"
           }`}
-        >
-          <div className="w-full h-16 px-4  relative flex">
-            <div className="text-2xl font-medium">SHIPMENTS </div>
-            {/* <div
+      >
+        <div className="w-full h-16 px-4  relative flex">
+          <div className="text-2xl font-medium">SHIPMENTS </div>
+          {/* <div
               onClick={(e) => {
                 e.preventDefault();
                 setStep(1);
@@ -1170,31 +1107,31 @@ const Listing = ({ step, setStep }) => {
             >
               Add
             </div> */}
-          </div>
-          <div className="flex space-x-4">
-      <input
-        type="email"
-        placeholder="Merchant Email"
-        value={email}
-        onChange={handleEmailChange}
-      />
-    </div>
-          <div className="w-full">
-          
-            {filteredShipments.map((shipment, index) => (
-              <Card key={index} shipment={shipment} />
-            ))}
-          </div>
         </div>
-      </>
-    );
-  };
+        <div className="flex space-x-4">
+          <input
+            type="email"
+            placeholder="Merchant Email"
+            value={email}
+            onChange={handleEmailChange}
+          />
+        </div>
+        <div className="w-full">
+
+          {filteredShipments.map((shipment, index) => (
+            <Card key={index} shipment={shipment} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
 
 const UpdateOrder = () => {
   const [step, setStep] = useState(0)
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      {step==0 && <Listing step={step} setStep={setStep} />}
+      {step == 0 && <Listing step={step} setStep={setStep} />}
     </div>
   );
 };
