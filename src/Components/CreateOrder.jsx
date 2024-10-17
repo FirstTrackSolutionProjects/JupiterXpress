@@ -374,7 +374,7 @@ const FullDetails = () => {
             <input
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
-              maxLength={50}
+              maxLength={100}
               id="address"
               {...register("address")}
               placeholder="Ex. 123 Street"
@@ -476,7 +476,7 @@ const FullDetails = () => {
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  maxLength={50}
+                  maxLength={100}
                   id="Baddress"
                   {...register("Baddress")}
                   placeholder="Ex. 123 Street"
