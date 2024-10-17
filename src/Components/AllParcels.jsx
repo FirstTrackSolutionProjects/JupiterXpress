@@ -84,17 +84,13 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     email: shipment.customer_email,
     phone: shipment.customer_mobile,
     address: shipment.shipping_address,
-    address2: shipment.shipping_address_2,
     addressType: shipment.shipping_address_type,
-    addressType2: shipment.shipping_address_type_2,
     postcode: shipment.shipping_postcode,
     city: shipment.shipping_city,
     state: shipment.shipping_state,
     country: shipment.shipping_country,
     Baddress: shipment.billing_address,
-    Baddress2: shipment.billing_address_2,
     BaddressType: shipment.billing_address_type,
-    BaddressType2: shipment.billing_address_type_2,
     Bpostcode: shipment.billing_postcode,
     Bcity: shipment.billing_city,
     Bstate: shipment.billing_state,
@@ -481,19 +477,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
           </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Alternate Shipping Address</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              name="address2"
-              placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-              value={formData.address2}
-              onChange={handleChange}
-            />
-          </div>
+          
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
@@ -503,20 +487,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 id="addressType"
                 name="addressType"
                 value={formData.addressType}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType2"
-                name="addressType2"
-                value={formData.addressType2}
                 onChange={handleChange}
               >
                 <option value="home">Home</option>
@@ -614,19 +584,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
 
 
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress2">Alternate Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                maxLength={50}
-                id="Baddress2"
-                name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress2}
-                onChange={handleChange}
-              />
-            </div>
+            
             <div className="w-full flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="BaddressType">Billing Address Type</label>
@@ -644,21 +602,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </select>
               </div>
 
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  id="BaddressType2"
-                  name="BaddressType2"
-                  placeholder="Home or Office"
-                  value={formData.BaddressType2}
-                  onChange={handleChange}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-              </div>
 
             </div>
 
