@@ -460,6 +460,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             </div>
 
           </div>
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="address">Shipping Address</label>
@@ -474,12 +475,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 onChange={handleChange}
               />
             </div>
-
-
-
-          </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
               <select
@@ -494,7 +489,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <option value="office">Office</option>
               </select>
             </div>
-            
+
 
           </div>
 
@@ -868,7 +863,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                   <label htmlFor="invoice">Invoice</label>
-                  <input required={(formData.invoiceUrl)?false:true}
+                  <input required={(formData.invoiceUrl) ? false : true}
                     className="w-full border py-2 px-4 rounded-3xl"
                     type="file"
                     id="invoice"
@@ -1113,7 +1108,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b, invoiceAmount:shipment.invoice_amount }),
+        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b, invoiceAmount: shipment.invoice_amount }),
 
       })
       const prices = await getPrice.json()
@@ -1129,7 +1124,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
           X
         </div>
         <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR {shipment.is_b2b?"B2B":"B2C"} SERVICE
+          CHOOSE YOUR {shipment.is_b2b ? "B2B" : "B2C"} SERVICE
         </div>
         <div className="w-full  p-4 ">
           {
