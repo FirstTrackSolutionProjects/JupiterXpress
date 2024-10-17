@@ -193,8 +193,9 @@ const AddForm = ({ setMode }) => {
   );
 };
 
-const ManageForm = ({ isManage, setIsManage, name, address, pin, phone }) => {
+const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) => {
   const [formData, setFormData] = useState({
+    wid: wid,
     name: name,
     phone: phone,
     address: address,
@@ -410,7 +411,7 @@ const Card = ({ name, address, pin, phone, wid, justCreated }) => {
   },[])
   return (
     <>
-      <ManageForm isManage={isManage} setIsManage={setIsManage} name={name} address={address} pin={pin} phone={phone} />
+      <ManageForm isManage={isManage} setIsManage={setIsManage} name={name} address={address} pin={pin} phone={phone} wid={wid} />
       <div className="w-full h-16 bg-white relative items-center px-8 flex border-b">
         <div>{name}</div>
         <div className="absolute right-8">

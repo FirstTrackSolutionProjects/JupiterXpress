@@ -757,6 +757,7 @@ const FullDetails = () => {
                 />
                 {errors.invoiceUrl && <span className='text-red-500'>{errors.invoiceUrl.message}</span>}
                 <button
+                  type='button'
                   className="bg-blue-500 text-white px-6 py-2 rounded-3xl"
                   onClick={handleInvoiceUpload}
                 >
