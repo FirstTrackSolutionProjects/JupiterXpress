@@ -682,6 +682,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="length"
                   name="length"
+                  min={1}
                   placeholder="Length (in cm)"
                   value={box.length}
                   onChange={(e) => handleBoxes(index, e)}
@@ -694,6 +695,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="breadth"
                   name="breadth"
+                  min={1}
                   placeholder="Breadth (in cm)"
                   value={box.breadth}
                   onChange={(e) => handleBoxes(index, e)}
@@ -706,6 +708,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="height"
                   name="height"
+                  min={1}
                   placeholder="Height (in cm)"
                   value={box.height}
                   onChange={(e) => handleBoxes(index, e)}
@@ -718,6 +721,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="weight"
                   name="weight"
+                  min={50}
                   placeholder="Weight"
                   value={box.weight}
                   onChange={(e) => handleBoxes(index, e)}
