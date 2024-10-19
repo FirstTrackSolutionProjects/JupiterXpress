@@ -179,7 +179,6 @@ const Domestic = () => {
               >
                 <option value="COD">COD</option>
                 <option value="Pre-paid">Prepaid</option>
-                <option value="Pickup">Pickup</option>
               </select>
             </div>
             
