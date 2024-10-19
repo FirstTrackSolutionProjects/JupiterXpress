@@ -43,7 +43,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
 
 
 const Domestic = () => {
-  const [boxes, setBoxes] = useState([{weight : 0, length : 0, breadth : 0, height : 0}])
+  const [boxes, setBoxes] = useState([{weight : 100, length : 5, breadth : 5, height : 5}])
   const [formData, setFormData] = useState({
     method : 'S',
     status: 'Delivered',
@@ -88,7 +88,7 @@ const Domestic = () => {
     setBoxes(updatedBoxes);
   };
   const addBox = () => {
-    setBoxes([...boxes, {  length: 0 , breadth : 0 , height : 0  , weight: 0 }]);
+    setBoxes([...boxes, {  length: 5 , breadth : 5 , height : 5  , weight: 100 }]);
   };
   const removeBox = (index) => {
     const updatedBoxes = boxes.filter((_, i) => i !== index);
@@ -194,6 +194,7 @@ const Domestic = () => {
                 type="text"
                 id="weight"
                 name="weight"
+                min={50}
                 placeholder="Ex. 1500"
                 value = {box.weight}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -207,6 +208,7 @@ const Domestic = () => {
                 type="text"
                 id="length"
                 name="length"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.length}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -219,6 +221,7 @@ const Domestic = () => {
                 type="text"
                 id="breadth"
                 name="breadth"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.breadth}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -231,6 +234,7 @@ const Domestic = () => {
                 type="text"
                 id="height"
                 name="height"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.height}
                 onChange={(e)=>handleBoxes(index,e)}
