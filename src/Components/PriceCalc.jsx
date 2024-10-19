@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
@@ -20,8 +20,9 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
   return (
     <>
       <div className="w-full absolute z-[1] inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
-        <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR SERVICE
+        <div className="text-center relative w-full">
+          <div className="absolute right-5 text-2xl cursor-pointer" onClick={()=>setShowCompare(false)}>x</div>
+          <p className="text-3xl font-medium">CHOOSE YOUR SERVICE</p>
         </div>
         <div className="w-full p-4 ">
           {
@@ -96,7 +97,7 @@ const Domestic = () => {
   };
   return (
     <>
-      {showCompare && <ComparePrices {...formData} boxes={boxes} />}
+      {showCompare && <ComparePrices {...formData} boxes={boxes} setShowCompare={setShowCompare} />}
       <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
