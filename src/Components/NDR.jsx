@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+const timestampToDate = (timestamp) => {
+  const date = new Date(timestamp);
+  const formattedTimestamp = date.getFullYear() + "-" +
+    String(date.getMonth() + 1).padStart(2, '0') + "-" +
+    String(date.getDate()).padStart(2, '0') + " " +
+    String(date.getHours()).padStart(2, '0') + ":" +
+    String(date.getMinutes()).padStart(2, '0');
+  return formattedTimestamp;
+}
+
+
 const DelhiveryStatusCard = ({ report, status }) => {
   return (
     <div>
@@ -9,12 +21,7 @@ const DelhiveryStatusCard = ({ report, status }) => {
       {
         (status.Scans).map((scan, index) => {
           const timestamp = scan.ScanDetail.ScanDateTime;
-          const date = new Date(timestamp);
-          const formattedTimestamp = date.getFullYear() + "-" +
-            String(date.getMonth() + 1).padStart(2, '0') + "-" +
-            String(date.getDate()).padStart(2, '0') + " " +
-            String(date.getHours()).padStart(2, '0') + ":" +
-            String(date.getMinutes()).padStart(2, '0');
+          const formattedTimestamp = timestampToDate(timestamp);
           return (
             <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
           )
