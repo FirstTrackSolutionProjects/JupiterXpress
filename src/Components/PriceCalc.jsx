@@ -130,7 +130,7 @@ const Domestic = () => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="origin">Origin Pincode</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="origin"
@@ -142,7 +142,7 @@ const Domestic = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="dest">Destination Pincode</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="dest"
@@ -156,7 +156,7 @@ const Domestic = () => {
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="codAmount">COD Amount</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="codAmount"
@@ -169,7 +169,7 @@ const Domestic = () => {
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
-              <select
+              <select required
                 name="payMode"
                 id="payMode"
                 className="border py-2 px-4 rounded-3xl"
