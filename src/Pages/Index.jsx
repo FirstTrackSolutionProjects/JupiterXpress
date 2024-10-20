@@ -8,9 +8,8 @@ import Industry from '../Components/Industry'
 import TrustedPartners from '../Components/TrustedPartners'
 import WelcomeSpaceTheme from '../Components/WelcomeSpaceTheme'
 import NonSpaceTheme from '../Components/NonSpaceTheme'
-const Index = () => {
+const Index = ({spaceTheme, setSpaceTheme}) => {
   const [loggedIn, setLoggedIn] = useState(false)
-  const [spaceTheme, setSpaceTheme] = useState(true)
   return (
     <>
       <Header setLoggedIn={setLoggedIn} spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />

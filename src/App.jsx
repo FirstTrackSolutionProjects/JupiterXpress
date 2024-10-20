@@ -17,14 +17,14 @@ import Header from './Components/Header'
 import Footer from './Components/Footer'
 const App = () => {
   const location = useLocation()
-  const [spaceTheme, setSpaceTheme] = useState(true)
+  const [spaceTheme, setSpaceTheme] = useState(false)
   return (
     <>
       
         <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
-        <Route index element={<Index />} />
+        <Route index element={<Index spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />} />
         <Route path='/contact-send' element={<Contact/>} />
         <Route path='/about-us' element={<About/>} />
         <Route path='/dashboard' element={<Dashboard />} />

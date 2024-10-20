@@ -62,6 +62,7 @@ const Menu = ({spaceTheme, setSpaceTheme} ) => {
         }}></span>
         <span style={{
           position: 'absolute',
+          zIndex : 2,
           content: '""',
           height: '12px',
           width: '12px',
