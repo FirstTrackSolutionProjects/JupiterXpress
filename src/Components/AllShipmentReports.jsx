@@ -164,6 +164,9 @@ const Card = ({ report }) => {
             {report.email}
           </div>
           <div className="text-[10px] text-gray-500">
+            {report.awb}
+          </div>
+          <div className="text-[10px] text-gray-500">
             {report.date ? report.date.toString().split('T')[0] + ' ' + report.date.toString().split('T')[1].split('.')[0] : null}
           </div>
         </div>
