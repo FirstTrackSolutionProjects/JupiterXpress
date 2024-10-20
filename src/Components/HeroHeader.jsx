@@ -24,6 +24,9 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
     if (!auth) setUsername("");
   }, []);
   return (
+    <>
+    <div className={`fixed z-1 top-0 sm:hidden flex justify-center items-center w-full h-16 ${spaceTheme ? 'bg-black' : 'bg-indigo-100'}`}>
+    </div>
     <div className={`fixed z-10 top-0 hidden sm:flex justify-center items-center w-full h-16 ${spaceTheme ? 'bg-black' : 'bg-indigo-100'}`}>
       <nav className={`w-full relative z-3 lg:w-4/5 flex justify-evenly items-center text-lg h-16 ${spaceTheme ? 'text-gray-100' : 'text-black'}`}>
         {
@@ -105,6 +108,7 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
     </div>
       </nav>
     </div>
+    </>
   )
 }
 
