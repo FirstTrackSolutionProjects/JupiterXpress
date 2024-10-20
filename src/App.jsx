@@ -1,4 +1,5 @@
 import {Route, Routes, useLocation} from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import Index from './Pages/Index'
 import Menu from './Components/Menu'
 import Contact from './Pages/Contact'
@@ -16,13 +17,23 @@ import Header from './Components/Header'
 import Footer from './Components/Footer'
 const App = () => {
   const location = useLocation()
+  const [spaceTheme, setSpaceTheme] = useState(false)
+  useEffect(()=>{
+    const theme = localStorage.getItem("theme");
+    if (!theme) {
+      setSpaceTheme(false);
+      localStorage.setItem("theme", "non-space");
+    } else {
+      setSpaceTheme(theme === "space");
+    }
+  })
   return (
     <>
       
-        <Menu />
+        <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
-        <Route index element={<Index />} />
+        <Route index element={<Index spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />} />
         <Route path='/contact-send' element={<Contact/>} />
         <Route path='/about-us' element={<About/>} />
         <Route path='/dashboard' element={<Dashboard />} />
