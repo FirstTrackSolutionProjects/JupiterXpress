@@ -85,17 +85,13 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     email: shipment.customer_email,
     phone: shipment.customer_mobile,
     address: shipment.shipping_address,
-    address2: shipment.shipping_address_2,
     addressType: shipment.shipping_address_type,
-    addressType2: shipment.shipping_address_type_2,
     postcode: shipment.shipping_postcode,
     city: shipment.shipping_city,
     state: shipment.shipping_state,
     country: shipment.shipping_country,
     Baddress: shipment.billing_address,
-    Baddress2: shipment.billing_address_2,
     BaddressType: shipment.billing_address_type,
-    BaddressType2: shipment.billing_address_type_2,
     Bpostcode: shipment.billing_postcode,
     Bcity: shipment.billing_city,
     Bstate: shipment.billing_state,
@@ -464,13 +460,14 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             </div>
 
           </div>
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="address">Shipping Address</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
-                maxLength={50}
+                maxLength={100}
                 id="address"
                 name="address"
                 placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -478,24 +475,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 onChange={handleChange}
               />
             </div>
-
-
-
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address2">Alternate Shipping Address</label>
-            <input
-              className="w-full border py-2 px-4 rounded-3xl"
-              type="text"
-              maxLength={50}
-              id="address2"
-              name="address2"
-              placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-              value={formData.address2}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
               <select
@@ -510,20 +489,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <option value="office">Office</option>
               </select>
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType2"
-                name="addressType2"
-                value={formData.addressType2}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
+
 
           </div>
 
@@ -604,7 +570,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
-                  maxLength={50}
+                  maxLength={100}
                   id="Baddress"
                   name="Baddress"
                   placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
@@ -614,19 +580,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               </div>
 
 
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="Baddress2">Alternate Billing Address</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                maxLength={50}
-                id="Baddress2"
-                name="Baddress2"
-                placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
-                value={formData.Baddress2}
-                onChange={handleChange}
-              />
             </div>
             <div className="w-full flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -638,22 +591,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   name="BaddressType"
                   placeholder="Home or Office"
                   value={formData.BaddressType}
-                  onChange={handleChange}
-                >
-                  <option value="home">Home</option>
-                  <option value="office">Office</option>
-                </select>
-              </div>
-
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="BaddressType2">Alternate Billing Address Type</label>
-                <select
-                  className="w-full border py-2 px-4 rounded-3xl"
-                  type="text"
-                  id="BaddressType2"
-                  name="BaddressType2"
-                  placeholder="Home or Office"
-                  value={formData.BaddressType2}
                   onChange={handleChange}
                 >
                   <option value="home">Home</option>
@@ -745,6 +682,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="length"
                   name="length"
+                  min={1}
                   placeholder="Length (in cm)"
                   value={box.length}
                   onChange={(e) => handleBoxes(index, e)}
@@ -757,6 +695,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="breadth"
                   name="breadth"
+                  min={1}
                   placeholder="Breadth (in cm)"
                   value={box.breadth}
                   onChange={(e) => handleBoxes(index, e)}
@@ -769,6 +708,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="height"
                   name="height"
+                  min={1}
                   placeholder="Height (in cm)"
                   value={box.height}
                   onChange={(e) => handleBoxes(index, e)}
@@ -781,6 +721,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="text"
                   id="weight"
                   name="weight"
+                  min={50}
                   placeholder="Weight"
                   value={box.weight}
                   onChange={(e) => handleBoxes(index, e)}
@@ -926,7 +867,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </div>
                 <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                   <label htmlFor="invoice">Invoice</label>
-                  <input
+                  <input required={(formData.invoiceUrl) ? false : true}
                     className="w-full border py-2 px-4 rounded-3xl"
                     type="file"
                     id="invoice"
@@ -1171,7 +1112,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b }),
+        body: JSON.stringify({ method: shipment.shipping_mode == "Surface" ? "S" : "E", status: "Delivered", origin: shipment.pin, dest: shipment.shipping_postcode, payMode: shipment.pay_method == "topay" ? "COD" : shipment.pay_method, codAmount: shipment.cod_amount, volume, weight, quantity: boxesData.order.length, boxes: boxesData.order, isShipment: true, isB2B: shipment.is_b2b, invoiceAmount: shipment.invoice_amount }),
 
       })
       const prices = await getPrice.json()
@@ -1187,7 +1128,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
           X
         </div>
         <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR {shipment.is_b2b?"B2B":"B2C"} SERVICE
+          CHOOSE YOUR {shipment.is_b2b ? "B2B" : "B2C"} SERVICE
         </div>
         <div className="w-full  p-4 ">
           {

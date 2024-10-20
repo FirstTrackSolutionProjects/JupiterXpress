@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
@@ -20,8 +20,9 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
   return (
     <>
       <div className="w-full absolute z-[1] inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
-        <div className="text-center text-3xl font-medium">
-          CHOOSE YOUR SERVICE
+        <div className="text-center relative w-full">
+          <div className="absolute right-5 text-2xl cursor-pointer" onClick={()=>setShowCompare(false)}>x</div>
+          <p className="text-3xl font-medium">CHOOSE YOUR SERVICE</p>
         </div>
         <div className="w-full p-4 ">
           {
@@ -43,7 +44,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
 
 
 const Domestic = () => {
-  const [boxes, setBoxes] = useState([{weight : 0, length : 0, breadth : 0, height : 0}])
+  const [boxes, setBoxes] = useState([{weight : 100, length : 5, breadth : 5, height : 5}])
   const [formData, setFormData] = useState({
     method : 'S',
     status: 'Delivered',
@@ -88,7 +89,7 @@ const Domestic = () => {
     setBoxes(updatedBoxes);
   };
   const addBox = () => {
-    setBoxes([...boxes, {  length: 0 , breadth : 0 , height : 0  , weight: 0 }]);
+    setBoxes([...boxes, {  length: 5 , breadth : 5 , height : 5  , weight: 100 }]);
   };
   const removeBox = (index) => {
     const updatedBoxes = boxes.filter((_, i) => i !== index);
@@ -96,7 +97,7 @@ const Domestic = () => {
   };
   return (
     <>
-      {showCompare && <ComparePrices {...formData} boxes={boxes} />}
+      {showCompare && <ComparePrices {...formData} boxes={boxes} setShowCompare={setShowCompare} />}
       <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
@@ -130,7 +131,7 @@ const Domestic = () => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="origin">Origin Pincode</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="origin"
@@ -142,7 +143,7 @@ const Domestic = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="dest">Destination Pincode</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="dest"
@@ -156,7 +157,7 @@ const Domestic = () => {
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="codAmount">COD Amount</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="codAmount"
@@ -169,7 +170,7 @@ const Domestic = () => {
             
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
-              <select
+              <select required
                 name="payMode"
                 id="payMode"
                 className="border py-2 px-4 rounded-3xl"
@@ -179,7 +180,6 @@ const Domestic = () => {
               >
                 <option value="COD">COD</option>
                 <option value="Pre-paid">Prepaid</option>
-                <option value="Pickup">Pickup</option>
               </select>
             </div>
             
@@ -194,6 +194,7 @@ const Domestic = () => {
                 type="text"
                 id="weight"
                 name="weight"
+                min={50}
                 placeholder="Ex. 1500"
                 value = {box.weight}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -207,6 +208,7 @@ const Domestic = () => {
                 type="text"
                 id="length"
                 name="length"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.length}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -219,6 +221,7 @@ const Domestic = () => {
                 type="text"
                 id="breadth"
                 name="breadth"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.breadth}
                 onChange={(e)=>handleBoxes(index,e)}
@@ -231,6 +234,7 @@ const Domestic = () => {
                 type="text"
                 id="height"
                 name="height"
+                min={1}
                 placeholder="Ex. 2.5"
                 value={box.height}
                 onChange={(e)=>handleBoxes(index,e)}
