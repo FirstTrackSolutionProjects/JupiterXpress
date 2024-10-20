@@ -1,5 +1,5 @@
 import {Route, Routes, useLocation} from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Index from './Pages/Index'
 import Menu from './Components/Menu'
 import Contact from './Pages/Contact'
@@ -18,6 +18,15 @@ import Footer from './Components/Footer'
 const App = () => {
   const location = useLocation()
   const [spaceTheme, setSpaceTheme] = useState(false)
+  useEffect(()=>{
+    const theme = localStorage.getItem("theme");
+    if (!theme) {
+      setSpaceTheme(false);
+      localStorage.setItem("theme", "non-space");
+    } else {
+      setSpaceTheme(theme === "space");
+    }
+  })
   return (
     <>
       

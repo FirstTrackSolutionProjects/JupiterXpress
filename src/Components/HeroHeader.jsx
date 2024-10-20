@@ -9,13 +9,6 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
   const { logout } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (!theme) {
-      setSpaceTheme(true);
-      localStorage.setItem("theme", "space");
-    } else {
-      setSpaceTheme(theme === "space");
-    }
     const isAuthenticated = () => {
       const token = localStorage.getItem("token");
       if (!token) return false;
