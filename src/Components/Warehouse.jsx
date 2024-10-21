@@ -205,7 +205,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value.trim(),
     }));
   };
   const handleSubmit = (e) => {
@@ -249,7 +249,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="name">Warehouse Name</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="name"
@@ -263,11 +263,13 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="phone">Mobile Number</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="phone"
                 name="phone"
+                minLength={10}
+                maxLength={10}
                 placeholder="Ex. 1234567890"
                 value={formData.phone}
                 onChange={handleChange}
@@ -276,7 +278,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="address">Address</label>
-            <input
+            <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               maxLength={100}
@@ -295,6 +297,8 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
                 type="text"
                 id="pin"
                 name="pin"
+                minLength={6}
+                maxLength={6}
                 placeholder="XXXXXX"
                 value={formData.pin}
                 onChange={handleChange}
