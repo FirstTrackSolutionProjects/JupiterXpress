@@ -20,8 +20,20 @@ const AddForm = ({ setMode }) => {
       [name]: value,
     }));
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const validatedFormData = {
+      name : formData.name.trim(),
+      phone : formData.phone.trim(),
+      email : formData.email.trim(),
+      address : formData.address.trim(),
+      pin : formData.pin.trim(),
+      city : formData.city.trim(),
+      state : formData.state.trim(),
+      country : formData.country.trim()
+    }
+    if (validatedFormData.phone.length !== 10) {alert("Please enter phone number with 10 digits"); return; }
+    if (validatedFormData.pin.length !== 6) {alert("Please enter pincode with 6 digits"); return; }
     fetch(`${API_URL}/warehouse/create`, {
       method: "POST",
       headers: {
@@ -29,7 +41,7 @@ const AddForm = ({ setMode }) => {
         "Accept": "application/json",
         'Authorization': localStorage.getItem("token"),
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(validatedFormData),
     })
       .then((response) => response.json())
       .then((result) => {
@@ -67,7 +79,7 @@ const AddForm = ({ setMode }) => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="name">Warehouse Name</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="name"
@@ -81,11 +93,13 @@ const AddForm = ({ setMode }) => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="phone">Mobile Number</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="phone"
                 name="phone"
+                minLength={10}
+                maxLength={10}
                 placeholder="Ex. 1234567890"
                 value={formData.phone}
                 onChange={handleChange}
@@ -93,7 +107,7 @@ const AddForm = ({ setMode }) => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="email">Email</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="email"
@@ -106,7 +120,7 @@ const AddForm = ({ setMode }) => {
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="address">Address</label>
-            <input
+            <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               maxLength={100}
@@ -120,11 +134,13 @@ const AddForm = ({ setMode }) => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="pin">Pincode</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="pin"
                 name="pin"
+                minLength={6}
+                maxLength={6}
                 placeholder="Enter Pincode"
                 value={formData.pin}
                 onChange={handleChange}
@@ -132,7 +148,7 @@ const AddForm = ({ setMode }) => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="city">City</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="city"
@@ -146,7 +162,7 @@ const AddForm = ({ setMode }) => {
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="state">State</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="state"
@@ -158,7 +174,7 @@ const AddForm = ({ setMode }) => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="country">Country</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="country"
@@ -210,6 +226,15 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
   };
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validatedFormData = {
+      wid : formData.wid,
+      name : formData.name.trim(),
+      phone : formData.phone.trim(),
+      address : formData.address.trim(),
+      pin : formData.pin.trim()
+    }
+    if (validatedFormData.phone.length !== 10) {alert("Please enter phone number with 10 digits"); return; }
+    if (validatedFormData.pin.length !== 6) {alert("Please enter pincode with 6 digits"); return; }
     fetch(`${API_URL}/warehouse/update`, {
       method: "POST",
       headers: {
@@ -217,7 +242,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
         "Accept": "application/json",
         "Authorization": localStorage.getItem("token"),
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(validatedFormData),
     })
       .then((response) => response.json())
       .then((result) => alert(result.message))
@@ -249,7 +274,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="name">Warehouse Name</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="name"
@@ -263,11 +288,13 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="phone">Mobile Number</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="phone"
                 name="phone"
+                minLength={10}
+                maxLength={10}
                 placeholder="Ex. 1234567890"
                 value={formData.phone}
                 onChange={handleChange}
@@ -276,7 +303,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="address">Address</label>
-            <input
+            <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               maxLength={100}
@@ -295,6 +322,8 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
                 type="text"
                 id="pin"
                 name="pin"
+                minLength={6}
+                maxLength={6}
                 placeholder="XXXXXX"
                 value={formData.pin}
                 onChange={handleChange}
@@ -313,17 +342,17 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, wid }) =
   );
 };
 
-const WarehouseServiceCard = ({name, id, isCreated}) => {
+const WarehouseServiceCard = ({ name, id, isCreated }) => {
   return (
     <>
       <div className="text-center bg-gray-600 rounded-lg py-3 px-3 font-bold text-white">
-        {name}<br/>{isCreated?<p className="text-green-400">Warehouse Online</p>:<p className="text-red-500">Failed to Create Warehouse</p>}
+        {name}<br />{isCreated ? <p className="text-green-400">Warehouse Online</p> : <p className="text-red-500">Failed to Create Warehouse</p>}
       </div>
     </>
   )
 }
 
-const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
+const WarehouseServiceList = ({ wid, setCheckWarehouse }) => {
   const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [allSuccess, setAllSuccess] = useState(true);
@@ -337,7 +366,7 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
         "Accept": "application/json",
         "Authorization": localStorage.getItem("token"),
       },
-      body: JSON.stringify({wid})
+      body: JSON.stringify({ wid })
     })
     const retryResponse = await retryRequest.json();
     if (retryResponse.success) {
@@ -355,7 +384,7 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
           "Accept": "application/json",
           "Authorization": localStorage.getItem("token"),
         },
-        body: JSON.stringify({wid}),
+        body: JSON.stringify({ wid }),
       })
         .then((response) => response.json())
         .catch((error) => console.error(error));
@@ -368,21 +397,21 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
   return (
     <>
       <div className="w-full relative pt-6">
-        <div 
-        className="absolute top-3 right-3 w-9 h-6 bg-slate-600 text-white flex justify-center items-center rounded-lg"
-        onClick={()=>setCheckWarehouse(false)}
+        <div
+          className="absolute top-3 right-3 w-9 h-6 bg-slate-600 text-white flex justify-center items-center rounded-lg"
+          onClick={() => setCheckWarehouse(false)}
         >
           X
         </div>
-        { !allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
+        {!allSuccess ? <div className="flex items-center bg-yellow-500 px-3 justify-center">
           <div>Warehouse failed to create on some services</div>
-          <div onClick={isRetrying ? ()=>{} : ()=>{retryWarehouseCreation()}} className="p-3 bg-yellow-500 font-bold">{isRetrying?"Creating...":"Retry"}</div>
-          </div> : ""}
+          <div onClick={isRetrying ? () => { } : () => { retryWarehouseCreation() }} className="p-3 bg-yellow-500 font-bold">{isRetrying ? "Creating..." : "Retry"}</div>
+        </div> : ""}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-        {(services && services.length) ? services.map((service, index) => (
-          <WarehouseServiceCard key={index} name={service.service_name} id={service.service_id} isCreated={service.warehouse_created} />
-        )): isLoading?"Loading...":"Something went wrong while fetching services"}
-      </div>
+          {(services && services.length) ? services.map((service, index) => (
+            <WarehouseServiceCard key={index} name={service.service_name} id={service.service_id} isCreated={service.warehouse_created} />
+          )) : isLoading ? "Loading..." : "Something went wrong while fetching services"}
+        </div>
       </div>
     </>
   )
@@ -390,7 +419,7 @@ const WarehouseServiceList = ({wid, setCheckWarehouse}) => {
 
 const Card = ({ name, address, pin, phone, wid, justCreated }) => {
   const [isManage, setIsManage] = useState(false);
-  const [checkWarehouse, setCheckWarehouse] = useState(justCreated?true:false);
+  const [checkWarehouse, setCheckWarehouse] = useState(justCreated ? true : false);
   useEffect(() => {
     const seenJustCreated = async () => {
       await fetch(`${API_URL}/warehouse/new/seen`, {
@@ -400,15 +429,15 @@ const Card = ({ name, address, pin, phone, wid, justCreated }) => {
           "Accept": "application/json",
           "Authorization": localStorage.getItem("token"),
         },
-        body: JSON.stringify({wid}),
+        body: JSON.stringify({ wid }),
       })
         .then((response) => response.json())
         .catch((error) => console.error(error))
     }
-    if (justCreated){
+    if (justCreated) {
       seenJustCreated();
     }
-  },[])
+  }, [])
   return (
     <>
       <ManageForm isManage={isManage} setIsManage={setIsManage} name={name} address={address} pin={pin} phone={phone} wid={wid} />
@@ -475,7 +504,7 @@ const Warehouse = () => {
   return (
     <>
       <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-        {mode == 0? <Listing setMode={setMode} /> : <AddForm setMode={setMode} />}
+        {mode == 0 ? <Listing setMode={setMode} /> : <AddForm setMode={setMode} />}
       </div>
     </>
   );
