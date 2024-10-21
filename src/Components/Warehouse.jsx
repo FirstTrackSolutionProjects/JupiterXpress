@@ -86,6 +86,8 @@ const AddForm = ({ setMode }) => {
                 type="text"
                 id="phone"
                 name="phone"
+                minLength={10}
+                maxLength={10}
                 placeholder="Ex. 1234567890"
                 value={formData.phone}
                 onChange={handleChange}
@@ -125,6 +127,8 @@ const AddForm = ({ setMode }) => {
                 type="text"
                 id="pin"
                 name="pin"
+                minLength={6}
+                maxLength={6}
                 placeholder="Enter Pincode"
                 value={formData.pin}
                 onChange={handleChange}
