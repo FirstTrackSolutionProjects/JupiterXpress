@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
+import * as XLSX from 'xlsx'
 
 const timestampToDate = (timestamp) => {
   const date = new Date(timestamp);
@@ -104,7 +105,7 @@ const View = ({ report, setIsView }) => {
         <div className="bg-white p-4  border">
           <div onClick={() => setIsView(false)}>X</div>
           {
-              isLoading? <div>Loading...</div> : null
+            isLoading ? <div>Loading...</div> : null
           }
           {
             status && report.serviceId == 1 ? <DelhiveryStatusCard report={report} status={status} /> : null
@@ -182,6 +183,68 @@ const Card = ({ report }) => {
   );
 };
 
+const getTodaysDate = () => {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const yyyy = today.getFullYear();
+  const todayDate = yyyy + '-' + mm + '-' + dd;
+  return todayDate;
+}
+
+const ShipmentReportDownloadDialog = () => {
+  const [downloading, setDownloading] = useState(false)
+  const todayDate = getTodaysDate()
+  const [formData, setFormData] = useState({
+    startDate: todayDate,
+    endDate: todayDate
+  })
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
+  const handleDownload = async () => {
+    setDownloading(true)
+    const dataRequest = await fetch(`${API_URL}/shipment/domestic/reports/download`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      },
+      body: JSON.stringify(formData)
+    })
+    const dataResponse = await dataRequest.json();
+    const worksheet = XLSX.utils.json_to_sheet(dataResponse.data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    XLSX.writeFile(workbook, 'data.xlsx');
+    setDownloading(false)
+  };
+  return (
+    <>
+      <div className="flex flex-wrap justify-evenly items-center w-full bg-blue-300 mx-4 p-3 rounded-xl space-y-2 sm:space-y-0 sm:space-x-2 ">
+        <input
+          className="p-2 rounded-xl flex-[2] min-w-48"
+          type="date"
+          name="startDate"
+          value={formData.startDate}
+          onChange={handleChange}
+        />
+        {/* <p className="mx-2 font-medium">to</p> */}
+        <input
+          className="p-2 rounded-xl flex-[2] min-w-48"
+          type="date"
+          name="endDate"
+          value={formData.endDate}
+          onChange={handleChange}
+        />
+        <button className="flex-1 min-w-48 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading?null:handleDownload}>{downloading?'Downloading...':'Download Report'}</button>
+      </div>
+    </>
+  )
+}
+
 const Listing = () => {
   const [reports, setReports] = useState([])
   const [email, setEmail] = useState('');
@@ -240,6 +303,7 @@ const Listing = () => {
         <div className="w-full h-16 px-4  relative flex">
           <div className="text-2xl font-medium">SHIPMENT REPORTS</div>
         </div>
+        <ShipmentReportDownloadDialog />
         <div className="flex space-x-4">
           <input
             type="email"
