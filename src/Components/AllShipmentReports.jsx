@@ -326,7 +326,7 @@ const Listing = () => {
 
         <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
           <summary>Filters</summary>
-          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 justify-evenly">
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
             <input
               className="p-1 rounded-xl"
               type="text"
