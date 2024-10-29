@@ -153,6 +153,13 @@ const Card = ({ report }) => {
 
 const Listing = () => {
   const [reports, setReports] = useState([])
+  const [filteredReports, setFilteredReports] = useState([]);
+  const [filters, setFilters] = useState({
+    email: "",
+    orderId: "",
+    name: "",
+    awb: ""
+  });
   useEffect(() => {
 
     fetch(`${API_URL}/shipment/domestic/reports`, {
@@ -176,6 +183,25 @@ const Listing = () => {
         alert('An error occurred during fetching reports');
       });
   }, []);
+
+  useEffect(() => {
+    if (!reports.length) {
+      return;
+    }
+    const filteredData = reports.filter((report) => {
+      return (
+        (filters.name === "" || report.customer_name.toLowerCase().startsWith(filters.name.toLowerCase())) &&
+        (filters.email === "" || report.customer_email.toString().startsWith(filters.email)) &&
+        (filters.orderId === "" || (report.ord_id.toLowerCase() == filters.orderId.toLowerCase())) &&
+        (filters.awb === "" || (report.awb.toLowerCase() == filters.awb.toLowerCase()))
+      );
+    });
+    setFilteredReports(filteredData)
+  }, [reports, filters])
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  }
   return (
     <>
       <div
@@ -184,9 +210,46 @@ const Listing = () => {
         <div className="w-full h-16 px-4  relative flex">
           <div className="text-2xl font-medium">SHIPMENT REPORTS</div>
         </div>
+        <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
+            <input
+              className="p-1 rounded-xl min-w-[260px] lg:min-w-0"
+              type="text"
+              name="name"
+              placeholder="Customer Name"
+              value={filters.name}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="email"
+              name="email"
+              placeholder="Customer Email"
+              value={filters.email}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="orderId"
+              placeholder="Order Id"
+              value={filters.orderId}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="awb"
+              placeholder="AWB"
+              value={filters.awb}
+              onChange={handleChange}
+            />
+          </div>
+        </details>
         <div className="w-full">
 
-          {reports.map((report, index) => (
+          {filteredReports.map((report, index) => (
             <Card key={index} report={report} />
           ))}
         </div>

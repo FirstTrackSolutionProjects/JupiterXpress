@@ -1,81 +1,81 @@
 import React, { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ManageForm = ({ shipment}) => {
+const ManageForm = ({ shipment }) => {
   const [dockets, setDockets] = useState([
-    { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
-]);
-  
-const handleDeleteDocket = (index) => {
-  const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
-    ...docket,
-    box_no: i + 1,
-  }));
-  setDockets(newDockets);
-};
-const handleAddDocket = () => {
-  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
-};
-const [items, setItems] = useState([
-  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
-]);
+    { box_no: 1, docket_weight: 0, length: 0, breadth: 0, height: 0 }
+  ]);
+
+  const handleDeleteDocket = (index) => {
+    const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
+      ...docket,
+      box_no: i + 1,
+    }));
+    setDockets(newDockets);
+  };
+  const handleAddDocket = () => {
+    setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0, length: 0, breadth: 0, height: 0 }]);
+  };
+  const [items, setItems] = useState([
+    { hscode: '', box_no: '', quantity: 0, rate: 0, description: '', unit: 'Pc', unit_weight: 0, igst_amount: 0 }
+  ]);
   useEffect(() => {
     const getDockets = async () => {
-      await fetch(`${API_URL}/order/international/dockets`,{
-        method : 'POST',
-        headers : {
+      await fetch(`${API_URL}/order/international/dockets`, {
+        method: 'POST',
+        headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': localStorage.getItem('token'),
         },
-        body: JSON.stringify({ iid : shipment.iid })
+        body: JSON.stringify({ iid: shipment.iid })
       })
-     .then(response => response.json()).then(result => {setDockets(result.dockets); console.log(result.dockets)})
+        .then(response => response.json()).then(result => { setDockets(result.dockets); console.log(result.dockets) })
     }
     const getItems = async () => {
-      await fetch(`${API_URL}/order/international/items`,{
-        method : 'POST',
-        headers : {
+      await fetch(`${API_URL}/order/international/items`, {
+        method: 'POST',
+        headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': localStorage.getItem('token'),
         },
-        body: JSON.stringify({ iid : shipment.iid })
+        body: JSON.stringify({ iid: shipment.iid })
       })
-     .then(response => response.json()).then(result => setItems(result.dockets))
+        .then(response => response.json()).then(result => setItems(result.dockets))
     }
     getDockets()
     getItems()
-  },[]);
+  }, []);
   const [formData, setFormData] = useState({
-    iid : shipment.iid,
-    wid : shipment.wid,
-    contents : shipment.contents,
+    iid: shipment.iid,
+    wid: shipment.wid,
+    contents: shipment.contents,
     serviceCode: shipment.service_code,
-    consigneeName : shipment.consignee_name,
-    consigneeCompany : shipment.consignee_company_name,
-    countryCode : shipment.consignee_country_code,
-    consigneeContact : shipment.consignee_contact_no,
-    consigneeEmail : shipment.consignee_email,
-    consigneeAddress : shipment.consignee_address_1,
-    consigneeAddress2 : shipment.consignee_address_2,
+    consigneeName: shipment.consignee_name,
+    consigneeCompany: shipment.consignee_company_name,
+    countryCode: shipment.consignee_country_code,
+    consigneeContact: shipment.consignee_contact_no,
+    consigneeEmail: shipment.consignee_email,
+    consigneeAddress: shipment.consignee_address_1,
+    consigneeAddress2: shipment.consignee_address_2,
     consigneeAddress3: shipment.consignee_address_3,
-    consigneeCity : shipment.consignee_city,
-    consigneeState : shipment.consignee_state,
-    consigneeCountry : shipment.consignee_country,
-    consigneeZipCode : shipment.consignee_zip_code,
-    dockets : dockets,
-    items : items,
-    actual_weight : shipment.actual_weight,
-    gst : shipment.gst,
-    shippingType : shipment.shippingType,
-    price : 0
+    consigneeCity: shipment.consignee_city,
+    consigneeState: shipment.consignee_state,
+    consigneeCountry: shipment.consignee_country,
+    consigneeZipCode: shipment.consignee_zip_code,
+    dockets: dockets,
+    items: items,
+    actual_weight: shipment.actual_weight,
+    gst: shipment.gst,
+    shippingType: shipment.shippingType,
+    price: 0
   })
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
     const getWarehouses = async () => {
-      await fetch(`${API_URL}/warehouse/warehouses/all`,{
-        method : 'POST',
-        headers : {
+      await fetch(`${API_URL}/warehouse/warehouses/all`, {
+        method: 'POST',
+        headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': localStorage.getItem('token'),
@@ -85,13 +85,13 @@ const [items, setItems] = useState([
     getWarehouses();
   }, [])
   const addProduct = () => {
-    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }]);
+    setItems([...items, { hscode: '', box_no: '', quantity: 0, rate: 0, description: '', unit: 'Pc', unit_weight: 0, igst_amount: 0 }]);
 
   };
   const removeProduct = (index) => {
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
-    setFormData((prev)=>({
+    setFormData((prev) => ({
       ...prev,
       items: items
     }))
@@ -101,41 +101,41 @@ const [items, setItems] = useState([
     const updatedDockets = [...dockets];
     updatedDockets[index][name] = value;
     setDockets(updatedDockets);
-    setFormData((prev)=>({
+    setFormData((prev) => ({
       ...prev,
       dockets: dockets
     }))
   };
   useEffect(() => {
-    setFormData((prev)=>({
+    setFormData((prev) => ({
       ...prev,
       dockets: dockets
     }))
-  },[dockets])
+  }, [dockets])
   const handleItems = (index, event) => {
-    
+
     const { name, value } = event.target;
     const updatedItems = [...items];
     updatedItems[index][name] = value;
     setItems(updatedItems);
-    setFormData((prev)=>({
+    setFormData((prev) => ({
       ...prev,
       items: items
     }))
   };
 
-  useEffect(()=>{
-    setFormData((prev)=>({
-        ...prev,
-        items: items
-      }))
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      items: items
+    }))
   }, [items]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]:type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
   const handleSubmit = (e) => {
@@ -144,11 +144,11 @@ const [items, setItems] = useState([
     let docketFlag = 0
     for (let i = 0; i < formData.dockets.length; i++) {
       for (let j = 0; j < formData.items.length; j++) {
-        if (parseInt(formData.items[j].box_no) == i+1){
+        if (parseInt(formData.items[j].box_no) == i + 1) {
           docketFlag = 1
         }
       }
-      if (docketFlag == 0){
+      if (docketFlag == 0) {
         alert('Please make sure every docket has some items')
         return
       }
@@ -158,11 +158,11 @@ const [items, setItems] = useState([
     let itemFlag = 0
     for (let i = 0; i < formData.items.length; i++) {
       for (let j = 0; j < formData.dockets.length; j++) {
-        if (formData.items[i].box_no == formData.dockets[j].box_no){
+        if (formData.items[i].box_no == formData.dockets[j].box_no) {
           itemFlag = 1
         }
       }
-      if (itemFlag == 0){
+      if (itemFlag == 0) {
         alert('Some items have invalid box no.')
         return
       }
@@ -195,7 +195,7 @@ const [items, setItems] = useState([
       <div className="w-full p-4 flex flex-col items-center">
         <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
         <form action="" onSubmit={handleSubmit}>
-        <div className="w-full flex mb-2 flex-wrap ">
+          <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="wid">Pickup Warehouse Name</label>
               <select required
@@ -208,16 +208,16 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               >
                 <option value="">Select Warehouse</option>
-                { warehouses.length ?
+                {warehouses.length ?
                   warehouses.map((warehouse, index) => (
                     <option value={warehouse.wid} >{warehouse.warehouseName}</option>
-                  ) ) : null
-                } 
+                  )) : null
+                }
               </select>
             </div>
-            
+
           </div>
-         
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="contents">Contents</label>
@@ -279,10 +279,10 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               />
             </div>
-            
+
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
               <label htmlFor="countryCode">Country Code</label>
               <select required
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -299,7 +299,7 @@ const [items, setItems] = useState([
                 <option value="+1">+1</option>
                 <option value="+44">+44</option>
               </select>
-                </div>
+            </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeContact">Consignee Contact</label>
               <input required
@@ -312,21 +312,21 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               />
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeEmail">Consignee Email</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeEmail"
-                name="consigneeEmail"
-                placeholder="Ex. customer@example.com"
-                value={formData.consigneeEmail}
-                onChange={handleChange}
-              />
+                <label htmlFor="consigneeEmail">Consignee Email</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="consigneeEmail"
+                  name="consigneeEmail"
+                  placeholder="Ex. customer@example.com"
+                  value={formData.consigneeEmail}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
-            </div>
-            
+
           </div>
-          
+
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeAddress">Consignee Address</label>
@@ -340,34 +340,34 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               />
             </div>
-            
-            
-            
+
+
+
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeAddress2">Consignee Address 2</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeAddress2"
-                name="consigneeAddress2"
-                placeholder="Shipping Address 2"
-                value={formData.consigneeAddress2}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeAddress3">Consignee Address 3</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeAddress3"
-                name="consigneeAddress3"
-                placeholder="Shipping Address 3"
-                value={formData.consigneeAddress3}
-                onChange={handleChange}
-              />
-            </div>
+            <label htmlFor="consigneeAddress2">Consignee Address 2</label>
+            <input required
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="consigneeAddress2"
+              name="consigneeAddress2"
+              placeholder="Shipping Address 2"
+              value={formData.consigneeAddress2}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="consigneeAddress3">Consignee Address 3</label>
+            <input required
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="consigneeAddress3"
+              name="consigneeAddress3"
+              placeholder="Shipping Address 3"
+              value={formData.consigneeAddress3}
+              onChange={handleChange}
+            />
+          </div>
           {/* <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="addressType">Shipping Address Type</label>
@@ -399,9 +399,9 @@ const [items, setItems] = useState([
             </div>
             
           </div> */}
-          
+
           <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeZipCode">Consignee Zip Code</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -425,12 +425,12 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               />
             </div>
-            
-            
+
+
           </div>
-          
+
           <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="consigneeState">Consignee State</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -462,7 +462,7 @@ const [items, setItems] = useState([
             </div>
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="shippingType">Shipment Type</label>
               <select required
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -495,7 +495,7 @@ const [items, setItems] = useState([
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="number"
                 id="actual_weight"
-                min = {0}
+                min={0}
                 name="actual_weight"
                 placeholder="Ex. 100"
                 value={formData.actual_weight}
@@ -504,190 +504,190 @@ const [items, setItems] = useState([
             </div>
           </div>
           {dockets.map((docket, index) => (
-        <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Box no.</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              min = {1}
-              name="box_no"
-              placeholder="Box Number"
-              disabled
-              value={docket.box_no}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
+            <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label>Box no.</label>
+                <input required
+                  type="number"
+                  className="flex-1 border py-2 px-4 rounded-3xl"
+                  min={1}
+                  name="box_no"
+                  placeholder="Box Number"
+                  disabled
+                  value={docket.box_no}
+                  onChange={(event) => handleDocket(index, event)}
+                  style={{ marginLeft: '10px' }}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label>Docket Weight</label>
+                <input required
+                  type="number"
+                  className="flex-1 border py-2 px-4 rounded-3xl"
+                  name="docket_weight"
+                  min={0}
+                  placeholder="Docket Weight (in Kg)"
+                  value={docket.docket_weight}
+                  onChange={(event) => handleDocket(index, event)}
+                  style={{ marginLeft: '10px' }}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label>Length</label>
+                <input required
+                  type="number"
+                  className="flex-1 border py-2 px-4 rounded-3xl"
+                  name="length"
+                  min={0}
+                  placeholder="Length"
+                  value={docket.length}
+                  onChange={(event) => handleDocket(index, event)}
+                  style={{ marginLeft: '10px' }}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label>Breadth</label>
+                <input required
+                  type="number"
+                  className="flex-1 border py-2 px-4 rounded-3xl"
+                  name="breadth"
+                  min={0}
+                  placeholder="Breadth"
+                  value={docket.breadth}
+                  onChange={(event) => handleDocket(index, event)}
+                  style={{ marginLeft: '10px' }}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label>Height</label>
+                <input required
+                  type="number"
+                  className="flex-1 border py-2 px-4 rounded-3xl"
+                  name="height"
+                  min={0}
+                  placeholder="Height"
+                  value={docket.height}
+                  onChange={(event) => handleDocket(index, event)}
+                  style={{ marginLeft: '10px' }}
+                />
+              </div>
+              <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => handleDeleteDocket(index)}>Remove</button>
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Docket Weight</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="docket_weight"
-              min={0}
-              placeholder="Docket Weight (in Kg)"
-              value={docket.docket_weight}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Length</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="length"
-              min = {0}
-              placeholder="Length"
-              value={docket.length}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Breadth</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="breadth"
-              min = {0}
-              placeholder="Breadth"
-              value={docket.breadth}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Height</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="height"
-              min = {0}
-              placeholder="Height"
-              value={docket.height}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => handleDeleteDocket(index)}>Remove</button>
-        </div>
-      ))}
-      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={handleAddDocket}>Add Docket</button>
+          ))}
+          <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={handleAddDocket}>Add Docket</button>
           {items.map((item, index) => (
-            
-        <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
-          <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-              <label htmlFor="hscode">HS Code</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="hscode"
-                name="hscode"
-                placeholder="HS Code"
-                value={item.hscode}
-                onChange={(e) => handleItems(index, e)}
-              />
+
+            <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
+              <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
+                <label htmlFor="hscode">HS Code</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="hscode"
+                  name="hscode"
+                  placeholder="HS Code"
+                  value={item.hscode}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="box_no">Box no.</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="box_no"
+                  name="box_no"
+                  placeholder="Box no"
+                  value={item.box_no}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="quantity">Quantity</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="number"
+                  min={1}
+                  id="quantity"
+                  name="quantity"
+                  placeholder="Quantity"
+                  value={item.quantity}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="rate">Rate per item</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="rate"
+                  min={0}
+                  name="rate"
+                  placeholder="Quantity"
+                  value={item.rate}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="description">Description</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="description"
+                  name="description"
+                  placeholder="Description"
+                  value={item.description}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="unit">Unit</label>
+                <select required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id="unit"
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleChange}
+                >
+                  <option value="Pc">Pc</option>
+                </select>
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="unit_weight">Unit Weight</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="number"
+                  min={0}
+                  id="unit_weight"
+                  name="unit_weight"
+                  placeholder="Unit Weight"
+                  value={item.unit_weight}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+              <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
+                <label htmlFor="igst_amount">IGST</label>
+                <input required
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="number"
+                  id="igst_amount"
+                  min={0}
+                  name="igst_amount"
+                  placeholder="IGST Amount"
+                  value={item.igst_amount}
+                  onChange={(e) => handleItems(index, e)}
+                />
+              </div>
+
+              <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="box_no">Box no.</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="box_no"
-                name="box_no"
-                placeholder="Box no"
-                value={item.box_no}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="quantity">Quantity</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                min={1}
-                id="quantity"
-                name="quantity"
-                placeholder="Quantity"
-                value={item.quantity}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="rate">Rate per item</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="rate"
-                min={0}
-                name="rate"
-                placeholder="Quantity"
-                value={item.rate}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="description">Description</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="description"
-                name="description"
-                placeholder="Description"
-                value={item.description}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="unit">Unit</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-              >
-                <option value="Pc">Pc</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="unit_weight">Unit Weight</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                min={0}
-                id="unit_weight"
-                name="unit_weight"
-                placeholder="Unit Weight"
-                value={item.unit_weight}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="igst_amount">IGST</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="igst_amount"
-                min={0}
-                name="igst_amount"
-                placeholder="IGST Amount"
-                value={item.igst_amount}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          
-            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
-        </div>
-      ))}
-      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
+          ))}
+          <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
           {/* <div className="w-full flex mb-2 flex-wrap "> */}
-            
-            
-            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+
+
+          {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="price">Shipment Cost(As provided)</label>
               <input
                 className="w-full border py-2 px-4 rounded-3xl"
@@ -699,7 +699,7 @@ const [items, setItems] = useState([
                 onChange={handleChange}
               />
             </div> */}
-            {/* <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
+          {/* <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
               
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="shippingType">Shipping Type</label>
@@ -716,16 +716,16 @@ const [items, setItems] = useState([
               </select>
               </div>
             </div> */}
-            
+
           {/* </div> */}
-          <br/>
+          <br />
           <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Update</button>
 
         </form>
       </div>
     </>
-    );
-  };
+  );
+};
 
 // const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsShip}) => {
 //   const [isLoading, setIsLoading] = useState(false)
@@ -811,8 +811,8 @@ const [items, setItems] = useState([
 //         setIsLoading(false)
 //       }
 //     });
-    
-    
+
+
 //   }
 //   return (
 //     <>
@@ -842,10 +842,10 @@ const [items, setItems] = useState([
 //           });
 //           const docketsData = await getDockets.json();
 //           setDockets(docketsData.dockets);
-  
+
 //           if (docketsData.dockets) {
 //             const pricePromises = docketsData.dockets.map(async (docket) => {
-                
+
 //               if (!docket.awb){
 //                 const response = await fetch('/.netlify/functions/price', {
 //                     method: 'POST',
@@ -870,9 +870,9 @@ const [items, setItems] = useState([
 //                   const result = await response.json();
 //                   return result.prices;
 //               }
-              
+
 //             });
-  
+
 //             const pricesList = await Promise.all(pricePromises);
 //             setDocketsPrices(pricesList);
 //             console.log(docketsPrices)
@@ -886,17 +886,17 @@ const [items, setItems] = useState([
 //                 price: total,
 //               };
 //             });
-  
+
 //             setPrices(summedPrices);
 //           }
 //         } catch (err) {
 //           alert(err);
 //         }
 //       };
-  
+
 //       fetchDocketsAndPrices();
 //     }, []);
-  
+
 //     return (
 //       <>
 //         <div className="absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
@@ -925,27 +925,27 @@ const [items, setItems] = useState([
 //       </>
 //     );
 //   };
-  
+
 
 const Card = ({ shipment }) => {
-    const [isManage, setIsManage] = useState(false);
-    // const [isShip, setIsShip] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
-    const handleShip = async () => {
-      setIsLoading(true)
-      await fetch(`${API_URL}/shipment/international/create`,{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-        },
-        body: JSON.stringify({
-            iid: shipment.iid
-        })
+  const [isManage, setIsManage] = useState(false);
+  // const [isShip, setIsShip] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShipped, setIsShipped] = useState(shipment.awb ? true : false);
+  const handleShip = async () => {
+    setIsLoading(true)
+    await fetch(`${API_URL}/shipment/international/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      },
+      body: JSON.stringify({
+        iid: shipment.iid
+      })
     }).then(response => response.json()).then(result => {
-      if (result.success){
+      if (result.success) {
         alert('Shipment created successfully')
         setIsLoading(false)
         setIsShipped(true)
@@ -957,89 +957,89 @@ const Card = ({ shipment }) => {
         setIsLoading(false)
       }
     });
-    }
-    return (
-      <>
-        {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
-        
-        <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
+  }
+  return (
+    <>
+      {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
+
+      <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
         <div className="text-[10px] text-gray-500">
           <div className="text-sm font-bold">JUPINT{shipment.iid}</div>
           <div >{shipment.fullName}</div>
           <div >{shipment.email}</div>
-            <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
-          </div>
-          <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
-          {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
-          {!isShipped && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
-          </div>
+          <div> {shipment.awb ? `AWB : ${shipment.awb}` : null}</div>
         </div>
-        {isManage && <ManageForm  shipment={shipment} />}
-      </>
-    );
-  };
-  const PickupRequest = ({setPickup}) => {
-    const [warehouses, setWarehouses] = useState([]);
-    useEffect(() => {
-      const getWarehouses = async () => {
-        const response = await fetch(`${API_URL}/warehouse/warehouses/all`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          }
-        });
-        const result = await response.json();
-        setWarehouses(result.rows);
-      };
-      getWarehouses();
-    }, []);
-    const [formData, setFormData] = useState({
-      wid : "",
-      pickDate : "",
-      pickTime : "",
-      packages : ""
-    })
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      await fetch(`${API_URL}/shipment/domestic/pickup/request`, {
+        <div className="absolute right-4 sm:right-8 flex space-x-2">
+          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? isShipped ? "View" : "Manage" : "X"}</div>
+          {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
+          {!isShipped && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => { } : () => handleShip()}>{isLoading ? "Shipping..." : "Ship"}</div>}
+        </div>
+      </div>
+      {isManage && <ManageForm shipment={shipment} />}
+    </>
+  );
+};
+const PickupRequest = ({ setPickup }) => {
+  const [warehouses, setWarehouses] = useState([]);
+  useEffect(() => {
+    const getWarehouses = async () => {
+      const response = await fetch(`${API_URL}/warehouse/warehouses/all`, {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem('token')
-        },
-        body: JSON.stringify(formData)
-      }).then(response => response.json()).then(result => {
-        if (result.schedule.incoming_center_name){
-          alert("Pickup request sent successfully")
+          'Authorization': localStorage.getItem('token'),
         }
-        else if (result.schedule.prepaid){
-          alert("Pickup request failed due to low balance of owner")
-        }
-        else if (result.schedule.pr_exist){
-          alert("This time slot is already booked")
-        }
-        else {
-          alert("Please enter a valid date and time in future")
-        }
-      })
-    }
-    const handleChange =  (e) => {
-      const {name, value} = e.target;
-      setFormData({...formData, [name]: value });
-    }
-    return (
-      <>
-        <div className="fixed z-50 bg-[rgba(0,0,0,0.5)] inset-0 flex justify-center items-center">
-          <div className="relative p-8 bg-white">
-              <div className="absolute right-3 top-3" onClick={()=>setPickup(false)}>
-                x
-              </div>
-              <form action="" onSubmit={handleSubmit}>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="wid">Pickup Warehouse Name</label>
+      });
+      const result = await response.json();
+      setWarehouses(result.rows);
+    };
+    getWarehouses();
+  }, []);
+  const [formData, setFormData] = useState({
+    wid: "",
+    pickDate: "",
+    pickTime: "",
+    packages: ""
+  })
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetch(`${API_URL}/shipment/domestic/pickup/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      },
+      body: JSON.stringify(formData)
+    }).then(response => response.json()).then(result => {
+      if (result.schedule.incoming_center_name) {
+        alert("Pickup request sent successfully")
+      }
+      else if (result.schedule.prepaid) {
+        alert("Pickup request failed due to low balance of owner")
+      }
+      else if (result.schedule.pr_exist) {
+        alert("This time slot is already booked")
+      }
+      else {
+        alert("Please enter a valid date and time in future")
+      }
+    })
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
+  return (
+    <>
+      <div className="fixed z-50 bg-[rgba(0,0,0,0.5)] inset-0 flex justify-center items-center">
+        <div className="relative p-8 bg-white">
+          <div className="absolute right-3 top-3" onClick={() => setPickup(false)}>
+            x
+          </div>
+          <form action="" onSubmit={handleSubmit}>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="wid">Pickup Warehouse Name</label>
               <select
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -1050,11 +1050,11 @@ const Card = ({ shipment }) => {
                 onChange={handleChange}
               >
                 <option value="">Select Warehouse</option>
-                { warehouses.length ?
+                {warehouses.length ?
                   warehouses.map((warehouse, index) => (
                     <option value={warehouse.wid} >{warehouse.warehouseName}</option>
-                  ) ) : null
-                } 
+                  )) : null
+                }
               </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
@@ -1094,75 +1094,74 @@ const Card = ({ shipment }) => {
               />
             </div>
             <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
-              </form>
-          </div>
+          </form>
         </div>
-      </>
-    )
-  }
+      </div>
+    </>
+  )
+}
 
 const Listing = ({ step, setStep }) => {
-    const [shipments, setShipments] = useState([])
-    const [pickup, setPickup] = useState(false);
-    useEffect(() => {
+  const [shipments, setShipments] = useState([])
+  const [pickup, setPickup] = useState(false);
+  useEffect(() => {
 
-        fetch(`${API_URL}/order/international/all`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-          })
-            .then(response => response.json())
-            .then(result => {
-              if (result.success) {
-                result.order.sort((a, b) => new Date(a.iid) - new Date(b.iid)).reverse()
-                const finalShipments = []
-                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
-                const shippedShipments = result.order.filter(shipment => shipment.awb)
-                finalShipments.push(...unShippedShipments,...shippedShipments)
-                setShipments(finalShipments);
-              } else {
-                
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred during Order');
-            });
-    },[]);
-    return (
-      <>
-        <div
-          className={`w-full p-4 flex flex-col items-center space-y-6 ${
-            step == 0 ? "" : "hidden"
+    fetch(`${API_URL}/order/international/all`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token'),
+      },
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          result.order.sort((a, b) => new Date(a.iid) - new Date(b.iid)).reverse()
+          const finalShipments = []
+          const unShippedShipments = result.order.filter(shipment => !shipment.awb)
+          const shippedShipments = result.order.filter(shipment => shipment.awb)
+          finalShipments.push(...unShippedShipments, ...shippedShipments)
+          setShipments(finalShipments);
+        } else {
+
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during Order');
+      });
+  }, []);
+  return (
+    <>
+      <div
+        className={`w-full p-4 flex flex-col items-center space-y-6 ${step == 0 ? "" : "hidden"
           }`}
-        >
-          {pickup ? <PickupRequest setPickup={setPickup}/> : null}
-          <div className="w-full h-16 px-4  relative flex">
-            <div className="text-2xl font-medium">SHIPMENTS </div>
-            <div
-              onClick={()=>setPickup(true)}
-              className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
-            >
-              Pickup Request
-            </div>
-          </div>
-          <div className="w-full">
-            {shipments.map((shipment, index) => (
-              <Card key={index} shipment={shipment} />
-            ))}
+      >
+        {pickup ? <PickupRequest setPickup={setPickup} /> : null}
+        <div className="w-full h-16 px-4  relative flex">
+          <div className="text-2xl font-medium">SHIPMENTS </div>
+          <div
+            onClick={() => setPickup(true)}
+            className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
+          >
+            Pickup Request
           </div>
         </div>
-      </>
-    );
-  };
+        <div className="w-full">
+          {shipments.map((shipment, index) => (
+            <Card key={index} shipment={shipment} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
 
 const UpdateOrderInternational = () => {
   const [step, setStep] = useState(0)
   return (
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      {step==0 && <Listing step={step} setStep={setStep} />}
+      {step == 0 && <Listing step={step} setStep={setStep} />}
       {/* <FullDetails /> */}
     </div>
   );
