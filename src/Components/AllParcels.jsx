@@ -1045,6 +1045,11 @@ const Listing = ({ step, setStep }) => {
   const [shipments, setShipments] = useState([])
   const [email, setEmail] = useState('');
   const [filteredShipments, setFilteredShipments] = useState([]);
+  const [filters, setFilters] = useState({
+    email: "",
+    orderId: "",
+    name: ""
+  });
   useEffect(() => {
 
     fetch(`${API_URL}/order/domestic/all`, {
@@ -1063,7 +1068,6 @@ const Listing = ({ step, setStep }) => {
           const shippedShipments = result.order.filter(shipment => shipment.awb)
           finalShipments.push(...unShippedShipments, ...shippedShipments)
           setShipments(finalShipments);
-          setFilteredShipments(finalShipments);
         } else {
           alert("Failed to fetch parcels")
         }
@@ -1073,23 +1077,36 @@ const Listing = ({ step, setStep }) => {
         alert('An error occurred during Order');
       });
   }, []);
-  const handleEmailChange = (e) => {
-    const query = e.target.value;
-    setEmail(query);
-  }
   useEffect(() => {
-    if (email == "") {
-      setFilteredShipments([]);
-      setTimeout(() => setFilteredShipments(shipments))
+    if (!shipments.length) {
       return;
     }
-    const filtered = shipments.filter(shipment =>
-      ((shipment.email).startsWith(email))
-    );
-    setFilteredShipments([]);
-    setTimeout(() => setFilteredShipments(filtered));
-    console.log(filtered)
-  }, [email])
+    const filteredData = shipments.filter((shipment) => {
+      return (
+        (filters.name === "" || shipment.fullName.toLowerCase().startsWith(filters.name.toLowerCase())) &&
+        (filters.email === "" || shipment.email.toString().startsWith(filters.email)) &&
+        (filters.orderId === "" || (shipment.ord_id.toLowerCase() == filters.orderId.toLowerCase()))
+      );
+    });
+    setFilteredShipments(filteredData)
+  }, [shipments, filters])
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  }
+  // useEffect(() => {
+  //   if (email == "") {
+  //     setFilteredShipments([]);
+  //     setTimeout(() => setFilteredShipments(shipments))
+  //     return;
+  //   }
+  //   const filtered = shipments.filter(shipment =>
+  //     ((shipment.email).startsWith(email))
+  //   );
+  //   setFilteredShipments([]);
+  //   setTimeout(() => setFilteredShipments(filtered));
+  //   console.log(filtered)
+  // }, [email])
   return (
     <>
       <div
@@ -1108,14 +1125,35 @@ const Listing = ({ step, setStep }) => {
               Add
             </div> */}
         </div>
-        <div className="flex space-x-4">
-          <input
-            type="email"
-            placeholder="Merchant Email"
-            value={email}
-            onChange={handleEmailChange}
-          />
-        </div>
+        <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-3 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 justify-evenly">
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="name"
+              placeholder="Merchant Name"
+              value={filters.name}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="email"
+              name="email"
+              placeholder="Merchant Email"
+              value={filters.email}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="orderId"
+              placeholder="Order Id"
+              value={filters.orderId}
+              onChange={handleChange}
+            />
+          </div>
+        </details>
         <div className="w-full">
 
           {filteredShipments.map((shipment, index) => (
