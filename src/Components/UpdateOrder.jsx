@@ -1376,6 +1376,12 @@ const PickupRequest = ({ setPickup }) => {
 const Listing = ({ step, setStep }) => {
   const [shipments, setShipments] = useState([])
   const [pickup, setPickup] = useState(false);
+  const [filteredShipments, setFilteredShipments] = useState([]);
+  const [filters, setFilters] = useState({
+    email: "",
+    orderId: "",
+    name: ""
+  });
   useEffect(() => {
 
     fetch(`${API_URL}/order/domestic/all`, {
@@ -1403,6 +1409,23 @@ const Listing = ({ step, setStep }) => {
         alert('An error occurred during Order');
       });
   }, []);
+  useEffect(() => {
+    if (!shipments.length) {
+      return;
+    }
+    const filteredData = shipments.filter((shipment) => {
+      return (
+        (filters.name === "" || shipment.customer_name.toLowerCase().startsWith(filters.name.toLowerCase())) &&
+        (filters.email === "" || shipment.customer_email.toString().startsWith(filters.email)) &&
+        (filters.orderId === "" || (shipment.ord_id.toLowerCase() == filters.orderId.toLowerCase()))
+      );
+    });
+    setFilteredShipments(filteredData)
+  }, [shipments, filters])
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  }
   return (
     <>
       <div
@@ -1419,8 +1442,37 @@ const Listing = ({ step, setStep }) => {
             Pickup Request
           </div>
         </div>
+        <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-3 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="name"
+              placeholder="Customer Name"
+              value={filters.name}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="email"
+              name="email"
+              placeholder="Customer Email"
+              value={filters.email}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="orderId"
+              placeholder="Order Id"
+              value={filters.orderId}
+              onChange={handleChange}
+            />
+          </div>
+        </details>
         <div className="w-full">
-          {shipments.map((shipment, index) => (
+          {filteredShipments.map((shipment, index) => (
             <Card key={index} shipment={shipment} />
           ))}
         </div>
