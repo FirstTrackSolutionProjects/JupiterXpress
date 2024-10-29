@@ -239,7 +239,7 @@ const ShipmentReportDownloadDialog = () => {
           value={formData.endDate}
           onChange={handleChange}
         />
-        <button className="flex-1 min-w-48 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading?null:handleDownload}>{downloading?'Downloading...':'Download Report'}</button>
+        <button className="flex-1 min-w-48 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : handleDownload}>{downloading ? 'Downloading...' : 'Download Report'}</button>
       </div>
     </>
   )
@@ -249,6 +249,12 @@ const Listing = () => {
   const [reports, setReports] = useState([])
   const [email, setEmail] = useState('');
   const [filteredReports, setFilteredReports] = useState([]);
+  const [filters, setFilters] = useState({
+    email: "",
+    orderId: "",
+    name: "",
+    awb: ""
+  });
   useEffect(() => {
 
     fetch(`${API_URL}/shipment/domestic/reports/all`, {
@@ -263,8 +269,6 @@ const Listing = () => {
         if (result.success) {
           result.rows.sort((a, b) => parseInt(a.ref_id) - parseInt(b.ref_id)).reverse();
           setReports(result.rows);
-          setFilteredReports(result.rows);
-
         } else {
           alert('Fetch failed: ' + result.message)
         }
@@ -274,27 +278,42 @@ const Listing = () => {
         alert('An error occurred during fetching reports');
       });
   }, []);
-  const handleEmailChange = (e) => {
-    const query = e.target.value;
-    setEmail(query);
-  }
+
   useEffect(() => {
-    if (email == "") {
-      setFilteredReports([])
-      setTimeout(() => {
-        setFilteredReports(reports)
-      })
+    if (!reports.length) {
       return;
     }
-    setFilteredReports([])
-    setTimeout(() => {
-      const filtered = reports.filter(report =>
-        ((report.email).startsWith(email))
+    const filteredData = reports.filter((report) => {
+      return (
+        (filters.name === "" || report.fullName.toLowerCase().startsWith(filters.name.toLowerCase())) &&
+        (filters.email === "" || report.email.toString().startsWith(filters.email)) &&
+        (filters.orderId === "" || (report.ord_id.toLowerCase() == filters.orderId.toLowerCase())) &&
+        (filters.awb === "" || (report.awb.toLowerCase() == filters.awb.toLowerCase()))
       );
-      setFilteredReports(filtered);
-      console.log(filtered)
-    })
-  }, [email])
+    });
+    setFilteredReports(filteredData)
+  }, [reports, filters]);
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setFilters({...filters, [name]: value });
+  }
+  // useEffect(() => {
+  //   if (email == "") {
+  //     setFilteredReports([])
+  //     setTimeout(() => {
+  //       setFilteredReports(reports)
+  //     })
+  //     return;
+  //   }
+  //   setFilteredReports([])
+  //   setTimeout(() => {
+  //     const filtered = reports.filter(report =>
+  //       ((report.email).startsWith(email))
+  //     );
+  //     setFilteredReports(filtered);
+  //     console.log(filtered)
+  //   })
+  // }, [email])
   return (
     <>
       <div
@@ -304,14 +323,45 @@ const Listing = () => {
           <div className="text-2xl font-medium">SHIPMENT REPORTS</div>
         </div>
         <ShipmentReportDownloadDialog />
-        <div className="flex space-x-4">
-          <input
-            type="email"
-            placeholder="Merchant Email"
-            value={email}
-            onChange={handleEmailChange}
-          />
-        </div>
+
+        <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 justify-evenly">
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="name"
+              placeholder="Merchant Name"
+              value={filters.name}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="email"
+              name="email"
+              placeholder="Merchant Email"
+              value={filters.email}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="orderId"
+              placeholder="Order Id"
+              value={filters.orderId}
+              onChange={handleChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="awb"
+              placeholder="AWB"
+              value={filters.awb}
+              onChange={handleChange}
+            />
+          </div>
+        </details>
+
         <div className="w-full">
 
           {(filteredReports).map((report, index) => (
