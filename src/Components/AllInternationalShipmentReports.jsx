@@ -964,7 +964,7 @@ const Card = ({ shipment }) => {
 
       <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
         <div className="text-[10px] text-gray-500">
-          <div className="text-sm font-bold">JUPINT{shipment.iid}</div>
+          <div className="text-sm font-bold">{shipment.iid}</div>
           <div >{shipment.fullName}</div>
           <div >{shipment.email}</div>
           <div> {shipment.awb ? `AWB : ${shipment.awb}` : null}</div>
