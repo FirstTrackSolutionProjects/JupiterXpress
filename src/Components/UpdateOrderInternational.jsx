@@ -974,7 +974,7 @@ const Card = ({ shipment }) => {
         
         <div className="w-full h-16 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div className="text-sm">
-          <div className="font-bold">JUPINT{shipment.iid}</div>
+          <div className="font-bold">{shipment.iid}</div>
           <div >{shipment.consignee_name}</div>
             <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
             <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
