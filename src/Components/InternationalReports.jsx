@@ -54,7 +54,7 @@ const Card = ({ report }) => {
       {view && <View report={report} setIsView={setIsView}/>}
       <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
       <div className="text-[10px] text-gray-500">
-          <div className="text-sm font-bold">{report.iid}</div>
+          <div className="text-sm font-bold">{report.ref_id}</div>
           {
             report.isAdmin? <><div >{report.fullName}</div>
             <div >{report.email}</div></> : <><div >{report.consignee_name}</div>
