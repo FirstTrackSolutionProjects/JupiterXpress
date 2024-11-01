@@ -27,7 +27,7 @@ const View  = ({report, setIsView}) => {
             {
               status ? <div>
               <p>AWB : {report.awb}</p>
-              <p>Order Id: JUPINT{report.iid}</p>
+              <p>Order Id: {report.iid}</p>
               <p>Status : {status[0].docket_info[4][1]}</p>
               {
                 (status[0].docket_events).map((scan,index)=> {
@@ -54,7 +54,7 @@ const Card = ({ report }) => {
       {view && <View report={report} setIsView={setIsView}/>}
       <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
       <div className="text-[10px] text-gray-500">
-          <div className="text-sm font-bold">JUPINT{report.iid}</div>
+          <div className="text-sm font-bold">{report.iid}</div>
           {
             report.isAdmin? <><div >{report.fullName}</div>
             <div >{report.email}</div></> : <><div >{report.consignee_name}</div>
