@@ -977,6 +977,7 @@ const Card = ({ shipment }) => {
           <div className="font-bold">JUPINT{shipment.iid}</div>
           <div >{shipment.consignee_name}</div>
             <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
+            <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
           </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
