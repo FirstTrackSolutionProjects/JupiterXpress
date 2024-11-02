@@ -113,7 +113,7 @@ const Profile = () => {
               </div>
             </div>
             <div className='w-full font-medium text-gray-700'>
-              {(admin && profileData.designation) && <p>Designation : {profileData.designation}</p>}
+              {(admin && profileData.designation) ? <p>Designation : {profileData.designation}</p> : null}
               {profileData.address && <p>Address : {profileData.address}</p>}
               {!admin && <div className='w-full'>
                 {profileData.gstin && <p>GSTIN : {profileData.gstin}</p>}
