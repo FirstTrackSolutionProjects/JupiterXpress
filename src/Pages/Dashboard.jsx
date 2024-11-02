@@ -1,34 +1,12 @@
-import { useState, useEffect, useContext} from "react"
-import { useNavigate } from "react-router-dom"
-import DashboardMain from "../Components/DashboardMain"
+import { useState, useEffect, useContext, createElement} from "react"
+import { useNavigate, Routes, Route } from "react-router-dom"
 import MenuItem from "../Components/MenuItem"
 import { menuItems } from "../Constants"
 import { jwtDecode } from "jwt-decode"
-import CreateOrder from "../Components/CreateOrder"
-import Warehouse from "../Components/Warehouse"
 import { AuthContext } from "../context/AuthContext"
-import UpdateOrder from "../Components/UpdateOrder"
-import AdminProfile from "../Components/AdminProfile"
-import NDR from "../Components/NDR"
-import Profile from "../Components/Profile"
 import Recharge from "../Components/Wallet/Recharge"
-import ChangePassword from "../Components/ChangePassword"
-import MerchantManage from "../Components/MerchantManage"
-import ManualRecharge from "../Components/ManualRecharge"
-import VerificationRequests from "../Components/VerificationRequests"
-import TransactionHistory from "../Components/TransactionHistory"
-import ContactSubmissions from "../Components/ContactSubmissions"
-import CreateOrderInternational from "../Components/CreateOrderInternational"
-import NonVerifiedMerchantManage from "../Components/NonVerifiedMerchantManage"
-import AllTransactions from "../Components/AllTransactions"
-import AllParcels from "../Components/AllParcels"
-import AllShipmentReports from "../Components/AllShipmentReports"
-import UpdateOrderInternational from "../Components/UpdateOrderInternational"
-import KYCVerification from "../Components/KYCVerification"
-import KYCRequests from "../Components/KYCRequests"
 import { XIcon, MenuIcon } from "@heroicons/react/outline"
-import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
-import InternationalReports from "../Components/InternationalReports"
+
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
   const [menuID, setMenuID] = useState([0])
@@ -65,6 +43,27 @@ const Dashboard = () => {
     logout();
     navigate('/');
   }
+
+  const generateRoutes = (items, isAdmin) => {
+    return items.flatMap((item, index) => {
+      if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin)) {
+        return [];
+      }
+      const routes = [
+        <Route
+          key={item.url || `route-${index}`}
+          path={item.url}
+          element={item.component ? createElement(item.component) : null}
+        />
+      ];
+      if (item.dropDownOptions && item.dropDownOptions.length > 0) {
+        routes.push(...generateRoutes(item.dropDownOptions, isAdmin));
+      }
+      return routes;
+    });
+  };
+  
+
   return (
      <>
         <>
@@ -74,7 +73,7 @@ const Dashboard = () => {
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
                   return (
-                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
+                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} url={item.url} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
               </div>
               <div className={`relative  ${isOpen?'w-[300px] min-w-[300px]':'w-0'} block md:hidden  h-full  bg-white  pt-12`}>
@@ -91,7 +90,10 @@ const Dashboard = () => {
               </div>
               {showRecharge ? <Recharge setShowRecharge={setShowRecharge}/> : null}
               <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
-                {menuID[0] == 0 ? <DashboardMain/> : null}
+                <Routes>
+                  {generateRoutes(menuItems, isAdmin)}
+                </Routes>
+                {/* {menuID[0] == 0 ? <DashboardMain/> : null}
                 {(menuID[0] == 1 && menuID[1] == 0) ? <CreateOrder/> : null}
                 {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
                 {(menuID[0] == 2) ? <Warehouse/> : null}
@@ -115,7 +117,7 @@ const Dashboard = () => {
                 {(menuID[0] == 11 && menuID[1] == 2) ? <KYCRequests/> : null}
                 {(menuID[0] == 12) ? <ManualRecharge/> : null}
                 {(menuID[0] == 13) ? <KYCVerification/>: null}
-                {(menuID[0] == 7) && (loggingOut())}
+                {(menuID[0] == 7) && (loggingOut())} */}
               </div>
             </div>
         </>
