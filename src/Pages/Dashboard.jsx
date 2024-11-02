@@ -9,7 +9,6 @@ import { XIcon, MenuIcon } from "@heroicons/react/outline"
 
 const Dashboard = () => {
   const {logout} = useContext(AuthContext)
-  const [menuID, setMenuID] = useState([0])
   const [isAdmin, setIsAdmin] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [showRecharge, setShowRecharge] = useState(false)
@@ -73,7 +72,7 @@ const Dashboard = () => {
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
                   return (
-                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} url={item.url} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
+                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} name={item.name} url={item.url} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
               </div>
               <div className={`relative  ${isOpen?'w-[300px] min-w-[300px]':'w-0'} block md:hidden  h-full  bg-white  pt-12`}>
@@ -83,7 +82,7 @@ const Dashboard = () => {
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
                   return (
-                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} menuID={item.menuID} setMenuID={setMenuID} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
+                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
                 </div>
            
@@ -93,31 +92,6 @@ const Dashboard = () => {
                 <Routes>
                   {generateRoutes(menuItems, isAdmin)}
                 </Routes>
-                {/* {menuID[0] == 0 ? <DashboardMain/> : null}
-                {(menuID[0] == 1 && menuID[1] == 0) ? <CreateOrder/> : null}
-                {(menuID[0] == 1 && menuID[1] == 1) ? <CreateOrderInternational/> : null}
-                {(menuID[0] == 2) ? <Warehouse/> : null}
-                {(menuID[0] == 3 && menuID[1]==0) ? <UpdateOrder/> : null}
-                {(menuID[0] == 3 && menuID[1]==1) ? <UpdateOrderInternational/> : null}
-                {(menuID[0] == 4 ) ? <TransactionHistory/> : null}
-                {(menuID[0] == 9 && menuID[1] == 2) ? <AllTransactions/> : null}
-                {(menuID[0] == 9 && menuID[1] == 3 && menuID[2] == 0) ? <AllParcels/> : null}
-                {(menuID[0] == 9 && menuID[1] == 3 && menuID[2] == 1) ? <AllInternationalShipmentReports/> : null}
-                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 0) ? <AllShipmentReports/> : null}
-                {(menuID[0] == 9 && menuID[1] == 4 && menuID[2] == 1) ? <InternationalReports/> : null}
-                {(menuID[0] == 5 && menuID[1] == 0) ? <NDR/> : null}
-                {(menuID[0] == 5 && menuID[1] == 1) ? <InternationalReports/> : null}
-                {((menuID[0] == 6 && menuID[1] == 0) && isAdmin)  ?  <AdminProfile/> :null }
-                {((menuID[0] == 6 && menuID[1] == 0) && !isAdmin)  ?  <Profile/> : null }
-                {(menuID[0] == 6 && menuID[1] == 1) ? <ChangePassword/> : null}
-                {(menuID[0] == 9 && menuID[1] == 0) ? <MerchantManage/> : null}
-                {(menuID[0] == 9 && menuID[1] == 1) ? <NonVerifiedMerchantManage/> : null}
-                {(menuID[0] == 11 && menuID[1] == 0) ? <VerificationRequests/> : null}
-                {(menuID[0] == 11 && menuID[1] == 1) ? <ContactSubmissions/> : null}
-                {(menuID[0] == 11 && menuID[1] == 2) ? <KYCRequests/> : null}
-                {(menuID[0] == 12) ? <ManualRecharge/> : null}
-                {(menuID[0] == 13) ? <KYCVerification/>: null}
-                {(menuID[0] == 7) && (loggingOut())} */}
               </div>
             </div>
         </>
