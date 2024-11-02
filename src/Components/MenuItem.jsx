@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { menuItems } from '../Constants'
+
 const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge}) => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -17,7 +17,7 @@ const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge
     </div>
     {isDropdown ? <div className={`  ${isOpen?``:"hidden"}`}>
         {dropDownOptions.map((subitem,index) => (
-            <MenuItem key={index} icon="" name={subitem.name} url={subitem.url} isDropdown={subitem.isDropdown} menuID={subitem.menuID} dropDownOptions={subitem.dropDownOptions} />
+            <MenuItem key={index} icon="" name={subitem.name} url={subitem.url} isDropdown={subitem.isDropdown} dropDownOptions={subitem.dropDownOptions} />
         ))}
     </div> : null}
       </>
