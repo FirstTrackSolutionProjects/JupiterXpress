@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, createElement} from "react"
-import { useNavigate, Routes, Route } from "react-router-dom"
+import { useNavigate, Routes, Route, useLocation } from "react-router-dom"
 import MenuItem from "../Components/MenuItem"
 import { menuItems } from "../Constants"
 import { jwtDecode } from "jwt-decode"
@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [showRecharge, setShowRecharge] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation();
   const isAuthenticated = () => {
     const token = localStorage.getItem('token');
     if (!token) return false;
@@ -42,6 +43,10 @@ const Dashboard = () => {
     logout();
     navigate('/');
   }
+
+  useEffect(() => {
+    if (location.pathname === '/dashboard/logout') loggingOut()
+  },[navigate])
 
   const generateRoutes = (items, isAdmin) => {
     return items.flatMap((item, index) => {
