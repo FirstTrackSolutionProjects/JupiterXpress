@@ -36,7 +36,7 @@ const App = () => {
         <Route index element={<Index spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />} />
         <Route path='/contact-send' element={<Contact/>} />
         <Route path='/about-us' element={<About/>} />
-        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/dashboard/*' element={<Dashboard />} />
         <Route path='/get-blogs' element={<Blogs/>} />
         <Route path='/privacy' element={<Privacy/>} />
         <Route path='/tnc' element={<TnC/>} />
@@ -48,7 +48,7 @@ const App = () => {
 
         <Route path='*' element={<Index />} />
       </Routes>
-      {location.pathname !== '/dashboard'?<Footer/>:null}
+      {location.pathname.startsWith('/dashboard')?null:<Footer/>}
       
     </>
   )
