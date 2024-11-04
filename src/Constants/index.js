@@ -268,7 +268,7 @@ export const menuItems = [
             isDropdown : false,
             admin : true,
             url : 'submissions/merchant-verification',
-            compoent : VerificationRequests,
+            component : VerificationRequests,
             dropDownOptions : [{}]
         },
         {
