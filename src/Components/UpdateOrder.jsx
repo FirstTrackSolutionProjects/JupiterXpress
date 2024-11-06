@@ -1051,7 +1051,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
         'Accept': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-      body: JSON.stringify({ order: shipment.ord_id, price: shipment.pay_method == "topay" ? 0 : Math.round(price.price), serviceId: price.serviceId, categoryId: price.categoryId })
+      body: JSON.stringify({ order: shipment.ord_id, price: shipment.pay_method == "topay" ? 0 : Math.round(price.price), serviceId: price.serviceId, categoryId: price.categoryId, courierId:price.courierId })
     }).then(response => response.json()).then(async result => {
       if (result.success) {
         setIsShipped(true)
