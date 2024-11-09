@@ -52,7 +52,7 @@ const MovinStatusCard = ({ report, status }) => {
   )
 }
 
-const ShipRocketStatusCard = ({ report, status }) => {
+const PickrrStatusCard = ({ report, status }) => {
   return (
     <div className="flex flex-col">
       <p className="mt-5">AWB : {report.awb}</p>
@@ -110,7 +110,7 @@ const View = ({ report, setIsView }) => {
             status && report.serviceId == 2 ? <MovinStatusCard report={report} status={status} /> : null
           }
           {
-            status && report.serviceId == 3 ? <ShipRocketStatusCard report={report} status={status} /> : null
+            status && report.serviceId == 3 ? <PickrrStatusCard report={report} status={status} /> : null
           }
         </div>
       </div>

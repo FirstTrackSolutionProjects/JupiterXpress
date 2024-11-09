@@ -98,7 +98,7 @@ const MovinCard = ({ scan }) => {
     )
 }
 
-const ShipRocketCard = ({ scan }) => {
+const PickrrCard = ({ scan }) => {
     return (
         <>
             <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
@@ -147,7 +147,7 @@ const Result = ({ data }) => {
                     <MovinCard key={index} scan={scan} />
                 )) : null}
                 {data?.id == 4 ? data?.data.reverse().map((scan, index) => (
-                    <ShipRocketCard key={index} scan={scan} />
+                    <PickrrCard key={index} scan={scan} />
                 )) : null}
                 {data?.id == 5? data?.data.map((scan, index) => (
                     <DillikingCard key={index} scan={scan} />
