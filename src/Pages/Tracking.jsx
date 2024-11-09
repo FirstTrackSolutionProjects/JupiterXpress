@@ -130,6 +130,20 @@ const DillikingCard = ({ scan }) => {
     )
 }
 
+const ShiprocketCard = ({ scan }) => {
+    return (
+    <>
+        <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+            <div className='flex flex-col items-center justify-center'>
+                <div className='font-bold'>{scan["sr-status-label"]}</div>
+                <div>{scan.location}</div>
+                <div>{scan.date}</div>
+            </div>
+        </div>
+    </>
+    )
+}
+
 const Result = ({ data }) => {
     useEffect(() => {
         console.log(data)
@@ -151,6 +165,9 @@ const Result = ({ data }) => {
                 )) : null}
                 {data?.id == 5? data?.data.map((scan, index) => (
                     <DillikingCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 6? data?.data.map((scan, index) => (
+                    <ShiprocketCard key={index} scan={scan} />
                 )) : null}
             </div>
 
