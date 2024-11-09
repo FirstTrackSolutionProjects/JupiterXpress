@@ -445,7 +445,7 @@ const Card = ({ name, address, pin, phone, wid, justCreated }) => {
       <div className="w-full h-16 bg-white relative items-center px-8 flex border-b">
         <div>{name}</div>
         <div className="absolute right-8">
-          <div className="cursor-pointer" onClick={() => setIsManage(true)}>Manage</div>
+          {/* <div className="cursor-pointer" onClick={() => setIsManage(true)}>Manage</div> */}
           <div className="cursor-pointer" onClick={() => setCheckWarehouse(true)}>Check</div>
         </div>
       </div>
