@@ -11,7 +11,7 @@ const Footer = () => {
         <div className='relative flex flex-col justify-center items-center sm:items-start'>
               <div className=' text-left text-4xl text-white  font-bold italic'>JUPITER</div>
               <div className='flex items-center my-3'>
-                <img src="logo.webp" alt="" className='w-[100px] h-[30px]' />
+                <img src="/logo.webp" alt="" className='w-[100px] h-[30px]' />
                 <div className='text-[37px] font-bold -ml-8 -mt-2 text-blue-400 italic'>PRESS</div>
               </div>
         </div>
