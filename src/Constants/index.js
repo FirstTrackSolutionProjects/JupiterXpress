@@ -57,7 +57,7 @@ export const navItems = [
 
 export const menuItems = [
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Dashboard",
         isDropdown : false,
         url : '',
@@ -65,14 +65,14 @@ export const menuItems = [
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Wallet Recharge",
         isDropdown : false,
         url : 'wallet-recharge',
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "KYC Update",
         isDropdown : false,
         merchantOnly : true,
@@ -81,20 +81,20 @@ export const menuItems = [
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Create Shipment",
         isDropdown : true,
         merchantOnly : true,
         url : 'order/create',
         dropDownOptions : [{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Domestic",
             isDropdown : false,
             url : 'order/domestic/create',
             component : CreateOrder,
             dropDownOptions : [{}]
         },{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "International",
             isDropdown : false,
             url : 'order/international/create',
@@ -103,7 +103,7 @@ export const menuItems = [
         },]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Warehouse",
         isDropdown : false,
         merchantOnly : true,
@@ -112,13 +112,13 @@ export const menuItems = [
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Parcels",
         isDropdown : true,
         merchantOnly : true,
         url : 'parcels',
         dropDownOptions : [{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Domestic",
             isDropdown : false,
             url : 'parcels/domestic',
@@ -126,7 +126,7 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "International",
             isDropdown : false,
             url : 'parcels/international',
@@ -135,7 +135,7 @@ export const menuItems = [
         },]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Transaction History",
         isDropdown : false,
         url : 'transaction-history',
@@ -143,20 +143,20 @@ export const menuItems = [
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Reports",
         isDropdown : true,
         merchantOnly : true,
         url : 'shipment/reports',
         dropDownOptions : [{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Domestic Reports",
             isDropdown : false,
             url : 'shipment/domestic/reports',
             component : NDR,
             dropDownOptions : [{}]
         },{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "International Reports",
             isDropdown : false,
             url : 'shipment/international/reports',
@@ -165,13 +165,13 @@ export const menuItems = [
         },]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Merchant Manage",
         isDropdown : true,
         admin : true,
         url : 'manage/merchant',
         dropDownOptions : [{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Verified Merchants",
             isDropdown : false,
             url : 'manage/merchant/verified',
@@ -179,7 +179,7 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Non-Verified Merchants",
             isDropdown : false,
             url : 'manage/merchant/non-verified',
@@ -187,7 +187,7 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Merchant Transactions",
             isDropdown : false,
             url : 'manage/merchant/transactions',
@@ -195,19 +195,19 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Shipments",
             isDropdown : true,
             url : 'manage/merchant/shipments',
             dropDownOptions : [{
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "Domestic",
                 isDropdown : false,
                 url : 'manage/merchant/shipments/domestic',
                 component : AllParcels,
                 dropDownOptions : [{}]
             },{
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "International",
                 isDropdown : false,
                 url : 'manage/merchant/shipments/international',
@@ -216,18 +216,18 @@ export const menuItems = [
             },]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Shipment Reports",
             isDropdown : true,
             dropDownOptions : [{
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "Domestic Reports",
                 isDropdown : false,
                 url : 'manage/merchant/shipments/domestic/reports',
                 component : AllShipmentReports,
                 dropDownOptions : [{}]
             },{
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "International Reports",
                 isDropdown : false,
                 url : 'manage/merchant/shipments/international/reports',
@@ -237,19 +237,19 @@ export const menuItems = [
         }]
     },
     // {
-    //     icon : "logo.webp",
+    //     icon : "/logo.webp",
     //     name : "Users",
     //     admin : true,
     //     isDropdown : true,
     //     menuID : [10],
     //     dropDownOptions : [{
-    //         icon : "logo.webp",
+    //         icon : "/logo.webp",
     //         name : "Accounts",
     //         isDropdown : false,
     //         menuID : [10,0],
     //         dropDownOptions : [{}]
     //     },{
-    //         icon : "logo.webp",
+    //         icon : "/logo.webp",
     //         name : "Admin",
     //         isDropdown : false,
     //         menuID : [10,1],
@@ -257,13 +257,13 @@ export const menuItems = [
     //     },]
     // },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Submission",
         isDropdown : true,
         admin : true,
         url : 'submissions',
         dropDownOptions : [{
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Merchant Verification",
             isDropdown : false,
             admin : true,
@@ -272,7 +272,7 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "Contact Submission",
             isDropdown : false,
             admin : true,
@@ -281,7 +281,7 @@ export const menuItems = [
             dropDownOptions : [{}]
         },
         {
-            icon : "logo.webp",
+            icon : "/logo.webp",
             name : "KYC Requests",
             isDropdown : false,
             admin : true,
@@ -292,7 +292,7 @@ export const menuItems = [
     ]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Manual Recharge",
         isDropdown : false,
         admin : true,
@@ -301,13 +301,13 @@ export const menuItems = [
         dropDownOptions : [{}]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Settings",
         isDropdown : true,
         url : 'settings',
         dropDownOptions : [
             {
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "Profile",
                 isDropdown : false,
                 url : 'settings/profile',
@@ -315,7 +315,7 @@ export const menuItems = [
                 dropDownOptions : [{}]
             },
             {
-                icon : "logo.webp",
+                icon : "/logo.webp",
                 name : "Change Password",
                 isDropdown : false,
                 url : 'settings/change-password',
@@ -325,7 +325,7 @@ export const menuItems = [
         ]
     },
     {
-        icon : "logo.webp",
+        icon : "/logo.webp",
         name : "Logout",
         isDropdown : false,
         url : 'logout',

@@ -2,10 +2,11 @@ import  { useState, useContext, useEffect} from 'react';
 import { navItems } from '../Constants';
 import NavItem from './NavItem';
 import { AuthContext } from "../context/AuthContext"
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 const Menu = ({spaceTheme, setSpaceTheme} ) => {
   const [isMenu,setIsMenu] = useState(false)
+  const location = useLocation();
   const {login , logout} = useContext(AuthContext)
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
@@ -35,46 +36,48 @@ const Menu = ({spaceTheme, setSpaceTheme} ) => {
 
   return (
     <>
-      <div className='flex items-center p-5'>
-      <label style={{
-        position: 'relative',
-        display: 'inline-block',
-        width: '35px',
-        height: '20px',
-        marginRight: '10px',
-      }}>
-        <input 
-          type="checkbox" 
-          checked={spaceTheme} 
-          onChange={() => {setSpaceTheme((prev)=>{localStorage.setItem('theme', !prev?'space':'non-space'); return !prev }); }} 
-          style={{ display: 'none' }} // Hides the default checkbox
-        />
-        <span style={{
-          position: 'absolute',
-          zIndex: 2,
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: spaceTheme ? 'blue' : 'gray',
-          borderRadius: '30px',
-          cursor: 'pointer',
-          transition: '0.4s',
-        }}></span>
-        <span style={{
-          position: 'absolute',
-          zIndex : 2,
-          content: '""',
-          height: '12px',
-          width: '12px',
-          left: spaceTheme ? '20px' : '2px',
-          bottom: '4px',
-          backgroundColor: 'white',
-          borderRadius: '50%',
-          transition: '0.4s',
-        }}></span>
-      </label>
-    </div>
+      {
+        location.pathname=='/'?<div className='flex items-center p-5'>
+        <label style={{
+          position: 'relative',
+          display: 'inline-block',
+          width: '35px',
+          height: '20px',
+          marginRight: '10px',
+        }}>
+          <input 
+            type="checkbox" 
+            checked={spaceTheme} 
+            onChange={() => {setSpaceTheme((prev)=>{localStorage.setItem('theme', !prev?'space':'non-space'); return !prev }); }} 
+            style={{ display: 'none' }} // Hides the default checkbox
+          />
+          <span style={{
+            position: 'absolute',
+            zIndex: 2,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: spaceTheme ? 'blue' : 'gray',
+            borderRadius: '30px',
+            cursor: 'pointer',
+            transition: '0.4s',
+          }}></span>
+          <span style={{
+            position: 'absolute',
+            zIndex : 2,
+            content: '""',
+            height: '12px',
+            width: '12px',
+            left: spaceTheme ? '20px' : '2px',
+            bottom: '4px',
+            backgroundColor: 'white',
+            borderRadius: '50%',
+            transition: '0.4s',
+          }}></span>
+        </label>
+      </div> : null
+      }
       <div className={`fixed block md:hidden top-0 right-0 ${isMenu?"md:w-96 w-full":"w-0"} h-full transition-all duration-300 ease-in-out z-50 overflow-hidden`}>
       
       <button onClick={toggleMenu} className={`fixed block md:hidden z-50 top-3 right-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-md`}>
@@ -82,7 +85,7 @@ const Menu = ({spaceTheme, setSpaceTheme} ) => {
       </button>
       
       <div className="flex flex-col justify-center p-4 space-y-6 bg-white text-black h-screen items-center">
-        <img src="logo.webp" alt="" className='w-48' />
+        <img src="/logo.webp" alt="" className='w-48' />
         {username && (
           <div className="h-16 flex text-2xl space-x-3 items-center">
             <div className="flex flex-col justify-center space-y-1">

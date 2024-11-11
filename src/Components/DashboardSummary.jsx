@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 const DashboardSummaryCard = ({title, number}) => {
   return (
     <div className="rounded-xl flex-1 m-2  min-w-64 h-32 transition-all flex items-center duration-300 text-[rgba(37,168,229)] font-medium bg-white hover:text-white hover:bg-[rgba(37,168,229,0.8)]">
-      <img src="logo.webp" alt=""className="w-24" />
+      <img src="/logo.webp" alt=""className="w-24" />
       <div>
         <div>{title}</div>
         <div className="text-xl">{number}</div>

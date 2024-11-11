@@ -55,7 +55,7 @@ const Header = () => {
     <div className=" fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 flex justify-center items-center w-full h-16 ">
       <nav className=" w-full relative z-3 lg:w-4/5 flex space-x-8 text-gray-700 items-center h-16">
         <Link to="/" className="flex items-center">
-          <img src="logo.webp" alt="" className="h-8" />
+          <img src="/logo.webp" alt="" className="h-8" />
           <div className="flex flex-col justify-evenly leading-4 -ml-6">
             <div className="font-bold text-blue-800">JUPITER</div>
             <div className="font-bold text-blue-600">XPRESS</div>
