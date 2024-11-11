@@ -87,7 +87,7 @@ const Dashboard = () => {
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
                   return (
-                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} name={item.name} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
+                  <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} name={item.name} url={item.url} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
                 </div>
            
