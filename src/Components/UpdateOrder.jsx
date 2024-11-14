@@ -1148,6 +1148,8 @@ const Card = ({ shipment }) => {
   const [isShip, setIsShip] = useState(false);
   const [isShipped, setIsShipped] = useState(shipment.is_manifested ? true : false);
   const [isCancelled, setIsCancelled] = useState(shipment.cancelled ? true : false);
+  const [isDeleted, setIsDeleted] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false)
   const [isProcessing, setIsProcessing] = useState(shipment.in_process ? true : false);
   const [awb, setAwb] = useState(shipment.awb ? shipment.awb : 'Shipment is processing...')
@@ -1197,6 +1199,28 @@ const Card = ({ shipment }) => {
       setIsCancelling(false);
     })
   }
+  const deleteOrder = async () => {
+    const del = confirm('Do you want to cancel this shipment?');
+    if (!del) return;
+    setIsDeleting(true);
+    const request = await fetch(`${API_URL}/order/domestic/delete`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      },
+      body: JSON.stringify({ orderId: shipment.ord_id })
+    })
+    const response = await request.json()
+    if (response.success) {
+      alert(response.message)
+      setIsDeleted(true)
+    } else {
+      alert("Failed to delete order")
+    }
+    setIsDeleting(false);
+  }
   const refreshShipment = async () => {
     setIsRefreshing(true)
     await fetch(`${API_URL}/shipment/domestic/refresh`, {
@@ -1231,11 +1255,13 @@ const Card = ({ shipment }) => {
           <div>{shipment.date ? shipment.date.toString().split('T')[0] + ' ' + shipment.date.toString().split('T')[1].split('.')[0] : null}</div>
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>
+          {!isDeleted && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>}
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
           {isShipped && !isProcessing && !isCancelled ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
-          {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
+          {!isShipped && !isDeleted ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
           {isShipped && !isProcessing && !isCancelled && [1,4].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
+          {!isShipped && !isDeleted && <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isDeleting ? () => {} : () => deleteOrder()}>{isDeleting ? "Deleting..." : "Delete"}</div> }
+          {isDeleted ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Deleted</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
         </div>
       </div>
