@@ -1184,10 +1184,10 @@ const Card = ({ shipment }) => {
       },
       body: JSON.stringify({ order: shipment.ord_id })
     }).then(response => response.json()).then(async result => {
-      if (result.message.status) {
+      if (result.success) {
         setIsCancelled(true)
         setIsCancelling(false);
-        alert(result.message.remark)
+        alert(result.data)
       }
       else {
         alert("Your shipment has not been cancelled")
@@ -1233,9 +1233,9 @@ const Card = ({ shipment }) => {
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
-          {isShipped && !isProcessing ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
+          {isShipped && !isProcessing && !isCancelled ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
-          {isShipped && !isProcessing && !isCancelled && shipment.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
+          {isShipped && !isProcessing && !isCancelled && [1,4].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
         </div>
       </div>
