@@ -1037,9 +1037,9 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
     })
     const balanceData = await getBalance.json();
     const balance = balanceData.balance;
-    if ((parseFloat(balance) < parseFloat(price.price))) {
+    if ((parseFloat(balance) < (100 + parseFloat(price.price)))) {
       if (shipment.pay_method !== "topay") {
-        alert('Insufficient balance')
+        alert('Your wallet must have over 100 rupees after shipment')
         setIsLoading(false)
         return;
       }
