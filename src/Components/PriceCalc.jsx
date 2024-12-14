@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare, isB2B, invoiceAmount}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
@@ -11,7 +11,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
         headers: { 'Accept': '*/*',
           'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes}),
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes, isB2B, invoiceAmount}),
         
       }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -54,7 +54,9 @@ const Domestic = () => {
     codAmount : '0',
     weight : 0,
     volume : 0,
-    quantity : 0
+    quantity : 0,
+    invoiceAmount : 0,
+    isB2B : false
   })
   useEffect(()=>{
     let totalVolume = 0;
@@ -181,6 +183,36 @@ const Domestic = () => {
                 <option value="COD">COD</option>
                 <option value="Pre-paid">Prepaid</option>
               </select>
+            </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+              <label htmlFor="shipmentType">Shipment Type</label>
+              <select
+                name="isB2B"
+                id="shipmentType"
+                className="border py-2 px-4 rounded-3xl"
+                value={formData.isB2B}
+                onChange={handleChange}
+
+              >
+                <option value={false}>B2C</option>
+                <option value={true}>B2B</option>
+              </select>
+            </div>
+            
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+              <label htmlFor="invoiceAmount">Invoice Amount</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="invoiceAmount"
+                name="invoiceAmount"
+                placeholder="Ex. 157"
+                value={formData.invoiceAmount}
+                onChange={handleChange}
+              />
             </div>
             
           </div>
