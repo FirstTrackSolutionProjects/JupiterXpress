@@ -192,6 +192,18 @@ const FullDetails = () => {
   }, []);
 
   const onSubmit = async (data) => {
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+    const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+        
+    // Combine shipment pickup date and time into a single Date object
+    const pickupDateAndTime = new Date(`${data.pickupDate}T${data.pickupTime}`);
+        
+    // Compare pickup time with the current IST time
+    if (pickupDateAndTime < istDate) {
+        alert('Pickup time is already passed. Please update and try again');
+        return;
+    }
     let boxFlag = 0
     for (let i = 0; i < data.boxes.length; i++) {
       for (let j = 0; j < data.orders.length; j++) {
@@ -326,7 +338,6 @@ const FullDetails = () => {
             <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="time"
-              min={getCurrentTime()}
               id="pickupTime"
               {...register("pickupTime")}
             />
