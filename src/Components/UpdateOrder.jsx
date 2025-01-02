@@ -285,7 +285,18 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData)
-
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+    const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+        
+    // Combine shipment pickup date and time into a single Date object
+    const pickupDateAndTime = new Date(`${formData.pickupDate}T${formData.pickupTime}`);
+        
+    // Compare pickup time with the current IST time
+    if (pickupDateAndTime < istDate) {
+        alert('Pickup time is already passed. Please update and try again');
+        return;
+    }
     let boxFlag = 0
     for (let i = 0; i < formData.boxes.length; i++) {
       for (let j = 0; j < formData.orders.length; j++) {
@@ -397,7 +408,6 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 type="time"
                 id="pickupTime"
                 name="pickupTime"
-                min={getCurrentTime()}
                 value={formData.pickupTime}
                 onChange={handleChange}
               />
