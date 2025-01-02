@@ -1,6 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid"
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+const getTodaysDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const getCurrentTime = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0'); // Hours in 24-hour format
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   const [boxes, setBoxes] = useState([
     { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }
@@ -368,6 +385,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 type="date"
                 id="pickupDate"
                 name="pickupDate"
+                min={getTodaysDate()}
                 value={formData.pickupDate}
                 onChange={handleChange}
               />
@@ -379,6 +397,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 type="time"
                 id="pickupTime"
                 name="pickupTime"
+                min={getCurrentTime()}
                 value={formData.pickupTime}
                 onChange={handleChange}
               />
@@ -1363,6 +1382,7 @@ const PickupRequest = ({ setPickup }) => {
                 id="pickDate"
                 name="pickDate"
                 placeholder="YYYY-MM-DD"
+                min={''}
                 value={formData.pickDate}
                 onChange={handleChange}
               />

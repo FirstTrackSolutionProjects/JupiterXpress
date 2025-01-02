@@ -4,6 +4,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+const getTodaysDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const getCurrentTime = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0'); // Hours in 24-hour format
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 const schema = z.object({
   wid: z.string().min(1, "Pickup Warehouse Name is required"),
   // order: z.string().min(1, "Order ID is required"),
@@ -92,6 +108,8 @@ const FullDetails = () => {
   const { register, control, handleSubmit, watch, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
+      pickupDate: getTodaysDate(),
+      pickupTime: getCurrentTime(),
       payMode: 'Pre-paid',
       postcode: '',
       Bpostcode: '',
@@ -298,6 +316,7 @@ const FullDetails = () => {
             <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="date"
+              min={getTodaysDate()}
               id="pickupDate"
               {...register("pickupDate")}
             />
@@ -307,6 +326,7 @@ const FullDetails = () => {
             <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="time"
+              min={getCurrentTime()}
               id="pickupTime"
               {...register("pickupTime")}
             />
