@@ -15,6 +15,7 @@ import Verify from './Pages/Verify'
 import Tracking from './Pages/Tracking'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
+import { ToastContainer } from 'react-toastify'
 const App = () => {
   const location = useLocation()
   const [spaceTheme, setSpaceTheme] = useState(false)
@@ -29,7 +30,7 @@ const App = () => {
   })
   return (
     <>
-      
+        <ToastContainer />
         <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
