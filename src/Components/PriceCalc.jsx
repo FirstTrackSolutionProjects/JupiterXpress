@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare, isB2B, invoiceAmount}) => {
+const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare, invoiceAmount}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
@@ -11,7 +12,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
         headers: { 'Accept': '*/*',
           'Content-Type': 'application/json'
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes, isB2B, invoiceAmount}),
+          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes, invoiceAmount, priceCalc: true}),
         
       }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -56,7 +57,7 @@ const Domestic = () => {
     volume : 0,
     quantity : 0,
     invoiceAmount : 0,
-    isB2B : false
+    // isB2B : false
   })
   useEffect(()=>{
     let totalVolume = 0;
@@ -82,6 +83,19 @@ const Domestic = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { origin, dest, payMode, codAmount, invoiceAmount } = formData;
+    if (!origin ||!dest ||!payMode) {
+      toast.error('Please fill all the required fields');
+      return;
+    }
+    if (payMode == 'COD' && codAmount <=0){
+      toast.error('COD amount should be greater than zero');
+      return;
+    }
+    if (invoiceAmount <= 0){
+      toast.error('Invoice amount should be greater than zero');
+      return;
+    }
     setShowCompare(true)
   }
   const handleBoxes = (index, event) => {
@@ -115,61 +129,7 @@ const Domestic = () => {
                 <option value="E">Express</option>
               </select>
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="status">Status</label>
-              <select
-                name="status"
-                id="status"
-                className="border py-2 px-4 rounded-3xl"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="Delivered">Forward</option>
-                <option value="RTO">RTO</option>
-                <option value="DTO">Reverse</option>
-              </select>
-            </div>
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="origin">Origin Pincode</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="origin"
-                name="origin"
-                placeholder="Ex. 813210"
-                value={formData.origin}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="dest">Destination Pincode</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="dest"
-                name="dest"
-                placeholder="Ex. 845401"
-                value={formData.dest}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="codAmount">COD Amount</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="codAmount"
-                name="codAmount"
-                placeholder="Ex. 157"
-                value={formData.codAmount}
-                onChange={handleChange}
-              />
-            </div>
-            
+
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
               <select required
@@ -184,24 +144,46 @@ const Domestic = () => {
                 <option value="Pre-paid">Prepaid</option>
               </select>
             </div>
-            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="origin">Origin Pincode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="origin"
+                name="origin"
+                placeholder="Ex. 813210"
+                value={formData.origin}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+              <label htmlFor="dest">Destination Pincode</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="dest"
+                name="dest"
+                placeholder="Ex. 845401"
+                value={formData.dest}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="shipmentType">Shipment Type</label>
-              <select
-                name="isB2B"
-                id="shipmentType"
-                className="border py-2 px-4 rounded-3xl"
-                value={formData.isB2B}
+              <label htmlFor="codAmount">COD Amount</label>
+              <input
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="codAmount"
+                name="codAmount"
+                placeholder="Ex. 157"
+                value={formData.codAmount}
                 onChange={handleChange}
-
-              >
-                <option value={false}>B2C</option>
-                <option value={true}>B2B</option>
-              </select>
+              />
             </div>
-            
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="invoiceAmount">Invoice Amount</label>
               <input
@@ -214,14 +196,13 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
-            
           </div>
           {boxes.map((box,index)=>(
             <>
               <div className="w-full relative z-0 flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
               <label htmlFor="weight">Weight (In grams)</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="weight"
@@ -235,7 +216,7 @@ const Domestic = () => {
             <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="length">L (in cm)</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="length"
@@ -248,7 +229,7 @@ const Domestic = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="breadth">B (in cm)</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="breadth"
@@ -261,7 +242,7 @@ const Domestic = () => {
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
               <label htmlFor="height">H (in cm)</label>
-              <input required
+              <input
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="height"
