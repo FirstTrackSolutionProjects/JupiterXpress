@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Form = () => {
     const [formData, setFormData] = useState({
         awb: ''
     })
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (localStorage.getItem('track')) {
@@ -24,16 +26,27 @@ const Form = () => {
     const handleSubmit = async (e) => {
         try {
             e.preventDefault();
-        } catch (e) { }
-        const data = await fetch(`${API_URL}/shipment/track`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        }).then(response => response.json())
-        setTrackingData(data)
+            setLoading(true)
+            const data = await fetch(`${API_URL}/shipment/track`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => response.json())
+            if (!data?.success || !data?.data || !data?.data?.length){
+                toast.error('Tracking data for AWB is not available')
+                return
+            }
+            toast.success('Parcel tracking successful')
+            setTrackingData(data)
+            setLoading(false)
+        } catch (e) {
+            console.error(e)
+            toast.error('Failed to track parcel')
+        }
+        
     }
     return (
         <>
@@ -55,7 +68,7 @@ const Form = () => {
             </div> */}
                         <div className='flex'>
                             <input type="text" name="awb" value={formData.id} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
-                            <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50">Track</button>
+                            <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50" disabled={loading}>{loading?'Tracking...' : 'Track'}</button>
                         </div>
                     </form>
                 </div>
