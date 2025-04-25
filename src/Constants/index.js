@@ -64,13 +64,13 @@ export const menuItems = [
         component : DashboardMain,
         dropDownOptions : [{}]
     },
-    {
-        icon : "/logo.webp",
-        name : "Wallet Recharge",
-        isDropdown : false,
-        url : 'wallet-recharge',
-        dropDownOptions : [{}]
-    },
+    // {
+    //     icon : "/logo.webp",
+    //     name : "Wallet Recharge",
+    //     isDropdown : false,
+    //     url : 'wallet-recharge',
+    //     dropDownOptions : [{}]
+    // },
     {
         icon : "/logo.webp",
         name : "KYC Update",

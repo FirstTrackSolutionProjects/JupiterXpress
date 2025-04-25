@@ -51,7 +51,7 @@ const Header = () => {
   }, []);
   return (
     <>
-    {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>}
+    {/* {showRecharge && <Recharge setShowRecharge={setShowRecharge}/>} */}
     <div className=" fixed bg-gradient-to-b from-white to-[rgba(37,169,228,0.89)] z-10 top-0 flex justify-center items-center w-full h-16 ">
       <nav className=" w-full relative z-3 lg:w-4/5 flex space-x-8 text-gray-700 items-center h-16">
         <Link to="/" className="flex items-center">
