@@ -2,14 +2,15 @@ import { useEffect, useState } from "react"
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
-    const date = new Date(transaction.date)
+    const date = transaction.date;
+    const formattedDate = date.toString().split('T')[0] + ' ' + date.toString().split('T')[1].split('.')[0]
     return (
         <>
             {transaction.type ==="recharge" && <div className='p-4 border'>
                 <p>Recharge</p>
                 <p>Order Id : {transaction.order_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
-                <p>{(date.toDateString())}</p>
+                <p>{formattedDate}</p>
             </div>}
             {transaction.type ==="manual" && <div className='p-4 border'>
                 <p>Manual Recharge</p>
@@ -17,19 +18,19 @@ const Card = ({transaction}) => {
                 <p>Order Id : {transaction.recharge_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>Reason : {transaction.reason}</p>
-                <p>{(date.toDateString())}</p>
+                <p>{formattedDate}</p>
             </div>}
             {transaction.type === "expense" && <div className='p-4 border'>
                 <p>Order Expense</p>
                 <p>Order Id : {transaction.expense_order}</p>
                 <p>Amount : -{transaction.expense_cost}</p>
-                <p>{(date.toDateString())}</p>
+                <p>{formattedDate}</p>
             </div>}
             {transaction.type === "refund" && <div className='p-4 border'>
                 <p>Order Refund</p>
                 <p>Order Id : {transaction.refund_order}</p>
                 <p>Amount : +{transaction.refund_amount}</p>
-                <p>{(date.toDateString())}</p>
+                <p>{formattedDate}</p>
             </div>}
         </>
     )
@@ -81,10 +82,10 @@ const TransactionHistory =  () => {
             // console.log("recharge", transactions.data)
             data.forEach(obj => {
                 if (!(obj.date instanceof Date)) {
-                    obj.date = new Date(obj.date);
+                    obj.dateObj = new Date(obj.date);
                 }
             });
-            data.sort((a, b) => a.date - b.date).reverse();
+            data.sort((a, b) => a.dateObj - b.dateObj).reverse();
             if (data.length)
                 setTransactions(data)
         }
