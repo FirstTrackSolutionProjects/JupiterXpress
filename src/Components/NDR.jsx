@@ -90,6 +90,28 @@ const ShiprocketStatusCard = ({ report, status }) => {
   )
 }
 
+const EnviaCard = ({ report, status }) => {
+  return (
+  <>
+      <div className="flex flex-col">
+      <p className="mt-5">AWB : {report.awb}</p>
+
+      {status.length ?
+        (status).reverse().map((scan, index) => {
+          return (
+            <div className='flex flex-col justify-center'>
+              <div className='font-bold'>{scan.description}</div>
+              <div>{scan.location}</div>
+              <div>{scan.date}</div>
+            </div>
+          )
+        }) : "Shipment is not yet picked up"
+      }
+      </div>
+  </>
+  )
+}
+
 const View = ({ report, setIsView }) => {
   const [status, setStatus] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -134,6 +156,9 @@ const View = ({ report, setIsView }) => {
           }
           {
             status && report.serviceId == 4? <ShiprocketStatusCard report={report} status={status} /> : null
+          }
+          {
+            status && report.serviceId == 5? <EnviaCard report={report} status={status} /> : null
           }
         </div>
       </div>
