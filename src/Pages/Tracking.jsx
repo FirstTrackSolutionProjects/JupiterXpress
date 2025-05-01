@@ -195,7 +195,7 @@ const Result = ({ data }) => {
                 {data?.id == 1 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index) => (
                     <Card key={index} scan={scan.ScanDetail} />
                 )) : null}
-                {data?.id == 2 ? data?.data.docket_events.map((scan, index) => (
+                {data?.id == 2 ? data?.data.map((scan, index) => (
                     <FlightGoCard key={index} scan={scan} />
                 )) : null}
                 {data?.id == 3 ? data?.data.map((scan, index) => (
