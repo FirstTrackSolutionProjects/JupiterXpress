@@ -1085,7 +1085,8 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
       if (result.success) {
         setIsShipped(true)
         console.log(result)
-        alert("Your shipment has been created successfully")
+        const message = (result?.message instanceof String)?result?.message : null;
+        alert(message || "Your shipment has been created successfully")
         setIsLoading(false)
         setIsShip(false)
 
@@ -1286,7 +1287,7 @@ const Card = ({ shipment }) => {
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           {!isDeleted && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>}
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
-          {isShipped && !isProcessing && !isCancelled ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
+          {isShipped && !isProcessing && !isCancelled && ![5].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped && !isDeleted ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
           {isShipped && !isProcessing && !isCancelled && [1,4,5].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
           {!isShipped && !isDeleted && <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isDeleting ? () => {} : () => deleteOrder()}>{isDeleting ? "Deleting..." : "Delete"}</div> }
