@@ -1052,7 +1052,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   );
 };
 
-const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
+const ShipCard = ({ price, shipment, setIsShipped, setIsShip, getParcels }) => {
   const [isLoading, setIsLoading] = useState(false)
   const ship = async () => {
     setIsLoading(true)
@@ -1087,6 +1087,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
         console.log(result)
         const message = (result?.message instanceof String)?result?.message : null;
         alert(message || "Your shipment has been created successfully")
+        getParcels();
         setIsLoading(false)
         setIsShip(false)
 
@@ -1109,7 +1110,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip }) => {
   )
 }
 
-const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
+const ShipList = ({ shipment, setIsShip, setIsShipped, getParcels }) => {
   const [prices, setPrices] = useState([])
   const [boxes, setBoxes] = useState([])
   useEffect(() => {
@@ -1163,7 +1164,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
         <div className="w-full  p-4 ">
           {
             prices.length ? prices.map((price, index) => (
-              <ShipCard setIsShipped={setIsShipped} setIsShip={setIsShip} key={index} shipment={shipment} price={price} />
+              <ShipCard setIsShipped={setIsShipped} setIsShip={setIsShip} key={index} shipment={shipment} price={price} getParcels={getParcels} />
             ))
               : null
           }
@@ -1173,7 +1174,7 @@ const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
   )
 }
 
-const Card = ({ shipment }) => {
+const Card = ({ shipment, getParcels }) => {
   const [isManage, setIsManage] = useState(false);
   const [isShip, setIsShip] = useState(false);
   const [isShipped, setIsShipped] = useState(shipment.is_manifested ? true : false);
@@ -1275,7 +1276,7 @@ const Card = ({ shipment }) => {
   }
   return (
     <>
-      {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment} />}
+      {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment} getParcels={getParcels} />}
       {isManage ? <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped} /> : null}
       <div className="w-full h-24 bg-white relative items-center px-4 sm:px-8 flex border-b">
         <div className="text-sm">
@@ -1439,9 +1440,9 @@ const Listing = ({ step, setStep }) => {
     orderId: "",
     name: ""
   });
-  useEffect(() => {
 
-    fetch(`${API_URL}/order/domestic/all`, {
+  const getParcels = async () => {
+    await fetch(`${API_URL}/order/domestic/all`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1465,6 +1466,9 @@ const Listing = ({ step, setStep }) => {
         console.error('Error:', error);
         alert('An error occurred during Order');
       });
+  }
+  useEffect(() => {
+    getParcels();
   }, []);
   useEffect(() => {
     if (!shipments.length) {
@@ -1530,7 +1534,7 @@ const Listing = ({ step, setStep }) => {
         </details>
         <div className="w-full">
           {filteredShipments.map((shipment, index) => (
-            <Card key={index} shipment={shipment} />
+            <Card key={index} shipment={shipment} getParcels={getParcels} />
           ))}
         </div>
       </div>
