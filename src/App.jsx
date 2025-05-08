@@ -16,6 +16,7 @@ import Tracking from './Pages/Tracking'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import { ToastContainer } from 'react-toastify'
+import MaintenancePage from './Components/Maintenance'
 const App = () => {
   const location = useLocation()
   const [spaceTheme, setSpaceTheme] = useState(false)
@@ -30,7 +31,8 @@ const App = () => {
   })
   return (
     <>
-        <ToastContainer />
+        <MaintenancePage />
+        {/* <ToastContainer />
         <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
@@ -49,7 +51,7 @@ const App = () => {
 
         <Route path='*' element={<Index />} />
       </Routes>
-      {location.pathname.startsWith('/dashboard')?null:<Footer/>}
+      {location.pathname.startsWith('/dashboard')?null:<Footer/>} */}
       
     </>
   )
