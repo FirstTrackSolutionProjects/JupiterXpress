@@ -103,7 +103,7 @@ const View = ({ report, setIsView }) => {
           'Accept': 'application/json',
           'Authorization': localStorage.getItem('token'),
         },
-        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId, categoryId: report.categoryId }),
+        body: JSON.stringify({ ref_id: report.ref_id, serviceId: report.serviceId }),
       }).then(response => response.json()).then((result) => {
         if (result.success) {
           setStatus(result.data || [])
@@ -131,13 +131,16 @@ const View = ({ report, setIsView }) => {
             status && report.serviceId == 1 ? <DelhiveryStatusCard report={report} status={status} /> : null
           }
           {
-            status && report.serviceId == 2 ? <MovinStatusCard report={report} status={status} /> : null
+            status && report.serviceId == 2 ? <DelhiveryStatusCard report={report} status={status} /> : null
           }
           {
-            status && report.serviceId == 3 ? <PickrrStatusCard report={report} status={status} /> : null
+            status && report.serviceId == 3 ? <MovinStatusCard report={report} status={status} /> : null
           }
           {
-            status && report.serviceId == 4? <ShiprocketStatusCard report={report} status={status} /> : null
+            status && report.serviceId == 4 ? <PickrrStatusCard report={report} status={status} /> : null
+          }
+          {
+            status && report.serviceId == 5? <ShiprocketStatusCard report={report} status={status} /> : null
           }
         </div>
       </div>
@@ -198,7 +201,7 @@ const Card = ({ report }) => {
           {report.status}
           <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsView(true)}>View</div>
 
-          {isShipped && !isCancelled && report.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={() => cancelShipment()}>Cancel</div> : null}
+          {/* {isShipped && !isCancelled && report.serviceId == 1 ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={() => cancelShipment()}>Cancel</div> : null} */}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
         </div>
       </div>
