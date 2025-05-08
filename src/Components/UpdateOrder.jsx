@@ -1080,7 +1080,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip, getParcels }) => {
         'Accept': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-      body: JSON.stringify({ order: shipment.ord_id, price: shipment.pay_method == "topay" ? 0 : Math.round(price.price), serviceId: price.serviceId, categoryId: price.categoryId, courierId:price.courierId, courierServiceId: price.courierServiceId })
+      body: JSON.stringify({ order: shipment.ord_id, price: shipment.pay_method == "topay" ? 0 : Math.round(price.price), serviceId: price.serviceId, courierId:price.courierId, courierServiceId: price.courierServiceId })
     }).then(response => response.json()).then(async result => {
       if (result.success) {
         setIsShipped(true)
@@ -1288,9 +1288,9 @@ const Card = ({ shipment, getParcels }) => {
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           {!isDeleted && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>}
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
-          {isShipped && !isProcessing && !isCancelled && ![5].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
+          {isShipped && !isProcessing && !isCancelled && ![6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped && !isDeleted ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
-          {isShipped && !isProcessing && !isCancelled && [1,4,5].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
+          {isShipped && !isProcessing && !isCancelled && [1,2,5,6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
           {!isShipped && !isDeleted && <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isDeleting ? () => {} : () => deleteOrder()}>{isDeleting ? "Deleting..." : "Delete"}</div> }
           {isDeleted ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Deleted</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}
@@ -1380,10 +1380,10 @@ const PickupRequest = ({ setPickup }) => {
                 onChange={handleChange}
               >
                 <option value="">Select Service</option>
-                <option value={"11"} >Delhivery (10Kg)</option>
-                <option value={"12"} >Delhivery (500gm)</option>
-                <option value={"21"} >Movin Surface</option>
-                <option value={"22"} >Movin Express</option>
+                <option value={"2"} >Delhivery (10Kg)</option>
+                <option value={"1"} >Delhivery (500gm)</option>
+                {/* <option value={"3"} >Movin Surface</option>
+                <option value={"3"} >Movin Express</option> */}
               </select>
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">

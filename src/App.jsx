@@ -31,8 +31,7 @@ const App = () => {
   })
   return (
     <>
-        <MaintenancePage />
-        {/* <ToastContainer />
+        <ToastContainer />
         <Menu spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
         {location.pathname !== "/"?<Header/>:null}
         <Routes>
@@ -51,7 +50,7 @@ const App = () => {
 
         <Route path='*' element={<Index />} />
       </Routes>
-      {location.pathname.startsWith('/dashboard')?null:<Footer/>} */}
+      {location.pathname.startsWith('/dashboard')?null:<Footer/>}
       
     </>
   )

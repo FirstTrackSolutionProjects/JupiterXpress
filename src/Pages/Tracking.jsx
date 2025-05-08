@@ -195,8 +195,8 @@ const Result = ({ data }) => {
                 {data?.id == 1 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index) => (
                     <Card key={index} scan={scan.ScanDetail} />
                 )) : null}
-                {data?.id == 2 ? data?.data.map((scan, index) => (
-                    <FlightGoCard key={index} scan={scan} />
+                {data?.id == 2 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index) => (
+                    <Card key={index} scan={scan.ScanDetail} />
                 )) : null}
                 {data?.id == 3 ? data?.data.map((scan, index) => (
                     <MovinCard key={index} scan={scan} />
@@ -205,17 +205,22 @@ const Result = ({ data }) => {
                     <PickrrCard key={index} scan={scan} />
                 )) : null}
                 {data?.id == 5? data?.data.map((scan, index) => (
-                    <DillikingCard key={index} scan={scan} />
-                )) : null}
-                {data?.id == 6? data?.data.map((scan, index) => (
                     <ShiprocketCard key={index} scan={scan} />
                 )) : null}
-                {data?.id == 7? data?.data.map((scan, index) => (
-                    <M5CCard key={index} scan={scan} />
-                )) : null}
-                {data?.id == 8? data?.data.map((scan, index) => (
+                {data?.id == 6? data?.data.map((scan, index) => (
                     <EnviaCard key={index} scan={scan} />
                 )) : null}
+                {data?.id == 7 ? data?.data.map((scan, index) => (
+                    <FlightGoCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 8? data?.data.map((scan, index) => (
+                    <DillikingCard key={index} scan={scan} />
+                )) : null}
+                
+                {data?.id == 9? data?.data.map((scan, index) => (
+                    <M5CCard key={index} scan={scan} />
+                )) : null}
+                
             </div>
 
         </>
