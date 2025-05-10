@@ -32,6 +32,12 @@ const Card = ({transaction}) => {
                 <p>Amount : +{transaction.refund_amount}</p>
                 <p>{formattedDate}</p>
             </div>}
+            {transaction.type ==="dispute_charge" && <div className='p-4 border'>
+                <p>Dispute Charge</p>
+                <p>Order Id : {transaction.dispute_order}</p>
+                <p>Amount : -{transaction.dispute_charge}</p>
+                <p>{formattedDate}</p>
+            </div>}
         </>
     )
 }
@@ -78,6 +84,15 @@ const TransactionHistory =  () => {
             })
             const refunds = await refund.json();
             data.push(...refunds.data)
+
+            const disputeCharge = await fetch(`${API_URL}/wallet/dispute-charges`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json',
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+            const disputeCharges = await disputeCharge.json();
+            data.push(...disputeCharges.data)
             
             // console.log("recharge", transactions.data)
             data.forEach(obj => {

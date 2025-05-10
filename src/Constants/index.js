@@ -20,6 +20,7 @@ import KYCVerification from "../Components/KYCVerification"
 import KYCRequests from "../Components/KYCRequests"
 import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
 import InternationalReports from "../Components/InternationalReports"
+import WeightDisputes from "../Components/WeightDisputes"
 
 export const navItems = [
     {
@@ -140,6 +141,14 @@ export const menuItems = [
         isDropdown : false,
         url : 'transaction-history',
         component : TransactionHistory,
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "/logo.webp",
+        name : "Weight Disputes",
+        isDropdown : false,
+        url : 'weight-disputes',
+        component : WeightDisputes,
         dropDownOptions : [{}]
     },
     {
