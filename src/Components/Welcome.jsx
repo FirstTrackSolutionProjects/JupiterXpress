@@ -28,16 +28,18 @@ const Welcome = () => {
       <Login authMode={authMode} setAuthMode={setAuthMode} />
       <Track track={track} setTrack={setTrack} />
           <div className={` transition-width duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
-            <div className='relative flex flex-col justify-center items-center py-6 min-w-96'>
-            <div className="lg:text-[12px] text-[9px] ">JUPITER <i className="text-blue-400 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </div>
-          <div className="lg:text-[12px] text-[9px] mb-4"> <i className="text-blue-400 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</div>
+            <div className='relative flex flex-col justify-center items-center py-6 w-full'>
+            <div className="max-w-[400px] flex flex-col items-center text-center">
+              <span className="lg:text-[15px] text-[14px] ">JUPITER <i className="text-blue-400 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </span>
+              <span className="lg:text-[15px] text-[14px] mb-4"> <i className="text-blue-400 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</span>
+            </div>
               <div className=' text-left lg:text-7xl  text-5xl  font-bold italic'>JUPITER</div>
               <div className='flex items-center my-3'>
               <img src="logo.webp" alt="" className='lg:w-[200px] lg:h-[60px]  w-[150px] h-[45px]' />
               <div className='lg:text-[75px] text-5xl font-bold -ml-8 -mt-2 text-blue-400 italic'>PRESS</div>
             </div>
             <div className="lg:text-xl text-center">SEAMLESS SHIPPING • UNIVERSAL REACH</div>
-            <div className="lg:text-[12px] text-[9px]">We Committed to delivery - Make easy Efficient and quality delivery.</div>
+            <div className="lg:text-[15px] text-[14px] text-center mx-3">We Committed to delivery - <br/>Make easy Efficient and quality delivery.</div>
             {
               (!(loggedIn))?(<div className="flex justify-evenly w-full mt-6">
                 <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-500 hover:text-blue-500 hover:bg-white" >Get Started</div>

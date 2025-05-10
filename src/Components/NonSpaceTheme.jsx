@@ -26,21 +26,23 @@ const WelcomeNonSpace = () => {
       <Track track={track} setTrack={setTrack} />
           <div className={` transition-width duration-500  -mt-10 md:-mt-0 md:h-auto w-full overflow-hidden ${authMode?"sm:w-0 h-0 delay-0  ":"sm:w-96 h-96 delay-1000"}   flex flex-col justify-center items-center`}>
             <div className='relative flex flex-col justify-center items-center py-6 min-w-96'>
-            <div className="md:text-[13px] text-[9px] ">JUPITER <span className="text-blue-600 m-1">XPRESS</span>Delivering <span className="text-blue-600 m-1">DOMESTIC</span> AND </div>
-          <div className="md:text-[13px] text-[9px] mb-4"> <span className="text-blue-600"> INTERNATIONAL  </span>   Shipment from Your Doorstep to the World!!</div>
-              <div className=' text-left md:text-6xl  text-5xl text-blue-600   font-bold italic'>JUPITER</div>
+            <div className="max-w-[400px] flex flex-col items-center text-center">
+              <span className="lg:text-[15px] text-[14px] ">JUPITER <i className="text-blue-600 m-1">XPRESS</i>Delivering <i className="text-blue-400 m-1">DOMESTIC</i> AND </span>
+              <span className="lg:text-[15px] text-[14px] mb-4"> <i className="text-blue-600 mr-1"> INTERNATIONAL  </i>   Shipment from Your Doorstep to the World!!</span>
+            </div>
+              <div className=' text-left lg:text-7xl  text-5xl  font-bold italic'>JUPITER</div>
               <div className='flex items-center my-3'>
               <img src="logo.webp" alt="" className='lg:w-[200px] lg:h-[60px]  w-[150px] h-[45px]' />
-              <div className='md:text-[63px] text-5xl font-bold -ml-8 -mt-2 text-blue-500 italic'>PRESS</div>
+              <div className='lg:text-[75px] text-5xl font-bold -ml-8 -mt-2 text-blue-600 italic'>PRESS</div>
             </div>
-            <div className="lg:text-xl text-center my-2">SEAMLESS SHIPPING • UNIVERSAL REACH</div>
-            <div className="lg:text-[13px] text-[9px] text-center my-2">We Committed to delivery - Make easy Efficient and quality delivery.</div>
+            <div className="lg:text-xl text-center">SEAMLESS SHIPPING • UNIVERSAL REACH</div>
+            <div className="lg:text-[15px] text-[14px] text-center mx-3">We Committed to delivery - <br/>Make easy Efficient and quality delivery.</div>
             {
               (!(loggedIn))?(<div className="flex justify-evenly w-full mt-6">
-                <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-500 text-white hover:text-white hover:bg-black" >Get Started</div>
-                <div onClick={()=>{ setAuthMode(2);}} className="py-2 px-4 border rounded-xl border-blue-500 font-semibold text-blue-500 hover:text-white hover:border-none hover:bg-blue-500" >Login Now</div>
+                <div onClick={()=>{setAuthMode(1); }} className="py-2 px-4 rounded-xl bg-blue-600 text-white hover:text-white hover:bg-black" >Get Started</div>
+                <div onClick={()=>{ setAuthMode(2);}} className="py-2 px-4 border rounded-xl border-blue-600 font-semibold text-blue-600 hover:text-white hover:border-none hover:bg-blue-700" >Login Now</div>
               </div>):(<div className="flex justify-evenly w-full mt-6">
-                <div onClick={()=>{navigate('/dashboard') }} className="py-2 px-4 rounded-xl bg-blue-500 text-white hover:text-white hover:bg-black" >Dashboard</div>
+                <div onClick={()=>{navigate('/dashboard') }} className="py-2 px-4 rounded-xl bg-blue-600 text-white hover:text-white hover:bg-black" >Dashboard</div>
                 
               </div>)
             }
