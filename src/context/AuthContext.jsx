@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const login = (username, token) => {
     localStorage.setItem('username', username);
     localStorage.setItem('token', token);
-    setAuth({ username, token });
+    isAuthenticated();
   };
 
   const logout = () => {
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) return false;
     try {
       const decoded = jwtDecode(token);
+      setAuth(decoded);
       return decoded.exp * 1000 > Date.now(); // Check if token is expired
     } catch (error) {
       return false;
