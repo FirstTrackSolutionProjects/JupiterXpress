@@ -168,7 +168,7 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
                         }
                         <div className="flex flex-col space-y-1 w-full">
                             <label htmlFor="dispute_deduction" className="text-sm">Dispute Deduction (In ₹)</label>
-                            <input id="dispute_deduction" name="dispute_deduction" type="text" value={formData?.dispute_deduction} onChange={handleChange} className="rounded-lg py-1 px-2 w-full" />
+                            <input id="dispute_deduction" name="dispute_deduction" type="text" value={formData?.dispute_deduction} onChange={handleChange} className="rounded-lg py-1 px-2 w-full border border-black" />
                         </div>
                     </div>
                     :
