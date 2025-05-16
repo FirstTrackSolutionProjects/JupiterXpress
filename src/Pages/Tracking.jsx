@@ -45,6 +45,8 @@ const Form = () => {
         } catch (e) {
             console.error(e)
             toast.error('Failed to track parcel')
+        } finally {
+            setLoading(false)
         }
         
     }
@@ -81,11 +83,13 @@ const Form = () => {
 const Card = ({ scan }) => {
     return (
         <>
-            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
-                <div>{scan.ScanDateTime}</div>
+        <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+            <div className='flex flex-col items-center justify-center'>
+                <div className='font-bold'>{scan.Instructions}</div>
                 <div>{scan.ScannedLocation}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.Instructions}</div>
+                <div>{scan.ScanDateTime}</div>
             </div>
+        </div>
         </>
     )
 }
@@ -192,10 +196,10 @@ const Result = ({ data }) => {
     return (
         <>
             <div className={`w-full p-8 overflow-hidden  `}>
-                {data?.id == 1 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index) => (
+                {data?.id == 1 ? data?.data.slice().reverse().map((scan, index) => (
                     <Card key={index} scan={scan.ScanDetail} />
                 )) : null}
-                {data?.id == 2 ? data?.data.ShipmentData[0].Shipment.Scans.slice().reverse().map((scan, index) => (
+                {data?.id == 2 ? data?.data.slice().reverse().map((scan, index) => (
                     <Card key={index} scan={scan.ScanDetail} />
                 )) : null}
                 {data?.id == 3 ? data?.data.map((scan, index) => (
