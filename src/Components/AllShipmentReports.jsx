@@ -144,7 +144,7 @@ const View = ({ report, setIsView }) => {
   return (
     <>
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
-        <div className="bg-white p-4  border">
+        <div className="bg-white p-4  border max-h-[90%] overflow-auto">
           <div onClick={() => setIsView(false)}>X</div>
           {
             isLoading ? <div>Loading...</div> : null

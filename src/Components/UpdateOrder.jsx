@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid"
 const API_URL = import.meta.env.VITE_APP_API_URL
 
@@ -1220,10 +1221,10 @@ const Card = ({ shipment, getParcels }) => {
       if (result.success) {
         setIsCancelled(true)
         setIsCancelling(false);
-        alert(result.data)
+        toast.success(result?.data || "Your shipment has been cancelled")
       }
       else {
-        alert("Your shipment has not been cancelled")
+        toast.error(result?.data || "Your shipment has not been cancelled")
         setIsCancelling(false);
         console.log(result.message)
       }
