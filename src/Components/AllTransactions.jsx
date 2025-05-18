@@ -25,6 +25,7 @@ const Card = ({transaction}) => {
                 <p>Order Expense</p>
                 <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
                 <p>Order Id : {transaction.expense_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.expense_cost}</p>
                 <p>{formattedDate}</p>
             </div>}
@@ -32,6 +33,7 @@ const Card = ({transaction}) => {
                 <p>Order Refund</p>
                 <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
                 <p>Order Id : {transaction.refund_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : +{transaction.refund_amount}</p>
                 <p>{formattedDate}</p>
             </div>}
@@ -39,6 +41,7 @@ const Card = ({transaction}) => {
                 <p>Dispute Charge</p>
                 <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
                 <p>Order Id : {transaction.dispute_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.dispute_charge}</p>
                 <p>{formattedDate}</p>
             </div>}
