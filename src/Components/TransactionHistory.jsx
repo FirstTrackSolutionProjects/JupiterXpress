@@ -23,18 +23,21 @@ const Card = ({transaction}) => {
             {transaction.type === "expense" && <div className='p-4 border'>
                 <p>Order Expense</p>
                 <p>Order Id : {transaction.expense_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.expense_cost}</p>
                 <p>{formattedDate}</p>
             </div>}
             {transaction.type === "refund" && <div className='p-4 border'>
                 <p>Order Refund</p>
                 <p>Order Id : {transaction.refund_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : +{transaction.refund_amount}</p>
                 <p>{formattedDate}</p>
             </div>}
             {transaction.type ==="dispute_charge" && <div className='p-4 border'>
                 <p>Dispute Charge</p>
                 <p>Order Id : {transaction.dispute_order}</p>
+                <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.dispute_charge}</p>
                 <p>{formattedDate}</p>
             </div>}
