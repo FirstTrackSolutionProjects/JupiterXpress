@@ -124,6 +124,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     shippingType: shipment.shipping_mode,
     pickupDate: shipment.pickup_date,
     pickupTime: shipment.pickup_time,
+    shipmentValue: shipment.shipment_value,
     ewaybill: shipment.ewaybill,
     invoiceNumber: shipment.invoice_number,
     invoiceDate: shipment.invoice_date,
@@ -908,9 +909,25 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={uploadInvoice}>Update</button>
                 </div>
               </div>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            </> : null
+          }
+           <div className="w-full flex mb-2 flex-wrap ">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+                <label htmlFor="shipmentValue">Shipment Value</label>
+                <input required={true}
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="number"
+                  min={1}
+                  id="shipmentValue"
+                  name="shipmentValue"
+                  placeholder="Enter E-waybill Number"
+                  value={formData.shipmentValue}
+                  onChange={handleChange}
+                />
+              </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
                 <label htmlFor="ewaybill">E-Waybill</label>
-                <input required={formData.invoiceAmount >= 50000 && formData.isB2B}
+                <input required={formData.shipmentValue >= 50000}
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id="ewaybill"
@@ -920,8 +937,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   onChange={handleChange}
                 />
               </div>
-            </> : null
-          }
+          </div>
           <div className="w-full flex mb-2 flex-wrap ">
 
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
