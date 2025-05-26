@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import getTodaysDate from "../helpers/getTodaysDate";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
@@ -49,6 +50,13 @@ const Card = ({transaction}) => {
 
 const TransactionHistory =  () => {
     const [transactions, setTransactions] = useState([])
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [filters, setFilters] = useState({
+        type: "",
+        orderId: "",
+        fromDate: getTodaysDate(),
+        toDate: getTodaysDate()
+    })
     useEffect(() => {
         const getVerifiedtransaction = async () => {
             const recharge = await fetch(`${API_URL}/wallet/recharges`, {
@@ -109,14 +117,101 @@ const TransactionHistory =  () => {
         }
         getVerifiedtransaction();
     },[]);
+    useEffect(() => {
+    if (!transactions.length) {
+        return;
+    }
+
+    const filteredData = transactions.filter((transaction) => {
+        // Get the relevant ID based on transaction type and convert to string
+        const searchId = String(
+            transaction?.expense_order || 
+            transaction?.recharge_id || 
+            transaction?.refund_order || 
+            transaction?.order_id || 
+            transaction?.dispute_order || 
+            ''
+        );
+
+        // Type filtering - normalize strings and handle null/undefined
+        const transactionType = String(transaction.type || '').toLowerCase();
+        const searchType = String(filters.type || '').toLowerCase();
+        const typeMatch = !searchType || transactionType.includes(searchType);
+
+        // Order ID filtering - normalize strings
+        const normalizedSearchId = searchId.toLowerCase();
+        const searchOrderId = String(filters?.orderId || '').toLowerCase();
+        const orderMatch = !searchOrderId || normalizedSearchId.includes(searchOrderId);
+
+        // Date filtering
+        const fromDate = new Date(filters.fromDate);
+        fromDate.setHours(0, 0, 0, 0);
+        
+        const toDate = new Date(filters.toDate);
+        toDate.setHours(23, 59, 59, 999);
+
+        const dateMatch = transaction.dateObj >= fromDate && transaction.dateObj <= toDate;
+
+        return typeMatch && orderMatch && dateMatch;
+    });
+
+    // Sort by date in descending order using dateObj
+    const sortedData = [...filteredData].sort((a, b) => b.dateObj - a.dateObj);
+
+    setFilteredTransactions(sortedData);
+}, [transactions, filters]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  }
   return (
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-full p-8 flex flex-col items-center space-y-8'>
       <div className='text-center text-3xl font-medium text-black'>Transaction History</div>
+      <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
+            <select
+                className="p-1 rounded-xl"
+                name="type"
+                value={filters?.type}
+                onChange={handleChange}
+                >
+                <option value="">All Types</option>
+                <option value="recharge">Recharge</option>
+                <option value="manual">Manual Recharge</option>
+                <option value="expense">Expense</option>
+                <option value="refund">Refund</option>
+                <option value="dispute_charge">Dispute Charge</option>
+            </select>
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="orderId"
+              placeholder="Order ID/Recharge ID"
+              value={filters?.orderId}
+              onChange={handleChange}
+            />
+            <input
+        className="p-1 rounded-xl"
+        type="date"
+        name="fromDate"
+        value={filters.fromDate}
+        onChange={handleChange}
+    />
+    <input
+        className="p-1 rounded-xl"
+        type="date"
+        name="toDate"
+        value={filters.toDate}
+        onChange={handleChange}
+    />
+          </div>
+        </details>
       <div className='w-full bg-white p-8'>
-        {transactions.length > 0 ? (
-        transactions.map(((transaction,index)=>(
+        {filteredTransactions.length > 0 ? (
+        filteredTransactions.map(((transaction,index)=>(
             <Card key={index}  transaction={transaction}/>
         )))
       ) : (
