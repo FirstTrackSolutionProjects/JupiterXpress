@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import getTodaysDate from "../helpers/getTodaysDate";
+import { get } from "react-hook-form";
+import getFilterStartDate from "../helpers/getFilterStartDate";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
@@ -54,7 +56,7 @@ const TransactionHistory =  () => {
     const [filters, setFilters] = useState({
         type: "",
         orderId: "",
-        fromDate: getTodaysDate(),
+        fromDate: getFilterStartDate(),
         toDate: getTodaysDate()
     })
     useEffect(() => {
@@ -209,7 +211,8 @@ const TransactionHistory =  () => {
     />
           </div>
         </details>
-      <div className='w-full bg-white p-8'>
+      <div className='w-full bg-white px-8 pb-8 pt-2'>
+        <p className="text-center py-2">{`Showing results from ${filters?.fromDate} to ${filters?.toDate}`}</p>
         {filteredTransactions.length > 0 ? (
         filteredTransactions.map(((transaction,index)=>(
             <Card key={index}  transaction={transaction}/>
