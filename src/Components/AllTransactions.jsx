@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react"
+import * as XLSX from 'xlsx';
+import getFilterStartDate from "../helpers/getFilterStartDate";
+import getTodaysDate from "../helpers/getTodaysDate";
 const API_URL = import.meta.env.VITE_APP_API_URL
 
 const Card = ({transaction}) => {
@@ -53,7 +56,12 @@ const Card = ({transaction}) => {
 
 const AllTransactions =  () => {
     const [transactions, setTransactions] = useState([])
-    const [email, setEmail] = useState('');
+    const [downloading, setDownloading] = useState(false);
+    const [filters, setFilters] = useState({
+        startDate: getFilterStartDate(), 
+        endDate: getTodaysDate(), 
+        merchant_email: ''
+    })
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     useEffect(() => {
         const getVerifiedtransaction = async () => {
@@ -117,35 +125,101 @@ const AllTransactions =  () => {
         }
         getVerifiedtransaction();
     },[]);
-    const handleEmailChange = (e) => {
-        const query = e.target.value;
-        setEmail(query);
-    }
-    useEffect(()=>{
-        if (email==""){
-            setFilteredTransactions(transactions)
-            return;
+
+    const downloadExcelFromExport = async (filters) => {
+      try {
+        setDownloading(true)
+        const response = await fetch(`${API_URL}/wallet/report/download`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(filters),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          alert('Error exporting data');
+          return;
         }
-        const filtered = transactions.filter(transaction => 
-            ((transaction.email).startsWith(email))
-          );
-      
-          setFilteredTransactions(filtered);
-          console.log(filtered)
-    },[email])
+
+        const workbook = XLSX.utils.book_new();
+
+        Object.entries(result.data).forEach(([sheetName, rows]) => {
+          if (rows.length > 0) {
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+          }
+        });
+
+        XLSX.writeFile(workbook, `TransactionExport_${Date.now()}.xlsx`);
+      } catch (err) {
+        console.error('Error exporting to Excel:', err);
+      } finally {
+        setDownloading(false)
+      }
+    };
+
+   useEffect(() => {
+  if (!transactions.length) return;
+
+  const filteredData = transactions.filter((transaction) => {
+    const transactionDate = new Date(transaction.date);
+    const startDate = filters.startDate ? new Date(filters.startDate) : null;
+    const endDate = filters.endDate ? new Date(filters.endDate) : null;
+
+    const isAfterStart =
+      !startDate || transactionDate >= startDate;
+    const isBeforeEnd =
+      !endDate || transactionDate <= endDate;
+
+    const matchesEmail =
+      !filters.merchant_email ||
+      (transaction.email &&
+        transaction.email.toLowerCase() === filters.merchant_email.toLowerCase());
+
+    return isAfterStart && isBeforeEnd && matchesEmail;
+  });
+
+  setFilteredTransactions(filteredData);
+}, [transactions, filters]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  }
   return (
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
       <div className='w-full p-8 flex flex-col items-center space-y-8'>
       <div className='text-center text-3xl font-medium text-black'>Transaction History</div>
-      <div className="flex space-x-4">
-      <input
-        type="email"
-        placeholder="Merchant Email"
-        value={email}
-        onChange={handleEmailChange}
-      />
-    </div>
+      <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
+          <summary>Filters</summary>
+          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-3 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
+            <input
+              className="p-1 rounded-xl"
+              type="text"
+              name="merchant_email"
+              placeholder="Merchant Email"
+              value={filters.merchant_email}
+              onChange={handleFilterChange}
+            />
+            <input
+              className="p-1 rounded-xl min-w-[260px] lg:min-w-0"
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+            />
+            <input
+              className="p-1 rounded-xl"
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={handleFilterChange}
+            />
+            <button className="flex-1 min-w-48 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : () => downloadExcelFromExport(filters)}>{downloading ? 'Downloading...' : 'Download Report'}</button>
+          </div>
+        </details>
       <div className='w-full bg-white p-8'>
         {filteredTransactions.length > 0 ? (
         filteredTransactions.map(((transaction,index)=>(
