@@ -129,9 +129,13 @@ const AllTransactions =  () => {
     const downloadExcelFromExport = async (filters) => {
       try {
         setDownloading(true)
-        const response = await fetch(`${API_URL}/wallet/report/download`, {
+        const response = await fetch(`${API_URL}/wallet/report/download/all`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          },
           body: JSON.stringify(filters),
         });
 
@@ -144,12 +148,9 @@ const AllTransactions =  () => {
 
         const workbook = XLSX.utils.book_new();
 
-        Object.entries(result.data).forEach(([sheetName, rows]) => {
-          if (rows.length > 0) {
-            const worksheet = XLSX.utils.json_to_sheet(rows);
-            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-          }
-        });
+        const rows = result.data || [];
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
 
         XLSX.writeFile(workbook, `TransactionExport_${Date.now()}.xlsx`);
       } catch (err) {
