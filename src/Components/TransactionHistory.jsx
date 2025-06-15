@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import getTodaysDate from "../helpers/getTodaysDate";
-import { get } from "react-hook-form";
+import * as XLSX from 'xlsx';
 import getFilterStartDate from "../helpers/getFilterStartDate";
+import { FaDownload } from "react-icons/fa";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
@@ -53,11 +54,12 @@ const Card = ({transaction}) => {
 const TransactionHistory =  () => {
     const [transactions, setTransactions] = useState([])
     const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [downloading, setDownloading] = useState(false);
     const [filters, setFilters] = useState({
         type: "",
         orderId: "",
-        fromDate: getFilterStartDate(),
-        toDate: getTodaysDate()
+        startDate: getFilterStartDate(),
+        endDate: getTodaysDate()
     })
     useEffect(() => {
         const getVerifiedtransaction = async () => {
@@ -146,10 +148,10 @@ const TransactionHistory =  () => {
         const orderMatch = !searchOrderId || normalizedSearchId.includes(searchOrderId);
 
         // Date filtering
-        const fromDate = new Date(filters.fromDate);
+        const fromDate = new Date(filters.startDate);
         fromDate.setHours(0, 0, 0, 0);
         
-        const toDate = new Date(filters.toDate);
+        const toDate = new Date(filters.endDate);
         toDate.setHours(23, 59, 59, 999);
 
         const dateMatch = transaction.dateObj >= fromDate && transaction.dateObj <= toDate;
@@ -166,6 +168,40 @@ const TransactionHistory =  () => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
   }
+
+  const downloadExcelFromExport = async (filters) => {
+        try {
+          setDownloading(true)
+          const response = await fetch(`${API_URL}/wallet/report/download`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token'),
+            },
+            body: JSON.stringify(filters),
+          });
+  
+          const result = await response.json();
+  
+          if (!result.success) {
+            alert('Error exporting data');
+            return;
+          }
+  
+          const workbook = XLSX.utils.book_new();
+  
+          const rows = result.data || [];
+          const worksheet = XLSX.utils.json_to_sheet(rows);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
+  
+          XLSX.writeFile(workbook, `TransactionExport_${Date.now()}.xlsx`);
+        } catch (err) {
+          console.error('Error exporting to Excel:', err);
+        } finally {
+          setDownloading(false)
+        }
+      };
   return (
     <>
     <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
@@ -173,9 +209,10 @@ const TransactionHistory =  () => {
       <div className='text-center text-3xl font-medium text-black'>Transaction History</div>
       <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
           <summary>Filters</summary>
-          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
+          <div className=" items-center lg:justify-center flex flex-col lg:flex-row lg:items-center ">
+            <div className="grid sm:grid-rows-2 sm:grid-cols-2 lg:grid-rows-1 lg:grid-cols-4 gap-2 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
             <select
-                className="p-1 rounded-xl"
+                className="p-1 w-full rounded-xl"
                 name="type"
                 value={filters?.type}
                 onChange={handleChange}
@@ -198,21 +235,23 @@ const TransactionHistory =  () => {
             <input
         className="p-1 rounded-xl"
         type="date"
-        name="fromDate"
-        value={filters.fromDate}
+        name="startDate"
+        value={filters.startDate}
         onChange={handleChange}
     />
     <input
         className="p-1 rounded-xl"
         type="date"
-        name="toDate"
-        value={filters.toDate}
+        name="endDate"
+        value={filters.endDate}
         onChange={handleChange}
     />
           </div>
+          <button className="w-48 sm:w-full flex justify-center lg:w-10 lg:h-10 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : () => downloadExcelFromExport(filters)}><FaDownload /></button>
+          </div>
         </details>
       <div className='w-full bg-white px-8 pb-8 pt-2'>
-        <p className="text-center py-2">{`Showing results from ${filters?.fromDate} to ${filters?.toDate}`}</p>
+        <p className="text-center py-2">{`Showing results from ${filters?.startDate} to ${filters?.endDate}`}</p>
         {filteredTransactions.length > 0 ? (
         filteredTransactions.map(((transaction,index)=>(
             <Card key={index}  transaction={transaction}/>

@@ -10,9 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@headlessui/react": "^2.1.1",
     "@heroicons/react": "^1.0.6",
     "@hookform/resolvers": "^3.9.0",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/material": "^7.1.1",
+    "@mui/x-data-grid": "^8.5.2",
     "@netlify/functions": "^2.8.0",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
