@@ -247,7 +247,7 @@ const TransactionHistory =  () => {
         onChange={handleChange}
     />
           </div>
-          <button className="w-48 sm:w-full flex justify-center lg:w-10 lg:h-10 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : () => downloadExcelFromExport(filters)}><FaDownload /></button>
+          {/* <button className="w-48 sm:w-full flex justify-center lg:w-10 lg:h-10 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : () => downloadExcelFromExport(filters)}><FaDownload /></button> */}
           </div>
         </details>
       <div className='w-full bg-white px-8 pb-8 pt-2'>
