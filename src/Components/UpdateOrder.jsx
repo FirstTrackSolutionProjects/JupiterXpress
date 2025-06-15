@@ -1459,7 +1459,7 @@ const Listing = ({ step, setStep }) => {
   });
 
   const getParcels = async () => {
-    await fetch(`${API_URL}/order/domestic/all`, {
+    await fetch(`${API_URL}/order/domestic/merchant`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
