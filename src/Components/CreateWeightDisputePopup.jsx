@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
@@ -7,7 +8,17 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
         ord_id: "",
         dispute_deduction: "",
-        dispute_boxes: []
+        dispute_boxes: [],
+        doc_1: "",
+        doc_2: "",
+        doc_3: "",
+        doc_4: ""
+    })
+    const [files, setFiles] = useState({
+        doc_1: null,
+        doc_2: null,
+        doc_3: null,
+        doc_4: null
     })
     const [submitting, setSubmitting] = useState(false)
     const getBoxes = async () => {
@@ -49,6 +60,39 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
         e.preventDefault();
         try {
             setSubmitting(true)
+            await Promise.all(
+                Object.entries(files).map(async ([key, file]) => {
+                    if (file) {
+                        const fileKey = `dispute/${formData.ord_id}/${uuidv4()}`;
+                        const putUrlResponse = await fetch(`${API_URL}/s3/putUrl`,{
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": localStorage.getItem("token"),
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ filename: fileKey, filetype: file.type, isPublic: true })
+                        })
+                        if (!putUrlResponse.ok) {
+                            throw new Error(`Failed to upload file: ${file.name}`);
+                        }
+                        const putUrlData = await putUrlResponse.json();
+                        const { uploadURL } = putUrlData;
+                        
+                        const uploadResponse = await fetch(uploadURL, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': file.type
+                            },
+                            body: file
+                        });
+                        if (!uploadResponse.ok) {
+                            throw new Error(`Failed to upload file: ${file.name}`);
+                        }
+                        formData[key] = fileKey;
+                    }
+                })
+            )
             const response = await fetch(`${API_URL}/weight-disputes/create`, {
                 method: 'POST',
                 headers: {
@@ -169,6 +213,54 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
                         <div className="flex flex-col space-y-1 w-full">
                             <label htmlFor="dispute_deduction" className="text-sm">Dispute Deduction (In ₹)</label>
                             <input id="dispute_deduction" name="dispute_deduction" type="text" value={formData?.dispute_deduction} onChange={handleChange} className="rounded-lg py-1 px-2 w-full border border-black" />
+                        </div>
+                        <div className="flex flex-col space-y-1 w-full">
+                            <div>
+                                <label htmlFor="doc_1" className="text-sm">Dispute Image 1</label>
+                                <input 
+                                    type="file" 
+                                    accept=".jpg,.jpeg,.png" 
+                                    onChange={(e) => setFiles((prevFiles) => ({ ...prevFiles, doc_1: e.target.files[0] }))} 
+                                    className="w-full px-2 py-1 rounded-lg border border-black"
+                                    name="doc_1"
+                                    id="doc_1"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="doc_2" className="text-sm">Dispute Image 2</label>
+                                <input 
+                                    type="file" 
+                                    accept=".jpg,.jpeg,.png" 
+                                    onChange={(e) => setFiles((prevFiles) => ({ ...prevFiles, doc_2: e.target.files[0] }))} 
+                                    className="w-full px-2 py-1 rounded-lg border border-black"
+                                    name="doc_2"
+                                    id="doc_2"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-col space-y-1 w-full">
+                            <div>
+                                <label htmlFor="doc_3" className="text-sm">Dispute Image 3</label>
+                                <input 
+                                    type="file" 
+                                    accept=".jpg,.jpeg,.png" 
+                                    onChange={(e) => setFiles((prevFiles) => ({ ...prevFiles, doc_3: e.target.files[0] }))} 
+                                    className="w-full px-2 py-1 rounded-lg border border-black"
+                                    name="doc_3"
+                                    id="doc_3"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="doc_4" className="text-sm">Dispute Image 4</label>
+                                <input 
+                                    type="file" 
+                                    accept=".jpg,.jpeg,.png" 
+                                    onChange={(e) => setFiles((prevFiles) => ({ ...prevFiles, doc_4: e.target.files[0] }))} 
+                                    className="w-full px-2 py-1 rounded-lg border border-black"
+                                    name="doc_4"
+                                    id="doc_4"
+                                />
+                            </div>
                         </div>
                     </div>
                     :
