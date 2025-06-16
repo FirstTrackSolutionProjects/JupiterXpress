@@ -8,4 +8,4 @@ const AnnoucementCard = () => {
   )
 }
 
-export default AnnoucementCard
+export default AnnoucementCard;
