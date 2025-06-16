@@ -22,12 +22,7 @@ const Blogs = () => {
       </div>
 
       <div className="w-full relative z-20 max-w-[1024px] p-2 sm:p-4 mt-12 sm:mt-16 rounded-xl flex flex-wrap justify-center gap-4">
-        <Blog
-          img={'blogs/4.jpg'}
-          title={'Healthcare at Your Doorstep: Jupiter Xpress Medicine Delivery'}
-          desc={'Get your essential medicines delivered swiftly and safely with Jupiter Xpress, ensuring your health is always a priority.'}
-        />
-
+        
         <Blog
           img={'blogs/1.webp'}
           title={'Revolutionizing Courier Services: Meet Jupiter Xpress'}
@@ -44,10 +39,12 @@ const Blogs = () => {
           desc={'In the ever-evolving world of courier services, Jupiter Xpress stands out as a beacon of innovation, reliability, and customer-centricity.'}
         />
         <Blog
-          img={'blogs/8.png'}
-          title={'Healthy & Tasty: Jupiter Xpress Dry Food Delivery'}
-          desc={'Enjoy the finest quality dry food items delivered fresh to your door with Jupiter Xpress’s trusted delivery service.'}
+          img={'blogs/4.jpg'}
+          title={'Healthcare at Your Doorstep: Jupiter Xpress Medicine Delivery'}
+          desc={'Get your essential medicines delivered swiftly and safely with Jupiter Xpress, ensuring your health is always a priority.'}
         />
+
+        
         <Blog
           img={'blogs/5.jpg'}
           title={'Beauty Delivered: Jupiter Xpress Cosmetics Service'}
@@ -64,6 +61,11 @@ const Blogs = () => {
           desc={
             'From gadgets and chargers to bulbs and switches, Jupiter Xpress ensures fast and secure delivery of all your electronic and electrical essentials right to your doorstep.'
           }
+        />
+        <Blog
+          img={'blogs/8.png'}
+          title={'Healthy & Tasty: Jupiter Xpress Dry Food Delivery'}
+          desc={'Enjoy the finest quality dry food items delivered fresh to your door with Jupiter Xpress’s trusted delivery service.'}
         />
         <Blog
           img={'blogs/9.jpg'} // Make sure this image exists in your public/blogs folder
