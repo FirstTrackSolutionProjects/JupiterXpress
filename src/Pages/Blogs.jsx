@@ -63,7 +63,7 @@ const Blogs = () => {
           }
         />
         <Blog
-          img={'blogs/8.png'}
+          img={'blogs/8.jpg'}
           title={'Healthy & Tasty: Jupiter Xpress Dry Food Delivery'}
           desc={'Enjoy the finest quality dry food items delivered fresh to your door with Jupiter Xpress’s trusted delivery service.'}
         />
