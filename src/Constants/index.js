@@ -43,7 +43,7 @@ export const navItems = [
         }]
     },
     {
-        name : 'Blogs',
+        name : 'International',
         url : '/get-blogs'
     },
     {
