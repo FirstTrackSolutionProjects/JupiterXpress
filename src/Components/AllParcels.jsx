@@ -360,6 +360,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               <Select
                 value={formData.wid}
                 onChange={handleChange}
+                size="small"
                 name="wid"
                 label="Pickup Warehouse Name"
               >
@@ -371,42 +372,46 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Pickup Date"
                 type="date"
                 name="pickupDate"
+                size="small"
                 value={formData.pickupDate}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Pickup Time"
                 type="time"
                 name="pickupTime"
+                size="small"
                 value={formData.pickupTime}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Order Id"
                 name="order"
+                size="small"
                 placeholder="Ex. ORDER123456"
                 value={formData.order}
                 disabled
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <InputLabel>Payment Method</InputLabel>
               <Select
                 value={formData.payMode}
                 onChange={handleChange}
                 name="payMode"
+                size="small"
                 label="Payment Method"
               >
                 <MenuItem value="COD">COD</MenuItem>
@@ -414,85 +419,116 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 <MenuItem value="topay">To Pay</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+             <FormControl sx={{ minWidth: 300, flex: 1 }}>
+              <TextField
+                label="COD Amount"
+                name="cod"
+                size="small"
+                value={formData.cod}
+                onChange={handleChange}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
+              <InputLabel>Shipping Type</InputLabel>
+              <Select
+                value={formData.shippingType}
+                onChange={handleChange}
+                name="shippingType"
+                size="small"
+                label="Shipping Type"
+              >
+                <MenuItem value="Surface">Surface</MenuItem>
+                <MenuItem value="Express">Express</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Buyer's Name"
                 name="name"
+                size="small"
                 placeholder="Ex. Aditya Kumar"
                 value={formData.name}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 2 }}>
               <TextField
                 label="Buyer's email"
                 name="email"
                 placeholder="Ex. customer@example.com"
+                size="small"
                 value={formData.email}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Buyer's Phone"
                 name="phone"
+                size="small"
                 placeholder="Ex. 1234554321"
                 value={formData.phone}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 3 }}>
               <TextField
                 label="Shipping Address"
                 name="address"
+                size="small"
                 placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
                 value={formData.address}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <InputLabel>Shipping Address Type</InputLabel>
               <Select
                 value={formData.addressType}
                 onChange={handleChange}
                 name="addressType"
+                size="small"
                 label="Shipping Address Type"
               >
                 <MenuItem value="home">Home</MenuItem>
                 <MenuItem value="office">Office</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Shipping Postcode"
                 name="postcode"
+                size="small"
                 placeholder="Ex. 813210"
                 value={formData.postcode}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Shipping City"
                 name="city"
+                size="small"
                 placeholder="Ex. Bhagalpur"
                 value={formData.city}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Shipping State"
                 name="state"
+                size="small"
                 placeholder="Ex. Bihar"
                 value={formData.state}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Shipping Country"
                 name="country"
+                size="small"
                 placeholder="Ex. India"
                 disabled
                 value={formData.country}
@@ -515,54 +551,60 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               <TextField
                 label="Billing Address"
                 name="Baddress"
+                size="small"
                 placeholder="Ex. House no. 105, Kankarbagh, Patna, Bihar"
                 value={formData.Baddress}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex: 1 }}>
               <InputLabel>Billing Address Type</InputLabel>
               <Select
                 value={formData.BaddressType}
                 onChange={handleChange}
                 name="BaddressType"
+                size="small"
                 label="Billing Address Type"
               >
                 <MenuItem value="home">Home</MenuItem>
                 <MenuItem value="office">Office</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300,  flex: 1 }}>
               <TextField
                 label="Billing Postcode"
                 name="Bpostcode"
+                size="small"
                 placeholder="Ex. 813210"
                 value={formData.Bpostcode}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300,   flex: 1 }}>
               <TextField
                 label="Billing City"
                 name="Bcity"
+                size="small"
                 placeholder="Ex. Bhagalpur"
                 value={formData.Bcity}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300,   flex: 1 }}>
               <TextField
                 label="Billing State"
                 name="Bstate"
+                size="small"
                 placeholder="Ex. Bihar"
                 value={formData.Bstate}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300,   flex: 1 }}>
               <TextField
                 label="Billing Country"
                 name="Bcountry"
+                size="small"
                 placeholder="Ex. India"
                 value={formData.Bcountry}
                 onChange={handleChange}
@@ -573,42 +615,47 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Boxes</div>
             {boxes.map((box, index) => (
               <Box key={index} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150, flex: 1 }}>
                   <TextField
                     label="Box No"
                     name="box_no"
+                    size="small"
                     disabled
                     value={index + 1}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150, flex: 1 }}>
                   <TextField
                     label="Length (in cm)"
                     name="length"
+                    size="small"
                     value={box.length}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150,  flex: 1 }}>
                   <TextField
                     label="Width (in cm)"
                     name="breadth"
+                    size="small"
                     value={box.breadth}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150, flex: 1 }}>
                   <TextField
                     label="Height (in cm)"
                     name="height"
+                    size="small"
                     value={box.height}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150 }}>
                   <TextField
                     label="Weight (in g)"
                     name="weight"
+                    size="small"
                     value={box.weight}
                     onChange={(e) => handleBoxes(index, e)}
                   />
@@ -639,43 +686,48 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Items</div>
             {orders.map((order, index) => (
               <Box key={index} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
-                <FormControl fullWidth sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150, flex: 1 }}>
                   <TextField
                     label="Box No"
                     name="box_no"
+                    size="small"
                     value={order.box_no}
                     onChange={(e) => handleOrders(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 300 }}>
+                <FormControl  sx={{ minWidth: 300, flex: 2 }}>
                   <TextField
                     label="Product Name"
                     name="product_name"
+                    size="small"
                     value={order.product_name}
                     onChange={(e) => handleOrders(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 50 }}>
+                <FormControl sx={{ minWidth: 75, flex: 1 }}>
                   <TextField
                     label="Quantity"
                     name="product_quantity"
+                    size="small"
                     type="number"
                     value={order.product_quantity}
                     onChange={(e) => handleOrders(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 100 }}>
+                <FormControl fullWidth sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Price"
                     name="selling_price"
+                    size="small"
                     value={order.selling_price}
                     onChange={(e) => handleOrders(index, e)}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ minWidth: 100 }}>
+                <FormControl fullWidth sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Tax"
                     name="tax_in_percentage"
+                    size="small"
                     value={order.tax_in_percentage}
                     onChange={(e) => handleOrders(index, e)}
                   />
@@ -713,41 +765,44 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             label="Is this is a B2B shipment?"
           />
           {formData.isB2B && (
-            <Box sx={{ my: 4 }}>
-              <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
+              <FormControl sx={{ minWidth: 150, flex:1 }}>
                 <TextField
                   label="Invoice Number"
                   name="invoiceNumber"
+                  size="small"
                   value={formData.invoiceNumber}
                   onChange={handleChange}
                 />
               </FormControl>
-              <FormControl fullWidth sx={{ minWidth: 300 }}>
+              <FormControl sx={{ minWidth: 150, flex:1 }}>
                 <TextField
                   label="Invoice Date"
                   type="date"
+                  size="small"
                   name="invoiceDate"
                   value={formData.invoiceDate}
                   onChange={handleChange}
                   InputLabelProps={{ shrink: true }}
                 />
               </FormControl>
-              <FormControl fullWidth sx={{ minWidth: 300 }}>
+              <FormControl sx={{ minWidth: 150, flex:1 }}>
                 <TextField
                   label="Invoice Amount"
                   name="invoiceAmount"
                   type="number"
+                  size="small"
                   value={formData.invoiceAmount}
                   onChange={handleChange}
                 />
               </FormControl>
-              <FormControl fullWidth sx={{ minWidth: 300 }}>
+              <FormControl fullWidth sx={{ minWidth: 300, flex:1 }}>
                 <label>Invoice</label>
                 <input
                   type="file"
                   onChange={handleInvoice}
                 />
-                <a type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
+                <a type="button" className="m-2 w-20 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
                 <Button
                   variant="contained"
                   onClick={uploadInvoice}
@@ -768,50 +823,37 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
           )}
           <Box sx={{ my: 4 }}>
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Additional Info</div>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex:1 }}>
               <TextField
                 label="Discount"
                 name="discount"
+                size="small"
                 value={formData.discount}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
-              <TextField
-                label="COD Amount"
-                name="cod"
-                value={formData.cod}
-                onChange={handleChange}
-              />
-            </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
-              <InputLabel>Shipping Type</InputLabel>
-              <Select
-                value={formData.shippingType}
-                onChange={handleChange}
-                name="shippingType"
-                label="Shipping Type"
-              >
-                <MenuItem value="Surface">Surface</MenuItem>
-                <MenuItem value="Express">Express</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+           
+            
+            <FormControl fullWidth sx={{ minWidth: 300, flex:1 }}>
               <TextField
                 label="Seller GST"
                 name="gst"
+                size="small"
                 value={formData.gst}
                 onChange={handleChange}
               />
             </FormControl>
-            <FormControl fullWidth sx={{ minWidth: 300 }}>
+            <FormControl fullWidth sx={{ minWidth: 300, flex:1 }}>
               <TextField
                 label="Customer GSTIN (FOR B2B)"
                 name="Cgst"
+                size="small"
                 value={formData.Cgst}
                 onChange={handleChange}
               />
             </FormControl>
+            </Box>
           </Box>
         </form>
       </DialogContent>
@@ -1072,6 +1114,13 @@ const Listing = ({ step, setStep }) => {
   };
 
   const columns = [
+    { 
+      field: 'space', 
+      headerName: '', 
+      sortable: false, 
+      disableColumnMenu: true,
+      width: 5,
+    },
     { field: 'ord_id', headerName: 'Order ID', width: 130 },
     { 
       field: 'date', 
@@ -1083,26 +1132,25 @@ const Listing = ({ step, setStep }) => {
     { field: 'fullName', headerName: 'Customer Name', width: 180 },
     { field: 'email', headerName: 'Email', width: 200 },
     {
-      field: 'shipping',
-      headerName: 'Shipping Details',
-      width: 200,
-      renderCell: (params) => {
-        const isShipped = Boolean(params.row.awb);
-        return (
-          <div>
-            {isShipped ? (
-              <div>
-                {params.row.awb && <div>AWB: {params.row.awb}</div>}
-                {params.row.shipping_vendor_reference_id && (
-                  <div>LRN: {params.row.shipping_vendor_reference_id}</div>
-                )}
-              </div>
-            ) : (
-              <div>No shipping details yet</div>
-            )}
-          </div>
-        );
-      }
+  field: 'shipping',
+  headerName: 'Shipping Details',
+  width: 250,
+  renderCell: (params) => {
+    const isShipped = Boolean(params.row.awb);
+    return (
+      <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 80 }}>
+        {isShipped ? (
+          <>
+            <div>{params.row.service_name}</div>
+            {params.row.awb && <div>AWB: {params.row.awb}</div>}
+            {params.row.lrn && <div>LRN: {params.row.lrn}</div>}
+          </>
+        ) : (
+          <div>No shipping details yet</div>
+        )}
+      </Box>
+    );
+  }
     },
     {
       field: 'status',
@@ -1156,48 +1204,52 @@ const Listing = ({ step, setStep }) => {
           <h2 className="text-2xl font-medium">Shipments</h2>
         </Box>
 
-        {/* Filters */}
-        <Box sx={{ mb: 3, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
+{/* Filters */}
+      <Box
+        className="bg-blue-500 p-4 rounded-xl shadow-md"
+        sx={{
+          mb: 3,
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(auto-fill, minmax(220px, 1fr))',
+          },
+          gap: 2,
+        }}
+      >
+        {[
+          { label: 'Merchant Name', name: 'name' },
+          { label: 'Merchant Email', name: 'email' },
+          { label: 'Order ID', name: 'orderId' },
+          { label: 'Start Date', name: 'startDate', type: 'date' },
+          { label: 'End Date', name: 'endDate', type: 'date' },
+        ].map(({ label, name, type }) => (
           <TextField
-            label="Merchant Name"
-            name="name"
-            value={filters.name}
+            key={name}
+            label={label}
+            name={name}
+            type={type || 'text'}
+            value={filters[name]}
             onChange={handleChange}
             size="small"
+            InputProps={{
+              className: 'bg-white rounded-md',
+            }}
+            InputLabelProps={{
+              // shrink: true,
+              sx: {
+                backgroundColor: 'white',
+                px: 0.5,
+                width: '100%',
+                borderRadius: 1,
+              },
+            }}
           />
-          <TextField
-            label="Merchant Email"
-            name="email"
-            value={filters.email}
-            onChange={handleChange}
-            size="small"
-          />
-          <TextField
-            label="Order ID"
-            name="orderId"
-            value={filters.orderId}
-            onChange={handleChange}
-            size="small"
-          />
-          <TextField
-            type="date"
-            label="Start Date"
-            name="startDate"
-            value={filters.startDate}
-            onChange={handleChange}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            type="date"
-            label="End Date"
-            name="endDate"
-            value={filters.endDate}
-            onChange={handleChange}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>        {/* DataGrid */}
+        ))}
+      </Box>
+  {/* DataGrid */}
         <Box sx={{ height: 600, width: '100%' }}>
           <DataGrid
             rows={shipments}
@@ -1206,6 +1258,7 @@ const Listing = ({ step, setStep }) => {
             hideFooter={true}
             disableSelectionOnClick
             getRowId={(row) => row.ord_id}
+            rowHeight={80}
           />
         </Box>
 
