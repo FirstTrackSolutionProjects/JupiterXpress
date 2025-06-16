@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+const BUCKET_URL = import.meta.env.VITE_APP_BUCKET_URL;
+
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ViewWeightDisputePopup = ({ open, onClose, disputeId }) => {
     if (!open) return;
     const [formData, setFormData] = useState({
         ord_id: "",
         dispute_deduction: "",
-        dispute_boxes: []
+        dispute_boxes: [],
+        doc_1: "",
+        doc_2: "",
+        doc_3: "",
+        doc_4: ""
     })
 
     const getDisputeInfo = async (req, res) => {
@@ -111,6 +117,56 @@ const ViewWeightDisputePopup = ({ open, onClose, disputeId }) => {
                             <label htmlFor="dispute_deduction" className="text-sm">Dispute Deduction (In ₹)</label>
                             <input id="dispute_deduction" name="dispute_deduction" type="text" disabled value={formData?.dispute_deduction} className="rounded-lg py-1 px-2 w-full" />
                         </div>
+                        <div className="flex gap-2 w-full">
+  <a
+    href={formData?.doc_1 ? `${BUCKET_URL}${formData.doc_1}` : "#"}
+    target="_blank"
+    className={`w-full text-center rounded-lg py-2 ${
+      formData?.doc_1
+        ? "bg-blue-500 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+    }`}
+  >
+    Image 1
+  </a>
+  <a
+    href={formData?.doc_2 ? `${BUCKET_URL}${formData.doc_2}` : "#"}
+    target="_blank"
+    className={`w-full text-center rounded-lg py-2 ${
+      formData?.doc_2
+        ? "bg-blue-500 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+    }`}
+  >
+    Image 2
+  </a>
+</div>
+
+<div className="flex gap-2 w-full">
+  <a
+    href={formData?.doc_3 ? `${BUCKET_URL}${formData.doc_3}` : "#"}
+    target="_blank"
+    className={`w-full text-center rounded-lg py-2 ${
+      formData?.doc_3
+        ? "bg-blue-500 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+    }`}
+  >
+    Image 3
+  </a>
+  <a
+    href={formData?.doc_4 ? `${BUCKET_URL}${formData.doc_4}` : "#"}
+    target="_blank"
+    className={`w-full text-center rounded-lg py-2 ${
+      formData?.doc_4
+        ? "bg-blue-500 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+    }`}
+  >
+    Image 4
+  </a>
+</div>
+
                     </div>
                     :
                     <div className="w-full text-center">
