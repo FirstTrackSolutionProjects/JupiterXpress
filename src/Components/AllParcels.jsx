@@ -21,6 +21,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
+  if (!isManage) return null;
   const [boxes, setBoxes] = useState([
     { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }
   ]);
