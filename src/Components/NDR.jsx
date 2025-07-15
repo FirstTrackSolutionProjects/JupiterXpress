@@ -1,3 +1,4 @@
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as XLSX from 'xlsx'
@@ -184,6 +185,8 @@ const Card = ({ report }) => {
 
 
   const [view, setIsView] = useState(false)
+  const date = report.date;
+  const dateLocale = new Date(date).toLocaleString();
   return (
     <>
       {view && <View report={report} setIsView={setIsView} />}
@@ -203,7 +206,7 @@ const Card = ({ report }) => {
             {`${report.service_name} (${report.is_b2b==1?'B2B':'B2C'})`}
           </div>
           <div className="text-[10px] text-gray-500">
-            {report.date ? report.date.toString().split('T')[0] + ' ' + report.date.toString().split('T')[1].split('.')[0] : null}
+            {dateLocale}
           </div>
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
@@ -256,7 +259,11 @@ const ShipmentReportDownloadDialog = () => {
           'Content-Type': 'application/json',
           'Authorization': localStorage.getItem('token')
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          startDate: convertToUTCISOString(formData.startDate),
+          endDate: convertToUTCISOString(`${formData.endDate}T23:59:59.999Z`),
+          serviceId: formData.serviceId
+        })
       })
       const dataResponse = await dataRequest.json();
       const worksheet = XLSX.utils.json_to_sheet(dataResponse.data);

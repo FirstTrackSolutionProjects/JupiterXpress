@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
@@ -1077,8 +1078,8 @@ const Listing = ({ step, setStep }) => {
           ...(debouncedFilters.name && { merchant_name: debouncedFilters.name }),
           ...(debouncedFilters.email && { merchant_email: debouncedFilters.email }),
           ...(debouncedFilters.orderId && { orderId: debouncedFilters.orderId }),
-          ...(debouncedFilters.startDate && { startDate: debouncedFilters.startDate }),
-          ...(debouncedFilters.endDate && { endDate: debouncedFilters.endDate })
+          ...(debouncedFilters.startDate && { startDate: convertToUTCISOString(debouncedFilters.startDate) }),
+          ...(debouncedFilters.endDate && { endDate: convertToUTCISOString(`${debouncedFilters.endDate}T23:59:59.999Z`) })
         });
 
         const response = await fetch(`${API_URL}/order/domestic/all?${queryParams}`, {

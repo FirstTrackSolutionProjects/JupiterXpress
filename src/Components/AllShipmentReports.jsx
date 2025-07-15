@@ -18,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import * as XLSX from 'xlsx';
 import DownloadIcon from '@mui/icons-material/Download';
 import { toast } from "react-toastify";
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -342,7 +343,13 @@ const Listing = () => {
     setIsLoading(true);
     const queryParams = new URLSearchParams({
       page,
-      ...filters
+      merchant_email: filters.merchant_email,
+      merchant_name: filters.merchant_name,
+      awb: filters.awb,
+      ord_id: filters.ord_id,
+      serviceId: filters.serviceId,
+      startDate: convertToUTCISOString(filters.startDate),
+      endDate: convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`)
     });
 
     try {
