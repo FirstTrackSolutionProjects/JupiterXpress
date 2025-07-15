@@ -3,11 +3,12 @@ import getTodaysDate from "../helpers/getTodaysDate";
 import * as XLSX from 'xlsx';
 import getFilterStartDate from "../helpers/getFilterStartDate";
 import { FaDownload } from "react-icons/fa";
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const Card = ({transaction}) => {
     const date = transaction.date;
-    const formattedDate = date.toString().split('T')[0] + ' ' + date.toString().split('T')[1].split('.')[0]
+    const formattedDate = new Date(date).toLocaleString();
     return (
         <>
             {transaction.type ==="recharge" && <div className='p-4 border'>
@@ -148,11 +149,9 @@ const TransactionHistory =  () => {
         const orderMatch = !searchOrderId || normalizedSearchId.includes(searchOrderId);
 
         // Date filtering
-        const fromDate = new Date(filters.startDate);
-        fromDate.setHours(0, 0, 0, 0);
+        const fromDate = new Date(convertToUTCISOString(filters.startDate));
         
-        const toDate = new Date(filters.endDate);
-        toDate.setHours(23, 59, 59, 999);
+        const toDate = new Date(convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`));
 
         const dateMatch = transaction.dateObj >= fromDate && transaction.dateObj <= toDate;
 

@@ -1308,6 +1308,8 @@ const Card = ({ shipment, getParcels }) => {
       setCloning(false);
     }
   }
+  const date = shipment.date;
+  const formattedDate = new Date(date).toLocaleString();
   return (
     <>
       {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment} getParcels={getParcels} />}
@@ -1317,7 +1319,7 @@ const Card = ({ shipment, getParcels }) => {
           <div className="font-bold">{shipment.ord_id}</div>
           <div >{shipment.customer_name}</div>
           {isShipped && <div> {`AWB : ${awb}`}</div>}
-          <div>{shipment.date ? shipment.date.toString().split('T')[0] + ' ' + shipment.date.toString().split('T')[1].split('.')[0] : null}</div>
+          <div>{formattedDate}</div>
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           {!isDeleted && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>}
@@ -1325,7 +1327,7 @@ const Card = ({ shipment, getParcels }) => {
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
           {isShipped && !isProcessing && !isCancelled && ![6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped && !isDeleted ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
-          {isShipped && !isProcessing && !isCancelled && [1,2,5,6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
+          {isShipped && !isProcessing && !isCancelled && [1,2,4,5,6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => { } : () => cancelShipment()}>{isCancelling ? "Cancelling..." : "Cancel"}</div> : null}
           {!isShipped && !isDeleted && <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" onClick={isDeleting ? () => {} : () => deleteOrder()}>{isDeleting ? "Deleting..." : "Delete"}</div> }
           {isDeleted ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Deleted</div> : null}
           {isCancelled ? <div className="px-3 py-1 bg-red-500  rounded-3xl text-white cursor-pointer" >Cancelled</div> : null}

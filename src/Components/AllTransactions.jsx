@@ -2,11 +2,12 @@ import { useEffect, useState } from "react"
 import * as XLSX from 'xlsx';
 import getFilterStartDate from "../helpers/getFilterStartDate";
 import getTodaysDate from "../helpers/getTodaysDate";
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 const API_URL = import.meta.env.VITE_APP_API_URL
 
 const Card = ({transaction}) => {
     const date = transaction.date;
-    const formattedDate = date.toString().split('T')[0] + ' ' + date.toString().split('T')[1].split('.')[0]
+    const dateLocal = new Date(date).toLocaleString();
     return (
         <>
             {transaction.type ==="recharge" && <div className='p-4 border'>
@@ -14,7 +15,7 @@ const Card = ({transaction}) => {
                 <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
                 <p>Order Id : {transaction.order_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
-                <p>{formattedDate}</p>
+                <p>{dateLocal}</p>
             </div>}
             {transaction.type ==="manual" && <div className='p-4 border'>
                 <p>Manual Recharge</p>
@@ -22,7 +23,7 @@ const Card = ({transaction}) => {
                 <p>Order Id : {transaction.recharge_id}</p>
                 <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
                 <p>Reason : {transaction.reason}</p>
-                <p>{formattedDate}</p>
+                <p>{dateLocal}</p>
             </div>}
             {transaction.type ==="expense" && <div className='p-4 border'>
                 <p>Order Expense</p>
@@ -30,7 +31,7 @@ const Card = ({transaction}) => {
                 <p>Order Id : {transaction.expense_order}</p>
                 <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.expense_cost}</p>
-                <p>{formattedDate}</p>
+                <p>{dateLocal}</p>
             </div>}
             {transaction.type ==="refund" && <div className='p-4 border'>
                 <p>Order Refund</p>
@@ -38,7 +39,7 @@ const Card = ({transaction}) => {
                 <p>Order Id : {transaction.refund_order}</p>
                 <p>Service : {transaction.service_name}</p>
                 <p>Amount : +{transaction.refund_amount}</p>
-                <p>{formattedDate}</p>
+                <p>{dateLocal}</p>
             </div>}
             {transaction.type ==="dispute_charge" && <div className='p-4 border'>
                 <p>Dispute Charge</p>
@@ -46,7 +47,7 @@ const Card = ({transaction}) => {
                 <p>Order Id : {transaction.dispute_order}</p>
                 <p>Service : {transaction.service_name}</p>
                 <p>Amount : -{transaction.dispute_charge}</p>
-                <p>{formattedDate}</p>
+                <p>{dateLocal}</p>
             </div>}
         </>
     )
@@ -165,8 +166,8 @@ const AllTransactions =  () => {
 
   const filteredData = transactions.filter((transaction) => {
     const transactionDate = new Date(transaction.date);
-    const startDate = filters.startDate ? new Date(filters.startDate) : null;
-    const endDate = filters.endDate ? new Date(filters.endDate) : null;
+    const startDate = filters.startDate ? new Date(convertToUTCISOString(filters.startDate)) : null;
+    const endDate = filters.endDate ? new Date(convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`)) : null;
 
     const isAfterStart =
       !startDate || transactionDate >= startDate;
