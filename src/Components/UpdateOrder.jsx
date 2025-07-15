@@ -1,3 +1,4 @@
+import cloneOrderService from "../services/orderServices/cloneOrderService";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid"
@@ -1291,6 +1292,21 @@ const Card = ({ shipment, getParcels }) => {
     })
     setIsRefreshing(false);
   }
+  const [cloning, setCloning] = useState(false);
+  const cloneOrder = async () => {
+    try{
+      const clone = confirm('Do you want to clone this order?');
+      if (!clone) return;
+      setCloning(true);
+      await cloneOrderService(shipment.ord_id);
+      toast.success("Order cloned successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to clone order");
+    } finally {
+      setCloning(false);
+    }
+  }
   return (
     <>
       {isShip && <ShipList setIsShip={setIsShip} setIsShipped={setIsShipped} shipment={shipment} getParcels={getParcels} />}
@@ -1304,6 +1320,7 @@ const Card = ({ shipment, getParcels }) => {
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           {!isDeleted && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(true)}>{isShipped ? "View" : "Manage"}</div>}
+          <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={cloning?()=>{}:() => cloneOrder()}>{cloning ? "Cloning..." : "Clone"}</div>
           {isProcessing && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isRefreshing ? () => { } : () => refreshShipment()}>{isRefreshing ? 'Refreshing...' : 'Refresh'}</div>}
           {isShipped && !isProcessing && !isCancelled && ![6].includes(shipment.serviceId) ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => getLabel()}>Label</div> : null}
           {!isShipped && !isDeleted ? <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={() => setIsShip(true)}>Ship</div> : null}
