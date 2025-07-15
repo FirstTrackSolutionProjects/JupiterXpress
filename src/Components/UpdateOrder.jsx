@@ -1300,6 +1300,7 @@ const Card = ({ shipment, getParcels }) => {
       setCloning(true);
       await cloneOrderService(shipment.ord_id);
       toast.success("Order cloned successfully");
+      getParcels();
     } catch (error) {
       console.error(error);
       toast.error(error.message || "Failed to clone order");
