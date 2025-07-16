@@ -341,6 +341,8 @@ const Listing = () => {
 
   const fetchReports = async () => {
     setIsLoading(true);
+    const startDate = filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : '';
+    const endDate = filters.endDate ? convertToUTCISOString(new Date(filters.startDate).setHours(23,59,59,999)) : '';
     const queryParams = new URLSearchParams({
       page,
       merchant_email: filters.merchant_email,
@@ -348,8 +350,8 @@ const Listing = () => {
       awb: filters.awb,
       ord_id: filters.ord_id,
       serviceId: filters.serviceId,
-      startDate: convertToUTCISOString(filters.startDate),
-      endDate: convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`)
+      startDate: startDate,
+      endDate: endDate
     });
 
     try {

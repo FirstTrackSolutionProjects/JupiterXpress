@@ -130,6 +130,11 @@ const AllTransactions =  () => {
     const downloadExcelFromExport = async (filters) => {
       try {
         setDownloading(true)
+        const payload = {
+          startDate: convertToUTCISOString(filters.startDate),
+          endDate: convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`),
+          merchant_email: filters.merchant_email
+        }
         const response = await fetch(`${API_URL}/wallet/report/download/all`, {
           method: 'POST',
           headers: {
@@ -137,7 +142,7 @@ const AllTransactions =  () => {
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('token'),
           },
-          body: JSON.stringify(filters),
+          body: JSON.stringify(payload),
         });
 
         const result = await response.json();
