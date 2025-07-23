@@ -342,7 +342,7 @@ const Listing = () => {
   const fetchReports = async () => {
     setIsLoading(true);
     const startDate = filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : '';
-    const endDate = filters.endDate ? convertToUTCISOString(new Date(filters.startDate).setHours(23,59,59,999)) : '';
+    const endDate = filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : '';
     const queryParams = new URLSearchParams({
       page,
       merchant_email: filters.merchant_email,
