@@ -74,7 +74,12 @@ const schema = z.object({
         z.number().min(1, "Height must be at greater than 0")),
       weight: z.preprocess(
         (a) => parseInt(a, 10),
-        z.number().min(1, "Weight must be at greater than 0"))
+        z.number().min(1, "Weight must be at greater than 0")),
+        weight_unit: z.enum(['g','kg']),
+      quantity: z.preprocess(
+        (a) => parseInt(a, 10),
+        z.number().min(1, "Quantity must be at least 1")
+      )
     })
   ),
   discount: z.preprocess(
@@ -125,7 +130,7 @@ const FullDetails = () => {
       BaddressType: "home",
       shippingType: "Surface",
       orders: [{ box_no: '1', product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: 0 }],
-      boxes: [{ box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }],
+      boxes: [{ box_no: 1, length: 0, breadth: 0, height: 0, weight: 0, weight_unit: 'kg', quantity: 1 }],
       invoiceAmount: 1,
       isB2B: false,
       invoiceUrl: ''
@@ -616,13 +621,23 @@ const FullDetails = () => {
                 {errors.boxes?.[index]?.height && <span className='text-red-500'>{errors.boxes?.[index]?.height.message}</span>}
               </div>
               <div className="flex-1 mx-2 mb-2  space-y-2">
-                <label htmlFor={`boxes[${index}].length`}>Weight (in g)</label>
+                <label htmlFor={`boxes[${index}].weight`}>Weight</label>
+                <div className='w-full flex space-x-2'>
                 <input
                   className="w-full border py-2 px-4 rounded-3xl"
                   type="text"
                   id={`boxes[${index}].weight`}
                   {...register(`boxes[${index}].weight`)}
                 />
+                <select
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  id={`boxes[${index}].weight_unit`}
+                  {...register(`boxes[${index}].weight_unit`)}
+                >
+                  <option value="g">gm</option>
+                  <option value="kg">kg</option>
+                </select>
+                </div>
                 {errors.boxes?.[index]?.weight && <span className='text-red-500'>{errors.boxes?.[index]?.weight.message}</span>}
               </div>
               {watch('boxes').length > 1 ? <div className="w-full text-right">
