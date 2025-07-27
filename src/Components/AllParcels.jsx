@@ -24,10 +24,10 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   if (!isManage) return null;
   const [boxes, setBoxes] = useState([
-    { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }
+    { box_no: 1, length: 10, breadth: 10, height: 10, weight: 1, weight_unit: 'kg', quantity: 1 }
   ]);
   const [orders, setOrders] = useState([
-    { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }
+    { box_no: 1, product_name: '', product_quantity: 1, selling_price: 0, tax_in_percentage: '' }
   ]);
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
@@ -185,10 +185,10 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   }, [formData.Bpostcode])
 
   const addProduct = () => {
-    setOrders([...orders, { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }]);
+    setOrders([...orders, { box_no: 1, product_name: '', product_quantity: 1, selling_price: 0, tax_in_percentage: '' }]);
   };
   const addBox = () => {
-    setBoxes([...boxes, { box_no: boxes.length + 1, length: 0, breadth: 0, height: 0, weight: 0 }]);
+    setBoxes([...boxes, { box_no: boxes.length + 1, length: 10, breadth: 10, height: 10, weight: 1, weight_unit: 'kg', quantity: 1 }]);
   };
   const removeProduct = (index) => {
     const updatedOrders = orders.filter((_, i) => i !== index);
@@ -655,10 +655,33 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 </FormControl>
                 <FormControl sx={{ minWidth: 150 }}>
                   <TextField
-                    label="Weight (in g)"
+                    label="Weight"
                     name="weight"
                     size="small"
                     value={box.weight}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </FormControl>
+                <FormControl sx={{ minWidth: 150 }}>
+                  <InputLabel>Weight Unit</InputLabel>
+                  <Select
+                    value={box.weight_unit}
+                    onChange={(e) => handleBoxes(index, e)}
+                    name="weight_unit"
+                    size="small"
+                    label="Weight Unit"
+                  >
+                    <MenuItem value="g">gm</MenuItem>
+                    <MenuItem value="kg">kg</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                  <TextField
+                    label="Quantity"
+                    name="quantity"
+                    size="small"
+                    type="text"
+                    value={box.quantity}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
