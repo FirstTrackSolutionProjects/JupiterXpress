@@ -617,7 +617,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Boxes</div>
             {boxes.map((box, index) => (
               <Box key={index} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Box No"
                     name="box_no"
@@ -626,7 +626,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     value={index + 1}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Length (in cm)"
                     name="length"
@@ -635,7 +635,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150,  flex: 1 }}>
+                <FormControl sx={{ minWidth: 100,  flex: 1 }}>
                   <TextField
                     label="Width (in cm)"
                     name="breadth"
@@ -644,7 +644,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Height (in cm)"
                     name="height"
@@ -653,7 +653,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150 }}>
+                <Box sx={{ flex: 1, display: 'flex' }}>
+                  <FormControl sx={{ minWidth: 90, flex: 1 }}>
                   <TextField
                     label="Weight"
                     name="weight"
@@ -662,8 +663,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150 }}>
-                  <InputLabel>Weight Unit</InputLabel>
+                <FormControl sx={{ minWidth: 50 }}>
+                  <InputLabel>Unit</InputLabel>
                   <Select
                     value={box.weight_unit}
                     onChange={(e) => handleBoxes(index, e)}
@@ -675,7 +676,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     <MenuItem value="kg">kg</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                </Box>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Quantity"
                     name="quantity"
