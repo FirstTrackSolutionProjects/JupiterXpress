@@ -45,7 +45,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   if (!isManage) return null;
   
   const [boxes, setBoxes] = useState([
-    { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }
+    { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0, weight_unit: 'kg', quantity: 1 }
   ]);
   const [orders, setOrders] = useState([
     { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }
@@ -213,7 +213,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   };
   
   const addBox = () => {
-    setBoxes([...boxes, { box_no: boxes.length + 1, length: 0, breadth: 0, height: 0, weight: 0 }]);
+    setBoxes([...boxes, { box_no: boxes.length + 1, length: 0, breadth: 0, height: 0, weight: 0, weight_unit: 'kg', quantity: 1 }]);
   };
   
   const removeProduct = (index) => {
@@ -671,7 +671,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Boxes</div>
             {boxes.map((box, index) => (
               <Box key={index} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Box No"
                     name="box_no"
@@ -680,7 +680,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     value={index + 1}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Length (in cm)"
                     name="length"
@@ -689,7 +689,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150,  flex: 1 }}>
+                <FormControl sx={{ minWidth: 100,  flex: 1 }}>
                   <TextField
                     label="Width (in cm)"
                     name="breadth"
@@ -698,7 +698,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Height (in cm)"
                     name="height"
@@ -707,12 +707,37 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150 }}>
+                <Box sx={{ flex: 1, display: 'flex' }}>
+                   <FormControl sx={{ minWidth: 90, flex: 1 }}>
+                   <TextField
+                     label="Weight"
+                     name="weight"
+                     size="small"
+                     value={box.weight}
+                     onChange={(e) => handleBoxes(index, e)}
+                   />
+                 </FormControl>
+                 <FormControl sx={{ minWidth: 50 }}>
+                   <InputLabel>Unit</InputLabel>
+                   <Select
+                     value={box.weight_unit}
+                     onChange={(e) => handleBoxes(index, e)}
+                     name="weight_unit"
+                     size="small"
+                     label="Weight Unit"
+                   >
+                     <MenuItem value="g">gm</MenuItem>
+                     <MenuItem value="kg">kg</MenuItem>
+                   </Select>
+                 </FormControl>
+                </Box>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
-                    label="Weight (in g)"
-                    name="weight"
+                    label="Quantity"
+                    name="quantity"
                     size="small"
-                    value={box.weight}
+                    type="text"
+                    value={box.quantity}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
