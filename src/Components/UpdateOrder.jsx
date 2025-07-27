@@ -858,14 +858,17 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                   type="file"
                   onChange={handleInvoice}
                 />
-                <a type="button" className="m-2 w-20 px-5 py-1 border rounded-3xl bg-blue-500 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
-                <Button
-                  variant="contained"
-                  onClick={uploadInvoice}
-                  sx={{ borderRadius: '24px', mt: 2 }}
-                >
-                  Update
-                </Button>
+                <Box className="flex items-center mt-2">
+                  <a type="button" className="m-2 w-20 px-5 py-2 border rounded-3xl bg-blue-600 text-white" target="_blank" href={import.meta.env.VITE_APP_BUCKET_URL + formData.invoiceUrl}>View</a>
+                  <Button
+                    variant="contained"
+                    onClick={uploadInvoice}
+                    className="bg-blue-500"
+                    sx={{ borderRadius: '24px' }}
+                  >
+                    Update
+                  </Button>
+                </Box>
               </FormControl>
               <FormControl fullWidth sx={{ minWidth: 300 }}>
                 <TextField
