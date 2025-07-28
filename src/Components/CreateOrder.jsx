@@ -104,7 +104,8 @@ const schema = z.object({
     (a) => parseInt(a, 10),
     z.number().min(1, "Invoice Amount must be a positive number")),
   invoiceUrl: z.string().optional(),
-  isB2B: z.boolean()
+  isB2B: z.boolean(),
+  customer_reference_number: z.string().max(15, "Customer Reference Number cannot exceed 15 characters")
 }).refine((data) => !data.isB2B || (data.isB2B && !!data.invoiceUrl), {
   message: "Invoice is required for B2B shipments",
   path: ["invoiceUrl"],
@@ -846,7 +847,16 @@ const FullDetails = () => {
             </select>
             {errors.shippingType && <span className='text-red-500'>{errors.shippingType.message}</span>}
           </div>
-
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="customer_reference_number">Customer Reference Number</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="customer_reference_number"
+              {...register("customer_reference_number")}
+            />
+            {errors.customer_reference_number && <span className='text-red-500'>{errors.customer_reference_number.message}</span>}
+          </div>
         </div>
 
         <div className="w-full flex mb-2 flex-wrap">
