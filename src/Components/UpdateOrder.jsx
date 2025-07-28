@@ -155,7 +155,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     invoiceDate: shipment.invoice_date,
     invoiceAmount: shipment.invoice_amount,
     invoiceUrl: shipment.invoice_url,
-    isB2B: shipment.is_b2b
+    isB2B: shipment.is_b2b,
+    customer_reference_number: shipment?.customer_reference_number
   })
 
   useEffect(() => {
@@ -448,6 +449,16 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                 placeholder="Ex. ORDER123456"
                 value={formData.order}
                 disabled
+                onChange={handleChange}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
+              <TextField
+                label="Customer Reference Number"
+                name="customer_reference_number"
+                size="small"
+                placeholder="Ex. REF123456"
+                value={formData.customer_reference_number}
                 onChange={handleChange}
               />
             </FormControl>

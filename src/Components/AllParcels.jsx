@@ -411,7 +411,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField
                 label="Customer Reference Number"
-                name="order"
+                name="customer_reference_number"
                 size="small"
                 placeholder="Ex. REF123"
                 value={formData.customer_reference_number}
