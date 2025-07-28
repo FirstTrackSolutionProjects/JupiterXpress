@@ -1637,6 +1637,11 @@ const Listing = ({ step, setStep }) => {
       width: 5,
     },
     { field: 'ord_id', headerName: 'Order ID', width: 130 },
+    {
+      field: 'customer_reference_number',
+      headerName: 'Customer Reference Number',
+      width: 100,
+    },
     { 
       field: 'date', 
       headerName: 'Date', 
