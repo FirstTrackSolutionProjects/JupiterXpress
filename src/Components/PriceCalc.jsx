@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, boxes, status, origin, dest, payMode, codAmount, isB2B, invoiceAmount}) => {
+const ComparePrices = ({method, boxes, status, origin, dest, payMode, codAmount, isB2B, invoiceAmount, setShowCompare}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
     console.log({method, status, origin, dest, payMode, codAmount})
@@ -112,7 +112,7 @@ const Domestic = () => {
   };
   return (
     <>
-      {showCompare && <ComparePrices {...formData} boxes={boxes} />}
+      {showCompare && <ComparePrices {...formData} boxes={boxes} setShowCompare={setShowCompare} />}
       <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
