@@ -37,17 +37,21 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
             }
             const data = await response.json()
             const boxes = data?.order;
-            const disputeBoxes = boxes.map((box)=>({
-                box_no: box?.box_no,
-                weight: box?.weight,
-                length: box?.length,
-                breadth: box?.breadth,
-                height: box?.height,
-                actual_weight: box?.weight,
-                actual_length: box?.length,
-                actual_breadth: box?.breadth,
-                actual_height: box?.height
-            }))
+            const disputeBoxes = boxes.flatMap((box) =>
+                Array(box?.quantity).fill(0).map(() => ({
+                    box_no: box?.box_no,
+                    weight: box?.weight,
+                    weight_unit: box?.weight_unit,
+                    length: box?.length,
+                    breadth: box?.breadth,
+                    height: box?.height,
+                    actual_weight: box?.weight,
+                    actual_weight_unit: box?.weight_unit,
+                    actual_length: box?.length,
+                    actual_breadth: box?.breadth,
+                    actual_height: box?.height
+                  }))
+                );
             setFormData((prevFormData) => ({
                 ...prevFormData,
                 dispute_boxes: disputeBoxes
@@ -198,13 +202,31 @@ const CreateWeightDisputePopup = ({ open, onClose, onSubmit }) => {
                                 </div>
                             </div>
                             <div className="flex space-x-2">
-                                <div className="flex flex-col space-y-1 w-full">
-                                    <label htmlFor="weight" className="text-sm">Weight (In gm)</label>
-                                    <input key={index} id="weight" name="weight" type="text" disabled value={formData?.dispute_boxes?.[index]?.weight} className="rounded-lg py-1 px-2 w-full" />
+                                <div className="flex gap-1 w-full">
+                                    <div className="flex-[2]">
+                                        <label htmlFor="weight" className="text-sm">Weight</label>
+                                        <input key={index} id="weight" name="weight" type="text" disabled value={formData?.dispute_boxes?.[index]?.weight} className="rounded-lg py-1 px-2 w-full" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label htmlFor="weight_unit" className="text-sm">Unit</label>
+                                        <select key={`weight_unit_${index}`} id="weight_unit" name="weight_unit" disabled value={formData?.dispute_boxes?.[index]?.weight_unit || 'g'} className="rounded-lg py-1 px-2 w-full">
+                                            <option value="g">g</option>
+                                            <option value="kg">kg</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col space-y-1 w-full">
-                                    <label htmlFor="actual_weight" className="text-sm">Actual Weight (In gm)</label>
-                                    <input key={index} id="actual_weight" name="actual_weight" type="text" value={formData?.dispute_boxes?.[index]?.actual_weight} onChange={(e) => handleBoxChange(e, index)} className="rounded-lg py-1 px-2 w-full" />
+                                <div className="flex gap-1 w-full">
+                                    <div className="flex-[2]">
+                                        <label htmlFor="actual_weight" className="text-sm">Act. Wt.</label>
+                                        <input key={index} id="actual_weight" name="actual_weight" type="text" value={formData?.dispute_boxes?.[index]?.actual_weight} onChange={(e) => handleBoxChange(e, index)} className="rounded-lg py-1 px-2 w-full" />
+                                    </div> 
+                                    <div className="flex-1">
+                                        <label htmlFor="actual_weight_unit" className="text-sm">Unit</label>
+                                        <select key={`actual_weight_unit_${index}`} id="actual_weight_unit" name="actual_weight_unit" value={formData?.dispute_boxes?.[index]?.actual_weight_unit || 'g'} onChange={(e) => handleBoxChange(e, index)} className="rounded-lg py-1 px-2 w-full">
+                                            <option value="g">g</option>
+                                            <option value="kg">kg</option>
+                                        </select>
+                                    </div> 
                                 </div>
                             </div>
                         </div> 

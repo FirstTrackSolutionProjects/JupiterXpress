@@ -24,10 +24,10 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   if (!isManage) return null;
   const [boxes, setBoxes] = useState([
-    { box_no: 1, length: 0, breadth: 0, height: 0, weight: 0 }
+    { box_no: 1, length: 10, breadth: 10, height: 10, weight: 1, weight_unit: 'kg', quantity: 1 }
   ]);
   const [orders, setOrders] = useState([
-    { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }
+    { box_no: 1, product_name: '', product_quantity: 1, selling_price: 0, tax_in_percentage: '' }
   ]);
   const [warehouses, setWarehouses] = useState([])
   useEffect(() => {
@@ -132,7 +132,8 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     invoiceDate: shipment.invoice_date,
     invoiceAmount: shipment.invoice_amount,
     invoiceUrl: shipment.invoice_url,
-    isB2B: shipment.is_b2b
+    isB2B: shipment.is_b2b,
+    customer_reference_number: shipment?.customer_reference_number
   })
   useEffect(() => {
 
@@ -185,10 +186,10 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   }, [formData.Bpostcode])
 
   const addProduct = () => {
-    setOrders([...orders, { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }]);
+    setOrders([...orders, { box_no: 1, product_name: '', product_quantity: 1, selling_price: 0, tax_in_percentage: '' }]);
   };
   const addBox = () => {
-    setBoxes([...boxes, { box_no: boxes.length + 1, length: 0, breadth: 0, height: 0, weight: 0 }]);
+    setBoxes([...boxes, { box_no: boxes.length + 1, length: 10, breadth: 10, height: 10, weight: 1, weight_unit: 'kg', quantity: 1 }]);
   };
   const removeProduct = (index) => {
     const updatedOrders = orders.filter((_, i) => i !== index);
@@ -408,6 +409,16 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
               />
             </FormControl>
             <FormControl sx={{ minWidth: 300, flex: 1 }}>
+              <TextField
+                label="Customer Reference Number"
+                name="customer_reference_number"
+                size="small"
+                placeholder="Ex. REF123"
+                value={formData.customer_reference_number}
+                onChange={handleChange}
+              />
+            </FormControl>
+            <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <InputLabel>Payment Method</InputLabel>
               <Select
                 value={formData.payMode}
@@ -617,7 +628,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Boxes</div>
             {boxes.map((box, index) => (
               <Box key={index} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Box No"
                     name="box_no"
@@ -626,7 +637,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     value={index + 1}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Length (in cm)"
                     name="length"
@@ -635,7 +646,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150,  flex: 1 }}>
+                <FormControl sx={{ minWidth: 100,  flex: 1 }}>
                   <TextField
                     label="Width (in cm)"
                     name="breadth"
@@ -644,7 +655,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150, flex: 1 }}>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
                   <TextField
                     label="Height (in cm)"
                     name="height"
@@ -653,12 +664,37 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
-                <FormControl sx={{ minWidth: 150 }}>
+                <Box sx={{ flex: 1, display: 'flex' }}>
+                  <FormControl sx={{ minWidth: 90, flex: 1 }}>
                   <TextField
-                    label="Weight (in g)"
+                    label="Weight"
                     name="weight"
                     size="small"
                     value={box.weight}
+                    onChange={(e) => handleBoxes(index, e)}
+                  />
+                </FormControl>
+                <FormControl sx={{ minWidth: 50 }}>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    value={box.weight_unit}
+                    onChange={(e) => handleBoxes(index, e)}
+                    name="weight_unit"
+                    size="small"
+                    label="Weight Unit"
+                  >
+                    <MenuItem value="g">gm</MenuItem>
+                    <MenuItem value="kg">kg</MenuItem>
+                  </Select>
+                </FormControl>
+                </Box>
+                <FormControl sx={{ minWidth: 100, flex: 1 }}>
+                  <TextField
+                    label="Quantity"
+                    name="quantity"
+                    size="small"
+                    type="text"
+                    value={box.quantity}
                     onChange={(e) => handleBoxes(index, e)}
                   />
                 </FormControl>
@@ -1127,6 +1163,11 @@ const Listing = ({ step, setStep }) => {
       width: 5,
     },
     { field: 'ord_id', headerName: 'Order ID', width: 130 },
+    {
+      field: 'customer_reference_number',
+      headerName: 'Customer Reference Number',
+      width: 100,
+    },
     { 
       field: 'date', 
       headerName: 'Date', 

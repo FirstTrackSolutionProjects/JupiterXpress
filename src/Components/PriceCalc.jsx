@@ -2,17 +2,18 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
-const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes, setShowCompare, invoiceAmount}) => {
+const ComparePrices = ({method, boxes, status, origin, dest, payMode, codAmount, isB2B, invoiceAmount}) => {
   const [prices,setPrices] = useState([])
   useEffect(()=>{
-    console.log({method, status, origin, dest, weight, payMode, codAmount, volume, quantity, boxes})
+    console.log({method, status, origin, dest, payMode, codAmount})
     const data = async () => {
       await fetch(`${API_URL}/shipment/domestic/price`, {
         method: 'POST',
-        headers: { 'Accept': '*/*',
-          'Content-Type': 'application/json'
+        headers: { 'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `${localStorage.getItem('token')}`
         },
-          body : JSON.stringify({method: method, status : status, origin : origin, dest : dest, weight : weight, payMode : payMode, codAmount : codAmount,volume, quantity, boxes, invoiceAmount, priceCalc: true}),
+          body : JSON.stringify({method: method, boxes : boxes, status : status, origin : origin, dest : dest, payMode : payMode, codAmount : codAmount, isB2B : isB2B, invoiceAmount : invoiceAmount, priceCalc : true}),
         
       }).then(response => response.json()).then(result => {console.log(result); setPrices(result.prices)}).catch(error => console.log(error + " " + error.message))
     }  
@@ -20,7 +21,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
   }, []) 
   return (
     <>
-      <div className="w-full absolute z-[1] inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
+     <div className="w-full absolute z-[1] inset-0 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
         <div className="text-center relative w-full">
           <div className="absolute right-5 text-2xl cursor-pointer" onClick={()=>setShowCompare(false)}>x</div>
           <p className="text-3xl font-medium">CHOOSE YOUR SERVICE</p>
@@ -45,7 +46,7 @@ const ComparePrices = ({method, status, origin, dest, weight, payMode, codAmount
 
 
 const Domestic = () => {
-  const [boxes, setBoxes] = useState([{weight : 100, length : 5, breadth : 5, height : 5}])
+  const [boxes, setBoxes] = useState([{weight : 500, weight_unit : 'g', length : 10, breadth : 10, height : 10, quantity : 1}])
   const [formData, setFormData] = useState({
     method : 'S',
     status: 'Delivered',
@@ -53,26 +54,9 @@ const Domestic = () => {
     dest : '',
     payMode : 'COD',
     codAmount : '0',
-    weight : 0,
-    volume : 0,
-    quantity : 0,
     invoiceAmount : 0,
-    // isB2B : false
+    isB2B : false
   })
-  useEffect(()=>{
-    let totalVolume = 0;
-    let totalWeight = 0;
-    boxes.map((box,index)=>{
-        totalVolume += parseFloat(box.length) * parseFloat(box.breadth) * parseFloat(box.height)
-        totalWeight += parseFloat(box.weight)
-    })
-    setFormData((prevData) => ({
-     ...prevData,
-      weight : totalWeight,
-      volume : totalVolume,
-      quantity : boxes.length
-    }));
-  },[boxes])
   const [showCompare, setShowCompare] = useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,19 +67,34 @@ const Domestic = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { origin, dest, payMode, codAmount, invoiceAmount } = formData;
-    if (!origin ||!dest ||!payMode) {
-      toast.error('Please fill all the required fields');
+    if (formData.origin.length !== 6 || formData.origin.length !== 6){
+      toast.error("Origin and Destination pincodes should be 6 digits")
       return;
     }
-    if (payMode == 'COD' && codAmount <=0){
-      toast.error('COD amount should be greater than zero');
+    if (formData.isB2B && formData.invoiceAmount < 1){
+      toast.error("Invoice Amount should be atleast 1 for B2B")
       return;
     }
-    if (invoiceAmount <= 0){
-      toast.error('Invoice amount should be greater than zero');
+    if (formData.payMode == "COD" && formData.codAmount < 1){
+      toast.error("COD Amount should be atleast 1")
       return;
     }
+    let boxValidationError = false;
+    boxes.map(box => {
+      if (!box.weight){
+        toast.error("Weight is required")
+        boxValidationError = true;
+      }
+      if (!box.length || !box.breadth || !box.height){
+        toast.error("Length, Breadth and Height should be non-zero")
+        boxValidationError = true;
+      }
+      if (box.quantity < 1){
+        toast.error("Quantity should be atleast 1")
+        boxValidationError = true;
+      }
+    })
+    if (boxValidationError) return;
     setShowCompare(true)
   }
   const handleBoxes = (index, event) => {
@@ -105,7 +104,7 @@ const Domestic = () => {
     setBoxes(updatedBoxes);
   };
   const addBox = () => {
-    setBoxes([...boxes, {  length: 5 , breadth : 5 , height : 5  , weight: 100 }]);
+    setBoxes([...boxes, {  length: 10 , breadth : 10 , height : 10  , weight: 500, weight_unit : 'g', quantity: 1 }]);
   };
   const removeBox = (index) => {
     const updatedBoxes = boxes.filter((_, i) => i !== index);
@@ -113,7 +112,7 @@ const Domestic = () => {
   };
   return (
     <>
-      {showCompare && <ComparePrices {...formData} boxes={boxes} setShowCompare={setShowCompare} />}
+      {showCompare && <ComparePrices {...formData} boxes={boxes} />}
       <form action="" className="flex flex-col max-w-[724px] space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
@@ -129,10 +128,9 @@ const Domestic = () => {
                 <option value="E">Express</option>
               </select>
             </div>
-
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="payMode">Payment Mode</label>
-              <select required
+              <select
                 name="payMode"
                 id="payMode"
                 className="border py-2 px-4 rounded-3xl"
@@ -142,6 +140,7 @@ const Domestic = () => {
               >
                 <option value="COD">COD</option>
                 <option value="Pre-paid">Prepaid</option>
+                <option value="Pickup">Pickup</option>
               </select>
             </div>
           </div>
@@ -184,6 +183,7 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
+            
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
               <label htmlFor="invoiceAmount">Invoice Amount</label>
               <input
@@ -196,27 +196,71 @@ const Domestic = () => {
                 onChange={handleChange}
               />
             </div>
+            
+          </div>
+          <div className="w-full flex mb-2 flex-wrap ">
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+              <label htmlFor="shipmentType">Shipment Type</label>
+              <select
+                name="isB2B"
+                id="shipmentType"
+                className="border py-2 px-4 rounded-3xl"
+                value={formData.isB2B}
+                onChange={handleChange}
+
+              >
+                <option value={false}>B2C</option>
+                <option value={true}>B2B</option>
+              </select>
+            </div>
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
+              <label htmlFor="status">Status</label>
+              <select
+                name="status"
+                id="status"
+                className="border py-2 px-4 rounded-3xl"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="Delivered">Forward</option>
+                {/* <option value="RTO">RTO</option>
+                <option value="DTO">Reverse</option> */}
+              </select>
+            </div>
+            
+            
           </div>
           {boxes.map((box,index)=>(
             <>
               <div className="w-full relative z-0 flex mb-2 flex-wrap ">
               <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="weight">Weight (In grams)</label>
-              <input
+              <label htmlFor="weight">Weight</label>
+              <div className="w-full flex space-x-2">
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="weight"
                 name="weight"
-                min={50}
                 placeholder="Ex. 1500"
                 value = {box.weight}
                 onChange={(e)=>handleBoxes(index,e)}
               />
+              <select
+                name="weight_unit"
+                id="weight_unit"
+                className="border py-2 px-4 rounded-3xl"
+                value={box.weight_unit}
+                onChange={(e)=>handleBoxes(index,e)}
+              >
+                <option value={'g'}>g</option>
+                <option value={'kg'}>kg</option>
+              </select>
+              </div>
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex">
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 mx-2 mb-2 min-w-[300px] flex space-x-2">
+            <div className="flex-1 mb-2 min-w-[70px] space-y-2">
               <label htmlFor="length">L (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="length"
@@ -227,9 +271,9 @@ const Domestic = () => {
                 onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 mb-2 min-w-[70px] space-y-2">
               <label htmlFor="breadth">B (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="breadth"
@@ -240,9 +284,9 @@ const Domestic = () => {
                 onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[90px] space-y-2">
+            <div className="flex-1 mb-2 min-w-[70px] space-y-2">
               <label htmlFor="height">H (in cm)</label>
-              <input
+              <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
                 id="height"
@@ -250,6 +294,19 @@ const Domestic = () => {
                 min={1}
                 placeholder="Ex. 2.5"
                 value={box.height}
+                onChange={(e)=>handleBoxes(index,e)}
+              />
+            </div>
+            <div className="flex-1 mb-2 min-w-[70px] space-y-2">
+              <label htmlFor="quantity">Quantity</label>
+              <input required
+                className="w-full border py-2 px-4 rounded-3xl"
+                type="text"
+                id="quantity"
+                name="quantity"
+                min={1}
+                placeholder="Ex. 2.5"
+                value={box.quantity}
                 onChange={(e)=>handleBoxes(index,e)}
               />
             </div>
