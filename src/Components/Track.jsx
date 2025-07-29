@@ -20,7 +20,7 @@ const Track = ({track, setTrack}) => {
         <div className="text-lg sm:text-2xl font-medium my-3">
             TRACK YOUR ORDER NOW
         </div>
-        <div className="flex justify-evenly w-[200px] font-medium">
+        {/* <div className="flex justify-evenly w-[200px] font-medium">
             <div className="space-x-2">
             <input checked type="radio" id="awb" name="idType" />
             <label htmlFor="awb">AWB</label>
@@ -29,7 +29,7 @@ const Track = ({track, setTrack}) => {
             <input type="radio" id="orderId" name="idType"/>
             <label htmlFor="orderId">OrderId</label>
             </div>
-        </div>
+        </div> */}
         <form className="flex flex-col sm:flex-row space-y-2 sm:space-y-0" onSubmit={handleTracking}>
             <input type="text" name="id" value={id} onChange={(e)=>setId(e.target.value)} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id" />
             <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50" type="submit">Track</button>

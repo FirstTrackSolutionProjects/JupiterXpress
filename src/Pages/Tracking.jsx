@@ -9,7 +9,7 @@ const Form = () => {
 
     useEffect(() => {
         if (localStorage.getItem('track')) {
-            setFormData({ id: localStorage.getItem('track'), isWaybill: true })
+            setFormData({ awb: localStorage.getItem('track') })
             localStorage.setItem('track', '')
             // handleSubmit(1)
         }
@@ -69,7 +69,7 @@ const Form = () => {
             </div>
             </div> */}
                         <div className='flex'>
-                            <input type="text" name="awb" value={formData.id} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
+                            <input type="text" name="awb" value={formData.awb} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
                             <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50" disabled={loading}>{loading?'Tracking...' : 'Track'}</button>
                         </div>
                     </form>
