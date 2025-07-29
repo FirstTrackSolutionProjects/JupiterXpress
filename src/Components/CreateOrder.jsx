@@ -641,6 +641,16 @@ const FullDetails = () => {
                 </div>
                 {errors.boxes?.[index]?.weight && <span className='text-red-500'>{errors.boxes?.[index]?.weight.message}</span>}
               </div>
+              <div className="flex-1 mx-2 mb-2 space-y-2">
+                <label htmlFor={`boxes[${index}].quantity`}>Quantity</label>
+                <input
+                  className="w-full border py-2 px-4 rounded-3xl"
+                  type="text"
+                  id={`boxes[${index}].quantity`}
+                  {...register(`boxes[${index}].quantity`)}
+                />
+                {errors.boxes?.[index]?.quantity && <span className='text-red-500'>{errors.boxes?.[index]?.quantity.message}</span>}
+              </div>
               {watch('boxes').length > 1 ? <div className="w-full text-right">
                 <button type="button" className="text-red-500" onClick={() => boxes.remove(index)}>Remove</button>
               </div> : null}
