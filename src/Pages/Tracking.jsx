@@ -6,14 +6,23 @@ const Form = () => {
         awb: ''
     })
     const [loading, setLoading] = useState(false)
+    const [autoSubmit, setAutoSubmit] = useState(false)
 
     useEffect(() => {
         if (localStorage.getItem('track')) {
-            setFormData({ awb: localStorage.getItem('track') })
-            localStorage.setItem('track', '')
-            // handleSubmit(1)
+            const awbValue = localStorage.getItem('track');
+            setFormData({ awb: awbValue });
+            localStorage.setItem('track', '');
+            setAutoSubmit(true);
         }
     }, [])
+
+    useEffect(() => {
+        if (autoSubmit && formData.awb) {
+            handleSubmit();
+            setAutoSubmit(false);
+        }
+    }, [formData.awb, autoSubmit])
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -25,7 +34,7 @@ const Form = () => {
     const [trackingData, setTrackingData] = useState(null)
     const handleSubmit = async (e) => {
         try {
-            e.preventDefault();
+            e?.preventDefault();
             setLoading(true)
             const data = await fetch(`${API_URL}/shipment/track`, {
                 method: 'POST',
