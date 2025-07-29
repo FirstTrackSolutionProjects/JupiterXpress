@@ -1041,6 +1041,7 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip, getParcels }) => {
 };
 
 const ShipList = ({ shipment, isShipOpen, setIsShipOpen, setIsShipped, getParcels }) => {
+  if (!isShipOpen) return null;
   const [prices, setPrices] = useState([]);
   const [boxes, setBoxes] = useState([]);
   
