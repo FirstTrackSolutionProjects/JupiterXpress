@@ -6,14 +6,23 @@ const Form = () => {
         awb: ''
     })
     const [loading, setLoading] = useState(false)
+    const [autoSubmit, setAutoSubmit] = useState(false)
 
     useEffect(() => {
         if (localStorage.getItem('track')) {
-            setFormData({ id: localStorage.getItem('track'), isWaybill: true })
-            localStorage.setItem('track', '')
-            // handleSubmit(1)
+            const awbValue = localStorage.getItem('track');
+            setFormData({ awb: awbValue });
+            localStorage.setItem('track', '');
+            setAutoSubmit(true);
         }
     }, [])
+
+    useEffect(() => {
+        if (autoSubmit && formData.awb) {
+            handleSubmit();
+            setAutoSubmit(false);
+        }
+    }, [formData.awb, autoSubmit])
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -25,7 +34,7 @@ const Form = () => {
     const [trackingData, setTrackingData] = useState(null)
     const handleSubmit = async (e) => {
         try {
-            e.preventDefault();
+            e?.preventDefault();
             setLoading(true)
             const data = await fetch(`${API_URL}/shipment/track`, {
                 method: 'POST',
@@ -69,7 +78,7 @@ const Form = () => {
             </div>
             </div> */}
                         <div className='flex'>
-                            <input type="text" name="awb" value={formData.id} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
+                            <input type="text" name="awb" value={formData.awb} onChange={handleChange} className="border py-2 px-4 sm:rounded-l-xl bg-blue-50" placeholder="Enter Tracking Id/AWB" />
                             <button className="border py-2 px-4 sm:rounded-r-xl bg-blue-50" disabled={loading}>{loading?'Tracking...' : 'Track'}</button>
                         </div>
                     </form>
