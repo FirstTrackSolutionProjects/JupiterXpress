@@ -16,13 +16,15 @@ import AllTransactions from "../Components/AllTransactions"
 import AllParcels from "../Components/AllParcels"
 import AllShipmentReports from "../Components/AllShipmentReports"
 import UpdateOrderInternational from "../Components/UpdateOrderInternational"
-import KYCVerification from "../Components/KYCVerification"
-import KYCRequests from "../Components/KYCRequests"
+// import KYCVerification from "../Components/KYCVerification"
+// import KYCRequests from "../Components/KYCRequests"
 import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
 import InternationalReports from "../Components/InternationalReports"
 import WeightDisputes from "../Components/WeightDisputes"
 import PendingCancellations from "../Components/PendingCancellations/PendingCancellations"
 import PendingRefunds from "../Components/PendingRefunds/PendingRefunds"
+import UpdateProfileRequest from '../Components/UpdateProfileRequest';
+import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestSubmissions';
 
 export const navItems = [
     {
@@ -74,15 +76,15 @@ export const menuItems = [
     //     url : 'wallet-recharge',
     //     dropDownOptions : [{}]
     // },
-    {
-        icon : "/logo.webp",
-        name : "KYC Update",
-        isDropdown : false,
-        merchantOnly : true,
-        url : 'kyc-update',
-        component : KYCVerification,
-        dropDownOptions : [{}]
-    },
+    // {
+    //     icon : "/logo.webp",
+    //     name : "KYC Update",
+    //     isDropdown : false,
+    //     merchantOnly : true,
+    //     url : 'kyc-update',
+    //     component : KYCVerification,
+    //     dropDownOptions : [{}]
+    // },
     {
         icon : "/logo.webp",
         name : "Create Shipment",
@@ -310,6 +312,15 @@ export const menuItems = [
         },
         {
             icon : "/logo.webp",
+            name : "Update Profile Requests",
+            isDropdown : false,
+            admin : true,
+            url : 'submissions/merchant-update-profile-requests',
+            component : UpdateProfileRequestSubmissions,
+            dropDownOptions : [{}]
+        },
+        {
+            icon : "/logo.webp",
             name : "Contact Submission",
             isDropdown : false,
             admin : true,
@@ -317,15 +328,15 @@ export const menuItems = [
             component : ContactSubmissions,
             dropDownOptions : [{}]
         },
-        {
-            icon : "/logo.webp",
-            name : "KYC Requests",
-            isDropdown : false,
-            admin : true,
-            url : 'submissions/kyc-requests',
-            component : KYCRequests,
-            dropDownOptions : [{}]
-        }
+        // {
+        //     icon : "/logo.webp",
+        //     name : "KYC Requests",
+        //     isDropdown : false,
+        //     admin : true,
+        //     url : 'submissions/kyc-requests',
+        //     component : KYCRequests,
+        //     dropDownOptions : [{}]
+        // }
     ]
     },
     {
@@ -349,6 +360,15 @@ export const menuItems = [
                 isDropdown : false,
                 url : 'settings/profile',
                 component : Profile,
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "/logo.webp",
+                name : "Profile Update",
+                isDropdown : false,
+                url : 'settings/profile-update-request',
+                component : UpdateProfileRequest,
+                merchantOnly : true,
                 dropDownOptions : [{}]
             },
             {
