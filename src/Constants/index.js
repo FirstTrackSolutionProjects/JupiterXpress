@@ -16,8 +16,8 @@ import AllTransactions from "../Components/AllTransactions"
 import AllParcels from "../Components/AllParcels"
 import AllShipmentReports from "../Components/AllShipmentReports"
 import UpdateOrderInternational from "../Components/UpdateOrderInternational"
-import KYCVerification from "../Components/KYCVerification"
-import KYCRequests from "../Components/KYCRequests"
+// import KYCVerification from "../Components/KYCVerification"
+// import KYCRequests from "../Components/KYCRequests"
 import AllInternationalShipmentReports from "../Components/AllInternationalShipmentReports"
 import InternationalReports from "../Components/InternationalReports"
 import WeightDisputes from "../Components/WeightDisputes"
@@ -76,15 +76,15 @@ export const menuItems = [
     //     url : 'wallet-recharge',
     //     dropDownOptions : [{}]
     // },
-    {
-        icon : "/logo.webp",
-        name : "KYC Update",
-        isDropdown : false,
-        merchantOnly : true,
-        url : 'kyc-update',
-        component : KYCVerification,
-        dropDownOptions : [{}]
-    },
+    // {
+    //     icon : "/logo.webp",
+    //     name : "KYC Update",
+    //     isDropdown : false,
+    //     merchantOnly : true,
+    //     url : 'kyc-update',
+    //     component : KYCVerification,
+    //     dropDownOptions : [{}]
+    // },
     {
         icon : "/logo.webp",
         name : "Create Shipment",
@@ -328,15 +328,15 @@ export const menuItems = [
             component : ContactSubmissions,
             dropDownOptions : [{}]
         },
-        {
-            icon : "/logo.webp",
-            name : "KYC Requests",
-            isDropdown : false,
-            admin : true,
-            url : 'submissions/kyc-requests',
-            component : KYCRequests,
-            dropDownOptions : [{}]
-        }
+        // {
+        //     icon : "/logo.webp",
+        //     name : "KYC Requests",
+        //     isDropdown : false,
+        //     admin : true,
+        //     url : 'submissions/kyc-requests',
+        //     component : KYCRequests,
+        //     dropDownOptions : [{}]
+        // }
     ]
     },
     {
