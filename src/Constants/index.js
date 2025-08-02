@@ -23,6 +23,8 @@ import InternationalReports from "../Components/InternationalReports"
 import WeightDisputes from "../Components/WeightDisputes"
 import PendingCancellations from "../Components/PendingCancellations/PendingCancellations"
 import PendingRefunds from "../Components/PendingRefunds/PendingRefunds"
+import UpdateProfileRequest from '../Components/UpdateProfileRequest';
+import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestSubmissions';
 
 export const navItems = [
     {
@@ -310,6 +312,15 @@ export const menuItems = [
         },
         {
             icon : "/logo.webp",
+            name : "Update Profile Requests",
+            isDropdown : false,
+            admin : true,
+            url : 'submissions/merchant-update-profile-requests',
+            component : UpdateProfileRequestSubmissions,
+            dropDownOptions : [{}]
+        },
+        {
+            icon : "/logo.webp",
             name : "Contact Submission",
             isDropdown : false,
             admin : true,
@@ -349,6 +360,15 @@ export const menuItems = [
                 isDropdown : false,
                 url : 'settings/profile',
                 component : Profile,
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "/logo.webp",
+                name : "Profile Update",
+                isDropdown : false,
+                url : 'settings/profile-update-request',
+                component : UpdateProfileRequest,
+                merchantOnly : true,
                 dropDownOptions : [{}]
             },
             {
