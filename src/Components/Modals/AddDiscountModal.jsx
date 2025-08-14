@@ -90,7 +90,7 @@ const AddDiscountModal = ({ open, onClose, uid }) => {
                         required
                         value={formData.discount}
                         onChange={e => setFormData({...formData, discount: e.target.value })}
-                        min={-100}
+                        min={0}
                         max={100}
                     />
                 </div>
