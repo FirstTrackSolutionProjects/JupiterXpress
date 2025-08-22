@@ -2,9 +2,16 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
 import { COUNTRIES } from "../Constants";
+import { toast } from "react-toastify";
+import {v4} from "uuid";
+import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
+import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
   // ---------------- State: Dockets & Items ----------------
+
+  const [loading, setLoading] = useState(null);
+
   const [dockets, setDockets] = useState([
     { box_no: 1 , docket_weight: 0 , docket_weight_unit: 'kg', length: 0 , breadth : 0, height : 0, quantity: 1 }
   ]);
@@ -78,6 +85,20 @@ const [items, setItems] = useState([
     invoiceDate: shipment.invoice_date || "",
     invoiceDoc: shipment.invoice_doc || ""
   });
+  const formDataRef = useRef(formData);
+
+  const [files, setFiles] = useState({
+    aadhaarDoc: null,
+    invoiceDoc: null
+  })
+
+  const handleFileChange = async (e) => {
+    const { name, files: newFiles } = e.target;
+    setFiles((prev) => ({
+      ...prev,
+      [name]: newFiles[0]
+    }));
+  }
   // Warehouses, services, vendors
   const [warehouses, setWarehouses] = useState([])
   const [services, setServices] = useState([]);
@@ -168,9 +189,47 @@ const [items, setItems] = useState([
       [name]:type === 'checkbox' ? checked : value
     }));
   };
-  const handleSubmit = (e) => {
+
+  const uploadFile = async (file) => {
+    if (!files[file] && !formData[file]){
+      throw new Error(`${file} is required`);
+    };
+    if (!files[file]) return;
+    try{
+      const key = `shipment/international/${v4()}/${file}`;
+      const newFormData = { ...formDataRef.current, [file]: key };
+      formDataRef.current = newFormData;
+      const filetype = files[file].type;
+      const putUrl = await getS3PutUrlService(key, filetype, true);
+      console.log(file)
+      console.log(files[file])
+      await s3FileUploadService(putUrl, files[file], filetype);
+    } catch (error){
+      console.error(error);
+      setFormData((prev) => ({...prev, [file]: ""}));
+      toast.error(`Failed to upload ${file}, try again!`)
+    }
+  }
+
+  const handleUpload = async () => {
+    try{
+      setLoading("Uploading Files...")
+      await Promise.all(
+        Object.keys(files).map(key => uploadFile(key))
+      );
+      return true;
+    } catch (error) {
+      toast.error(error?.message || "Failed to upload files");
+    } finally {
+      setLoading(null);
+    }
+  }
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  console.log({...formData, dockets, items})
+    if (!(await handleUpload())) return;
+    try{
+      setLoading("Updating Order...")
+      const formData = {...formDataRef.current, dockets, items};
     let docketFlag = 0
     for (let i = 0; i < formData.dockets.length; i++) {
       for (let j = 0; j < formData.items.length; j++) {
@@ -205,7 +264,7 @@ const [items, setItems] = useState([
         'Content-Type': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-  body: JSON.stringify({...formData, dockets, items}),
+  body: JSON.stringify({...formData}),
     })
       .then(response => response.json())
       .then(result => {
@@ -219,6 +278,12 @@ const [items, setItems] = useState([
         console.error('Error:', error);
         alert('Something Went Wrong, please try again');
       });
+    } catch (error){
+      console.error(error)
+      toast.error("Failed to update order")
+    } finally{
+      setLoading(null)
+    }
   }
   // ---------------- Country & Dial code searchable dropdowns ----------------
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
@@ -285,18 +350,18 @@ const [items, setItems] = useState([
         </div>
 
         {/* Consignee Details Card */}
-        <div className="bg-white shadow rounded-2xl p-6 border relative">
-          <div className="text-lg font-semibold mb-4">Consignee Details</div>
+        <section className="bg-white/70  rounded-2xl border p-6 shadow-sm space-y-4">
+          <h2 className="text-lg font-semibold">Consignee Details</h2>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="consigneeName" className="text-sm font-medium">Name</label>
-              <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeName">Name</label>
+              <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="consigneeCompany" className="text-sm font-medium">Company</label>
-              <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company</label>
+              <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2">
+            <div className="space-y-1">
               <label className="text-sm font-medium">Country Code</label>
               <div className="relative" ref={countryDropdownRef}>
                 <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
@@ -311,7 +376,7 @@ const [items, setItems] = useState([
                     <ul className="max-h-60 overflow-y-auto text-sm">
                       {filteredCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredCountries.map(c => (
-                        <li key={c.iso2+"-code-upd"}>
+                        <li key={c.iso2+"-code"}>
                           <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.code ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,countryCode:c.code})); setCountryDropdownOpen(false); setCountrySearch("");}}>
                             <span className="inline-block w-16">{c.code}</span>
                             <span>{c.name}</span>
@@ -323,39 +388,31 @@ const [items, setItems] = useState([
                 )}
               </div>
             </div>
-            <div className="flex flex-col space-y-2">
+            <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeContact">Contact</label>
-              <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2 md:col-span-2">
-              <label htmlFor="consigneeEmail" className="text-sm font-medium">Email</label>
-              <input id="consigneeEmail" name="consigneeEmail" required value={formData.consigneeEmail} onChange={handleChange} placeholder="customer@example.com" className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email</label>
+              <input id="consigneeEmail" name="consigneeEmail" type="email" required value={formData.consigneeEmail} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2 md:col-span-3">
-              <label htmlFor="consigneeAddress" className="text-sm font-medium">Address Line 1</label>
-              <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address</label>
+              <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2 md:col-span-3">
-              <label htmlFor="consigneeAddress2" className="text-sm font-medium">Address Line 2</label>
-              <input id="consigneeAddress2" name="consigneeAddress2" required value={formData.consigneeAddress2} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code</label>
+              <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2 md:col-span-3">
-              <label htmlFor="consigneeAddress3" className="text-sm font-medium">Address Line 3</label>
-              <input id="consigneeAddress3" name="consigneeAddress3" required value={formData.consigneeAddress3} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeCity">City</label>
+              <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="consigneeZipCode" className="text-sm font-medium">Zip Code</label>
-              <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeState">State</label>
+              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="consigneeCity" className="text-sm font-medium">City</label>
-              <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="border rounded-xl px-4 py-2" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="consigneeState" className="text-sm font-medium">State</label>
-              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="border rounded-xl px-4 py-2" />
-            </div>
-            <div className="flex flex-col space-y-2">
+            <div className="space-y-1">
               <label className="text-sm font-medium">Country</label>
               <div className="relative" ref={destCountryRef}>
                 <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
@@ -363,14 +420,14 @@ const [items, setItems] = useState([
                   <span className="ml-2">▾</span>
                 </button>
                 {destCountryOpen && (
-                  <div className="absolute z-50 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
+                  <div className="absolute z-20 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
                     <div className="p-2 border-b">
                       <input autoFocus type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search country" value={destCountrySearch} onChange={(e)=>setDestCountrySearch(e.target.value)} />
                     </div>
                     <ul className="max-h-72 overflow-y-auto text-sm">
                       {filteredDestCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredDestCountries.map(c => (
-                        <li key={c.iso2+"-dest-upd"}>
+                        <li key={c.iso_code2+"-dest"}>
                           <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.name ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,consigneeCountry:c.name})); setDestCountryOpen(false); setDestCountrySearch("");}}>
                             {c.name}
                           </button>
@@ -382,7 +439,7 @@ const [items, setItems] = useState([
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Shipment Meta & Pricing */}
         <div className="bg-white shadow rounded-2xl p-6 border">
@@ -506,7 +563,17 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)</label>
-              <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={(e)=> setFormData(p=>({...p,aadhaarDoc:e.target.files[0]}))} className="border rounded-xl px-4 py-2" />
+              <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
+              {formData.aadhaarDoc && typeof formData.aadhaarDoc === 'string' && (
+                  <a
+                    href={`${import.meta.env.VITE_APP_BUCKET_URL}${formData.aadhaarDoc}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 rounded border border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    View
+                  </a>
+                )}
             </div>
           </div>
         </div>
@@ -525,7 +592,17 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="invoiceDoc" className="text-sm font-medium">Invoice Document (PDF/Image)</label>
-              <input id="invoiceDoc" name="invoiceDoc" type="file" accept="application/pdf,image/*" onChange={(e)=> setFormData(p=>({...p,invoiceDoc:e.target.files[0]}))} className="border rounded-xl px-4 py-2" />
+              <input id="invoiceDoc" name="invoiceDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
+              {formData.invoiceDoc && typeof formData.invoiceDoc === 'string' && (
+                  <a
+                    href={`${import.meta.env.VITE_APP_BUCKET_URL}${formData.invoiceDoc}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 rounded border border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    View
+                  </a>
+                )}
             </div>
           </div>
         </div>
@@ -542,7 +619,7 @@ const [items, setItems] = useState([
         </div>
 
         <div className="pt-4">
-          <button type='submit' className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">Update</button>
+          <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
         </div>
       </form>
     </div>
