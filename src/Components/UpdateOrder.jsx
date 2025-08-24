@@ -1088,7 +1088,8 @@ const ShipList = ({ shipment, isShipOpen, setIsShipOpen, setIsShipped, getParcel
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
         },
         body: JSON.stringify({ 
           method: shipment.shipping_mode == "Surface" ? "S" : "E", 
