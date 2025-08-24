@@ -145,7 +145,8 @@ export const menuItems = [
         isDropdown : false,
         url : 'transaction-history',
         component : TransactionHistory,
-        dropDownOptions : [{}]
+        dropDownOptions : [{}],
+        merchantOnly : true
     },
     {
         icon : "/logo.webp",
