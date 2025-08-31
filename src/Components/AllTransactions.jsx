@@ -1,245 +1,194 @@
-import { useEffect, useState } from "react"
-import * as XLSX from 'xlsx';
-import getFilterStartDate from "../helpers/getFilterStartDate";
-import getTodaysDate from "../helpers/getTodaysDate";
-import convertToUTCISOString from "../helpers/convertToUTCISOString";
-const API_URL = import.meta.env.VITE_APP_API_URL
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import getFilterStartDate from '../helpers/getFilterStartDate';
+import getTodaysDate from '../helpers/getTodaysDate';
+import convertToUTCISOString from '../helpers/convertToUTCISOString';
+import getAllTransactionsAdminService from '../services/transactionServices/getAllTransactionsAdminService';
 
-const Card = ({transaction}) => {
-    const date = transaction.date;
-    const dateLocal = new Date(date).toLocaleString();
-    return (
-        <>
-            {transaction.type ==="recharge" && <div className='p-4 border'>
-                <p>Recharge</p>
-                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
-                <p>Order Id : {transaction.order_id}</p>
-                <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
-                <p>{dateLocal}</p>
-            </div>}
-            {transaction.type ==="manual" && <div className='p-4 border'>
-                <p>Manual Recharge</p>
-                <p>{transaction.fullName}<span className="text-gray-500">({transaction.beneficiary_id})</span></p>
-                <p>Order Id : {transaction.recharge_id}</p>
-                <p>Amount : {transaction.amount > 0? "+"+transaction.amount :transaction.amount}</p>
-                <p>Reason : {transaction.reason}</p>
-                <p>{dateLocal}</p>
-            </div>}
-            {transaction.type ==="expense" && <div className='p-4 border'>
-                <p>Order Expense</p>
-                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
-                <p>Order Id : {transaction.expense_order}</p>
-                <p>Service : {transaction.service_name}</p>
-                <p>Amount : -{transaction.expense_cost}</p>
-                <p>{dateLocal}</p>
-            </div>}
-            {transaction.type ==="refund" && <div className='p-4 border'>
-                <p>Order Refund</p>
-                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
-                <p>Order Id : {transaction.refund_order}</p>
-                <p>Service : {transaction.service_name}</p>
-                <p>Amount : +{transaction.refund_amount}</p>
-                <p>{dateLocal}</p>
-            </div>}
-            {transaction.type ==="dispute_charge" && <div className='p-4 border'>
-                <p>Dispute Charge</p>
-                <p>{transaction.fullName}<span className="text-gray-500">({transaction.uid})</span></p>
-                <p>Order Id : {transaction.dispute_order}</p>
-                <p>Service : {transaction.service_name}</p>
-                <p>Amount : -{transaction.dispute_charge}</p>
-                <p>{dateLocal}</p>
-            </div>}
-        </>
-    )
-}
+const PAGE_SIZE = 50; // backend admin endpoint uses 50
 
+const columns = [
+  { field: 'date', headerName: 'Date', flex: 1, valueGetter: p => p?.row?.date, renderCell: p => new Date(p.row.date).toLocaleString() },
+  { field: 'type', headerName: 'Type', flex: 1 },
+  { field: 'order_id', headerName: 'Order ID', flex: 1 },
+  { field: 'payment_id', headerName: 'Payment ID', flex: 1, hide: true },
+  { field: 'fullName', headerName: 'Merchant Name', flex: 1 },
+  { field: 'email', headerName: 'Email', flex: 1 },
+  { field: 'businessName', headerName: 'Business', flex: 1 },
+  { field: 'service_name', headerName: 'Service', flex: 1 },
+  { field: 'amount', headerName: 'Amount', flex: 1, renderCell: p => {
+      const v = Number(p.value);
+      if (isNaN(v)) return '';
+      const sign = p.row.type === 'expense' || p.row.type === 'dispute_charge' ? '-' : '+';
+      const cls = sign === '+' ? 'text-green-600' : 'text-red-600';
+      return <span className={cls}>{sign}{Math.abs(v)}</span>;
+    } },
+  { field: 'remaining_balance', headerName: 'Balance After', flex: 1, renderCell: p => p.value != null ? Number(p.value) : '' },
+  { field: 'reason', headerName: 'Reason', flex: 1 }
+];
 
+const AllTransactions = () => {
+  // Data state
+  const [rows, setRows] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1); // 1-based for backend
 
-const AllTransactions =  () => {
-    const [transactions, setTransactions] = useState([])
-    const [downloading, setDownloading] = useState(false);
-    const [filters, setFilters] = useState({
-        startDate: getFilterStartDate(), 
-        endDate: getTodaysDate(), 
-        merchant_email: ''
-    })
-    const [filteredTransactions, setFilteredTransactions] = useState([]);
-    useEffect(() => {
-        const getVerifiedtransaction = async () => {
-            const recharge = await fetch(`${API_URL}/wallet/recharges`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-            const recharges = await recharge.json();
-            const data = recharges.data
-            const manual = await fetch(`${API_URL}/wallet/manualRecharges`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-            const manuals = await manual.json();
-            data.push(...manuals.data)
-            const expense = await fetch(`${API_URL}/wallet/expenses`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-            const expenses = await expense.json();
-            data.push(...expenses.data)
-            const refund = await fetch(`${API_URL}/wallet/refunds`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-            const refunds = await refund.json();
-            data.push(...refunds.data)
-
-            const disputeCharge = await fetch(`${API_URL}/wallet/dispute-charges`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json',
-                    'Authorization': localStorage.getItem('token')
-                }
-            })
-            const disputeCharges = await disputeCharge.json();
-            data.push(...disputeCharges.data)
-            
-            // console.log("recharge", transactions.data)
-            data.forEach(obj => {
-                if (!(obj.date instanceof Date)) {
-                    obj.dateObj = new Date(obj.date);
-                }
-            });
-            data.sort((a, b) => a.dateObj - b.dateObj).reverse();
-            if (data.length){
-                setTransactions(data)
-                setFilteredTransactions(data)
-            }
-        }
-        getVerifiedtransaction();
-    },[]);
-
-    const downloadExcelFromExport = async (filters) => {
-      try {
-        setDownloading(true)
-        const payload = {
-          startDate: convertToUTCISOString(filters.startDate),
-          endDate: convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`),
-          merchant_email: filters.merchant_email
-        }
-        const response = await fetch(`${API_URL}/wallet/report/download/all`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-          alert('Error exporting data');
-          return;
-        }
-
-        const workbook = XLSX.utils.book_new();
-
-        const rows = result.data || [];
-        const worksheet = XLSX.utils.json_to_sheet(rows);
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
-
-        XLSX.writeFile(workbook, `TransactionExport_${Date.now()}.xlsx`);
-      } catch (err) {
-        console.error('Error exporting to Excel:', err);
-      } finally {
-        setDownloading(false)
-      }
-    };
-
-   useEffect(() => {
-  if (!transactions.length) return;
-
-  const filteredData = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.date);
-    const startDate = filters.startDate ? new Date(convertToUTCISOString(filters.startDate)) : null;
-    const endDate = filters.endDate ? new Date(convertToUTCISOString(`${filters.endDate}T23:59:59.999Z`)) : null;
-
-    const isAfterStart =
-      !startDate || transactionDate >= startDate;
-    const isBeforeEnd =
-      !endDate || transactionDate <= endDate;
-
-    const matchesEmail =
-      !filters.merchant_email ||
-      (transaction.email &&
-        transaction.email.toLowerCase() === filters.merchant_email.toLowerCase());
-
-    return isAfterStart && isBeforeEnd && matchesEmail;
+  // Filters
+  const [filters, setFilters] = useState({
+    type: 'all',
+    order_id: '',
+    merchant_email: '',
+    merchant_name: '',
+    merchant_business_name: '',
+    startDate: getFilterStartDate(),
+    endDate: getTodaysDate()
   });
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
 
-  setFilteredTransactions(filteredData);
-}, [transactions, filters]);
+  // Debounce
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedFilters(filters), 500);
+    return () => clearTimeout(t);
+  }, [filters]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
-  }
-  return (
-    <>
-    <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      <div className='w-full p-8 flex flex-col items-center space-y-8'>
-      <div className='text-center text-3xl font-medium text-black'>Transaction History</div>
-      <details className="w-full p-2 bg-blue-500 rounded-xl text-white">
-          <summary>Filters</summary>
-          <div className="grid space-y-2 lg:grid-rows-1 lg:grid-cols-4 lg:space-y-0 lg:space-x-4 p-2 rounded-xl w-full bg-blue-500 text-black justify-evenly">
-            <input
-              className="p-1 rounded-xl"
-              type="text"
-              name="merchant_email"
-              placeholder="Merchant Email"
-              value={filters.merchant_email}
-              onChange={handleFilterChange}
-            />
-            <input
-              className="p-1 rounded-xl min-w-[260px] lg:min-w-0"
-              type="date"
-              name="startDate"
-              value={filters.startDate}
-              onChange={handleFilterChange}
-            />
-            <input
-              className="p-1 rounded-xl"
-              type="date"
-              name="endDate"
-              value={filters.endDate}
-              onChange={handleFilterChange}
-            />
-            <button className="flex-1 min-w-48 bg-blue-700 p-3 rounded-xl text-white" onClick={downloading ? null : () => downloadExcelFromExport(filters)}>{downloading ? 'Downloading...' : 'Download Report'}</button>
-          </div>
-        </details>
-      <div className='w-full bg-white p-8'>
-        {filteredTransactions.length > 0 ? (
-        filteredTransactions.map(((transaction,index)=>(
-            <Card key={index}  transaction={transaction}/>
-        )))
-      ) : (
-        null
-      )}
+    setFilters(prev => ({ ...prev, [name]: value }));
+    setPage(1);
+  };
+
+  // Fetch
+  const fetchData = useCallback(async () => {
+    setLoading(true); setError(null);
+    try {
+      const data = await getAllTransactionsAdminService({
+        page,
+        startDate: convertToUTCISOString(`${debouncedFilters.startDate}T00:00:00`),
+        endDate: convertToUTCISOString(`${debouncedFilters.endDate}T23:59:59.999`),
+        order_id: debouncedFilters.order_id,
+        merchant_email: debouncedFilters.merchant_email,
+        merchant_name: debouncedFilters.merchant_name,
+        merchant_business_name: debouncedFilters.merchant_business_name,
+        type: debouncedFilters.type
+      });
+      const incoming = data?.rows || [];
+      // Ensure each row has an id (backend provides id for each select we constructed). Fallback composite.
+      setRows(incoming.map((r, i) => ({ id: r.id || `${r.type}_${r.order_id || r.payment_id || i}_${r.date}`, ...r })));
+      setRowCount(data?.totalRecords || 0);
+    } catch (err) {
+      setError(err.message || 'Failed to load');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, debouncedFilters]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const totalPages = useMemo(() => Math.ceil(rowCount / PAGE_SIZE) || 1, [rowCount]);
+
+  // Pagination component (same as TransactionHistory)
+  const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const pages = [];
+    const addPage = (num) => pages.push({ number: num, isCurrent: num === currentPage });
+    addPage(1);
+    if (totalPages <= 7) {
+      for (let i = 2; i < totalPages; i++) addPage(i);
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 2; i <= 5; i++) addPage(i);
+        pages.push({ number: '...', isCurrent: false });
+      } else if (currentPage >= totalPages - 3) {
+        pages.push({ number: '...', isCurrent: false });
+        for (let i = totalPages - 4; i < totalPages; i++) addPage(i);
+      } else {
+        pages.push({ number: '...', isCurrent: false });
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) addPage(i);
+        pages.push({ number: '...', isCurrent: false });
+      }
+    }
+    if (totalPages > 1) addPage(totalPages);
+    return (
+      <div className="flex items-center justify-center space-x-1 sm:space-x-2 mt-4">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+        >
+          <span className="hidden sm:inline">Previous</span>
+          <span className="sm:hidden">Prev</span>
+        </button>
+        {pages.map((p, idx) => (
+          <button
+            key={idx}
+            onClick={() => p.number !== '...' && onPageChange(p.number)}
+            className={`min-w-[30px] px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${p.number === '...' ? 'cursor-default' : p.isCurrent ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100 border'}`}
+            disabled={p.number === '...'}
+          >
+            {p.number}
+          </button>
+        ))}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${currentPage === totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+        >
+          <span className="hidden sm:inline">Next</span>
+          <span className="sm:hidden">Next</span>
+        </button>
       </div>
+    );
+  };
+
+  return (
+    <div className='py-10 w-full flex flex-col items-center'>
+      <div className='w-full max-w-7xl px-4 flex flex-col gap-4'>
+        <h1 className='text-2xl font-semibold text-center'>Admin Transactions</h1>
+        <div className='bg-blue-500 text-white p-4 rounded-lg space-y-4'>
+          <div className='grid md:grid-cols-7 gap-3'>
+            <select name='type' value={filters.type} onChange={handleFilterChange} className='p-2 rounded text-black'>
+              <option value='all'>All Types</option>
+              <option value='recharge'>Recharge</option>
+              <option value='manual'>Manual Recharge</option>
+              <option value='expense'>Expense</option>
+              <option value='refund'>Refund</option>
+              <option value='dispute_charge'>Dispute Charge</option>
+            </select>
+            <input name='order_id' value={filters.order_id} onChange={handleFilterChange} placeholder='Order ID' className='p-2 rounded text-black'/>
+            <input name='merchant_email' value={filters.merchant_email} onChange={handleFilterChange} placeholder='Merchant Email' className='p-2 rounded text-black'/>
+            <input name='merchant_name' value={filters.merchant_name} onChange={handleFilterChange} placeholder='Merchant Name' className='p-2 rounded text-black'/>
+            <input name='merchant_business_name' value={filters.merchant_business_name} onChange={handleFilterChange} placeholder='Business Name' className='p-2 rounded text-black'/>
+            <input type='date' name='startDate' value={filters.startDate} onChange={handleFilterChange} className='p-2 rounded text-black'/>
+            <input type='date' name='endDate' value={filters.endDate} onChange={handleFilterChange} className='p-2 rounded text-black'/>
+          </div>
+        </div>
+        {error && <div className='text-red-600 text-sm'>{error}</div>}
+        <div style={{ width: '100%', background: 'white' }} className='rounded-lg border'>
+          <DataGrid
+            autoHeight
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            paginationMode='server'
+            rowCount={rows.length === 0 ? 0 : rowCount}
+            pageSizeOptions={[PAGE_SIZE]}
+            initialState={{ pagination: { paginationModel: { pageSize: PAGE_SIZE, page: 0 } } }}
+            pageSize={PAGE_SIZE}
+            rowSelection={false}
+            hideFooterPagination
+            disableColumnMenu
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-overlayWrapper': { backgroundColor: '#fff' },
+              '& .MuiDataGrid-virtualScrollerRenderZone': rows.length === 0 ? { opacity: 0 } : {}
+            }}
+          />
+        </div>
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={(p) => setPage(p)} />
       </div>
     </div>
-    </>
-  )
-}
+  );
+};
 
-export default AllTransactions
+export default AllTransactions;

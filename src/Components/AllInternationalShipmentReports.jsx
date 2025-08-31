@@ -50,7 +50,7 @@ const ManageForm = ({ shipment }) => {
     iid: shipment.iid,
     wid: shipment.wid,
     contents: shipment.contents,
-    serviceCode: shipment.service_code,
+    vendor: shipment.vendor,
     consigneeName: shipment.consignee_name,
     consigneeCompany: shipment.consignee_company_name,
     countryCode: shipment.consignee_country_code,
@@ -232,15 +232,15 @@ const ManageForm = ({ shipment }) => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="serviceCode">Service</label>
+              <label htmlFor="vendor">Vendor</label>
               <select required
                 className="w-full border py-2 px-4 rounded-3xl"
-                id="serviceCode"
-                name="serviceCode"
-                value={formData.serviceCode}
+                id="vendor"
+                name="vendor"
+                value={formData.vendor}
                 onChange={handleChange}
               >
-                <option value="">Select Service</option>
+                <option value="">Select Vendor</option>
                 <option value="PUROLATOR YVR">PUROLATOR</option>
                 <option value="V-PURO_DDU">V-PURO DDU</option>
                 <option value="MELBOURNE">AUSTRALIA</option>

@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
+import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
+import { COUNTRIES } from "../Constants";
+import { toast } from "react-toastify";
+import {v4} from "uuid";
+import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
+import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
+  // ---------------- State: Dockets & Items ----------------
+
+  const [loading, setLoading] = useState(null);
+
   const [dockets, setDockets] = useState([
-    { box_no: 1 , docket_weight: 0 , length: 0 , breadth : 0, height : 0  }
-]);
+    { box_no: 1 , docket_weight: 0 , docket_weight_unit: 'kg', length: 0 , breadth : 0, height : 0, quantity: 1 }
+  ]);
   
 const handleDeleteDocket = (index) => {
   const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
@@ -13,10 +24,10 @@ const handleDeleteDocket = (index) => {
   setDockets(newDockets);
 };
 const handleAddDocket = () => {
-  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 0 , length: 0 , breadth : 0, height : 0  }]);
+  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 1 , length: 10 , breadth : 10, height : 10, docket_weight_unit: 'kg', quantity: 1  }]);
 };
 const [items, setItems] = useState([
-  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }
+  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
 ]);
   useEffect(() => {
     const getDockets = async () => {
@@ -48,42 +59,82 @@ const [items, setItems] = useState([
   },[]);
   const [formData, setFormData] = useState({
     iid : shipment.iid,
-    wid : shipment.wid,
-    contents : shipment.contents,
-    serviceCode: shipment.service_code,
-    consigneeName : shipment.consignee_name,
-    consigneeCompany : shipment.consignee_company_name,
-    countryCode : shipment.consignee_country_code,
-    consigneeContact : shipment.consignee_contact_no,
-    consigneeEmail : shipment.consignee_email,
-    consigneeAddress : shipment.consignee_address_1,
-    consigneeAddress2 : shipment.consignee_address_2,
-    consigneeAddress3: shipment.consignee_address_3,
-    consigneeCity : shipment.consignee_city,
-    consigneeState : shipment.consignee_state,
-    consigneeCountry : shipment.consignee_country,
-    consigneeZipCode : shipment.consignee_zip_code,
-    dockets : dockets,
-    items : items,
-    actual_weight : shipment.actual_weight,
-    gst : shipment.gst,
-    shippingType : shipment.shippingType,
-    price : 0
+    wid : shipment.wid || "",
+    service: shipment.service || "",
+    vendor: shipment.vendor || "",
+    contents : shipment.contents || "",
+    consigneeName : shipment.consignee_name || "",
+    consigneeCompany : shipment.consignee_company_name || "",
+    countryCode : shipment.consignee_country_code || "",
+    consigneeContact : shipment.consignee_contact_no || "",
+    consigneeEmail : shipment.consignee_email || "",
+    consigneeAddress : shipment.consignee_address_1 || "",
+    consigneeAddress2 : shipment.consignee_address_2 || "",
+    consigneeAddress3: shipment.consignee_address_3 || "",
+    consigneeCity : shipment.consignee_city || "",
+    consigneeState : shipment.consignee_state || "",
+    consigneeCountry : shipment.consignee_country || "",
+    consigneeZipCode : shipment.consignee_zip_code || "",
+    actualWeight : shipment.actual_weight || "",
+    gst : shipment.gst || "",
+    shipmentValue : shipment.shipment_value,
+    price : shipment.shipping_price || "",
+    aadhaarNumber: shipment.aadhaar_number || "",
+    aadhaarDoc: shipment.aadhaar_doc || "",
+    invoiceNumber: shipment.invoice_number || "",
+    invoiceDate: shipment.invoice_date || "",
+    invoiceDoc: shipment.invoice_doc || ""
+  });
+  const formDataRef = useRef(formData);
+
+  const [files, setFiles] = useState({
+    aadhaarDoc: null,
+    invoiceDoc: null
   })
+
+  const handleFileChange = async (e) => {
+    const { name, files: newFiles } = e.target;
+    setFiles((prev) => ({
+      ...prev,
+      [name]: newFiles[0]
+    }));
+  }
+  // Warehouses, services, vendors
   const [warehouses, setWarehouses] = useState([])
+  const [services, setServices] = useState([]);
+  const [vendors, setVendors] = useState([]);
   useEffect(() => {
-    const getWarehouses = async () => {
-      await fetch(`${API_URL}/warehouse/warehouses`,{
-        method : 'POST',
-        headers : {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem('token'),
-        }
-      }).then(response => response.json()).then(result => setWarehouses(result.rows))
-    }
-    getWarehouses();
-  }, [])
+    const fetchAll = async () => {
+      try {
+        const response = await fetch(`${API_URL}/warehouse/warehouses`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token'),
+          }
+        });
+        const result = await response.json();
+        if (result?.rows) setWarehouses(result.rows);
+      } catch(e){ console.error(e);}      
+      try {
+        const list = await getActiveInternationalServicesService();
+        setServices(list || []);
+      } catch(e){ console.error(e);}    
+    };
+    fetchAll();
+  }, []);
+  // Fetch vendors when service changes
+  useEffect(() => {
+    const fetchVend = async () => {
+      try {
+        if(!formData.service) { setVendors([]); return; }
+        const list = await getServicesActiveVendorsService(formData.service);
+        setVendors(list || []);
+      } catch(e){ console.error(e);}    
+    };
+    fetchVend();
+  }, [formData.service]);
   const addProduct = () => {
     setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }]);
 
@@ -138,9 +189,47 @@ const [items, setItems] = useState([
       [name]:type === 'checkbox' ? checked : value
     }));
   };
-  const handleSubmit = (e) => {
+
+  const uploadFile = async (file) => {
+    if (!files[file] && !formData[file]){
+      throw new Error(`${file} is required`);
+    };
+    if (!files[file]) return;
+    try{
+      const key = `shipment/international/${v4()}/${file}`;
+      const newFormData = { ...formDataRef.current, [file]: key };
+      formDataRef.current = newFormData;
+      const filetype = files[file].type;
+      const putUrl = await getS3PutUrlService(key, filetype, true);
+      console.log(file)
+      console.log(files[file])
+      await s3FileUploadService(putUrl, files[file], filetype);
+    } catch (error){
+      console.error(error);
+      setFormData((prev) => ({...prev, [file]: ""}));
+      toast.error(`Failed to upload ${file}, try again!`)
+    }
+  }
+
+  const handleUpload = async () => {
+    try{
+      setLoading("Uploading Files...")
+      await Promise.all(
+        Object.keys(files).map(key => uploadFile(key))
+      );
+      return true;
+    } catch (error) {
+      toast.error(error?.message || "Failed to upload files");
+    } finally {
+      setLoading(null);
+    }
+  }
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData)
+    if (!(await handleUpload())) return;
+    try{
+      setLoading("Updating Order...")
+      const formData = {...formDataRef.current, dockets, items};
     let docketFlag = 0
     for (let i = 0; i < formData.dockets.length; i++) {
       for (let j = 0; j < formData.items.length; j++) {
@@ -175,7 +264,7 @@ const [items, setItems] = useState([
         'Content-Type': 'application/json',
         'Authorization': localStorage.getItem('token'),
       },
-      body: JSON.stringify(formData),
+  body: JSON.stringify({...formData}),
     })
       .then(response => response.json())
       .then(result => {
@@ -189,743 +278,353 @@ const [items, setItems] = useState([
         console.error('Error:', error);
         alert('Something Went Wrong, please try again');
       });
+    } catch (error){
+      console.error(error)
+      toast.error("Failed to update order")
+    } finally{
+      setLoading(null)
+    }
   }
+  // ---------------- Country & Dial code searchable dropdowns ----------------
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [destCountryOpen, setDestCountryOpen] = useState(false);
+  const [destCountrySearch, setDestCountrySearch] = useState("");
+  const countryDropdownRef = useRef(null);
+  const destCountryRef = useRef(null);
+  useEffect(()=>{
+    const handler = (e)=>{
+      if(countryDropdownRef.current && !countryDropdownRef.current.contains(e.target)) setCountryDropdownOpen(false);
+      if(destCountryRef.current && !destCountryRef.current.contains(e.target)) setDestCountryOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return ()=>document.removeEventListener('mousedown', handler);
+  },[]);
+  const filteredCountries = useMemo(()=>{
+    const q = countrySearch.toLowerCase();
+    return Object.keys(COUNTRIES).filter(c =>
+      COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
+    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+  },[countrySearch]);
+  const filteredDestCountries = useMemo(()=>{
+    const q = destCountrySearch.toLowerCase();
+    return Object.keys(COUNTRIES).filter(c =>
+      COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
+    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+  },[destCountrySearch]);
+
   return (
-    <>
-      <div className="w-full p-4 flex flex-col items-center">
-        <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
-        <form action="" onSubmit={handleSubmit}>
-        <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="wid">Pickup Warehouse Name</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="wid"
-                name="wid"
-                placeholder="Warehouse Name"
-                value={formData.wid}
-                onChange={handleChange}
-              >
+    <div className="w-full p-4 flex flex-col items-center">
+      <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
+      <form onSubmit={handleSubmit} className="w-full max-w-7xl space-y-8">
+        {/* Service Details Card */}
+        <div className="bg-white shadow rounded-2xl p-6 border">
+          <div className="text-lg font-semibold mb-4">Service Details</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="orderId">Order Id</label>
+              <input id="orderId" name="iid" disabled value={formData.iid} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse</label>
+              <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="border rounded-xl px-4 py-2">
                 <option value="">Select Warehouse</option>
-                { warehouses.length ?
-                  warehouses.map((warehouse, index) => (
-                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
-                  ) ) : null
-                } 
+                {warehouses.map(w => (<option key={w.wid} value={w.wid}>{w.warehouseName}</option>))}
               </select>
             </div>
-            
-          </div>
-         
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="contents">Contents</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="contents"
-                name="contents"
-                placeholder="Ex. Books"
-                value={formData.contents}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="serviceCode">Service</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                id="serviceCode"
-                name="serviceCode"
-                value={formData.serviceCode}
-                onChange={handleChange}
-              >
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="service" className="text-sm font-medium">Service</label>
+              <select id="service" name="service" value={formData.service} onChange={handleChange} className="border rounded-xl px-4 py-2" required>
                 <option value="">Select Service</option>
-                <option value="PUROLATOR YVR">PUROLATOR</option>
-                <option value="V-PURO_DDU">V-PURO DDU</option>
-                <option value="MELBOURNE">AUSTRALIA</option>
-                <option value="CANADA PAID">CANADA EXPRESS</option>
-                <option value="CANADA YYZ">CANADA PAID</option>
-                <option value="FG NEW ZEALAND">NEW ZEALAND</option>
-                <option value="EUROPE FRA DPD">EUROPE FRA</option>
-                <option value="UAE DIRECT">UAE DIRECT</option>
-                <option value="USA VIA LHR">USA VIA LHR</option>
-                <option value="UK DPD">UK DPD</option>
+                {services.map(s => <option key={s.service_id} value={s.service_id}>{s.service_name}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="vendor" className="text-sm font-medium">Vendor</label>
+              <select id="vendor" name="vendor" value={formData.vendor} onChange={handleChange} className="border rounded-xl px-4 py-2" required>
+                <option value="">Select Vendor</option>
+                {vendors.map(v => <option key={v.id} value={v.id}>{v.vendor_name}</option>)}
               </select>
             </div>
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeName">Consignee Name</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeName"
-                name="consigneeName"
-                placeholder="Name"
-                value={formData.consigneeName}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeCompany">Consignee Company</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeCompany"
-                name="consigneeCompany"
-                placeholder="Company"
-                value={formData.consigneeCompany}
-                onChange={handleChange}
-              />
-            </div>
-            
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 max-w-[100px] space-y-2">
-              <label htmlFor="countryCode">Country Code</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="countryCode"
-                name="countryCode"
-                value={formData.countryCode}
-                onChange={handleChange}
-              >
-                <option value="+91">+91</option>
-                <option value="+61">+61</option>
-                <option value="+64">+64</option>
-                <option value="+971">+971</option>
-                <option value="+1">+1</option>
-                <option value="+44">+44</option>
-              </select>
-                </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeContact">Consignee Contact</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="consigneeContact"
-                name="consigneeContact"
-                placeholder="Enter Customer Contact"
-                value={formData.consigneeContact}
-                onChange={handleChange}
-              />
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeEmail">Consignee Email</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeEmail"
-                name="consigneeEmail"
-                placeholder="Ex. customer@example.com"
-                value={formData.consigneeEmail}
-                onChange={handleChange}
-              />
-            </div>
-            </div>
-            
-          </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeAddress">Consignee Address</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeAddress"
-                name="consigneeAddress"
-                placeholder="Enter Shipping Address"
-                value={formData.consigneeAddress}
-                onChange={handleChange}
-              />
-            </div>
-            
-            
-            
-          </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeAddress2">Consignee Address 2</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeAddress2"
-                name="consigneeAddress2"
-                placeholder="Shipping Address 2"
-                value={formData.consigneeAddress2}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeAddress3">Consignee Address 3</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeAddress3"
-                name="consigneeAddress3"
-                placeholder="Shipping Address 3"
-                value={formData.consigneeAddress3}
-                onChange={handleChange}
-              />
-            </div>
-          {/* <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType">Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType"
-                name="addressType"
-                value={formData.addressType}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="addressType2">Alternate Shipping Address Type</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="addressType2"
-                name="addressType2"
-                value={formData.addressType2}
-                onChange={handleChange}
-              >
-                <option value="home">Home</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-            
-          </div> */}
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeZipCode">Consignee Zip Code</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeZipCode"
-                name="consigneeZipCode"
-                placeholder="Zip Code"
-                value={formData.consigneeZipCode}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeCity">Consignee City</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeCity"
-                name="consigneeCity"
-                placeholder="Enter City"
-                value={formData.consigneeCity}
-                onChange={handleChange}
-              />
-            </div>
-            
-            
-          </div>
-          
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeState">Consignee State</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeState"
-                name="consigneeState"
-                placeholder="Enter State"
-                value={formData.consigneeState}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="consigneeCountry">Consignee Country</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="consigneeCountry"
-                name="consigneeCountry"
-                value={formData.consigneeCountry}
-                onChange={handleChange}
-              >
-                <option value="AU">Australia</option>
-                <option value="CA">Canada</option>
-                <option value="NZ">New Zealand</option>
-                <option value="GB">United Kingdom</option>
-                <option value="AE">UAE</option>
-                <option value="US">USA</option>
-              </select>
-            </div>
-          </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="shippingType">Shipment Type</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="shippingType"
-                name="shippingType"
-                value={formData.shippingType}
-                onChange={handleChange}
-              >
-                <option value="CARGO">CARGO</option>
-                <option value="GIFT">GIFT</option>
-                <option value="SAMPLE">SAMPLE</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="gst">Seller GST</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="gst"
-                name="gst"
-                placeholder="GSTIN"
-                value={formData.gst}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="actual_weight">Actual Weight (in Kg)</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="actual_weight"
-                min = {0}
-                name="actual_weight"
-                placeholder="Ex. 100"
-                value={formData.actual_weight}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          {dockets.map((docket, index) => (
-        <div key={index} className="product-form flex flex-1 space-x-2 flex-wrap items-center">
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Box no.</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              min = {1}
-              name="box_no"
-              placeholder="Box Number"
-              disabled
-              value={docket.box_no}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Docket Weight</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="docket_weight"
-              min={0}
-              placeholder="Docket Weight (in Kg)"
-              value={docket.docket_weight}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Length</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="length"
-              min = {0}
-              placeholder="Length"
-              value={docket.length}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Breadth</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="breadth"
-              min = {0}
-              placeholder="Breadth"
-              value={docket.breadth}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-            <label>Height</label>
-            <input required
-              type="number"
-              className="flex-1 border py-2 px-4 rounded-3xl"
-              name="height"
-              min = {0}
-              placeholder="Height"
-              value={docket.height}
-              onChange={(event) => handleDocket(index, event)}
-              style={{ marginLeft: '10px' }}
-            />
-            </div>
-            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => handleDeleteDocket(index)}>Remove</button>
         </div>
-      ))}
-      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={handleAddDocket}>Add Docket</button>
-          {items.map((item, index) => (
-            
-        <div key={index} className="product-form flex space-x-2 flex-wrap items-center">
-          <div className="flex-1 mx-2 mb-2 min-w-[150px] space-y-2">
-              <label htmlFor="hscode">HS Code</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="hscode"
-                name="hscode"
-                placeholder="HS Code"
-                value={item.hscode}
-                onChange={(e) => handleItems(index, e)}
-              />
+
+        {/* Consignee Details Card */}
+        <section className="bg-white/70  rounded-2xl border p-6 shadow-sm space-y-4">
+          <h2 className="text-lg font-semibold">Consignee Details</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeName">Name</label>
+              <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="box_no">Box no.</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="box_no"
-                name="box_no"
-                placeholder="Box no"
-                value={item.box_no}
-                onChange={(e) => handleItems(index, e)}
-              />
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company</label>
+              <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="quantity">Quantity</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                min={1}
-                id="quantity"
-                name="quantity"
-                placeholder="Quantity"
-                value={item.quantity}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="rate">Rate per item</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="rate"
-                min={0}
-                name="rate"
-                placeholder="Quantity"
-                value={item.rate}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="description">Description</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="description"
-                name="description"
-                placeholder="Description"
-                value={item.description}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="unit">Unit</label>
-              <select required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-              >
-                <option value="Pc">Pc</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="unit_weight">Unit Weight</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                min={0}
-                id="unit_weight"
-                name="unit_weight"
-                placeholder="Unit Weight"
-                value={item.unit_weight}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[100px] space-y-2">
-              <label htmlFor="igst_amount">IGST</label>
-              <input required
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="igst_amount"
-                min={0}
-                name="igst_amount"
-                placeholder="IGST Amount"
-                value={item.igst_amount}
-                onChange={(e) => handleItems(index, e)}
-              />
-            </div>
-          
-            <button type="button" className="mx-2 px-5 py-1 border rounded-3xl bg-red-500 text-white" onClick={() => removeProduct(index)}>Remove</button>
-        </div>
-      ))}
-      <button type="button" className="m-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white" onClick={addProduct}>Add More Product</button>
-          {/* <div className="w-full flex mb-2 flex-wrap "> */}
-            
-            
-            {/* <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="price">Shipment Cost(As provided)</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="price"
-                name="price"
-                placeholder="Ex. 1150"
-                value={formData.price}
-                onChange={handleChange}
-              />
-            </div> */}
-            {/* <div className="flex-1 mx-2 mb-2 flex min-w-[300px] space-x-2">
-              
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-                <label htmlFor="shippingType">Shipping Type</label>
-                <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="shippingType"
-                name="shippingType"
-                value={formData.shippingType}
-                onChange={handleChange}
-              >
-                <option value="Surface">Surface</option>
-                <option value="Express">Express</option>
-              </select>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Country Code</label>
+              <div className="relative" ref={countryDropdownRef}>
+                <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
+                  <span>{formData.countryCode || 'Select'}</span>
+                  <span className="ml-2">▾</span>
+                </button>
+                {countryDropdownOpen && (
+                  <div className="absolute z-50 mt-1 w-64 max-h-72 overflow-hidden bg-white border rounded-xl shadow-lg">
+                    <div className="p-2 border-b">
+                      <input autoFocus type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search code or name" value={countrySearch} onChange={(e)=>setCountrySearch(e.target.value)} />
+                    </div>
+                    <ul className="max-h-60 overflow-y-auto text-sm">
+                      {filteredCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
+                      {filteredCountries.map(c => (
+                        <li key={c.iso2+"-code"}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.code ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,countryCode:c.code})); setCountryDropdownOpen(false); setCountrySearch("");}}>
+                            <span className="inline-block w-16">{c.code}</span>
+                            <span>{c.name}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-            </div> */}
-            
-          {/* </div> */}
-          <br/>
-          <button type='submit' className="mx-2 px-5 py-1 border rounded-3xl bg-blue-500 text-white">Update</button>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact</label>
+              <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email</label>
+              <input id="consigneeEmail" name="consigneeEmail" type="email" required value={formData.consigneeEmail} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address</label>
+              <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code</label>
+              <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeCity">City</label>
+              <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium" htmlFor="consigneeState">State</label>
+              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Country</label>
+              <div className="relative" ref={destCountryRef}>
+                <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
+                  <span>{formData.consigneeCountry || 'Select'}</span>
+                  <span className="ml-2">▾</span>
+                </button>
+                {destCountryOpen && (
+                  <div className="absolute z-20 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
+                    <div className="p-2 border-b">
+                      <input autoFocus type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search country" value={destCountrySearch} onChange={(e)=>setDestCountrySearch(e.target.value)} />
+                    </div>
+                    <ul className="max-h-72 overflow-y-auto text-sm">
+                      {filteredDestCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
+                      {filteredDestCountries.map(c => (
+                        <li key={c.iso_code2+"-dest"}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.name ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,consigneeCountry:c.name})); setDestCountryOpen(false); setDestCountrySearch("");}}>
+                            {c.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
-        </form>
-      </div>
-    </>
-    );
-  };
+        {/* Shipment Meta & Pricing */}
+        <div className="bg-white shadow rounded-2xl p-6 border">
+          <div className="text-lg font-semibold mb-4">Shipment Meta</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2 md:col-span-1">
+              <label htmlFor="contents" className="text-sm font-medium">Contents</label>
+              <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value</label>
+              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
+              <input id="gst" name="gst" value={formData.gst} onChange={handleChange} placeholder="GSTIN" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)</label>
+              <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+          </div>
+        </div>
 
-// const ShipCard = ({price, shipment, dockets, docketsPrices ,setIsShipped, setIsShip}) => {
-//   const [isLoading, setIsLoading] = useState(false)
-//   const ship = async (serviceId,categoryId) => {
-//     setIsLoading(true)
-//     const price = docketsPrices.map((docketPrice,index)=> (
-//         docketPrice.filter((a => a.categoryId == categoryId && a.serviceId == serviceId))
-//     ))
-//     const getBalance = await fetch('/.netlify/functions/getBalance', {
-//       method: 'POST',
-//       headers : {
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json',
-//         'Authorization': localStorage.getItem('token'),
-//       }
-//     })
-//     const balanceData = await getBalance.json();
-//     const balance = balanceData.balance;
-//     if ((parseFloat(balance) < parseFloat(price.price))){
-//       if (shipment.pay_method !== "topay"){
-//         alert('Insufficient balance')
-//         setIsLoading(false)
-//         return;
-//       }
-//     }
-//     console.log(dockets)
-//     for (let i = 0; i < dockets.length; i++) {
-//         if (!dockets[i].awb) {
-//             try {
-//                 const res = await fetch('/.netlify/functions/createDomesticInternational', {
-//                     method: 'POST',
-//                     headers: {
-//                         'Content-Type': 'application/json',
-//                         'Accept': 'application/json',
-//                         'Authorization': localStorage.getItem('token'),
-//                     },
-//                     body: JSON.stringify({
-//                         did: dockets[i].did,
-//                         price: price[i][0].price,
-//                         serviceId: serviceId,
-//                         categoryId: categoryId
-//                     })
-//                 });
+        {/* Dockets */}
+        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold">Dockets</div>
+            <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-blue-50 text-left">
+                  <th className="p-2">#</th>
+                  <th className="p-2">L</th>
+                  <th className="p-2">W</th>
+                  <th className="p-2">H</th>
+                  <th className="p-2">Weight</th>
+                  <th className="p-2">Qty</th>
+                  <th className="p-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {dockets.map((d, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="p-2 font-medium">{i+1}</td>
+                    <td className="p-2"><input name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2">
+                      <div className="flex space-x-1">
+                        <input name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
+                        <select name="docket_weight_unit" value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
+                          <option value="g">g</option>
+                          <option value="kg">kg</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td className="p-2"><input name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2 text-right">{dockets.length>1 && <button type="button" onClick={()=>handleDeleteDocket(i)} className="text-red-500 hover:underline">Remove</button>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* Items */}
+        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold">Items</div>
+            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-blue-50 text-left">
+                  <th className="p-2">Box</th>
+                  <th className="p-2">HS Code</th>
+                  <th className="p-2">Description</th>
+                  <th className="p-2">Qty</th>
+                  <th className="p-2">Rate</th>
+                  <th className="p-2">Weight</th>
+                  <th className="p-2">IGST</th>
+                  <th className="p-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((it, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="p-2"><input name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2">
+                      <div className="flex space-x-1">
+                        <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
+                        <select name="item_weight_unit" value={it.item_weight_unit} onChange={(e)=>handleItems(i,e)} className="border px-2 py-1 rounded">
+                          <option value="g">g</option>
+                          <option value="kg">kg</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td className="p-2"><input name="igst_amount" value={it.igst_amount} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
+                    <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-//                 const result = await res.json();
+        {/* Documents Section */}
+        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
+          <div className="text-lg font-semibold">KYC Document</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2 md:col-span-2">
+              <label htmlFor="aadhaarNumber" className="text-sm font-medium">Aadhaar Number</label>
+              <input id="aadhaarNumber" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2 md:col-span-2">
+              <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)</label>
+              <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
+              {formData.aadhaarDoc && typeof formData.aadhaarDoc === 'string' && (
+                  <a
+                    href={`${import.meta.env.VITE_APP_BUCKET_URL}${formData.aadhaarDoc}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 rounded border border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    View
+                  </a>
+                )}
+            </div>
+          </div>
+        </div>
 
-//                 if (!result.success) {
-//                     console.log(result.message)
-//                     console.log(result.message.packages)
-//                     alert("Some Dockets were unable to ship, please click on ship to retry to ship the remaining Dockets");
-//                     setIsLoading(false)
-//                     return; // End the function (and thus the loop) on failure
-//                 }
-//             } catch (error) {
-//                 console.error('Error occurred:', error);
-//                 setIsLoading(false)
-//                 // Handle the error as needed
-//                 return; // End the function (and thus the loop) on error
-//             }
-//         }
-//     }
-//     await fetch('/.netlify/functions/createInternational',{
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Accept': 'application/json',
-//             'Authorization': localStorage.getItem('token'),
-//         },
-//         body: JSON.stringify({
-//             iid: shipment.iid
-//         })
-//     }).then(response => response.json()).then(result => {
-//       if (result.success){
-//         alert('Shipment created successfully')
-//         setIsLoading(false)
-//         setIsShipped(true)
-//         setIsShip(false)
-//       }
-//       else {
-//         alert('Failed to created shipment, try again')
-//         console.log(result.response)
-//         console.log(result.request)
-//         setIsLoading(false)
-//       }
-//     });
-    
-    
-//   }
-//   return (
-//     <>
-//        <div className="w-full h-16 bg-white relative items-center px-4 flex border-b" >
-//           <div>{price.name+" "+price.weight}</div>
-//           <div className="absolute flex space-x-2 right-4">{`₹${Math.round((price.price))}`} <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>ship(price.serviceId,price.categoryId)}>{isLoading?"Shipping...":"Ship"}</div></div>
-//         </div>
-//     </>
-//   )
-// }
+        {/* Invoice Section */}
+        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
+          <div className="text-lg font-semibold">Invoice Details</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="invoiceNumber" className="text-sm font-medium">Invoice Number</label>
+              <input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="invoiceDate" className="text-sm font-medium">Invoice Date</label>
+              <input id="invoiceDate" name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2 md:col-span-2">
+              <label htmlFor="invoiceDoc" className="text-sm font-medium">Invoice Document (PDF/Image)</label>
+              <input id="invoiceDoc" name="invoiceDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
+              {formData.invoiceDoc && typeof formData.invoiceDoc === 'string' && (
+                  <a
+                    href={`${import.meta.env.VITE_APP_BUCKET_URL}${formData.invoiceDoc}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 rounded border border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    View
+                  </a>
+                )}
+            </div>
+          </div>
+        </div>
 
-// const ShipList = ({ shipment, setIsShip, setIsShipped }) => {
-//     const [prices, setPrices] = useState([]);
-//     const [dockets, setDockets] = useState([]);
-//     const[docketsPrices, setDocketsPrices] = useState([]);
-//     useEffect(() => {
-//       const fetchDocketsAndPrices = async () => {
-//         try {
-//           const getDockets = await fetch('/.netlify/functions/getDockets', {
-//             method: 'POST',
-//             headers: {
-//               'Content-Type': 'application/json',
-//               'Accept': 'application/json',
-//               'Authorization': localStorage.getItem('token'),
-//             },
-//             body: JSON.stringify({ iid: shipment.iid }),
-//           });
-//           const docketsData = await getDockets.json();
-//           setDockets(docketsData.dockets);
-  
-//           if (docketsData.dockets) {
-//             const pricePromises = docketsData.dockets.map(async (docket) => {
-                
-//               if (!docket.awb){
-//                 const response = await fetch('/.netlify/functions/price', {
-//                     method: 'POST',
-//                     headers: {
-//                       'Accept': 'application/json',
-//                       'Content-Type': 'application/json',
-//                       'Authorization': localStorage.getItem('token'),
-//                     },
-//                     body: JSON.stringify({
-//                       method: shipment.shippingType === "Surface" ? "S" : "E",
-//                       status: "Delivered",
-//                       origin: shipment.pin,
-//                       dest: "110037",
-//                       weight: docket.docket_weight,
-//                       payMode: "Pre-paid",
-//                       codAmount: 0,
-//                       length: docket.length,
-//                       breadth: docket.breadth,
-//                       height: docket.height,
-//                     }),
-//                   });
-//                   const result = await response.json();
-//                   return result.prices;
-//               }
-              
-//             });
-  
-//             const pricesList = await Promise.all(pricePromises);
-//             setDocketsPrices(pricesList);
-//             console.log(docketsPrices)
-//             // Sum the prices while maintaining the structure
-//             const summedPrices = pricesList[0].map((item, index) => {
-//               const total = pricesList.reduce((acc, subarray) => {
-//                 return acc + subarray[index].price;
-//               }, 0);
-//               return {
-//                 ...item,
-//                 price: total,
-//               };
-//             });
-  
-//             setPrices(summedPrices);
-//           }
-//         } catch (err) {
-//           alert(err);
-//         }
-//       };
-  
-//       fetchDocketsAndPrices();
-//     }, []);
-  
-//     return (
-//       <>
-//         <div className="absolute inset-0 z-20 overflow-y-scroll px-4 pt-24 pb-4 flex flex-col bg-gray-100 items-center space-y-6">
-//           <div className="absolute top-3 right-3" onClick={() => setIsShip(false)}>
-//             X
-//           </div>
-//           <div className="text-center text-3xl font-medium">
-//             CHOOSE YOUR DOMESTIC SERVICE (THIS WILL DELIVER YOUR SHIPMENT TO THE INTERNATIONAL SHIPMENT HUB)
-//           </div>
-//           <div className="w-full p-4">
-//             {prices && prices.length ? (
-//               prices.map((price, index) => (
-//                 <ShipCard
-//                   setIsShipped={setIsShipped}
-//                   setIsShip={setIsShip}
-//                   key={index}
-//                   shipment={shipment}
-//                   dockets={dockets}
-//                   docketsPrices={docketsPrices}
-//                   price={price}
-//                 />
-//               ))
-//             ) : null}
-//           </div>
-//         </div>
-//       </>
-//     );
-//   };
-  
+        {/* Pricing */}
+        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
+          <div className="text-lg font-semibold">Pricing</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2 md:col-span-1">
+              <label htmlFor="price" className="text-sm font-medium">Shipment Cost</label>
+              <input id="price" name="price" type="number" min={0} value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="border rounded-xl px-4 py-2" />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 const Card = ({ shipment }) => {
     const [isManage, setIsManage] = useState(false);
