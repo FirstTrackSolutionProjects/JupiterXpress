@@ -198,38 +198,6 @@ const Domestic = () => {
             </div>
             
           </div>
-          <div className="w-full flex mb-2 flex-wrap ">
-          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="shipmentType">Shipment Type</label>
-              <select
-                name="isB2B"
-                id="shipmentType"
-                className="border py-2 px-4 rounded-3xl"
-                value={formData.isB2B}
-                onChange={handleChange}
-
-              >
-                <option value={false}>B2C</option>
-                <option value={true}>B2B</option>
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="status">Status</label>
-              <select
-                name="status"
-                id="status"
-                className="border py-2 px-4 rounded-3xl"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="Delivered">Forward</option>
-                {/* <option value="RTO">RTO</option>
-                <option value="DTO">Reverse</option> */}
-              </select>
-            </div>
-            
-            
-          </div>
           {boxes.map((box,index)=>(
             <>
               <div className="w-full relative z-0 flex mb-2 flex-wrap ">
