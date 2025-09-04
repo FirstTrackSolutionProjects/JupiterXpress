@@ -12,8 +12,8 @@ const FullDetails = () => {
   // Core form state
   const [formData, setFormData] = useState({
     wid: "2",
-    service: 11,
-    vendor: 11,
+    service: "",
+    vendor: "",
     contents: "Books",
     consigneeName: "Test",
     consigneeCompany: "Test",
@@ -136,7 +136,11 @@ const FullDetails = () => {
   // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(p => ({ ...p, [name]: value }));
+    setFormData(p => {
+      const updated = { ...p, [name]: value };
+      formDataRef.current = updated;
+      return updated;
+    });
   };
   const handleDocket = (index, e) => {
     const { name, value } = e.target;
