@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import {v4} from "uuid";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
-import cancelInternationalShipmentService from "@/services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
+import cancelInternationalShipmentService from "../services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
   // ---------------- State: Dockets & Items ----------------
