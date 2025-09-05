@@ -1,9 +1,9 @@
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 
-const cancelInternationalRequestShipmentService = async (orderId) => {
+const cancelInternationalShipmentService = async (orderId) => {
     try {
-        const response = await fetch(`${API_URL}/shipment/international/request/cancel/${orderId}`, {
+        const response = await fetch(`${API_URL}/shipment/international/cancel/${orderId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': localStorage.getItem('token'),
@@ -26,4 +26,4 @@ const cancelInternationalRequestShipmentService = async (orderId) => {
     }
 }
 
-export default cancelInternationalRequestShipmentService;
+export default cancelInternationalShipmentService;

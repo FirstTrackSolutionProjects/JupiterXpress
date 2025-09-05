@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import {v4} from "uuid";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
+import cancelInternationalShipmentService from "@/services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
   // ---------------- State: Dockets & Items ----------------
@@ -632,13 +633,13 @@ const [items, setItems] = useState([
 
 const Card = ({ shipment, onRefresh }) => {
     const [isManage, setIsManage] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    // For parent refresh
-    const [refreshFlag, setRefreshFlag] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
+    const [isRequesting, setIsRequesting] = useState(false);
+
 
     // Action handlers
     const handleRequest = async (orderId) => {
-      setIsLoading(true);
+      setIsRequesting(true);
       try {
         const ensure = confirm('Are you sure you want to request this shipment?');
         if (!ensure) return;
@@ -648,11 +649,13 @@ const Card = ({ shipment, onRefresh }) => {
       } catch (err) {
         toast.error(err.message || 'Failed to request shipment');
       } finally {
-        setIsLoading(false);
+        setIsRequesting(false);
       }
     };
     const handleCancelRequest = async (orderId) => {
-      setIsLoading(true);
+      const ensure = confirm('Are you sure you want to cancel this shipment request?');
+      if (!ensure) return;
+      setIsCancelling(true);
       try {
         await cancelInternationalRequestShipmentService(orderId);
         await onRefresh();
@@ -660,13 +663,27 @@ const Card = ({ shipment, onRefresh }) => {
       } catch (err) {
         toast.error(err.message || 'Failed to cancel request');
       } finally {
-        setIsLoading(false);
+        setIsCancelling(false);
       }
     };
     // Placeholder for cancel shipment (manifested)
     const handleCancelShipment = async (orderId) => {
-      alert('Cancel shipment logic to be implemented');
-      // TODO: Implement actual cancel shipment API and refresh
+      if (!orderId) {
+        toast.error('Invalid order ID');
+        return;
+      }
+      const ensure = confirm('Are you sure you want to cancel this shipment? This action cannot be undone.');
+      if (!ensure) return;
+      try{
+        setIsCancelling(true);
+        await cancelInternationalShipmentService(orderId);
+        await onRefresh();
+        toast.success('Shipment cancelled successfully');
+      } catch (err){
+        toast.error(err.message || 'Failed to cancel shipment');
+      } finally {
+        setIsCancelling(false);
+      }
     };
 
     // UI logic
@@ -689,16 +706,16 @@ const Card = ({ shipment, onRefresh }) => {
             {isManifested && hasAwb ? (
               <>
                 <a className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`} rel="noopener noreferrer">Label</a>
-                <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleCancelShipment(shipment.iid)}>Cancel Shipment</div>
+                <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
               </>
             ): null}
             {/* Not requested: show request button */}
             {!isRequested && !isManifested ? (
-              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleRequest(shipment.iid)}>{isLoading ? "Requesting..." : "Request"}</div>
+              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isRequesting ? () => {} : () => handleRequest(shipment.iid)}>{isRequesting ? "Requesting..." : "Request"}</div>
             ): null}
             {/* Requested: show cancel request button */}
             {isRequested ? (
-              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleCancelRequest(shipment.iid)}>{isLoading ? "Cancelling..." : "Cancel Request"}</div>
+              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelRequest(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Request"}</div>
             ): null}
           </div>
         </div>

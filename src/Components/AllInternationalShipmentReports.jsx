@@ -607,37 +607,31 @@ const ManageForm = ({ shipment }) => {
 
 const Card = ({ shipment }) => {
   const [isManage, setIsManage] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [refreshFlag, setRefreshFlag] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   // Action handlers
   const handleApprove = async (orderId) => {
-    setIsLoading(true);
+    setIsApproving(true);
     try {
       await approveInternationalRequestShipmentService(orderId);
-      alert('Shipment request approved');
-      setRefreshFlag(f => !f);
+      toast.success('Shipment request approved');
     } catch (err) {
-      alert('Failed to approve request');
+      toast.error('Failed to approve request');
     } finally {
-      setIsLoading(false);
+      setIsApproving(false);
     }
   };
   const handleReject = async (orderId) => {
-    setIsLoading(true);
+    setIsRejecting(true);
     try {
       await rejectInternationalRequestShipmentService(orderId);
-      alert('Shipment request rejected');
-      setRefreshFlag(f => !f);
+      toast.success('Shipment request rejected');
     } catch (err) {
-      alert('Failed to reject request');
+      toast.error('Failed to reject request');
     } finally {
-      setIsLoading(false);
+      setIsRejecting(false);
     }
-  };
-  const handleCancelShipment = async (orderId) => {
-    alert('Cancel shipment logic to be implemented');
-    // TODO: Implement actual cancel shipment API and refresh
   };
 
   // UI logic
@@ -657,15 +651,11 @@ const Card = ({ shipment }) => {
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? hasAwb ? "View" : "Manage" : "X"}</div>
-          {/* Manifested: show cancel shipment */}
-          {(isManifested && hasAwb) ? (
-            <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleCancelShipment(shipment.iid)}>Cancel Shipment</div>
-          ): null}
           {/* Requested: show approve/reject buttons */}
           {(isRequested && !isManifested && !hasAwb) ? (
             <>
-              <div className="px-3 py-1 bg-green-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleApprove(shipment.iid)}>{isLoading ? "Approving..." : "Approve"}</div>
-              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleReject(shipment.iid)}>{isLoading ? "Rejecting..." : "Reject"}</div>
+              <div className="px-3 py-1 bg-green-500 rounded-3xl text-white cursor-pointer" onClick={isApproving ? () => {} : () => handleApprove(shipment.iid)}>{isApproving ? "Approving..." : "Approve"}</div>
+              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isRejecting ? () => {} : () => handleReject(shipment.iid)}>{isRejecting ? "Rejecting..." : "Reject"}</div>
             </>
           ): null}
         </div>
