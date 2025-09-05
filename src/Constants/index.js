@@ -150,6 +150,15 @@ export const menuItems = [
     },
     {
         icon : "/logo.webp",
+        name : "Merchant Transactions",
+        isDropdown : false,
+        admin : true,
+        url : 'manage/merchant/transactions',
+        component : AllTransactions,
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "/logo.webp",
         name : "Weight Disputes",
         isDropdown : false,
         url : 'weight-disputes',
@@ -224,14 +233,6 @@ export const menuItems = [
             isDropdown : false,
             url : 'manage/merchant/non-verified',
             component : NonVerifiedMerchantManage,
-            dropDownOptions : [{}]
-        },
-        {
-            icon : "/logo.webp",
-            name : "Merchant Transactions",
-            isDropdown : false,
-            url : 'manage/merchant/transactions',
-            component : AllTransactions,
             dropDownOptions : [{}]
         },
         {

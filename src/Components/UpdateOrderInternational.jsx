@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
+import getAllInternationalShipmentsService from '../services/orderServices/internationalOrderServices/getAllInternationalShipmentsService';
+import createInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/createInternationalRequestShipmentService';
+import cancelInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/cancelInternationalRequestShipmentService';
 import { COUNTRIES } from "../Constants";
 import { toast } from "react-toastify";
 import {v4} from "uuid";
@@ -183,11 +186,12 @@ const [items, setItems] = useState([
   }, [items]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]:type === 'checkbox' ? checked : value
-    }));
+    const { name, value } = e.target;
+    setFormData(p => {
+      const updated = { ...p, [name]: value };
+      formDataRef.current = updated;
+      return updated;
+    });
   };
 
   const uploadFile = async (file) => {
@@ -626,65 +630,79 @@ const [items, setItems] = useState([
   );
 };
 
-const Card = ({ shipment }) => {
+const Card = ({ shipment, onRefresh }) => {
     const [isManage, setIsManage] = useState(false);
-    // const [isShip, setIsShip] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isShipped, setIsShipped] = useState(shipment.awb?true:false);
-    const handleShip = async () => {
-      setIsLoading(true)
-      await fetch(`${API_URL}/shipment/international/create`,{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-        },
-        body: JSON.stringify({
-            iid: shipment.iid
-        })
-    }).then(response => response.json()).then(async result => {
-      if (result.success){
-        // await fetch(`${API_URL}/internationalOrderMail`, {
-        //   method: 'POST',
-        //   headers: {
-        //       'Content-Type': 'application/json',
-        //       'Accept': 'application/json',
-        //       'Authorization': localStorage.getItem('token')
-        //   }
-        // })
-        alert('Shipment created successfully')
-        setIsLoading(false)
-        setIsShipped(true)
-        console.log(result.response)
-        console.log(result.request)
+    // For parent refresh
+    const [refreshFlag, setRefreshFlag] = useState(false);
+
+    // Action handlers
+    const handleRequest = async (orderId) => {
+      setIsLoading(true);
+      try {
+        const ensure = confirm('Are you sure you want to request this shipment?');
+        if (!ensure) return;
+        await createInternationalRequestShipmentService(orderId);
+        await onRefresh();
+        toast.success('Shipment request sent');
+      } catch (err) {
+        toast.error(err.message || 'Failed to request shipment');
+      } finally {
+        setIsLoading(false);
       }
-      else {
-        alert(`Failed to created shipment, try again\nReason : ${result.response.errors[0]}`)
-        console.log(result.response)
-        console.log(result.request)
-        setIsLoading(false)
+    };
+    const handleCancelRequest = async (orderId) => {
+      setIsLoading(true);
+      try {
+        await cancelInternationalRequestShipmentService(orderId);
+        await onRefresh();
+        toast.success('Shipment request cancelled');
+      } catch (err) {
+        toast.error(err.message || 'Failed to cancel request');
+      } finally {
+        setIsLoading(false);
       }
-    });
-    }
+    };
+    // Placeholder for cancel shipment (manifested)
+    const handleCancelShipment = async (orderId) => {
+      alert('Cancel shipment logic to be implemented');
+      // TODO: Implement actual cancel shipment API and refresh
+    };
+
+    // UI logic
+    const isRequested = shipment.is_requested;
+    const isManifested = shipment.is_manifested;
+    const hasAwb = !!shipment.awb;
+
     return (
       <>
-        {/* {isShip && <ShipList setIsShip={setIsShip} shipment={shipment} setIsShipped={setIsShipped}/>} */}
-        
         <div className="w-full py-2 bg-white relative items-center px-4 sm:px-8 flex border-b">
           <div className="text-sm">
-          <div className="font-bold">{shipment.iid}</div>
-          <div >{shipment.consignee_name}</div>
-            <div> {shipment.awb?`AWB : ${shipment.awb}`:null}</div>
+            <div className="font-bold">{shipment.iid}</div>
+            <div>{shipment.consignee_name}</div>
+            <div>{shipment.awb ? `AWB : ${shipment.awb}` : null}</div>
             <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
           </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={()=>setIsManage(!isManage)}>{!isManage?isShipped?"View":"Manage":"X"}</div>
-          {isShipped ? <a className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`}>Label</a> : null}
-          {!isShipped && <div className="px-3 py-1 bg-blue-500  rounded-3xl text-white cursor-pointer" onClick={isLoading?()=>{}:()=>handleShip()}>{isLoading?"Shipping...":"Ship"}</div>}
+            <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? hasAwb ? "View" : "Manage" : "X"}</div>
+            {/* Manifested: show label and cancel shipment */}
+            {isManifested && hasAwb ? (
+              <>
+                <a className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`} rel="noopener noreferrer">Label</a>
+                <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleCancelShipment(shipment.iid)}>Cancel Shipment</div>
+              </>
+            ): null}
+            {/* Not requested: show request button */}
+            {!isRequested && !isManifested ? (
+              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleRequest(shipment.iid)}>{isLoading ? "Requesting..." : "Request"}</div>
+            ): null}
+            {/* Requested: show cancel request button */}
+            {isRequested ? (
+              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isLoading ? () => {} : () => handleCancelRequest(shipment.iid)}>{isLoading ? "Cancelling..." : "Cancel Request"}</div>
+            ): null}
           </div>
         </div>
-        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={isShipped}/>}
+        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={hasAwb} />}
       </>
     );
   };
@@ -811,55 +829,37 @@ const Card = ({ shipment }) => {
   }
 
 const Listing = ({ step, setStep }) => {
-    const [shipments, setShipments] = useState([])
+    const [shipments, setShipments] = useState([]);
     const [pickup, setPickup] = useState(false);
-    useEffect(() => {
 
-        fetch(`${API_URL}/order/international/all`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': localStorage.getItem('token'),
-            },
-          })
-            .then(response => response.json())
-            .then(result => {
-              if (result.success) {
-                result.order.sort((a, b) => new Date(a.iid) - new Date(b.iid)).reverse()
-                const finalShipments = []
-                const unShippedShipments = result.order.filter(shipment => !shipment.awb)
-                const shippedShipments = result.order.filter(shipment => shipment.awb)
-                finalShipments.push(...unShippedShipments,...shippedShipments)
-                setShipments(finalShipments);
-              } else {
-                
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred during Order');
-            });
-    },[]);
+    // Fetch shipments using service
+    const fetchShipments = async () => {
+      try {
+        const data = await getAllInternationalShipmentsService();
+        setShipments(data || []);
+      } catch (err) {
+        toast.error(err.message || 'Failed to load shipments');
+      }
+    };
+
+    useEffect(() => {
+      fetchShipments();
+    }, []);
+
+    const refreshShipments = async () => {
+      await fetchShipments();
+    };
+
     return (
       <>
-        <div
-          className={`w-full p-4 flex flex-col items-center space-y-6 ${
-            step == 0 ? "" : "hidden"
-          }`}
-        >
+        <div className={`w-full p-4 flex flex-col items-center space-y-6 ${step == 0 ? "" : "hidden"}`}> 
           {pickup ? <PickupRequest setPickup={setPickup}/> : null}
           <div className="w-full h-16 px-4  relative flex">
             <div className="text-2xl font-medium">SHIPMENTS </div>
-            {/* <div
-              onClick={()=>setPickup(true)}
-              className="px-5 py-1 bg-blue-500 absolute rounded-3xl text-white  right-4"
-            >
-              Pickup Request
-            </div> */}
           </div>
           <div className="w-full">
             {shipments.map((shipment, index) => (
-              <Card key={index} shipment={shipment} />
+              <Card key={index} shipment={shipment} onRefresh={refreshShipments} />
             ))}
           </div>
         </div>
