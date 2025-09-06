@@ -70,7 +70,7 @@ const [items, setItems] = useState([
     contents : shipment.contents || "",
     consigneeName : shipment.consignee_name || "",
     consigneeCompany : shipment.consignee_company_name || "",
-    countryCode : shipment.consignee_country_code || "",
+    countryCode : shipment.consignee_country_code || "", // will normalize to key
     consigneeContact : shipment.consignee_contact_no || "",
     consigneeEmail : shipment.consignee_email || "",
     consigneeAddress : shipment.consignee_address_1 || "",
@@ -78,7 +78,7 @@ const [items, setItems] = useState([
     consigneeAddress3: shipment.consignee_address_3 || "",
     consigneeCity : shipment.consignee_city || "",
     consigneeState : shipment.consignee_state || "",
-    consigneeCountry : shipment.consignee_country || "",
+    consigneeCountry : shipment.consignee_country || "", // will normalize to key
     consigneeZipCode : shipment.consignee_zip_code || "",
     actualWeight : shipment.actual_weight || "",
     gst : shipment.gst || "",
@@ -91,6 +91,13 @@ const [items, setItems] = useState([
     invoiceDoc: shipment.invoice_doc || ""
   });
   const formDataRef = useRef(formData);
+  const updateForm = (patch) => {
+    setFormData(prev => {
+      const next = { ...prev, ...patch };
+      formDataRef.current = next;
+      return next;
+    });
+  };
 
   const [files, setFiles] = useState({
     aadhaarDoc: null,
@@ -156,55 +163,28 @@ const [items, setItems] = useState([
 
   };
   const removeProduct = (index) => {
-    const updatedItems = items.filter((_, i) => i !== index);
-    setItems(updatedItems);
-    setFormData((prev)=>({
-      ...prev,
-      items: items
-    }))
+    setItems(it => it.filter((_, i) => i !== index));
   };
   const handleDocket = (index, event) => {
     const { name, value } = event.target;
-    const updatedDockets = [...dockets];
-    updatedDockets[index][name] = value;
-    setDockets(updatedDockets);
-    setFormData((prev)=>({
-      ...prev,
-      dockets: dockets
-    }))
+    setDockets(ds => {
+      const next = [...ds];
+      next[index][name] = value;
+      return next;
+    });
   };
-  useEffect(() => {
-    setFormData((prev)=>({
-      ...prev,
-      dockets: dockets
-    }))
-  },[dockets])
   const handleItems = (index, event) => {
-    
     const { name, value } = event.target;
-    const updatedItems = [...items];
-    updatedItems[index][name] = value;
-    setItems(updatedItems);
-    setFormData((prev)=>({
-      ...prev,
-      items: items
-    }))
+    setItems(it => {
+      const next = [...it];
+      next[index][name] = value;
+      return next;
+    });
   };
-
-  useEffect(()=>{
-    setFormData((prev)=>({
-        ...prev,
-        items: items
-      }))
-  }, [items]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(p => {
-      const updated = { ...p, [name]: value };
-      formDataRef.current = updated;
-      return updated;
-    });
+    updateForm({ [name]: value });
   };
 
   const uploadFile = async (file) => {
@@ -214,8 +194,7 @@ const [items, setItems] = useState([
     if (!files[file]) return;
     try{
       const key = `shipment/international/${v4()}/${file}`;
-      const newFormData = { ...formDataRef.current, [file]: key };
-      formDataRef.current = newFormData;
+  updateForm({ [file]: key });
       const filetype = files[file].type;
       const putUrl = await getS3PutUrlService(key, filetype, true);
       console.log(file)
@@ -321,14 +300,32 @@ const [items, setItems] = useState([
     const q = countrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   },[countrySearch]);
   const filteredDestCountries = useMemo(()=>{
     const q = destCountrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   },[destCountrySearch]);
+
+  // normalize legacy values to keys
+  useEffect(() => {
+    let patch = {};
+    const currentCC = formDataRef.current.countryCode;
+    if (currentCC && !COUNTRIES[currentCC]) {
+      const found = Object.keys(COUNTRIES).find(k => COUNTRIES[k].country_code === currentCC);
+      if (found) patch.countryCode = found;
+    }
+    const currentDest = formDataRef.current.consigneeCountry;
+    if (currentDest && !COUNTRIES[currentDest]) {
+      const found2 = Object.keys(COUNTRIES).find(k => COUNTRIES[k].name === currentDest);
+      if (found2) patch.consigneeCountry = found2;
+    }
+    if (Object.keys(patch).length) updateForm(patch);
+  }, [formData.countryCode, formData.consigneeCountry]);
+  const displayDialCode = formData.countryCode && COUNTRIES[formData.countryCode]?.country_code;
+  const displayCountryName = formData.consigneeCountry && COUNTRIES[formData.consigneeCountry]?.name;
 
   return (
     <div className="w-full p-4 flex flex-col items-center">
@@ -382,9 +379,10 @@ const [items, setItems] = useState([
               <label className="text-sm font-medium">Country Code*</label>
               <div className="relative" ref={countryDropdownRef}>
                 <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                  <span>{formData.countryCode || 'Select'}</span>
+                  <span>{displayDialCode || 'Select'}</span>
                   <span className="ml-2">▾</span>
                 </button>
+                <input tabIndex={-1} style={{position:'absolute',opacity:0,height:0,width:0}} required value={displayDialCode || ''} onChange={()=>{}} />
                 {countryDropdownOpen && (
                   <div className="absolute z-50 mt-1 w-64 max-h-72 overflow-hidden bg-white border rounded-xl shadow-lg">
                     <div className="p-2 border-b">
@@ -394,7 +392,7 @@ const [items, setItems] = useState([
                       {filteredCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredCountries.map(c => (
                         <li key={c.iso2+"-code"}>
-                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.code ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,countryCode:c.code})); setCountryDropdownOpen(false); setCountrySearch("");}}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({countryCode:c.key}); setCountryDropdownOpen(false); setCountrySearch("");}}>
                             <span className="inline-block w-16">{c.code}</span>
                             <span>{c.name}</span>
                           </button>
@@ -433,9 +431,10 @@ const [items, setItems] = useState([
               <label className="text-sm font-medium">Country*</label>
               <div className="relative" ref={destCountryRef}>
                 <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                  <span>{formData.consigneeCountry || 'Select'}</span>
+                  <span>{displayCountryName || 'Select'}</span>
                   <span className="ml-2">▾</span>
                 </button>
+                <input tabIndex={-1} style={{position:'absolute',opacity:0,height:0,width:0}} required value={displayCountryName || ''} onChange={()=>{}} />
                 {destCountryOpen && (
                   <div className="absolute z-20 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
                     <div className="p-2 border-b">
@@ -444,8 +443,8 @@ const [items, setItems] = useState([
                     <ul className="max-h-72 overflow-y-auto text-sm">
                       {filteredDestCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredDestCountries.map(c => (
-                        <li key={c.iso_code2+"-dest"}>
-                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.name ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,consigneeCountry:c.name})); setDestCountryOpen(false); setDestCountrySearch("");}}>
+                        <li key={c.iso2+"-dest"}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({consigneeCountry:c.key}); setDestCountryOpen(false); setDestCountrySearch("");}}>
                             {c.name}
                           </button>
                         </li>
@@ -504,19 +503,19 @@ const [items, setItems] = useState([
                 {dockets.map((d, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2 font-medium">{i+1}</td>
-                    <td className="p-2"><input name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
-                        <input name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
+                        <input required name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
                         <select name="docket_weight_unit" value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
                           <option value="g">g</option>
                           <option value="kg">kg</option>
                         </select>
                       </div>
                     </td>
-                    <td className="p-2"><input name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">{dockets.length>1 && <button type="button" onClick={()=>handleDeleteDocket(i)} className="text-red-500 hover:underline">Remove</button>}</td>
                   </tr>
                 ))}
@@ -546,11 +545,11 @@ const [items, setItems] = useState([
               <tbody>
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-2"><input name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
@@ -574,10 +573,10 @@ const [items, setItems] = useState([
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="aadhaarNumber" className="text-sm font-medium">Aadhaar Number*</label>
-              <input id="aadhaarNumber" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
+              <input id="aadhaarNumber" name="aadhaarNumber" required value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
-              <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)*</label>
+              <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)</label>
               <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
               {formData.aadhaarDoc && typeof formData.aadhaarDoc === 'string' && (
                   <a
@@ -599,11 +598,11 @@ const [items, setItems] = useState([
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2">
               <label htmlFor="invoiceNumber" className="text-sm font-medium">Invoice Number*</label>
-              <input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="border rounded-xl px-4 py-2" />
+              <input id="invoiceNumber" name="invoiceNumber" required value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="invoiceDate" className="text-sm font-medium">Invoice Date*</label>
-              <input id="invoiceDate" name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="invoiceDate" name="invoiceDate" required type="date" value={formData.invoiceDate} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="invoiceDoc" className="text-sm font-medium">Invoice Document (PDF/Image)</label>
@@ -628,7 +627,7 @@ const [items, setItems] = useState([
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
               <label htmlFor="price" className="text-sm font-medium">Shipment Cost*</label>
-              <input id="price" name="price" type="number" min={0} value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="border rounded-xl px-4 py-2" />
+              <input id="price" name="price" required type="number" min={0} value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="border rounded-xl px-4 py-2" />
             </div>
           </div>
         </div>
@@ -749,12 +748,12 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Requested: show cancel request button */}
             {isRequested ? (
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelRequest(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Request"}</div>
-            ): null}
+ ): null}
+         
             {/* Cancelled: show message */}
             {isCancelled ? (
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-not-allowed">Cancelled</div>
-            ): null}
-          </div>
+            ): null} </div>
         </div>
         {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={hasAwb} />}
       </>

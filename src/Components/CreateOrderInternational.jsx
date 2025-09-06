@@ -17,14 +17,14 @@ const FullDetails = () => {
     contents: "Books",
     consigneeName: "Test",
     consigneeCompany: "Test",
-    countryCode: "+91",
+    countryCode: "India", // will be normalized to key if needed
     consigneeContact: "9876543210",
     consigneeEmail: "test@ex.com",
     consigneeAddress: "Test Address",
     consigneeZipCode: "123456",
     consigneeCity: "Test City",
     consigneeState: "Test State",
-    consigneeCountry: "India",
+    consigneeCountry: "India", // will be normalized to key if needed
     shipmentValue: "1000",
     gst: "",
     actualWeight: "1",
@@ -72,6 +72,7 @@ const FullDetails = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [services, setServices] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [creatingStatus, setCreatingStatus] = useState(null);
 
   // Dropdown search states
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
@@ -86,14 +87,14 @@ const FullDetails = () => {
     const q = countrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   }, [countrySearch]);
 
   const filteredDestCountries = useMemo(() => {
     const q = destCountrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   }, [destCountrySearch]);
 
   // Fetch warehouses & services on mount
@@ -144,14 +145,18 @@ const FullDetails = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const updateForm = (patch) => {
+    setFormData(prev => {
+      const next = { ...prev, ...patch };
+      formDataRef.current = next;
+      return next;
+    });
+  }
+
   // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(p => {
-      const updated = { ...p, [name]: value };
-      formDataRef.current = updated;
-      return updated;
-    });
+    updateForm({ [name]: value });
   };
   const handleDocket = (index, e) => {
     const { name, value } = e.target;
@@ -175,8 +180,11 @@ const FullDetails = () => {
   };
 
   const uploadFile = async (file) => {
-    if (!files[file] && filesMeta[file]?.required){
-      throw new Error(`${filesMeta[file]?.label} is required`);
+    if (!files[file]){
+      if (filesMeta[file]?.required){
+        throw new Error(`${filesMeta[file]?.label} is required`);
+      }
+      return;
     };
     try{
       const key = `shipment/international/${v4()}/${file}`;
@@ -188,23 +196,27 @@ const FullDetails = () => {
     } catch (error){
       console.error(error);
       setFormData((prev) => ({...prev, [file]: ""}));
-      toast.error(`Failed to upload ${file}, try again!`)
+      toast.error(`Failed to upload ${filesMeta[file]?.label}, try again!`)
     }
   }
 
   const handleUpload = async () => {
     try{
+      setCreatingStatus("Uploading files...");
       await Promise.all(
         Object.keys(files).map(key => uploadFile(key))
       );
       return true;
     } catch (error) {
+      console.error(error);
       toast.error(error?.message || "Failed to upload files");
+      setCreatingStatus(null);
     }
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!(await handleUpload())) return;
+    setCreatingStatus("Creating shipment...");
     const payload = {
       ...formDataRef.current,
       dockets: dockets,
@@ -229,8 +241,24 @@ const FullDetails = () => {
     } catch (err) {
       toast.error('Network error');
       console.error(err);
+    } finally{
+      setCreatingStatus(null);
     }
   };
+
+  useEffect(()=>{
+    // Normalize countryCode and consigneeCountry if they currently store name instead of key
+    const patch = {};
+    if (formData.countryCode && !COUNTRIES[formData.countryCode]){
+      const matchKey = Object.keys(COUNTRIES).find(k => COUNTRIES[k].name === formData.countryCode);
+      if (matchKey) patch.countryCode = matchKey;
+    }
+    if (formData.consigneeCountry && !COUNTRIES[formData.consigneeCountry]){
+      const matchKey = Object.keys(COUNTRIES).find(k => COUNTRIES[k].name === formData.consigneeCountry);
+      if (matchKey) patch.consigneeCountry = matchKey;
+    }
+    if (Object.keys(patch).length) updateForm(patch);
+  }, [formData.countryCode, formData.consigneeCountry]);
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 flex flex-col items-center">
@@ -279,19 +307,19 @@ const FullDetails = () => {
               <label className="text-sm font-medium">Country Code*</label>
               <div className="relative" ref={countryDropdownRef}>
                 <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                  <span>{formData.countryCode || 'Select'}</span>
+                  <span>{formData.countryCode ? (COUNTRIES[formData.countryCode]?.country_code || formData.countryCode) : 'Select'}</span>
                   <span className="ml-2">▾</span>
                 </button>
                 {countryDropdownOpen && (
                   <div className="absolute z-50 mt-1 w-64 max-h-72 overflow-hidden bg-white border rounded-xl shadow-lg">
                     <div className="p-2 border-b">
-                      <input autoFocus type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search code or name" value={countrySearch} onChange={(e)=>setCountrySearch(e.target.value)} />
+                      <input autoFocus required type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search code or name" value={countrySearch} onChange={(e)=>setCountrySearch(e.target.value)} />
                     </div>
                     <ul className="max-h-60 overflow-y-auto text-sm">
                       {filteredCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredCountries.map(c => (
-                        <li key={c.iso2+"-code"}>
-                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.code ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,countryCode:c.code})); setCountryDropdownOpen(false); setCountrySearch("");}}>
+                        <li key={c.key+"-code"}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({countryCode:c.key}); setCountryDropdownOpen(false); setCountrySearch("");}}>
                             <span className="inline-block w-16">{c.code}</span>
                             <span>{c.name}</span>
                           </button>
@@ -330,19 +358,19 @@ const FullDetails = () => {
               <label className="text-sm font-medium">Country*</label>
               <div className="relative" ref={destCountryRef}>
                 <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                  <span>{formData.consigneeCountry || 'Select'}</span>
+                  <span>{formData.consigneeCountry ? (COUNTRIES[formData.consigneeCountry]?.name || formData.consigneeCountry) : 'Select'}</span>
                   <span className="ml-2">▾</span>
                 </button>
                 {destCountryOpen && (
                   <div className="absolute z-20 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
                     <div className="p-2 border-b">
-                      <input autoFocus type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search country" value={destCountrySearch} onChange={(e)=>setDestCountrySearch(e.target.value)} />
+                      <input autoFocus required type="text" className="w-full border px-2 py-1 rounded-md text-sm" placeholder="Search country" value={destCountrySearch} onChange={(e)=>setDestCountrySearch(e.target.value)} />
                     </div>
                     <ul className="max-h-72 overflow-y-auto text-sm">
                       {filteredDestCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                       {filteredDestCountries.map(c => (
-                        <li key={c.iso_code2+"-dest"}>
-                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.name ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,consigneeCountry:c.name})); setDestCountryOpen(false); setDestCountrySearch("");}}>
+                        <li key={c.key+"-dest"}>
+                          <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({consigneeCountry:c.key}); setDestCountryOpen(false); setDestCountrySearch("");}}>
                             {c.name}
                           </button>
                         </li>
@@ -401,13 +429,13 @@ const FullDetails = () => {
                 {dockets.map((d, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2 font-medium">{i+1}</td>
-                    <td className="p-2"><input name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
-                        <input name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
-                        <select name="docket_weight_unit" value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
+                        <input name="docket_weight" required value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
+                        <select name="docket_weight_unit" required value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
                           <option value="g">g</option>
                           <option value="kg">kg</option>
                         </select>
@@ -445,11 +473,11 @@ const FullDetails = () => {
               <tbody>
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-2"><input name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
@@ -472,11 +500,11 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="aadhaarNumber">Aadhaar Number*</label>
-              <input id="aadhaarNumber" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="w-full border py-2 px-3 rounded-xl" />
+              <input id="aadhaarNumber" required name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXXXXXXXXXX" className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="aadhaarDoc">Aadhaar Document (PDF/Image)*</label>
-              <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="aadhaarDoc" required name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
           </div>
         </section>
@@ -486,11 +514,11 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="invoiceNumber">Invoice Number*</label>
-              <input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="w-full border py-2 px-3 rounded-xl" />
+              <input id="invoiceNumber" required name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="invoiceDate">Invoice Date*</label>
-              <input id="invoiceDate" name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="invoiceDate" required name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="invoiceDoc">Invoice Document (PDF/Image)</label>
@@ -504,12 +532,12 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="price">Shipment Cost (As provided)*</label>
-              <input id="price" name="price" value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="w-full border py-2 px-3 rounded-xl" />
+              <input id="price" required name="price" value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="w-full border py-2 px-3 rounded-xl" />
             </div>
           </div>
         </section>
         <div className="flex justify-end pt-4">
-          <button type="submit" className="px-6 py-2 rounded-xl bg-blue-600 text-white">Create Shipment</button>
+          <button type="submit" disabled={!!creatingStatus} className="px-6 py-2 rounded-xl bg-blue-600 text-white">{creatingStatus || "Create Shipment"}</button>
         </div>
       </form>
     </div>
