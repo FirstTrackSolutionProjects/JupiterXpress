@@ -616,7 +616,7 @@ const ManageForm = ({ shipment }) => {
   );
 };
 
-const Card = ({ shipment }) => {
+const Card = ({ shipment, onRefresh }) => {
   const [isManage, setIsManage] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
@@ -627,6 +627,7 @@ const Card = ({ shipment }) => {
     try {
       await approveInternationalRequestShipmentService(orderId);
       toast.success('Shipment request approved');
+      onRefresh();
     } catch (err) {
       toast.error('Failed to approve request');
     } finally {
@@ -638,6 +639,7 @@ const Card = ({ shipment }) => {
     try {
       await rejectInternationalRequestShipmentService(orderId);
       toast.success('Shipment request rejected');
+      onRefresh();
     } catch (err) {
       toast.error('Failed to reject request');
     } finally {
