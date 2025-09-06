@@ -10,6 +10,7 @@ import {v4} from "uuid";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import cancelInternationalShipmentService from "../services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
+import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ shipment}) => {
   // ---------------- State: Dockets & Items ----------------
@@ -686,6 +687,28 @@ const Card = ({ shipment, onRefresh }) => {
       }
     };
 
+    const handleGetLabel = async (orderId) => {
+      if (!orderId) {
+        toast.error('Invalid order ID');
+        return;
+      }
+      try{
+        const labelResponse = await getInternationalShipmentLabelService(orderId);
+        if (labelResponse.isBase64URL){
+          const link = document.createElement('a');
+          link.href = labelResponse.label;
+          link.download = `Label_${orderId}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          window.open(labelResponse.label, '_blank');
+        }
+      } catch (err){
+        toast.error(err.message || 'Failed to get label');
+      }
+    }
+
     // UI logic
     const isRequested = shipment.is_requested;
     const isManifested = shipment.is_manifested;
@@ -706,7 +729,7 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Manifested: show label and cancel shipment */}
             {(isManifested && hasAwb && !isCancelled) ? (
               <>
-                <a className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`} rel="noopener noreferrer">Label</a>
+                <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div>
                 <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
               </>
             ): null}
