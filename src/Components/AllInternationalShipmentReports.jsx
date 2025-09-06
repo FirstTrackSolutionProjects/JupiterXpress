@@ -638,6 +638,7 @@ const Card = ({ shipment }) => {
   const isRequested = shipment.is_requested;
   const isManifested = shipment.is_manifested;
   const hasAwb = !!shipment.awb;
+  const isCancelled = shipment.status === 'Cancelled';
 
   return (
     <>
@@ -650,13 +651,16 @@ const Card = ({ shipment }) => {
           <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
         </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
-          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? hasAwb ? "View" : "Manage" : "X"}</div>
+          <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? isManifested ? "View" : "Manage" : "X"}</div>
           {/* Requested: show approve/reject buttons */}
-          {(isRequested && !isManifested && !hasAwb) ? (
+          {(isRequested && !isManifested) ? (
             <>
               <div className="px-3 py-1 bg-green-500 rounded-3xl text-white cursor-pointer" onClick={isApproving ? () => {} : () => handleApprove(shipment.iid)}>{isApproving ? "Approving..." : "Approve"}</div>
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isRejecting ? () => {} : () => handleReject(shipment.iid)}>{isRejecting ? "Rejecting..." : "Reject"}</div>
             </>
+          ): null}
+          {(isCancelled)? (
+            <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer">Cancelled</div>
           ): null}
         </div>
       </div>
