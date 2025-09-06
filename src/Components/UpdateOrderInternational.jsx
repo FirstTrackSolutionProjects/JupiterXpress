@@ -97,6 +97,17 @@ const [items, setItems] = useState([
     invoiceDoc: null
   })
 
+  const filesMeta = Object.freeze({
+    aadhaarDoc: {
+      label: "Aadhaar Document",
+      required: true,
+    },
+    invoiceDoc: {
+      label: "Invoice Document",
+      required: false,
+    }
+  })
+
   const handleFileChange = async (e) => {
     const { name, files: newFiles } = e.target;
     setFiles((prev) => ({
@@ -197,8 +208,8 @@ const [items, setItems] = useState([
   };
 
   const uploadFile = async (file) => {
-    if (!files[file] && !formData[file]){
-      throw new Error(`${file} is required`);
+    if ((!files[file] && !formData[file]) && filesMeta[file]?.required){
+      throw new Error(`${filesMeta[file]?.label} is required`);
     };
     if (!files[file]) return;
     try{
