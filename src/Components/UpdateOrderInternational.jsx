@@ -343,21 +343,21 @@ const [items, setItems] = useState([
               <input id="orderId" name="iid" disabled value={formData.iid} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse</label>
+              <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
               <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="border rounded-xl px-4 py-2">
                 <option value="">Select Warehouse</option>
                 {warehouses.map(w => (<option key={w.wid} value={w.wid}>{w.warehouseName}</option>))}
               </select>
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="service" className="text-sm font-medium">Service</label>
+              <label htmlFor="service" className="text-sm font-medium">Service*</label>
               <select id="service" name="service" value={formData.service} onChange={handleChange} className="border rounded-xl px-4 py-2" required>
                 <option value="">Select Service</option>
                 {services.map(s => <option key={s.service_id} value={s.service_id}>{s.service_name}</option>)}
               </select>
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="vendor" className="text-sm font-medium">Vendor</label>
+              <label htmlFor="vendor" className="text-sm font-medium">Vendor*</label>
               <select id="vendor" name="vendor" value={formData.vendor} onChange={handleChange} className="border rounded-xl px-4 py-2" required>
                 <option value="">Select Vendor</option>
                 {vendors.map(v => <option key={v.id} value={v.id}>{v.vendor_name}</option>)}
@@ -371,15 +371,15 @@ const [items, setItems] = useState([
           <h2 className="text-lg font-semibold">Consignee Details</h2>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeName">Name</label>
+              <label className="text-sm font-medium" htmlFor="consigneeName">Name*</label>
               <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company</label>
+              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company*</label>
               <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium">Country Code</label>
+              <label className="text-sm font-medium">Country Code*</label>
               <div className="relative" ref={countryDropdownRef}>
                 <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
                   <span>{formData.countryCode || 'Select'}</span>
@@ -406,31 +406,31 @@ const [items, setItems] = useState([
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact</label>
+              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact*</label>
               <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email</label>
+              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email*</label>
               <input id="consigneeEmail" name="consigneeEmail" type="email" required value={formData.consigneeEmail} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
-              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address</label>
+              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
               <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code</label>
+              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
               <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeCity">City</label>
+              <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
               <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeState">State</label>
+              <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
               <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium">Country</label>
+              <label className="text-sm font-medium">Country*</label>
               <div className="relative" ref={destCountryRef}>
                 <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
                   <span>{formData.consigneeCountry || 'Select'}</span>
@@ -463,11 +463,11 @@ const [items, setItems] = useState([
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
-              <label htmlFor="contents" className="text-sm font-medium">Contents</label>
+              <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value</label>
+              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
               <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
@@ -475,7 +475,7 @@ const [items, setItems] = useState([
               <input id="gst" name="gst" value={formData.gst} onChange={handleChange} placeholder="GSTIN" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)</label>
+              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
               <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
           </div>
@@ -492,11 +492,11 @@ const [items, setItems] = useState([
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">#</th>
-                  <th className="p-2">L</th>
-                  <th className="p-2">W</th>
-                  <th className="p-2">H</th>
-                  <th className="p-2">Weight</th>
-                  <th className="p-2">Qty</th>
+                  <th className="p-2">L*</th>
+                  <th className="p-2">W*</th>
+                  <th className="p-2">H*</th>
+                  <th className="p-2">Weight*</th>
+                  <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -534,13 +534,12 @@ const [items, setItems] = useState([
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-blue-50 text-left">
-                  <th className="p-2">Box</th>
+                  <th className="p-2">Box*</th>
                   <th className="p-2">HS Code</th>
-                  <th className="p-2">Description</th>
-                  <th className="p-2">Qty</th>
-                  <th className="p-2">Rate</th>
-                  <th className="p-2">Weight</th>
-                  <th className="p-2">IGST</th>
+                  <th className="p-2">Description*</th>
+                  <th className="p-2">Qty*</th>
+                  <th className="p-2">Rate*</th>
+                  <th className="p-2">Weight (In kg)</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -561,7 +560,6 @@ const [items, setItems] = useState([
                         </select>
                       </div>
                     </td>
-                    <td className="p-2"><input name="igst_amount" value={it.igst_amount} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
                   </tr>
                 ))}
@@ -575,11 +573,11 @@ const [items, setItems] = useState([
           <div className="text-lg font-semibold">KYC Document</div>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-2">
-              <label htmlFor="aadhaarNumber" className="text-sm font-medium">Aadhaar Number</label>
+              <label htmlFor="aadhaarNumber" className="text-sm font-medium">Aadhaar Number*</label>
               <input id="aadhaarNumber" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
-              <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)</label>
+              <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)*</label>
               <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="border rounded-xl px-4 py-2" />
               {formData.aadhaarDoc && typeof formData.aadhaarDoc === 'string' && (
                   <a
@@ -600,11 +598,11 @@ const [items, setItems] = useState([
           <div className="text-lg font-semibold">Invoice Details</div>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2">
-              <label htmlFor="invoiceNumber" className="text-sm font-medium">Invoice Number</label>
+              <label htmlFor="invoiceNumber" className="text-sm font-medium">Invoice Number*</label>
               <input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="invoiceDate" className="text-sm font-medium">Invoice Date</label>
+              <label htmlFor="invoiceDate" className="text-sm font-medium">Invoice Date*</label>
               <input id="invoiceDate" name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
@@ -629,7 +627,7 @@ const [items, setItems] = useState([
           <div className="text-lg font-semibold">Pricing</div>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
-              <label htmlFor="price" className="text-sm font-medium">Shipment Cost</label>
+              <label htmlFor="price" className="text-sm font-medium">Shipment Cost*</label>
               <input id="price" name="price" type="number" min={0} value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="border rounded-xl px-4 py-2" />
             </div>
           </div>
