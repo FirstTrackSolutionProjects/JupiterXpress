@@ -241,21 +241,21 @@ const FullDetails = () => {
           <h2 className="text-lg font-semibold">Service Details</h2>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="wid">Pickup Warehouse</label>
+              <label className="text-sm font-medium" htmlFor="wid">Pickup Warehouse*</label>
               <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl">
                 <option value="">Select Warehouse</option>
                 {warehouses.map(w => <option key={w.wid} value={w.wid}>{w.warehouseName}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="service">Service</label>
+              <label className="text-sm font-medium" htmlFor="service">Service*</label>
               <select id="service" name="service" required value={formData.service} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl">
                 <option value="">Select Service</option>
                 {services.map(s => <option key={s.service_id} value={s.service_id}>{s.service_name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="vendor">Vendor</label>
+              <label className="text-sm font-medium" htmlFor="vendor">Vendor*</label>
               <select id="vendor" name="vendor" required value={formData.vendor} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl">
                 <option value="">Select Vendor</option>
                 {vendors.map(v => <option key={v.id} value={v.id}>{v.vendor_name}</option>)}
@@ -268,15 +268,15 @@ const FullDetails = () => {
           <h2 className="text-lg font-semibold">Consignee Details</h2>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeName">Name</label>
+              <label className="text-sm font-medium" htmlFor="consigneeName">Name*</label>
               <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company</label>
+              <label className="text-sm font-medium" htmlFor="consigneeCompany">Company*</label>
               <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium">Country Code</label>
+              <label className="text-sm font-medium">Country Code*</label>
               <div className="relative" ref={countryDropdownRef}>
                 <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
                   <span>{formData.countryCode || 'Select'}</span>
@@ -303,31 +303,31 @@ const FullDetails = () => {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact</label>
+              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact*</label>
               <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email</label>
+              <label className="text-sm font-medium" htmlFor="consigneeEmail">Email*</label>
               <input id="consigneeEmail" name="consigneeEmail" type="email" required value={formData.consigneeEmail} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
-              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address</label>
+              <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
               <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code</label>
+              <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
               <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeCity">City</label>
+              <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
               <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeState">State</label>
+              <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
               <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium">Country</label>
+              <label className="text-sm font-medium">Country*</label>
               <div className="relative" ref={destCountryRef}>
                 <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
                   <span>{formData.consigneeCountry || 'Select'}</span>
@@ -360,11 +360,11 @@ const FullDetails = () => {
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
-              <label htmlFor="contents" className="text-sm font-medium">Contents</label>
+              <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value</label>
+              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
               <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
@@ -372,7 +372,7 @@ const FullDetails = () => {
               <input id="gst" name="gst" value={formData.gst} onChange={handleChange} placeholder="GSTIN" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
-              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)</label>
+              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
               <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
           </div>
@@ -389,11 +389,11 @@ const FullDetails = () => {
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">#</th>
-                  <th className="p-2">L (cm)</th>
-                  <th className="p-2">W (cm)</th>
-                  <th className="p-2">H (cm)</th>
-                  <th className="p-2">Weight</th>
-                  <th className="p-2">Qty</th>
+                  <th className="p-2">L (cm)*</th>
+                  <th className="p-2">W (cm)*</th>
+                  <th className="p-2">H (cm)*</th>
+                  <th className="p-2">Weight*</th>
+                  <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -433,12 +433,12 @@ const FullDetails = () => {
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-blue-50 text-left">
-                  <th className="p-2">Box</th>
+                  <th className="p-2">Box*</th>
                   <th className="p-2">HS Code</th>
-                  <th className="p-2">Description</th>
-                  <th className="p-2">Qty</th>
-                  <th className="p-2">Rate</th>
-                  <th className="p-2">Weight</th>
+                  <th className="p-2">Description*</th>
+                  <th className="p-2">Qty*</th>
+                  <th className="p-2">Rate (₹)*</th>
+                  <th className="p-2">Weight (kg)</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -471,11 +471,11 @@ const FullDetails = () => {
           <h2 className="text-lg font-semibold">KYC Document</h2>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1 md:col-span-2">
-              <label className="text-sm font-medium" htmlFor="aadhaarNumber">Aadhaar Number</label>
+              <label className="text-sm font-medium" htmlFor="aadhaarNumber">Aadhaar Number*</label>
               <input id="aadhaarNumber" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
-              <label className="text-sm font-medium" htmlFor="aadhaarDoc">Aadhaar Document (PDF/Image)</label>
+              <label className="text-sm font-medium" htmlFor="aadhaarDoc">Aadhaar Document (PDF/Image)*</label>
               <input id="aadhaarDoc" name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
           </div>
@@ -485,11 +485,11 @@ const FullDetails = () => {
           <h2 className="text-lg font-semibold">Invoice Details</h2>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="invoiceNumber">Invoice Number</label>
+              <label className="text-sm font-medium" htmlFor="invoiceNumber">Invoice Number*</label>
               <input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} placeholder="INV-001" className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="invoiceDate">Invoice Date</label>
+              <label className="text-sm font-medium" htmlFor="invoiceDate">Invoice Date*</label>
               <input id="invoiceDate" name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
@@ -503,7 +503,7 @@ const FullDetails = () => {
           <h2 className="text-lg font-semibold">Pricing</h2>
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="price">Shipment Cost</label>
+              <label className="text-sm font-medium" htmlFor="price">Shipment Cost (As provided)*</label>
               <input id="price" name="price" value={formData.price} onChange={handleChange} placeholder="Ex. 1150" className="w-full border py-2 px-3 rounded-xl" />
             </div>
           </div>
