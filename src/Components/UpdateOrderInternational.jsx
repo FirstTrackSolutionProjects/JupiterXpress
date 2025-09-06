@@ -689,6 +689,7 @@ const Card = ({ shipment, onRefresh }) => {
     // UI logic
     const isRequested = shipment.is_requested;
     const isManifested = shipment.is_manifested;
+    const isCancelled = shipment.cancelled;
     const hasAwb = !!shipment.awb;
 
     return (
@@ -703,7 +704,7 @@ const Card = ({ shipment, onRefresh }) => {
           <div className="absolute right-4 sm:right-8 flex space-x-2">
             <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? hasAwb ? "View" : "Manage" : "X"}</div>
             {/* Manifested: show label and cancel shipment */}
-            {isManifested && hasAwb ? (
+            {(isManifested && hasAwb && !isCancelled) ? (
               <>
                 <a className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" target="_blank" href={`https://online.flightgo.in/docket/print_pdf_tc_pdf/pdf_two_025?docket=${shipment.docket_id}&mode=tcpdf1`} rel="noopener noreferrer">Label</a>
                 <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
@@ -716,6 +717,10 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Requested: show cancel request button */}
             {isRequested ? (
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelRequest(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Request"}</div>
+            ): null}
+            {/* Cancelled: show message */}
+            {isCancelled ? (
+              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-not-allowed">Cancelled</div>
             ): null}
           </div>
         </div>
