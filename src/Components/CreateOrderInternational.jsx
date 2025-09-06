@@ -42,6 +42,17 @@ const FullDetails = () => {
     invoiceDoc: null
   });
 
+  const filesMeta = Object.freeze({
+    aadhaarDoc: {
+      label: "Aadhaar Document",
+      required: true,
+    },
+    invoiceDoc: {
+      label: "Invoice Document",
+      required: false,
+    }
+  })
+
   const handleFileChange = (e) => {
     const { name, files: newFiles } = e.target;
     setFiles((prev) => ({
@@ -164,8 +175,8 @@ const FullDetails = () => {
   };
 
   const uploadFile = async (file) => {
-    if (!files[file]){
-      throw new Error(`${file} is required`);
+    if (!files[file] && filesMeta[file]?.required){
+      throw new Error(`${filesMeta[file]?.label} is required`);
     };
     try{
       const key = `shipment/international/${v4()}/${file}`;
