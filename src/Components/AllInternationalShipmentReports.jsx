@@ -66,7 +66,7 @@ const ManageForm = ({ shipment }) => {
     contents : shipment.contents || "",
     consigneeName : shipment.consignee_name || "",
     consigneeCompany : shipment.consignee_company_name || "",
-    countryCode : shipment.consignee_country_code || "",
+  countryCode : shipment.consignee_country_code || "", // key (normalized later if dial code)
     consigneeContact : shipment.consignee_contact_no || "",
     consigneeEmail : shipment.consignee_email || "",
     consigneeAddress : shipment.consignee_address_1 || "",
@@ -74,7 +74,7 @@ const ManageForm = ({ shipment }) => {
     consigneeAddress3: shipment.consignee_address_3 || "",
     consigneeCity : shipment.consignee_city || "",
     consigneeState : shipment.consignee_state || "",
-    consigneeCountry : shipment.consignee_country || "",
+  consigneeCountry : shipment.consignee_country || "", // key (normalized later if name)
     consigneeZipCode : shipment.consignee_zip_code || "",
     actualWeight : shipment.actual_weight || "",
     gst : shipment.gst || "",
@@ -87,10 +87,28 @@ const ManageForm = ({ shipment }) => {
     invoiceDoc: shipment.invoice_doc || ""
   });
   const formDataRef = useRef(formData);
+  const updateForm = (patch) => {
+    setFormData(prev => {
+      const next = { ...prev, ...patch };
+      formDataRef.current = next;
+      return next;
+    });
+  };
   const [files, setFiles] = useState({
     aadhaarDoc: null,
     invoiceDoc: null
   })
+
+  const filesMeta = {
+    aadhaarDoc: {
+      label: "Aadhaar Document",
+      required: true
+    },
+    invoiceDoc: {
+      label: "Invoice Document",
+      required: false
+    }
+  }
   const handleFileChange = async (e) => {
     const { name, files: newFiles } = e.target;
     setFiles((prev) => ({
@@ -136,56 +154,31 @@ const ManageForm = ({ shipment }) => {
     setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0 , igst_amount : 0 }]);
   };
   const removeProduct = (index) => {
-    const updatedItems = items.filter((_, i) => i !== index);
-    setItems(updatedItems);
-    setFormData((prev)=>({
-        ...prev,
-        items: items
-      }))
+    setItems(it => it.filter((_, i) => i !== index));
   };
   const handleDocket = (index, event) => {
     const { name, value } = event.target;
-    const updatedDockets = [...dockets];
-    updatedDockets[index][name] = value;
-    setDockets(updatedDockets);
-    setFormData((prev)=>({
-        ...prev,
-        dockets: dockets
-      }))
-  };
-  useEffect(() => {
-    setFormData((prev)=>({
-        ...prev,
-        dockets: dockets
-      }))
-  },[dockets])
-  const handleItems = (index, event) => {
-    const { name, value } = event.target;
-    const updatedItems = [...items];
-    updatedItems[index][name] = value;
-    setItems(updatedItems);
-    setFormData((prev)=>({
-        ...prev,
-        items: items
-      }))
-  };
-  useEffect(()=>{
-    setFormData((prev)=>({
-        ...prev,
-        items: items
-      }))
-  }, [items]);
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(p => {
-      const updated = { ...p, [name]: value };
-      formDataRef.current = updated;
-      return updated;
+    setDockets(ds => {
+      const next = [...ds];
+      next[index][name] = value;
+      return next;
     });
   };
+  const handleItems = (index, event) => {
+    const { name, value } = event.target;
+    setItems(it => {
+      const next = [...it];
+      next[index][name] = value;
+      return next;
+    });
+  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    updateForm({ [name]: value });
+  };
   const uploadFile = async (file) => {
-    if (!files[file] && !formData[file]){
-      throw new Error(`${file} is required`);
+    if ((!files[file] && !formData[file]) && filesMeta[file]?.required ){
+      throw new Error(`${filesMeta[file]?.label} is required`);
     };
     if (!files[file]) return;
     try{
@@ -291,14 +284,32 @@ const ManageForm = ({ shipment }) => {
     const q = countrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   },[countrySearch]);
   const filteredDestCountries = useMemo(()=>{
     const q = destCountrySearch.toLowerCase();
     return Object.keys(COUNTRIES).filter(c =>
       COUNTRIES[c].name.toLowerCase().includes(q) || COUNTRIES[c].country_code.toLowerCase().includes(q)
-    ).map(c => ({ name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
+    ).map(c => ({ key: c, name: COUNTRIES[c].name, code: COUNTRIES[c].country_code, iso2: COUNTRIES[c].iso_code2 }));
   },[destCountrySearch]);
+
+  // normalize legacy display values to keys
+  useEffect(() => {
+    let patch = {};
+    const cc = formDataRef.current.countryCode;
+    if (cc && !COUNTRIES[cc]) {
+      const findKey = Object.keys(COUNTRIES).find(k => COUNTRIES[k].country_code === cc);
+      if (findKey) patch.countryCode = findKey;
+    }
+    const dc = formDataRef.current.consigneeCountry;
+    if (dc && !COUNTRIES[dc]) {
+      const findKey2 = Object.keys(COUNTRIES).find(k => COUNTRIES[k].name === dc);
+      if (findKey2) patch.consigneeCountry = findKey2;
+    }
+    if (Object.keys(patch).length) updateForm(patch);
+  }, [formData.countryCode, formData.consigneeCountry]);
+  const displayDialCode = formData.countryCode && COUNTRIES[formData.countryCode]?.country_code;
+  const displayCountryName = formData.consigneeCountry && COUNTRIES[formData.consigneeCountry]?.name;
   return (
     <div className="w-full p-4 flex flex-col items-center">
       <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
@@ -339,20 +350,21 @@ const ManageForm = ({ shipment }) => {
           <h2 className="text-lg font-semibold">Consignee Details</h2>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeName">Name</label>
+                <label className="text-sm font-medium" htmlFor="consigneeName">Name*</label>
                 <input id="consigneeName" name="consigneeName" required value={formData.consigneeName} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeCompany">Company</label>
+                <label className="text-sm font-medium" htmlFor="consigneeCompany">Company*</label>
                 <input id="consigneeCompany" name="consigneeCompany" required value={formData.consigneeCompany} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Country Code</label>
+                <label className="text-sm font-medium">Country Code*</label>
                 <div className="relative" ref={countryDropdownRef}>
                   <button type="button" onClick={()=>setCountryDropdownOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                    <span>{formData.countryCode || 'Select'}</span>
+                    <span>{displayDialCode || 'Select'}</span>
                     <span className="ml-2">▾</span>
                   </button>
+                  <input tabIndex={-1} style={{position:'absolute',opacity:0,height:0,width:0}} required value={displayDialCode || ''} onChange={()=>{}} />
                   {countryDropdownOpen && (
                     <div className="absolute z-50 mt-1 w-64 max-h-72 overflow-hidden bg-white border rounded-xl shadow-lg">
                       <div className="p-2 border-b">
@@ -362,7 +374,7 @@ const ManageForm = ({ shipment }) => {
                         {filteredCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                         {filteredCountries.map(c => (
                           <li key={c.iso2+"-code"}>
-                            <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.code ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,countryCode:c.code})); setCountryDropdownOpen(false); setCountrySearch("");}}>
+                            <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.countryCode===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({countryCode:c.key}); setCountryDropdownOpen(false); setCountrySearch("");}}>
                               <span className="inline-block w-16">{c.code}</span>
                               <span>{c.name}</span>
                             </button>
@@ -374,36 +386,37 @@ const ManageForm = ({ shipment }) => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeContact">Contact</label>
+                <label className="text-sm font-medium" htmlFor="consigneeContact">Contact*</label>
                 <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeEmail">Email</label>
+                <label className="text-sm font-medium" htmlFor="consigneeEmail">Email*</label>
                 <input id="consigneeEmail" name="consigneeEmail" type="email" required value={formData.consigneeEmail} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <label className="text-sm font-medium" htmlFor="consigneeAddress">Address</label>
+                <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
                 <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code</label>
+                <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
                 <input id="consigneeZipCode" name="consigneeZipCode" required value={formData.consigneeZipCode} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeCity">City</label>
+                <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
                 <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium" htmlFor="consigneeState">State</label>
+                <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
                 <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Country</label>
+                <label className="text-sm font-medium">Country*</label>
                 <div className="relative" ref={destCountryRef}>
                   <button type="button" onClick={()=>setDestCountryOpen(o=>!o)} className="w-full border py-2 px-3 rounded-xl text-left flex justify-between items-center">
-                    <span>{formData.consigneeCountry || 'Select'}</span>
+                    <span>{displayCountryName || 'Select'}</span>
                     <span className="ml-2">▾</span>
                   </button>
+                  <input tabIndex={-1} style={{position:'absolute',opacity:0,height:0,width:0}} required value={displayCountryName || ''} onChange={()=>{}} />
                   {destCountryOpen && (
                     <div className="absolute z-20 mt-1 w-full max-h-80 bg-white border rounded-xl shadow-lg overflow-hidden">
                       <div className="p-2 border-b">
@@ -413,7 +426,7 @@ const ManageForm = ({ shipment }) => {
                         {filteredDestCountries.length === 0 && (<li className="px-3 py-2 text-gray-500">No matches</li>)}
                         {filteredDestCountries.map(c => (
                           <li key={c.iso2+"-dest"}>
-                            <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.name ? 'bg-blue-50 font-medium':''}`} onClick={()=>{setFormData(p=>({...p,consigneeCountry:c.name})); setDestCountryOpen(false); setDestCountrySearch("");}}>
+                            <button type="button" className={`w-full text-left px-3 py-2 hover:bg-blue-100 ${formData.consigneeCountry===c.key ? 'bg-blue-50 font-medium':''}`} onClick={()=>{updateForm({consigneeCountry:c.key}); setDestCountryOpen(false); setDestCountrySearch("");}}>
                               {c.name}
                             </button>
                           </li>
@@ -458,11 +471,11 @@ const ManageForm = ({ shipment }) => {
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">#</th>
-                  <th className="p-2">L</th>
-                  <th className="p-2">W</th>
-                  <th className="p-2">H</th>
-                  <th className="p-2">Weight</th>
-                  <th className="p-2">Qty</th>
+                  <th className="p-2">L*</th>
+                  <th className="p-2">W*</th>
+                  <th className="p-2">H*</th>
+                  <th className="p-2">Weight*</th>
+                  <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -470,19 +483,19 @@ const ManageForm = ({ shipment }) => {
                 {dockets.map((d, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2 font-medium">{i+1}</td>
-                    <td className="p-2"><input name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="length" value={d.length} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="breadth" value={d.breadth} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="height" value={d.height} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
-                        <input name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
+                        <input required name="docket_weight" value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
                         <select name="docket_weight_unit" value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
                           <option value="g">g</option>
                           <option value="kg">kg</option>
                         </select>
                       </div>
                     </td>
-                    <td className="p-2"><input name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">{dockets.length>1 && <button type="button" onClick={()=>handleDeleteDocket(i)} className="text-red-500 hover:underline">Remove</button>}</td>
                   </tr>
                 ))}
@@ -502,22 +515,21 @@ const ManageForm = ({ shipment }) => {
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">Box</th>
                   <th className="p-2">HS Code</th>
-                  <th className="p-2">Description</th>
-                  <th className="p-2">Qty</th>
-                  <th className="p-2">Rate</th>
+                  <th className="p-2">Description*</th>
+                  <th className="p-2">Qty*</th>
+                  <th className="p-2">Rate*</th>
                   <th className="p-2">Weight</th>
-                  <th className="p-2">IGST</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
-                    <td className="p-2"><input name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
@@ -527,7 +539,6 @@ const ManageForm = ({ shipment }) => {
                         </select>
                       </div>
                     </td>
-                    <td className="p-2"><input name="igst_amount" value={it.igst_amount} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
                   </tr>
                 ))}
@@ -598,7 +609,7 @@ const ManageForm = ({ shipment }) => {
           </div>
         </div>
         <div className="pt-4">
-          <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
+          <button type='submit' disabled={!!loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
         </div>
       </form>
     </div>
