@@ -401,7 +401,7 @@ const FullDetails = () => {
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
-              <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
           </div>
         </div>
