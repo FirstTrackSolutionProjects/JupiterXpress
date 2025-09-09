@@ -737,7 +737,7 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Manifested: show label and cancel shipment */}
             {(isManifested && hasAwb && !isCancelled) ? (
               <>
-                <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div>
+                {/* <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div> */}
                 <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
               </>
             ): null}
