@@ -1,5 +1,44 @@
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+const WorldFirstCourierTrackingCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+                <div className='flex flex-col items-center justify-center'>
+                    <div className='font-bold'>{scan?.Status}</div>
+                    <div>{scan.Location}</div>
+                    <div>{scan.EventDate1} {scan.EventTime1}</div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+const FlightGoCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full bg-white relative items-center px-8 py-2 flex=col border-b">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div>{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
+const QuickShipNowCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
 const View  = ({report, setIsView}) => {
   const [status, setStatus] = useState(null)
   useEffect(() => {
@@ -24,20 +63,21 @@ const View  = ({report, setIsView}) => {
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] flex z-50 justify-center items-center">
           <div className="bg-white p-4  border">
             <div onClick={()=>setIsView(false)}>X</div>
-            {
-              status ? <div>
-              <p>AWB : {report.awb}</p>
-              <p>Order Id: {report.iid}</p>
-              <p>Status : {status[0].docket_info[4][1]}</p>
-              {
-                (status[0].docket_events).map((scan,index)=> {
-                  return (
-                  <div>{scan.event_at} | {scan.event_location} | {scan.event_description} </div>
-                  )
-              })
-              }
-            </div> : "Loading..."
-            }
+            {report?.service == 7 ? 
+                status?.[0]?.docket_events?.map((scan, index) => (
+                    <FlightGoCard key={index} scan={scan} />
+                ))
+            :null}
+            {report?.service == 11 ?
+                status?.length ? status?.map((scan, index) => (
+                    <WorldFirstCourierTrackingCard key={index} scan={scan} />
+                )) : <div>No Tracking Events Available</div>
+            :null}
+            {report?.service == 12 ?
+                status?.[0]?.docket_events?.map((scan, index) => (
+                    <QuickShipNowCard key={index} scan={scan} />
+                ))
+            :null}
           </div>
       </div>
       
