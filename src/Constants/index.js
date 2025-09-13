@@ -25,6 +25,8 @@ import PendingCancellations from "../Components/PendingCancellations/PendingCanc
 import PendingRefunds from "../Components/PendingRefunds/PendingRefunds"
 import UpdateProfileRequest from '../Components/UpdateProfileRequest';
 import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestSubmissions';
+import CodRemittanceAdmin from "../Components/CodRemittance/CodRemittanceAdmin"
+import CodRemittanceMerchant from "../Components/CodRemittance/CodRemittanceMerchant"
 
 export const navItems = [
     {
@@ -163,6 +165,24 @@ export const menuItems = [
         isDropdown : false,
         url : 'weight-disputes',
         component : WeightDisputes,
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "/logo.webp",
+        name : "COD Remittance",
+        isDropdown : false,
+        admin : true,
+        url : 'cod-remittance-manage',
+        component : CodRemittanceAdmin,
+        dropDownOptions : [{}]
+    },
+    {
+        icon : "/logo.webp",
+        name : "COD Remittance",
+        isDropdown : false,
+        merchantOnly : true,
+        url : 'cod-remittance-history',
+        component : CodRemittanceMerchant,
         dropDownOptions : [{}]
     },
     {
