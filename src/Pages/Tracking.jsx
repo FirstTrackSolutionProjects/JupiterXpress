@@ -113,6 +113,19 @@ const FlightGoCard = ({ scan }) => {
         </>
     )
 }
+
+const QuickShipNowCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
 const MovinCard = ({ scan }) => {
     return (
         <>
@@ -267,6 +280,9 @@ const Result = ({ data }) => {
                 
                 {data?.id == 11? data?.data.map((scan, index) => (
                     <WorldFirstCourierTrackingCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 12? data?.data.map((scan, index) => (
+                    <QuickShipNowCard key={index} scan={scan} />
                 )) : null}
             </div>
 
