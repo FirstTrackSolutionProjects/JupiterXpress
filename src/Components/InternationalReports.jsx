@@ -18,7 +18,7 @@ const WorldFirstCourierTrackingCard = ({ scan }) => {
 const FlightGoCard = ({ scan }) => {
     return (
         <>
-            <div className="w-full bg-white relative items-center px-8 py-2 flex=col border-b">
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
                 <div>{scan.event_at}</div>
                 <div>{scan.event_location}</div>
                 <div>{scan.event_description}</div>
@@ -30,10 +30,22 @@ const FlightGoCard = ({ scan }) => {
 const QuickShipNowCard = ({ scan }) => {
     return (
         <>
-            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
                 <div>{scan.event_at}</div>
                 <div>{scan.event_location}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+                <div>{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
+const QuickShipNow2Card = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div>{scan.event_description}</div>
             </div>
         </>
     )
@@ -78,6 +90,12 @@ const View  = ({report, setIsView}) => {
                     <QuickShipNowCard key={index} scan={scan} />
                 ))
             :null}
+            {report?.service == 13 ?
+                status?.[0]?.docket_events?.map((scan, index) => (
+                    <QuickShipNow2Card key={index} scan={scan} />
+                ))
+            :null}
+            {!status ? <div>Loading...</div> : null}
           </div>
       </div>
       
