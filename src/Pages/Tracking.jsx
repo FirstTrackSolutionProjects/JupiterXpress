@@ -117,10 +117,22 @@ const FlightGoCard = ({ scan }) => {
 const QuickShipNowCard = ({ scan }) => {
     return (
         <>
-            <div className="w-full h-16 bg-white relative items-center px-8 flex border-b space-x-4">
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
                 <div>{scan.event_at}</div>
                 <div>{scan.event_location}</div>
-                <div className="absolute right-8 cursor-pointer">{scan.event_description}</div>
+                <div>{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
+const QuickShipNow2Card = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div>{scan.event_description}</div>
             </div>
         </>
     )
@@ -283,6 +295,9 @@ const Result = ({ data }) => {
                 )) : null}
                 {data?.id == 12? data?.data.map((scan, index) => (
                     <QuickShipNowCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 13? data?.data.map((scan, index) => (
+                    <QuickShipNow2Card key={index} scan={scan} />
                 )) : null}
             </div>
 
