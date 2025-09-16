@@ -39,7 +39,7 @@ const DashboardSummary = () => {
             <DashboardSummaryCard title="Pending Pickups" number={summary?summary.unDelivered:0} />
             <DashboardSummaryCard title={admin?`Total Revenue`:`Total Wallet Recharge`} number={summary? (admin ? summary.revenue : summary.total_recharge) :0}/>
             <DashboardSummaryCard title="Parcel on process" number={summary?summary.inTransit:0} />
-            <DashboardSummaryCard title="RTO Shipments" number={summary?summary.rtoShipment:0} />
+            <DashboardSummaryCard title="Total RTO Shipments" number={summary?summary.rtoShipment:0} />
             {/* <DashboardSummaryCard title="NDR Parcel" number="0" /> */}
         </div>
     )
