@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Paper, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Paper, TextField, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import convertToUTCISOString from '../../helpers/convertToUTCISOString';
 import getCodRemittanceMerchantService from '../../services/codRemittanceServices/getCodRemittanceMerchant.service';
 
@@ -270,6 +270,23 @@ const CodRemittanceMerchant = () => {
               valueFormatter: (params) => `₹ ${Number(params.value || 0).toFixed(2)}`
             },
             { field: 'status', headerName: 'Status', width: 130 },
+            {
+              field: 'utr_no', headerName: 'UTR No.', width: 180
+            },
+            {
+              field: 'utr_doc', headerName: 'UTR Document', width: 180,
+              renderCell: (params) => (
+                <Button
+                  disabled={!params.value}
+                  onClick={() => params.value && window.open(`${import.meta.env.VITE_APP_BUCKET_URL}${params.value}`, '_blank', 'noopener,noreferrer')}
+                  variant="contained"
+                  color={params.value ? 'primary' : 'inherit'}
+                  sx={{ borderRadius: 1 }}
+                >
+                  <span className='text-white'>DOCUMENT</span>
+                </Button>
+              )
+            },
             {
               field: 'created_at', headerName: 'Created', width: 200,
               renderCell: (params) => params.value ? new Date(params.value).toLocaleString() : ''
