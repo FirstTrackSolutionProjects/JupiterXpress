@@ -4,6 +4,8 @@ import { Box, Paper, TextField, FormControl, InputLabel, Select, MenuItem, Butto
 import convertToUTCISOString from '../../helpers/convertToUTCISOString';
 import getCodRemittanceAdminService from '../../services/codRemittanceServices/getCodRemittanceAdmin.service';
 import markCodRemittanceAsPaidByOrdersService from '../../services/codRemittanceServices/markCodRemittanceAsPaidByOrders.service';
+import getS3PutUrlService from '../../services/s3Services/getS3PutUrlService';
+import s3FileUploadService from '../../services/s3Services/s3FileUploadService';
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -101,6 +103,9 @@ const CodRemittanceAdmin = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [utrNo, setUtrNo] = useState('');
   const [utrDoc, setUtrDoc] = useState('');
+  const [utrFile, setUtrFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -108,12 +113,54 @@ const CodRemittanceAdmin = () => {
     setSubmitError('');
     setUtrNo('');
     setUtrDoc('');
+    setUtrFile(null);
+    setIsUploading(false);
+    setUploadError('');
     setDialogOpen(true);
   };
 
   const closeMarkPaidDialog = () => {
-    if (isSubmitting) return;
+    if (isSubmitting || isUploading) return;
     setDialogOpen(false);
+  };
+
+  const sanitizeKey = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9.\-_/]+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(-200);
+  };
+
+  const handleUtrFileChange = async (e) => {
+    const file = e?.target?.files?.[0];
+    if (!file) return;
+    setUploadError('');
+    setUtrFile(file);
+    try {
+      // basic validations
+      const maxSizeBytes = 15 * 1024 * 1024; // 15MB
+      if (file.size > maxSizeBytes) throw new Error('File size must be 15MB or less');
+      const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) throw new Error('Only PDF or image files are allowed');
+
+      setIsUploading(true);
+      // Build S3 key
+      const ext = file.name.includes('.') ? file.name.split('.').pop() : '';
+      const base = sanitizeKey(file.name.replace(/\.[^.]+$/, '')) || 'utr-doc';
+      const key = `utr_docs/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${base}${ext ? '.' + ext : ''}`;
+
+      // Request signed PUT URL and upload
+      const putUrl = await getS3PutUrlService(key, file.type, true);
+      await s3FileUploadService(putUrl, file, file.type);
+      // Use the URL without query string to store
+      setUtrDoc(key);
+    } catch (err) {
+      setUploadError(err?.message || 'Failed to upload document');
+      setUtrDoc('');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmitMarkPaid = async () => {
@@ -130,6 +177,9 @@ const CodRemittanceAdmin = () => {
       if (apiRef.current) apiRef.current.setRowSelectionModel([]);
       setSelection([]);
       setDialogOpen(false);
+      setUtrFile(null);
+      setUtrDoc('');
+      setUploadError('');
       fetchRows(page, filters);
     } catch (err) {
       setSubmitError(err?.message || 'Failed to mark as paid');
@@ -388,14 +438,14 @@ const CodRemittanceAdmin = () => {
             {
               field: 'utr_doc', headerName: 'UTR Document', width: 180,
               renderCell: (params) => (
-                <Button 
-                  disabled={!params.value} 
-                  sx={{bgcolor: `${params.value?'blue':'gray'}`, 
-                  borderRadius: 1}}
-                > 
-                  <p className='text-white'>
-                    DOCUMENT
-                  </p> 
+                <Button
+                  disabled={!params.value}
+                  onClick={() => params.value && window.open(`${import.meta.env.VITE_APP_BUCKET_URL}${params.value}`, '_blank', 'noopener,noreferrer')}
+                  variant="contained"
+                  color={params.value ? 'primary' : 'inherit'}
+                  sx={{ borderRadius: 1 }}
+                >
+                  <span className='text-white'>DOCUMENT</span>
                 </Button>
               )
             },
@@ -426,21 +476,32 @@ const CodRemittanceAdmin = () => {
             onChange={(e) => setUtrNo(e.target.value)}
             size="small"
           />
-          <TextField
-            label="UTR Document URL (optional)"
-            helperText="Provide a link to document (upload flow can be added later)"
-            value={utrDoc}
-            onChange={(e) => setUtrDoc(e.target.value)}
-            size="small"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">UTR Document (PDF/Image)</label>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={handleUtrFileChange}
+              disabled={isUploading || isSubmitting}
+            />
+            {isUploading && (
+              <div className="text-sm text-blue-600 mt-1">Uploading...</div>
+            )}
+            {uploadError && (
+              <div className="text-sm text-red-600 mt-1">{uploadError}</div>
+            )}
+            {utrDoc && !isUploading && (
+              <div className="text-xs text-green-700 mt-1 break-all">Uploaded: {utrDoc}</div>
+            )}
+          </div>
           {submitError ? (
             <div className="text-red-600 text-sm">{submitError}</div>
           ) : null}
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeMarkPaidDialog} disabled={isSubmitting}>Cancel</Button>
-        <Button onClick={handleSubmitMarkPaid} disabled={isSubmitting} variant="contained" color="primary">
+        <Button onClick={closeMarkPaidDialog} disabled={isSubmitting || isUploading}>Cancel</Button>
+        <Button onClick={handleSubmitMarkPaid} disabled={isSubmitting || isUploading} variant="contained" color="primary">
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </Button>
       </DialogActions>
