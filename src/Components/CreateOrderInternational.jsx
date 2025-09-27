@@ -69,6 +69,24 @@ const FullDetails = () => {
     { box_no: 1, hscode: "", quantity: 1, rate: "10", description: "Test", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
   ]);
 
+  // Auto-calculate shipment value whenever items change (rate * quantity)
+  useEffect(() => {
+    const total = items.reduce((sum, it) => {
+      const rate = parseFloat(it.rate) || 0;
+      const qty = parseFloat(it.quantity) || 0;
+      return sum + rate * qty;
+    }, 0);
+    setFormData(prev => {
+      const totalStr = String(total);
+      if (prev.shipmentValue !== totalStr) {
+        const next = { ...prev, shipmentValue: totalStr };
+        formDataRef.current = next;
+        return next;
+      }
+      return prev;
+    });
+  }, [items]);
+
   // Reference data
   const [warehouses, setWarehouses] = useState([]);
   const [services, setServices] = useState([]);
@@ -174,7 +192,8 @@ const FullDetails = () => {
     setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
   };
   const addProduct = () => {
-    setItems(it => [...it, { box_no: 1, hscode: "", quantity: 1, rate: "", description: "", unit: "Pc", unit_weight: "", item_weight_unit: "kg" }]);
+    // Default rate set to '1' to satisfy > 0 rule
+    setItems(it => [...it, { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "", item_weight_unit: "kg" }]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -216,6 +235,15 @@ const FullDetails = () => {
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate item rates > 0 before any uploads/network
+    const invalidRate = items.some(it => {
+      const r = parseFloat(it.rate);
+      return isNaN(r) || r <= 0;
+    });
+    if (invalidRate){
+      toast.error('Each item rate must be greater than 0');
+      return;
+    }
     if (!(await handleUpload())) return;
     setCreatingStatus("Creating shipment...");
     const payload = {
@@ -394,7 +422,7 @@ const FullDetails = () => {
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
-              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} readOnly className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" title="Automatically calculated from Items (Rate * Qty)" />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
@@ -485,7 +513,7 @@ const FullDetails = () => {
                     <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />

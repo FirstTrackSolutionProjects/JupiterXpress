@@ -28,8 +28,19 @@ const ManageForm = ({ shipment }) => {
     setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 1 , length: 10 , breadth : 10, height : 10, docket_weight_unit: 'kg', quantity: 1  }]);
   };
   const [items, setItems] = useState([
-    { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
+    { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
   ]);
+  // Auto-calculate shipment value from items (quantity * rate)
+  useEffect(() => {
+    const total = items.reduce((sum, it) => {
+      const qty = Number(it.quantity) || 0;
+      const rate = Number(it.rate) || 0;
+      return sum + qty * rate;
+    }, 0);
+    if (formDataRef.current.shipmentValue !== total) {
+      updateForm({ shipmentValue: total });
+    }
+  }, [items]);
   useEffect(() => {
     const getDockets = async () => {
       await fetch(`${API_URL}/order/international/dockets`,{
@@ -152,7 +163,7 @@ const ManageForm = ({ shipment }) => {
     fetchVend();
   }, [formData.service]);
   const addProduct = () => {
-    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0 , igst_amount : 0 }]);
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0 , item_weight_unit: 'kg', igst_amount : 0 }]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -214,6 +225,13 @@ const ManageForm = ({ shipment }) => {
     try{
       setLoading("Updating Order...")
       const formPayload = {...formDataRef.current, dockets, items};
+      // Validate item rates > 0
+      const invalidRate = formPayload.items.find(it => Number(it.rate) <= 0 || isNaN(Number(it.rate)));
+      if (invalidRate) {
+        toast.error('Each item rate must be greater than 0');
+        setLoading(null);
+        return;
+      }
       let docketFlag = 0
       for (let i = 0; i < formPayload.dockets.length; i++) {
         for (let j = 0; j < formPayload.items.length; j++) {
@@ -449,7 +467,7 @@ const ManageForm = ({ shipment }) => {
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value</label>
-              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} readOnly className="border rounded-xl px-4 py-2 bg-gray-50 cursor-not-allowed" />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
