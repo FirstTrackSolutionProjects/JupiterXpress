@@ -88,7 +88,8 @@ const [items, setItems] = useState([
     aadhaarDoc: shipment.aadhaar_doc || "",
     invoiceNumber: shipment.invoice_number || "",
     invoiceDate: shipment.invoice_date || "",
-    invoiceDoc: shipment.invoice_doc || ""
+    invoiceDoc: shipment.invoice_doc || "",
+    packageType: shipment.package_type || "NON-DOX",
   });
   const formDataRef = useRef(formData);
   const updateForm = (patch) => {
@@ -460,7 +461,7 @@ const [items, setItems] = useState([
         {/* Shipment Meta & Pricing */}
         <div className="bg-white shadow rounded-2xl p-6 border">
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-5">
             <div className="flex flex-col space-y-2 md:col-span-1">
               <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
@@ -476,6 +477,13 @@ const [items, setItems] = useState([
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
               <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="packageType" className="text-sm font-medium">Package Type*</label>
+              <select id="packageType" name="packageType" required value={formData.packageType} onChange={handleChange} className="border rounded-xl px-4 py-2">
+                <option value="DOX">DOX</option>
+                <option value="NON-DOX">NON-DOX</option>
+              </select>
             </div>
           </div>
         </div>
