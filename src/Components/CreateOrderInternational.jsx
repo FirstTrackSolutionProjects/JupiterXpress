@@ -33,7 +33,8 @@ const FullDetails = () => {
     aadhaarDoc: "",
     invoiceNumber: "INV001",
     invoiceDate: "2025-08-21",
-    invoiceDoc: ""
+    invoiceDoc: "",
+    packageType: "NON-DOX",
   });
   const formDataRef = useRef(formData);
 
@@ -386,7 +387,7 @@ const FullDetails = () => {
         {/** Shipment Meta Section */}
         <div className="bg-white shadow rounded-2xl p-6 border">
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-5">
             <div className="flex flex-col space-y-2 md:col-span-1">
               <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
@@ -402,6 +403,13 @@ const FullDetails = () => {
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
               <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="packageType" className="text-sm font-medium">Package Type*</label>
+              <select id="packageType" name="packageType" required value={formData.packageType} onChange={handleChange} className="border rounded-xl px-4 py-2">
+                <option value="DOX">DOX</option>
+                <option value="NON-DOX">NON-DOX</option>
+              </select>
             </div>
           </div>
         </div>
