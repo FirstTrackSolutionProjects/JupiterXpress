@@ -32,7 +32,7 @@ const handleAddDocket = () => {
   setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 1 , length: 10 , breadth : 10, height : 10, docket_weight_unit: 'kg', quantity: 1  }]);
 };
 const [items, setItems] = useState([
-  { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
+  { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
 ]);
   useEffect(() => {
     const getDockets = async () => {
@@ -100,6 +100,18 @@ const [items, setItems] = useState([
     });
   };
 
+  // Auto-calc shipment value whenever items change (sum of rate * quantity)
+  useEffect(() => {
+    const total = items.reduce((sum, it) => {
+      const rate = parseFloat(it.rate) || 0;
+      const qty = parseFloat(it.quantity) || 0;
+      return sum + rate * qty;
+    }, 0);
+    if (String(total) !== String(formDataRef.current.shipmentValue)) {
+      updateForm({ shipmentValue: String(total) });
+    }
+  }, [items]);
+
   const [files, setFiles] = useState({
     aadhaarDoc: null,
     invoiceDoc: null
@@ -160,8 +172,7 @@ const [items, setItems] = useState([
     fetchVend();
   }, [formData.service]);
   const addProduct = () => {
-    setItems([...items, { hscode: '' , box_no: '' , quantity: 0 , rate: 0 , description: '' , unit: 'Pc', unit_weight: 0, igst_amount : 0 }]);
-
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -223,6 +234,15 @@ const [items, setItems] = useState([
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate item rates > 0
+    const invalidRate = items.some(it => {
+      const r = parseFloat(it.rate);
+      return isNaN(r) || r <= 0;
+    });
+    if (invalidRate){
+      toast.error('Each item rate must be greater than 0');
+      return;
+    }
     if (!(await handleUpload())) return;
     try{
       setLoading("Updating Order...")
@@ -468,7 +488,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
-              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} readOnly className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" title="Automatically calculated from Items (Rate * Qty)" />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
