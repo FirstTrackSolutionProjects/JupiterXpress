@@ -267,7 +267,7 @@ const CodRemittanceMerchant = () => {
             { field: 'service_name', headerName: 'Service', width: 160 },
             {
               field: 'amount', headerName: 'Amount', width: 140,
-              valueFormatter: (params) => `₹ ${Number(params.value || 0).toFixed(2)}`
+              renderCell: (params) => `₹ ${Number(params.value || 0).toFixed(2)}`
             },
             { field: 'status', headerName: 'Status', width: 130 },
             {
