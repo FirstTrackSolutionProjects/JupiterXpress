@@ -650,11 +650,11 @@ const Card = ({ shipment, onRefresh }) => {
     const handleRequest = async (orderId) => {
       setIsRequesting(true);
       try {
-        const ensure = confirm('Are you sure you want to request this shipment?');
+        const ensure = confirm('Are you sure you want to ship this shipment?');
         if (!ensure) return;
         await createInternationalRequestShipmentService(orderId);
         await onRefresh();
-        toast.success('Shipment request sent');
+        toast.success('Shipment created successfully!');
       } catch (err) {
         toast.error(err.message || 'Failed to request shipment');
       } finally {
@@ -743,7 +743,7 @@ const Card = ({ shipment, onRefresh }) => {
             ): null}
             {/* Not requested: show request button */}
             {!isRequested && !isManifested ? (
-              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isRequesting ? () => {} : () => handleRequest(shipment.iid)}>{isRequesting ? "Requesting..." : "Request"}</div>
+              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isRequesting ? () => {} : () => handleRequest(shipment.iid)}>{isRequesting ? "Shipping..." : "Ship"}</div>
             ): null}
             {/* Requested: show cancel request button */}
             {isRequested ? (
