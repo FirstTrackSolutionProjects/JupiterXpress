@@ -692,12 +692,12 @@ const Card = ({ shipment, onRefresh }) => {
         <div className="absolute right-4 sm:right-8 flex space-x-2">
           <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? isManifested ? "View" : "Manage" : "X"}</div>
           {/* Requested: show approve/reject buttons */}
-          {(isRequested && !isManifested) ? (
+          {/* {(isRequested && !isManifested) ? (
             <>
               <div className="px-3 py-1 bg-green-500 rounded-3xl text-white cursor-pointer" onClick={isApproving ? () => {} : () => handleApprove(shipment.iid)}>{isApproving ? "Approving..." : "Approve"}</div>
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isRejecting ? () => {} : () => handleReject(shipment.iid)}>{isRejecting ? "Rejecting..." : "Reject"}</div>
             </>
-          ): null}
+          ): null} */}
           {(isCancelled)? (
             <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer">Cancelled</div>
           ): null}

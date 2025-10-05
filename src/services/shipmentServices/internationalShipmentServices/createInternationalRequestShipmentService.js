@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 
 const createInternationalRequestShipmentService = async (orderId) => {
     try {
-        const response = await fetch(`${API_URL}/shipment/international/request/create/${orderId}`, {
+        const response = await fetch(`${API_URL}/shipment/international/create/${orderId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': localStorage.getItem('token'),
