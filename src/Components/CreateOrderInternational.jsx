@@ -207,7 +207,8 @@ const FullDetails = () => {
       return;
     };
     try{
-      const key = `shipment/international/${v4()}/${file}`;
+      const fileName = files[file].name
+      const key = `shipment/international/${v4()}/${file}/${fileName}`;
       const newFormData = { ...formDataRef.current, [file]: key };
       formDataRef.current = newFormData;
       const filetype = files[file].type;
