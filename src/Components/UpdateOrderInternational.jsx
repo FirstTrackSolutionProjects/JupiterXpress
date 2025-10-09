@@ -12,6 +12,208 @@ import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import cancelInternationalShipmentService from "../services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
 import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
 const API_URL = import.meta.env.VITE_APP_API_URL
+
+// Helper: Generate multi-page A4 PDF (one label per box) from labelData
+async function generateShipmentLabels(labelData) {
+  if (!labelData) throw new Error('No label data provided');
+  const boxes = Array.isArray(labelData.BOXES) ? labelData.BOXES : [];
+  if (boxes.length === 0) throw new Error('No boxes data to generate labels');
+  const { default: jsPDF } = await import('jspdf');
+  const html2canvas = (await import('html2canvas')).default;
+
+  // Preload assets (logo, QR, barcode) once and reuse as data URLs for all pages
+  const fetchAsDataURL = async (url) => {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to fetch asset: ${url}`);
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+  const reference = String(labelData.SHIPMENT_REFERENCE_ID || '');
+  // Use logo from the app's public folder
+  const logoUrl = `/logo.webp`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(reference)}&size=80x80`;
+  const barcodeUrl = `https://barcodeapi.org/api/128/${encodeURIComponent(reference)}`;
+  const [qrDataUrl, barcodeDataUrl] = await Promise.all([
+    fetchAsDataURL(qrUrl),
+    fetchAsDataURL(barcodeUrl)
+  ]);
+
+  // Base HTML template function; placeholders replaced per box
+  const buildHTML = (box, index) => {
+    const weight = Number(box.DOCKET_WEIGHT_IN_KG || 0).toFixed(3);
+    const dims = `${box.LENGTH} × ${box.BREADTH} × ${box.HEIGHT}`;
+    const piecesStr = `${index + 1}/${boxes.length}`;
+    // Pre-fetched assets (data URLs) used below for stability
+    return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset='UTF-8'>
+          <style>
+            *{
+              box-sizing:border-box;
+              font-family:'Segoe UI',Arial,sans-serif;
+            }
+            body{
+              width:480px;
+              margin:0;
+              padding:12px;
+              border:2px solid #000;
+            }
+            .header{
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              border-bottom:2px solid #000;
+              padding-bottom:8px;
+              margin-bottom:8px;
+            }
+            .brand{
+              display:flex;
+              align-items:center;
+              gap:8px;
+            }
+            .brand img{
+              width:70px;
+              height:30px;
+            }
+            .brand-name{
+              font-size:22px;
+              font-weight:700;
+              line-height:1.1;
+            }
+            .brand-sub{font-size:12px;font-weight:500;color:#555;}
+            .contact{font-size:12px;text-align:right;line-height:1.4;}
+            .section{border:1px solid #aaa;border-radius:6px;padding:10px;margin-bottom:10px;}
+            .section-title{font-weight:700;text-transform:uppercase;font-size:14px;margin-bottom:0px;border-bottom:1px solid #ddd;padding-bottom:8px;}
+            .address{font-size:14px;line-height:1.5;}
+            .address b{font-size:15px;}
+            .phone,.aadhaar{margin-top:3px;font-size:13px;}
+            .details{display:flex;justify-content:space-between;margin-top:4px;}
+            .details div{font-size:13px;}
+            .weight-box{border:2px solid #000;border-radius:8px;text-align:center;padding:8px;flex:0 0 150px;}
+            .weight-box .label{font-size:13px;font-weight:600;}
+            .weight-box .value{font-size:26px;font-weight:bold;line-height:1;}
+            .weight-box .unit{font-size:14px;}
+            .account{font-size:13px;}
+            .bottom{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+            .qr img{width:80px;height:80px;}
+            .barcode{text-align:center;}
+            .barcode img{height:50px;margin-bottom:4px;}
+            .barcode .ref{font-weight:700;font-size:16px;letter-spacing:1px;}
+            .footer{text-align:center;font-size:11px;color:#666;margin-top:8px;}
+    </style></head><body>
+      <div class='header'>
+        <div class='brand'>
+          <img src='${logoUrl}' />
+          <div><div class='brand-name'>JUPITER XPRESS</div><div class='brand-sub'>International Courier & Cargo</div></div>
+        </div>
+        <div class='contact'>info@jupiterxpress.online<br/>https://jupiterxpress.online</div>
+      </div>
+      <div class='section'>
+        <div class='section-title'>To</div>
+        <div class='address'>
+          <b>${labelData.CONSIGNEE_NAME || ''}</b><br/>
+          <span>${(labelData.CONSIGNEE_ADDRESS || '').replace(/\n/g,'<br/>')}<br/>${labelData.CONSIGNEE_CITY || ''}<br/>${labelData.CONSIGNEE_STATE || ''}<br/>${labelData.CONSIGNEE_PIN || ''}<br/>${labelData.CONSIGNEE_COUNTRY || ''}</span>
+          <div class='phone'>📞 ${labelData.CONSIGNEE_PHONE || ''}</div>
+        </div>
+      </div>
+      <div class='section'>
+        <div class='section-title'>From</div>
+        <div class='address'>
+          <b>${labelData.SHIPPER_NAME || ''}</b><br/>
+          <span>${(labelData.SHIPPER_ADDRESS || '').replace(/\n/g,'<br/>')}<br/>${labelData.SHIPPER_CITY || ''} - ${labelData.SHIPPER_PIN || ''}<br/>${labelData.SHIPPER_STATE || ''}<br/>${labelData.SHIPPER_COUNTRY || ''}</span>
+          <div class='aadhaar'>🪪 Aadhaar No: <b>${labelData.SHIPPER_AADHAAR || ''}</b></div>
+        </div>
+      </div>
+      <div class='section'>
+        <div class='details'>
+          <div>
+            <div>Date: <b>${labelData.SHIPMENT_DATE || ''}</b></div>
+            <div>Dimensions: <b>${dims}</b></div>
+            <div>Pieces: <b>${piecesStr}</b></div>
+          </div>
+          <div class='weight-box'>
+            <div class='label'>Weight / Kilogram</div>
+            <div class='value'>${weight}</div>
+            <div class='unit'>K.G.</div>
+          </div>
+        </div>
+      </div>
+      <div class='section account'>
+        Account Name: <b>${labelData.ACCOUNT_NAME || ''}</b><br/>
+        Reference No.: <b>${labelData.SHIPMENT_REFERENCE_ID || ''}</b>
+      </div>
+      <div class='bottom'>
+        <div class='qr'><img src='${qrDataUrl}' /></div>
+        <div class='barcode'>
+          <img src='${barcodeDataUrl}' />
+          <div class='ref'>${labelData.SHIPMENT_REFERENCE_ID || ''}</div>
+        </div>
+      </div>
+      <div class='footer'>Thank you for shipping with Jupiter Xpress Courier & Cargo</div>
+    </body></html>`;
+  };
+
+  // Ensure images inside the iframe are fully loaded before snapshot
+  const waitForImages = async (doc) => {
+    const imgs = Array.from(doc.images || []);
+    await Promise.all(
+      imgs.map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise((resolve) => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            })
+      )
+    );
+  };
+
+  // Render each label HTML into canvas then add to PDF pages
+  const A4_WIDTH_MM = 210; // orientation portrait
+  const A4_HEIGHT_MM = 297;
+  const PAGE_MARGIN_MM = 10; // uniform margins
+  // We'll scale the 480px template to fit width; assume 96 DPI.
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  for (let i = 0; i < boxes.length; i++) {
+    const html = buildHTML(boxes[i], i);
+    // Create hidden iframe for isolated rendering
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.left = '-10000px';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    await new Promise(res => setTimeout(res, 30)); // allow layout
+    await waitForImages(doc);
+    const bodyEl = doc.body;
+    const canvas = await html2canvas(bodyEl, { scale: 2, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/png');
+    // Calculate image sizing to preserve aspect ratio within A4 width
+    const pageWidth = A4_WIDTH_MM - 2 * PAGE_MARGIN_MM;
+    const pageHeight = A4_HEIGHT_MM - 2 * PAGE_MARGIN_MM;
+    const pxWidth = canvas.width;
+    const pxHeight = canvas.height;
+    const mmPerPx = Math.min(pageWidth / pxWidth, pageHeight / pxHeight);
+    const imgWidthMm = pxWidth * mmPerPx;
+    const imgHeightMm = pxHeight * mmPerPx;
+    if (i > 0) pdf.addPage();
+    // Center horizontally, keep top margin
+    const x = (A4_WIDTH_MM - imgWidthMm) / 2;
+    const y = PAGE_MARGIN_MM;
+    pdf.addImage(imgData, 'PNG', x, y, imgWidthMm, imgHeightMm);
+    document.body.removeChild(iframe);
+  }
+  pdf.save(`labels_${labelData.SHIPMENT_REFERENCE_ID || 'shipment'}.pdf`);
+}
 const ManageForm = ({ shipment}) => {
   // ---------------- State: Dockets & Items ----------------
 
@@ -205,7 +407,8 @@ const [items, setItems] = useState([
     };
     if (!files[file]) return;
     try{
-      const key = `shipment/international/${v4()}/${file}`;
+      const fileName = files[file].name;
+      const key = `shipment/international/${v4()}/${file}/${fileName}`;
   updateForm({ [file]: key });
       const filetype = files[file].type;
       const putUrl = await getS3PutUrlService(key, filetype, true);
@@ -496,7 +699,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
-              <input id="actualWeight" name="actualWeight" type="number" min={0} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="actualWeight" name="actualWeight" type="number" min={0} step={0.001} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="packageType" className="text-sm font-medium">Package Type*</label>
@@ -730,18 +933,31 @@ const Card = ({ shipment, onRefresh }) => {
       }
       try{
         const labelResponse = await getInternationalShipmentLabelService(orderId);
-        if (labelResponse.isBase64URL){
-          const link = document.createElement('a');
-          link.href = labelResponse.label;
-          link.download = `Label_${orderId}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          window.open(labelResponse.label, '_blank');
+        if (!labelResponse?.success) {
+          toast.error(labelResponse?.message || 'Failed to get label');
+          return;
         }
+        const labelData = labelResponse.label;
+        if (!labelData) {
+          toast.error('Label data missing');
+          return;
+        }
+        // Basic field validation
+        const requiredTop = ['CONSIGNEE_NAME','CONSIGNEE_ADDRESS','CONSIGNEE_CITY','CONSIGNEE_COUNTRY','SHIPPER_NAME','SHIPPER_ADDRESS','SHIPMENT_REFERENCE_ID'];
+        const missing = requiredTop.filter(k => !labelData[k]);
+        if (missing.length) {
+          toast.error('Missing label fields: ' + missing.join(', '));
+          return;
+        }
+        if (!Array.isArray(labelData.BOXES) || !labelData.BOXES.length) {
+          toast.error('No boxes found for label generation');
+          return;
+        }
+        await generateShipmentLabels(labelData);
+        toast.success('Label PDF generated');
       } catch (err){
-        toast.error(err.message || 'Failed to get label');
+        console.error(err);
+        toast.error(err.message || 'Failed to generate label PDF');
       }
     }
 
@@ -765,7 +981,7 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Manifested: show label and cancel shipment */}
             {(isManifested && hasAwb && !isCancelled) ? (
               <>
-                {/* <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div> */}
+                <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div>
                 <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
               </>
             ): null}
