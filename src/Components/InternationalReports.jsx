@@ -51,24 +51,6 @@ const QuickShipNow2Card = ({ scan }) => {
     )
 }
 
-const DillikingCard = ({ scan }) => {
-    const date = scan.event_date;
-    const time = scan.event_time;
-    const formattedDate = `${date.substr(0,4)}/${date.substr(4,2)}/${date.substr(6,2)}`
-    const formattedTime = `${time.substr(0,2)}:${time.substr(2,2)}`
-    return (
-    <>
-        <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
-            <div className='flex flex-col items-center justify-center'>
-                <div className='font-bold'>{scan.remark}</div>
-                <div>{scan.location}</div>
-                <div>{`${formattedDate} ${formattedTime}`}</div>
-            </div>
-        </div>
-    </>
-    )
-}
-
 const View  = ({report, setIsView}) => {
   const [status, setStatus] = useState(null)
   useEffect(() => {
@@ -97,11 +79,6 @@ const View  = ({report, setIsView}) => {
                 status?.[0]?.docket_events?.map((scan, index) => (
                     <FlightGoCard key={index} scan={scan} />
                 ))
-            :null}
-            {report?.service == 8 ?
-                status?.length ? status?.map((scan, index) => (
-                    <DillikingCard key={index} scan={scan} />
-                )) : <div>No Tracking Events Available</div>
             :null}
             {report?.service == 11 ?
                 status?.length ? status?.map((scan, index) => (
