@@ -691,7 +691,7 @@ const [items, setItems] = useState([
         {/* Shipment Meta & Pricing */}
         <div className="bg-white shadow rounded-2xl p-6 border">
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
               <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
