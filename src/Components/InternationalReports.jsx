@@ -139,9 +139,9 @@ const Card = ({ report }) => {
           {
             report.isAdmin? <><div >{report.fullName}</div>
             <div >{report.email}</div></> : <><div >{report.consignee_name}</div>
-            </>
-          }
             <div> {report.awb?`AWB : ${report.awb}`:null}</div>
+            </>
+          } 
             <div>{report.date ? report.date.toString().split('T')[0] + ' ' + report.date.toString().split('T')[1].split('.')[0] : null}</div>
           </div>
         <div className="absolute right-4 sm:right-8 flex space-x-2">
