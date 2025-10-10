@@ -503,7 +503,7 @@ const FullDetails = () => {
                   <th className="p-2">Description*</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2">Rate (₹)*</th>
-                  <th className="p-2">Weight (kg)</th>
+                  <th className="p-2">Weight* (kg)</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
