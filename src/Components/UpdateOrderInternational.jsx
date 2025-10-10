@@ -973,7 +973,7 @@ const Card = ({ shipment, onRefresh }) => {
           <div className="text-sm">
             <div className="font-bold">{shipment.iid}</div>
             <div>{shipment.consignee_name}</div>
-            {/* <div>{shipment.awb ? `AWB : ${shipment.awb}` : null}</div> */}
+            <div>{shipment.ref_id ? `Ref No : ${shipment.ref_id}` : null}</div>
             <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
           </div>
           <div className="absolute right-4 sm:right-8 flex space-x-2">
