@@ -499,7 +499,7 @@ const FullDetails = () => {
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">Box*</th>
-                  <th className="p-2">HS Code</th>
+                  <th className="p-2">HS Code*</th>
                   <th className="p-2">Description*</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2">Rate (₹)*</th>
@@ -511,17 +511,13 @@ const FullDetails = () => {
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="hscode" minLength={8} maxLength={8} value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
-                        <select name="item_weight_unit" value={it.item_weight_unit} onChange={(e)=>handleItems(i,e)} className="border px-2 py-1 rounded">
-                          <option value="g">g</option>
-                          <option value="kg">kg</option>
-                        </select>
                       </div>
                     </td>
                     <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
