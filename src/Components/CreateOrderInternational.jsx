@@ -319,6 +319,13 @@ const FullDetails = () => {
                 {vendors.map(v => <option key={v.id} value={v.id}>{v.vendor_name}</option>)}
               </select>
             </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="packageType" className="text-sm font-medium">Package Type*</label>
+              <select id="packageType" name="packageType" required value={formData.packageType} onChange={handleChange} className="border rounded-xl px-4 py-2">
+                <option value="DOX">DOX</option>
+                <option value="NON-DOX">NON-DOX</option>
+              </select>
+            </div>
           </div>
         </section>
         {/* Consignee Details */}
@@ -416,7 +423,7 @@ const FullDetails = () => {
         {/** Shipment Meta Section */}
         <div className="bg-white shadow rounded-2xl p-6 border">
           <div className="text-lg font-semibold mb-4">Shipment Meta</div>
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-1">
               <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
               <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
@@ -432,13 +439,6 @@ const FullDetails = () => {
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
               <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="packageType" className="text-sm font-medium">Package Type*</label>
-              <select id="packageType" name="packageType" required value={formData.packageType} onChange={handleChange} className="border rounded-xl px-4 py-2">
-                <option value="DOX">DOX</option>
-                <option value="NON-DOX">NON-DOX</option>
-              </select>
             </div>
           </div>
         </div>
@@ -499,11 +499,11 @@ const FullDetails = () => {
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">Box*</th>
-                  <th className="p-2">HS Code</th>
+                  <th className="p-2">HS Code*</th>
                   <th className="p-2">Description*</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2">Rate (₹)*</th>
-                  <th className="p-2">Weight (kg)</th>
+                  <th className="p-2">Weight* (kg)</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
@@ -511,17 +511,13 @@ const FullDetails = () => {
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
+                    <td className="p-2"><input required name="hscode" minLength={8} maxLength={8} value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="flex space-x-1">
-                        <input name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
-                        <select name="item_weight_unit" value={it.item_weight_unit} onChange={(e)=>handleItems(i,e)} className="border px-2 py-1 rounded">
-                          <option value="g">g</option>
-                          <option value="kg">kg</option>
-                        </select>
+                        <input required name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
                       </div>
                     </td>
                     <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
