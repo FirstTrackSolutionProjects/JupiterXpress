@@ -77,6 +77,9 @@ const FullDetails = () => {
   const hsnInputRefs = useRef([]);
   const hsnPortalRef = useRef(null);
 
+  // Validation for consignee fields: disallow symbols (allow only letters, numbers and spaces)
+  const [consigneeValidationErrors, setConsigneeValidationErrors] = useState({ address: '', city: '', state: '' });
+
   // Clear any timers on unmount
   useEffect(() => {
     return () => {
@@ -255,7 +258,20 @@ const FullDetails = () => {
   // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
-    updateForm({ [name]: value });
+    // Fields that should not contain symbols
+    const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
+    if (consigneeFields.includes(name)) {
+      // allow only letters, numbers and spaces
+      const invalidRegex = /[^A-Za-z0-9\s]/;
+      const hasInvalid = invalidRegex.test(value);
+      const sanitized = value.replace(/[^A-Za-z0-9\s]/g, '');
+      // map field name to error key
+      const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
+      setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
+      updateForm({ [name]: sanitized });
+    } else {
+      updateForm({ [name]: value });
+    }
   };
   const handleDocket = (index, e) => {
     const { name, value } = e.target;
@@ -322,6 +338,16 @@ const FullDetails = () => {
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prevent submit if validation errors exist
+    const hasConsigneeErrors = Object.values(consigneeValidationErrors).some(Boolean);
+    if (hasConsigneeErrors) {
+      toast.error('Please fix validation errors in consignee details before submitting');
+      // focus first invalid field
+      if (consigneeValidationErrors.address) document.getElementById('consigneeAddress')?.focus();
+      else if (consigneeValidationErrors.city) document.getElementById('consigneeCity')?.focus();
+      else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
+      return;
+    }
     // Validate item rates > 0 before any uploads/network
     const invalidRate = items.some(it => {
       const r = parseFloat(it.rate);
@@ -464,6 +490,7 @@ const FullDetails = () => {
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
               <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.address && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.address}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
@@ -472,10 +499,12 @@ const FullDetails = () => {
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
               <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.city && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.city}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
               <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.state && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.state}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Country*</label>
