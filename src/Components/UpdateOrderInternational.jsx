@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
+import { createPortal } from 'react-dom';
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
 import getAllInternationalShipmentsService from '../services/orderServices/internationalOrderServices/getAllInternationalShipmentsService';
@@ -6,6 +7,7 @@ import createInternationalRequestShipmentService from '../services/shipmentServi
 import cancelInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/cancelInternationalRequestShipmentService';
 import { COUNTRIES } from "../Constants";
 import { toast } from "react-toastify";
+import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 import {v4} from "uuid";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
@@ -51,7 +53,7 @@ async function generateShipmentLabels(labelData) {
     // Pre-fetched assets (data URLs) used below for stability
     return `
     <!DOCTYPE html>
-    <html>
+    <html> 
       <head>
         <meta charset='UTF-8'>
           <style>
@@ -236,6 +238,95 @@ const handleAddDocket = () => {
 const [items, setItems] = useState([
   { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
 ]);
+  // HSN suggestions per item index (array of {c, n})
+  const [hsnSuggestions, setHsnSuggestions] = useState({});
+  const hsnTimersRef = useRef({});
+  const hsnInputRefs = useRef([]);
+  // Portal state for rendering suggestions on top of other content
+  const [activeHsnIndex, setActiveHsnIndex] = useState(null);
+  const [hsnPortalPos, setHsnPortalPos] = useState({ top: 0, left: 0, width: 0 });
+
+  // Clear any timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  const fetchHsnSuggestions = (index, description) => {
+    if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
+    hsnTimersRef.current[index] = setTimeout(async () => {
+      try {
+        if (!description || typeof description !== 'string' || description.trim().length < 3) {
+          setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+          return;
+        }
+        const list = await getHsnCodesByDescService(description.trim());
+        setHsnSuggestions(prev => ({ ...prev, [index]: list || [] }));
+      } catch (err) {
+        console.error('HSN lookup failed', err);
+        setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+      }
+    }, 400);
+  };
+
+  // Whenever suggestions for an index are set, mark it active and compute position
+  useEffect(() => {
+    if (activeHsnIndex == null) return;
+    const el = hsnInputRefs.current[activeHsnIndex];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setHsnPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+  }, [activeHsnIndex, hsnSuggestions]);
+
+  // Reposition portal on window scroll/resize and when DOM layout changes
+  useEffect(() => {
+    if (activeHsnIndex == null) return;
+    let mounted = true;
+
+    const recompute = () => {
+      if (!mounted) return;
+      const el = hsnInputRefs.current[activeHsnIndex];
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // Use page offsets to account for scrolling in any scrollable ancestor
+      setHsnPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+    };
+
+    // Throttle reposition calls using requestAnimationFrame
+    let raf = null;
+    const onScrollOrResize = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        recompute();
+        raf = null;
+      });
+    };
+
+    window.addEventListener('scroll', onScrollOrResize, true); // capture to catch scrolls on ancestors
+    window.addEventListener('resize', onScrollOrResize);
+
+    // Observe DOM mutations that might shift layout (e.g., content changes, container size)
+    const observer = new MutationObserver(onScrollOrResize);
+    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+    // Recompute immediately in case we mounted while scrolled
+    recompute();
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+      observer.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [activeHsnIndex]);
+
+  // When description changes we set active index so portal shows
+  const setItemsAndActivate = (index, patch) => {
+    setItems(prev => prev.map((it, i) => i === index ? { ...it, ...patch } : it));
+    setActiveHsnIndex(index);
+  }
   useEffect(() => {
     const getDockets = async () => {
       await fetch(`${API_URL}/order/international/dockets`,{
@@ -387,13 +478,15 @@ const [items, setItems] = useState([
       return next;
     });
   };
-  const handleItems = (index, event) => {
-    const { name, value } = event.target;
-    setItems(it => {
-      const next = [...it];
-      next[index][name] = value;
-      return next;
-    });
+  const handleItems = (index, e) => {
+    const { name, value } = e.target;
+    if (name === 'description') {
+      setItemsAndActivate(index, { [name]: value });
+      if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
+      else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+    } else {
+      setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
+    }
   };
 
   const handleChange = (e) => {
@@ -777,7 +870,11 @@ const [items, setItems] = useState([
                 {items.map((it, i) => (
                   <tr key={i} className="border-t">
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input required name="hscode" minLength={8} maxLength={8} value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-24 border px-2 py-1 rounded" /></td>
+                    <td className="p-2">
+                      <div className="relative">
+                        <input ref={el => hsnInputRefs.current[i] = el} required name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" autoComplete="off" />
+                      </div>
+                    </td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
@@ -863,6 +960,29 @@ const [items, setItems] = useState([
           <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
         </div>
       </form>
+      {activeHsnIndex !== null && hsnSuggestions[activeHsnIndex] && hsnSuggestions[activeHsnIndex].length > 0 && typeof document !== 'undefined' && createPortal(
+        <div style={{ position: 'absolute', top: hsnPortalPos.top + 'px', left: hsnPortalPos.left + 'px', width: Math.max(240, hsnPortalPos.width) + 'px', zIndex: 1 }}>
+          <div className="bg-white border rounded-xl shadow-lg max-h-72 overflow-y-auto">
+            <ul className="text-sm">
+              {hsnSuggestions[activeHsnIndex].map(s => (
+                <li key={s.c}>
+                  <button
+                    type="button"
+                    title={s.n}
+                    className="w-full text-left px-3 py-2 hover:bg-blue-50"
+                    onClick={() => {
+                      setItems(prev => prev.map((it2, idx) => idx === activeHsnIndex ? { ...it2, hscode: s.c } : it2));
+                      setHsnSuggestions(prev => ({ ...prev, [activeHsnIndex]: [] }));
+                      setActiveHsnIndex(null);
+                    }}
+                  >
+                    {s.c}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>, document.body)}
     </div>
   );
 };
