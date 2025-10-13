@@ -1,11 +1,13 @@
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
 import React, { useEffect, useState, useMemo, useRef } from "react";
+import { createPortal } from 'react-dom';
 import { COUNTRIES } from "../Constants";
 import { toast } from "react-toastify";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import {v4} from "uuid";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
+import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const FullDetails = () => {
@@ -68,6 +70,55 @@ const FullDetails = () => {
   const [items, setItems] = useState([
     { box_no: 1, hscode: "", quantity: 1, rate: "10", description: "Test", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
   ]);
+
+  // HSN suggestions per item index (array of {c, n})
+  const [hsnSuggestions, setHsnSuggestions] = useState({});
+  const hsnTimersRef = useRef({});
+  const hsnInputRefs = useRef([]);
+  const hsnPortalRef = useRef(null);
+
+  // Clear any timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  const fetchHsnSuggestions = (index, description) => {
+    if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
+    hsnTimersRef.current[index] = setTimeout(async () => {
+      try {
+        if (!description || typeof description !== 'string' || description.trim().length < 3) {
+          setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+          return;
+        }
+        const list = await getHsnCodesByDescService(description.trim());
+        setHsnSuggestions(prev => ({ ...prev, [index]: list || [] }));
+      } catch (err) {
+        console.error('HSN lookup failed', err);
+        setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+      }
+    }, 400);
+  };
+
+  // Portal state for rendering suggestions on top of other content
+  const [activeHsnIndex, setActiveHsnIndex] = useState(null);
+  const [hsnPortalPos, setHsnPortalPos] = useState({ top: 0, left: 0, width: 0 });
+
+  // Whenever suggestions for an index are set, mark it active and compute position
+  useEffect(() => {
+    if (activeHsnIndex == null) return;
+    const el = hsnInputRefs.current[activeHsnIndex];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setHsnPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+  }, [activeHsnIndex, hsnSuggestions]);
+
+  // When description changes we set active index so portal shows
+  const setItemsAndActivate = (index, patch) => {
+    setItems(prev => prev.map((it, i) => i === index ? { ...it, ...patch } : it));
+    setActiveHsnIndex(index);
+  }
 
   // Auto-calculate shipment value whenever items change (rate * quantity)
   useEffect(() => {
@@ -159,10 +210,39 @@ const FullDetails = () => {
     const handler = (e) => {
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target)) setCountryDropdownOpen(false);
       if (destCountryRef.current && !destCountryRef.current.contains(e.target)) setDestCountryOpen(false);
+      // close HSN portal when clicking outside input or portal
+      try {
+        const activeInput = hsnInputRefs.current[activeHsnIndex];
+        if (activeInput && hsnPortalRef.current && !hsnPortalRef.current.contains(e.target) && !activeInput.contains(e.target)) {
+          setActiveHsnIndex(null);
+        }
+      } catch (err) {}
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  }, [activeHsnIndex]);
+
+  // Reposition portal when scrolling or resizing while active
+  useEffect(() => {
+    if (activeHsnIndex == null) return;
+    const reposition = () => {
+      const el = hsnInputRefs.current[activeHsnIndex];
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setHsnPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+    };
+  window.addEventListener('scroll', reposition, { passive: true });
+  // also listen to document-level scroll (capture) to catch scrolling in overflowed containers
+  document.addEventListener('scroll', reposition, true);
+  window.addEventListener('resize', reposition);
+    // call once to ensure correct position
+    reposition();
+    return () => {
+      window.removeEventListener('scroll', reposition);
+      document.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [activeHsnIndex]);
 
   const updateForm = (patch) => {
     setFormData(prev => {
@@ -189,7 +269,13 @@ const FullDetails = () => {
   };
   const handleItems = (index, e) => {
     const { name, value } = e.target;
-    setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
+    if (name === 'description') {
+      setItemsAndActivate(index, { [name]: value });
+      if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
+      else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+    } else {
+      setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
+    }
   };
   const addProduct = () => {
     // Default rate set to '1' to satisfy > 0 rule
@@ -449,7 +535,7 @@ const FullDetails = () => {
             <h2 className="text-lg font-semibold">Dockets</h2>
             <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-visible">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-blue-50 text-left">
@@ -494,13 +580,13 @@ const FullDetails = () => {
             <h2 className="text-lg font-semibold">Items</h2>
             <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-visible">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-blue-50 text-left">
                   <th className="p-2">Box*</th>
-                  <th className="p-2">HS Code*</th>
                   <th className="p-2">Description*</th>
+                  <th className="p-2">HS Code*</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2">Rate (₹)*</th>
                   <th className="p-2">Weight* (kg)</th>
@@ -509,10 +595,23 @@ const FullDetails = () => {
               </thead>
               <tbody>
                 {items.map((it, i) => (
-                  <tr key={i} className="border-t">
+                    <tr key={i} className="border-t">
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input required name="hscode" minLength={8} maxLength={8} value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2">
+                      <div className="relative">
+                        <input
+                          ref={(el) => hsnInputRefs.current[i] = el}
+                          required
+                          name="hscode"
+                          value={it.hscode}
+                          onChange={(e) => handleItems(i, e)}
+                          onFocus={() => setActiveHsnIndex(i)}
+                          className="w-28 border px-2 py-1 rounded"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
@@ -573,6 +672,29 @@ const FullDetails = () => {
           <button type="submit" disabled={!!creatingStatus} className="px-6 py-2 rounded-xl bg-blue-600 text-white">{creatingStatus || "Create Shipment"}</button>
         </div>
       </form>
+      {activeHsnIndex !== null && hsnSuggestions[activeHsnIndex] && hsnSuggestions[activeHsnIndex].length > 0 && typeof document !== 'undefined' && createPortal(
+        <div ref={hsnPortalRef} style={{ position: 'absolute', top: hsnPortalPos.top + 'px', left: hsnPortalPos.left + 'px', width: Math.max(240, hsnPortalPos.width) + 'px', zIndex: 1 }}>
+          <div className="bg-white border rounded-xl shadow-lg max-h-72 overflow-y-auto">
+            <ul className="text-sm">
+              {hsnSuggestions[activeHsnIndex].map(s => (
+                <li key={s.c}>
+                  <button
+                    type="button"
+                    title={s.n}
+                    className="w-full text-left px-3 py-2 hover:bg-blue-50"
+                    onClick={() => {
+                      setItems(prev => prev.map((it2, idx) => idx === activeHsnIndex ? { ...it2, hscode: s.c } : it2));
+                      setHsnSuggestions(prev => ({ ...prev, [activeHsnIndex]: [] }));
+                      setActiveHsnIndex(null);
+                    }}
+                  >
+                    {s.c}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>, document.body)}
     </div>
   );
 };
