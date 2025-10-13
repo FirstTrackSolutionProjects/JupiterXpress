@@ -871,6 +871,8 @@ const Card = ({ shipment, onRefresh }) => {
     const [isManage, setIsManage] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
     const [isRequesting, setIsRequesting] = useState(false);
+    const [labelsOpen, setLabelsOpen] = useState(false);
+    const labelsMenuRef = useRef(null);
 
 
     // Action handlers
@@ -957,11 +959,23 @@ const Card = ({ shipment, onRefresh }) => {
       }
     }
 
+    // close labels dropdown on outside click
+    useEffect(() => {
+      const onDocClick = (e) => {
+        if (labelsMenuRef.current && !labelsMenuRef.current.contains(e.target)) {
+          setLabelsOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', onDocClick);
+      return () => document.removeEventListener('mousedown', onDocClick);
+    }, []);
+
     // UI logic
     const isRequested = shipment.is_requested;
     const isManifested = shipment.is_manifested;
     const isCancelled = shipment.cancelled;
     const hasAwb = !!shipment.awb;
+    const BUCKET_URL = import.meta.env.VITE_APP_BUCKET_URL || '';
 
     return (
       <>
@@ -977,7 +991,29 @@ const Card = ({ shipment, onRefresh }) => {
             {/* Manifested: show label and cancel shipment */}
             {(isManifested && hasAwb && !isCancelled) ? (
               <>
-                <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => handleGetLabel(shipment.iid)}>Label</div>
+                <div className="relative" ref={labelsMenuRef}>
+                  <button type="button" className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer flex items-center gap-1" onClick={() => setLabelsOpen((o) => !o)}>
+                    Download Labels
+                    <span>▾</span>
+                  </button>
+                  {labelsOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white border rounded-xl shadow-lg z-10 overflow-hidden">
+                      <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetLabel(shipment.iid); }}>
+                        Shipment Label
+                      </button>
+                      {shipment.shipper_label ? (
+                        <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.shipper_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
+                          Vendor Shipper Copy
+                        </a>
+                      ) : null}
+                      {shipment.box_label ? (
+                        <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.box_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
+                          Vendor Box Label
+                        </a>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
                 <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
               </>
             ): null}
