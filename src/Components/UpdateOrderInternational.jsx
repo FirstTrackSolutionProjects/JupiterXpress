@@ -236,7 +236,7 @@ const handleAddDocket = () => {
   setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 1 , length: 10 , breadth : 10, height : 10, docket_weight_unit: 'kg', quantity: 1  }]);
 };
 const [items, setItems] = useState([
-  { hscode: '49119990' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
+  { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
 ]);
   // HSN suggestions per item index (array of {c, n})
   const [hsnSuggestions, setHsnSuggestions] = useState({});
@@ -465,7 +465,7 @@ const [items, setItems] = useState([
     fetchVend();
   }, [formData.service]);
   const addProduct = () => {
-    setItems([...items, { hscode: '49119990' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }]);
+    setItems([...items, { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -872,7 +872,7 @@ const [items, setItems] = useState([
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="relative">
-                        <input ref={el => hsnInputRefs.current[i] = el} required name="hscode" value={it.hscode} readOnly onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" autoComplete="off" />
+                        <input ref={el => hsnInputRefs.current[i] = el} required name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" autoComplete="off" />
                       </div>
                     </td>
                     <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
