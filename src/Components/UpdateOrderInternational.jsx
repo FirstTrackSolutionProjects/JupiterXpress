@@ -14,6 +14,8 @@ import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import cancelInternationalShipmentService from "../services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
 import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
 const API_URL = import.meta.env.VITE_APP_API_URL
+import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
+import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -1079,6 +1081,29 @@ const Card = ({ shipment, onRefresh }) => {
       }
     }
 
+    const handleGetInvoice = async (orderId) => {
+      if (!orderId) {
+        toast.error('Invalid order ID');
+        return;
+      }
+      try {
+        const invoiceData = await getInternationalShipmentInvoiceService(orderId);
+        if (!invoiceData) {
+          toast.error('Invoice data missing');
+          return;
+        }
+        if (!Array.isArray(invoiceData.BOXES) || !invoiceData.BOXES.length) {
+          toast.error('No boxes found for invoice generation');
+          return;
+        }
+        await generateInternationalShipmentInvoicePDF(invoiceData);
+        toast.success('Invoice PDF generated');
+      } catch (err) {
+        console.error(err);
+        toast.error(err.message || 'Failed to generate invoice PDF');
+      }
+    };
+
     // close labels dropdown on outside click
     useEffect(() => {
       const onDocClick = (e) => {
@@ -1113,13 +1138,16 @@ const Card = ({ shipment, onRefresh }) => {
               <>
                 <div className="relative" ref={labelsMenuRef}>
                   <button type="button" className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer flex items-center gap-1" onClick={() => setLabelsOpen((o) => !o)}>
-                    Download Labels
+                    Download
                     <span>▾</span>
                   </button>
                   {labelsOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white border rounded-xl shadow-lg z-10 overflow-hidden">
                       <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetLabel(shipment.iid); }}>
                         Shipment Label
+                      </button>
+                      <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetInvoice(shipment.iid); }}>
+                        Invoice
                       </button>
                       {shipment.shipper_label ? (
                         <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.shipper_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
