@@ -68,7 +68,7 @@ const FullDetails = () => {
     { box_no: 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }
   ]);
   const [items, setItems] = useState([
-    { box_no: 1, hscode: "", quantity: 1, rate: "10", description: "Test", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
+    { box_no: 1, hscode: "49119990", quantity: 1, rate: "10", description: "Test", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
   ]);
 
   // HSN suggestions per item index (array of {c, n})
@@ -295,7 +295,7 @@ const FullDetails = () => {
   };
   const addProduct = () => {
     // Default rate set to '1' to satisfy > 0 rule
-    setItems(it => [...it, { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "", item_weight_unit: "kg" }]);
+    setItems(it => [...it, { box_no: 1, hscode: "49119990", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "", item_weight_unit: "kg" }]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -634,6 +634,7 @@ const FullDetails = () => {
                           required
                           name="hscode"
                           value={it.hscode}
+                          readOnly
                           onChange={(e) => handleItems(i, e)}
                           onFocus={() => setActiveHsnIndex(i)}
                           className="w-28 border px-2 py-1 rounded"
