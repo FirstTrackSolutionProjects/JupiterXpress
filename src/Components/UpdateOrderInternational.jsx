@@ -810,7 +810,6 @@ const [items, setItems] = useState([
         <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
           <div className="flex items-center justify-between">
             <div className="text-lg font-semibold">Dockets</div>
-            <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
@@ -848,12 +847,14 @@ const [items, setItems] = useState([
               </tbody>
             </table>
           </div>
+          <div className="flex justify-end">
+            <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
+          </div>
         </div>
         {/* Items */}
         <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
           <div className="flex items-center justify-between">
             <div className="text-lg font-semibold">Items</div>
-            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
@@ -890,6 +891,9 @@ const [items, setItems] = useState([
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-end">
+            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
         </div>
 
