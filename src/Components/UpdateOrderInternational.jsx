@@ -1153,7 +1153,7 @@ const Card = ({ shipment, onRefresh }) => {
                       <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetInvoice(shipment.iid); }}>
                         Invoice
                       </button>
-                      {shipment.shipper_label ? (
+                      {/* {shipment.shipper_label ? (
                         <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.shipper_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
                           Vendor Shipper Copy
                         </a>
@@ -1162,7 +1162,7 @@ const Card = ({ shipment, onRefresh }) => {
                         <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.box_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
                           Vendor Box Label
                         </a>
-                      ) : null}
+                      ) : null} */}
                     </div>
                   )}
                 </div>
