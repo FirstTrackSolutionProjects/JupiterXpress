@@ -150,7 +150,7 @@ async function generateShipmentLabels(labelData) {
         </div>
       </div>
       <div class='section account'>
-        Account Name: <b>${labelData.ACCOUNT_NAME || ''}</b><br/>
+        <!--Account Name: <b>${labelData.ACCOUNT_NAME || ''}</b><br/>-->
         Reference No.: <b>${labelData.SHIPMENT_REFERENCE_ID || ''}</b><br/>
         Service: <b>${labelData.VENDOR_NAME || ''}</b>
       </div>
