@@ -6,8 +6,8 @@ import getAllInternationalShipmentsService from '../services/orderServices/inter
 import createInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/createInternationalRequestShipmentService';
 import cancelInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/cancelInternationalRequestShipmentService';
 import { COUNTRIES } from "../Constants";
+import { HS_CODES } from "../Constants";
 import { toast } from "react-toastify";
-import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 import {v4} from "uuid";
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
@@ -248,26 +248,40 @@ const [items, setItems] = useState([
   const [activeHsnIndex, setActiveHsnIndex] = useState(null);
   const [hsnPortalPos, setHsnPortalPos] = useState({ top: 0, left: 0, width: 0 });
 
+  // Description autocomplete (HS_CODES)
+  const [descOpenIndex, setDescOpenIndex] = useState(null);
+  const [descSuggestions, setDescSuggestions] = useState({}); // index -> string[]
+  const descTimersRef = useRef({});
+  const descInputRefs = useRef([]);
+  const [descPortalPos, setDescPortalPos] = useState({ top: 0, left: 0, width: 0 });
+  const filterDescriptions = (q) => {
+    if (!q) return [];
+    const query = String(q).toLowerCase().trim();
+    if (!query) return [];
+    // filter HS_CODES by substring match, return top 20
+    return Object.keys(HS_CODES).filter(s => s && s.toLowerCase().includes(query)).slice(0, 20);
+  };
+
   // Clear any timers on unmount
   useEffect(() => {
     return () => {
       Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
+      Object.values(descTimersRef.current || {}).forEach(t => clearTimeout(t));
     };
   }, []);
 
   const fetchHsnSuggestions = (index, description) => {
     if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
-    hsnTimersRef.current[index] = setTimeout(async () => {
+    hsnTimersRef.current[index] = setTimeout(() => {
       try {
-        if (!description || typeof description !== 'string' || description.trim().length < 3) {
-          setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+        if (!description || typeof description !== 'string') {
           return;
         }
-        const list = await getHsnCodesByDescService(description.trim());
-        setHsnSuggestions(prev => ({ ...prev, [index]: list || [] }));
+        // Use local HS_CODES mapping to auto-fill hscode from description
+        const hsn = HS_CODES[description.trim()];
+        setItems(it => it.map((item, i) => i === index ? { ...item, hscode: hsn || "" } : item));
       } catch (err) {
-        console.error('HSN lookup failed', err);
-        setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+        console.error('HSN mapping failed', err);
       }
     }, 400);
   };
@@ -280,6 +294,27 @@ const [items, setItems] = useState([
     const rect = el.getBoundingClientRect();
     setHsnPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
   }, [activeHsnIndex, hsnSuggestions]);
+
+  // Reposition description suggestions portal when open
+  useEffect(() => {
+    if (descOpenIndex == null) return;
+    const el = descInputRefs.current[descOpenIndex];
+    if (!el) return;
+    const reposition = () => {
+      const rect = el.getBoundingClientRect();
+      setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+    };
+    // initial position
+    reposition();
+    window.addEventListener('scroll', reposition, { passive: true });
+    document.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition);
+      document.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [descOpenIndex]);
 
   // Reposition portal on window scroll/resize and when DOM layout changes
   useEffect(() => {
@@ -483,7 +518,16 @@ const [items, setItems] = useState([
   const handleItems = (index, e) => {
     const { name, value } = e.target;
     if (name === 'description') {
+      // update item and activate HSN suggestions near code input
       setItemsAndActivate(index, { [name]: value });
+      // description autocomplete via HS_CODES (debounced)
+      if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
+      descTimersRef.current[index] = setTimeout(() => {
+        const list = filterDescriptions(value);
+        setDescSuggestions(prev => ({ ...prev, [index]: list }));
+        setDescOpenIndex(list.length ? index : null);
+      }, 150);
+      // also fetch HSN suggestions from backend based on description text
       if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
       else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
     } else {
@@ -875,10 +919,46 @@ const [items, setItems] = useState([
                     <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
                       <div className="relative">
-                        <input ref={el => hsnInputRefs.current[i] = el} required name="hscode" value={it.hscode} onChange={(e)=>handleItems(i,e)} className="w-28 border px-2 py-1 rounded" autoComplete="off" />
+                        <input
+                          ref={el => hsnInputRefs.current[i] = el}
+                          required
+                          name="hscode"
+                          value={it.hscode}
+                          onChange={(e)=>handleItems(i,e)}
+                          onFocus={() => setActiveHsnIndex(i)}
+                          className="w-28 border px-2 py-1 rounded"
+                          autoComplete="off"
+                        />
                       </div>
                     </td>
-                    <td className="p-2"><input required name="description" value={it.description} onChange={(e)=>handleItems(i,e)} className="w-56 border px-2 py-1 rounded" /></td>
+                    <td className="p-2">
+                      <input
+                        required
+                        name="description"
+                        value={it.description}
+                        onChange={(e)=>handleItems(i,e)}
+                        onFocus={() => {
+                          const list = filterDescriptions(items[i]?.description || '');
+                          setDescSuggestions(prev => ({ ...prev, [i]: list }));
+                          setDescOpenIndex(list.length ? i : null);
+                          // compute initial position for portal
+                          const el = descInputRefs.current[i];
+                          if (el) {
+                            const rect = el.getBoundingClientRect();
+                            setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+                          }
+                        }}
+                        onBlur={() => {
+                          // small delay to allow click selection
+                          setTimeout(() => {
+                            setDescOpenIndex(prev => (prev === i ? null : prev));
+                          }, 120);
+                        }}
+                        className="w-56 border px-2 py-1 rounded"
+                        autoComplete="off"
+                        ref={(el) => descInputRefs.current[i] = el}
+                      />
+                    </td>
                     <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
                     <td className="p-2">
@@ -983,6 +1063,34 @@ const [items, setItems] = useState([
                     }}
                   >
                     {s.c}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>, document.body)}
+
+      {/* Description autocomplete portal anchored to description input */}
+      {descOpenIndex !== null && Array.isArray(descSuggestions[descOpenIndex]) && descSuggestions[descOpenIndex].length > 0 && typeof document !== 'undefined' && createPortal(
+        <div style={{ position: 'absolute', top: descPortalPos.top + 'px', left: descPortalPos.left + 'px', width: Math.max(280, descPortalPos.width) + 'px', zIndex: 9999 }}>
+          <div className="bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
+            <ul className="text-sm">
+              {descSuggestions[descOpenIndex].map((s, idx) => (
+                <li key={idx}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-blue-50"
+                    title={s}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setItems(prev => prev.map((it2, ix) => ix === descOpenIndex ? { ...it2, description: s } : it2));
+                      // also try to auto-fetch HSN suggestions for this description
+                      fetchHsnSuggestions(descOpenIndex, s);
+                      setActiveHsnIndex(descOpenIndex);
+                      setDescOpenIndex(null);
+                    }}
+                  >
+                    {s}
                   </button>
                 </li>
               ))}
