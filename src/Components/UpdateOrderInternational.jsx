@@ -16,6 +16,7 @@ import getInternationalShipmentLabelService from "../services/shipmentServices/i
 const API_URL = import.meta.env.VITE_APP_API_URL
 import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
+import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -1106,7 +1107,8 @@ const Card = ({ shipment, onRefresh }) => {
     const [isManage, setIsManage] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
     const [isRequesting, setIsRequesting] = useState(false);
-    const [labelsOpen, setLabelsOpen] = useState(false);
+  const [labelsOpen, setLabelsOpen] = useState(false);
+  const [vendorLabels, setVendorLabels] = useState([]); // array of S3 keys
     const labelsMenuRef = useRef(null);
 
 
@@ -1217,6 +1219,27 @@ const Card = ({ shipment, onRefresh }) => {
       }
     };
 
+    // Load vendor/third-party labels from service when dropdown opens
+    useEffect(() => {
+      let canceled = false;
+      if (!labelsOpen) return;
+      const load = async () => {
+        try {
+          const data = await getInternationalShipmentThirdPartyLabelService(shipment.iid);
+          if (canceled) return;
+          // Expect an array of S3 key strings; fallback to data.labels if API returns object
+          const keys = Array.isArray(data) ? data : (Array.isArray(data?.labels) ? data.labels : []);
+          const unique = Array.from(new Set(keys.filter(Boolean)));
+          setVendorLabels(unique);
+        } catch (e) {
+          console.error(e);
+          if (!canceled) setVendorLabels([]);
+        }
+      };
+      load();
+      return () => { canceled = true; };
+    }, [labelsOpen, shipment.iid]);
+
     // close labels dropdown on outside click
     useEffect(() => {
       const onDocClick = (e) => {
@@ -1262,16 +1285,36 @@ const Card = ({ shipment, onRefresh }) => {
                       <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetInvoice(shipment.iid); }}>
                         Invoice
                       </button>
-                      {/* {shipment.shipper_label ? (
-                        <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.shipper_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
-                          Vendor Shipper Copy
-                        </a>
-                      ) : null}
-                      {shipment.box_label ? (
-                        <a className="block px-3 py-2 hover:bg-blue-50 text-sm text-blue-700" href={`${BUCKET_URL}${shipment.box_label}`} target="_blank" rel="noopener noreferrer" onClick={() => setLabelsOpen(false)}>
-                          Vendor Box Label
-                        </a>
-                      ) : null} */}
+                      {vendorLabels && vendorLabels.length > 0 && (
+                        <>
+                          <div className="px-3 py-1 text-xs text-gray-500 border-t">Vendor Labels</div>
+                          {vendorLabels.map((key, idx) => (
+                            <button
+                              key={key + idx}
+                              type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm"
+                              onClick={() => {
+                                setLabelsOpen(false);
+                                const url = `${BUCKET_URL}${key}`;
+                                try {
+                                  window.open(url, '_blank', 'noopener,noreferrer');
+                                } catch (e) {
+                                  // fallback link navigation
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.target = '_blank';
+                                  a.rel = 'noopener noreferrer';
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                }
+                              }}
+                            >
+                              {`Vendor Label ${idx + 1}`}
+                            </button>
+                          ))}
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
