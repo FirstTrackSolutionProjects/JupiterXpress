@@ -26,6 +26,7 @@ const API_URL = import.meta.env.VITE_APP_API_URL
 import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
+import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -1610,6 +1611,7 @@ const Listing = ({ step, setStep }) => {
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
   const [shipLoading, setShipLoading] = useState({}); // id -> boolean
+  const [cloneLoading, setCloneLoading] = useState({}); // id -> boolean
 
   const handleGetLabel = async (orderId) => {
     if (!orderId) { toast.error('Invalid order ID'); return; }
@@ -1688,6 +1690,22 @@ const Listing = ({ step, setStep }) => {
     }
   };
 
+  const handleClone = async (orderId) => {
+    try {
+      const confirmClone = window.confirm('Do you want to clone this order?');
+      if (!confirmClone) return;
+      setCloneLoading(prev => ({ ...prev, [orderId]: true }));
+      await cloneInternationalOrderService(orderId);
+      toast.success('Order cloned successfully');
+      await fetchOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to clone order');
+    } finally {
+      setCloneLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
@@ -1761,7 +1779,7 @@ const Listing = ({ step, setStep }) => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 260,
+      width: 340,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -1775,6 +1793,14 @@ const Listing = ({ step, setStep }) => {
               onClick={() => { setSelectedShipment(params.row); setIsManageOpen(true); }}
             >
               <VisibilityIcon />
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleClone(params.row.iid)}
+              disabled={Boolean(cloneLoading[params.row.iid])}
+            >
+              {cloneLoading[params.row.iid] ? 'Cloning...' : 'Clone'}
             </Button>
             {params.row.is_manifested && params.row.awb && !params.row.cancelled ? (
               <>
