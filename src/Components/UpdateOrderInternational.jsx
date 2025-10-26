@@ -1,8 +1,17 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { createPortal } from 'react-dom';
+// MUI imports for DataGrid UI and filters
+import { Box, Paper, TextField, IconButton, Button, Menu, MenuItem } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import DownloadIcon from '@mui/icons-material/Download';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
-import getAllInternationalShipmentsService from '../services/orderServices/internationalOrderServices/getAllInternationalShipmentsService';
+// Old list service (unused after DataGrid migration)
+// import getAllInternationalShipmentsService from '../services/orderServices/internationalOrderServices/getAllInternationalShipmentsService';
+import getInternationalOrdersPagedService from "../services/orderServices/internationalOrderServices/getInternationalOrdersPagedService";
 import createInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/createInternationalRequestShipmentService';
 import cancelInternationalRequestShipmentService from '../services/shipmentServices/internationalShipmentServices/cancelInternationalRequestShipmentService';
 import { COUNTRIES } from "../Constants";
@@ -185,8 +194,23 @@ async function generateShipmentLabels(labelData) {
   const A4_WIDTH_MM = 210; // orientation portrait
   const A4_HEIGHT_MM = 297;
   const PAGE_MARGIN_MM = 10; // uniform margins
-  // We'll scale the 480px template to fit width; assume 96 DPI.
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Tuning knobs to reduce physical size and optimize PDF weight/quality
+  // - LABEL_WIDTH_MM controls the final printed width on paper (in millimeters)
+  // - HTML2CANVAS_SCALE controls rasterization resolution (lower => smaller PDF)
+  // - IMAGE_FORMAT + IMAGE_QUALITY control the embedded image codec and compression
+  const LABEL_WIDTH_MM = 95; // target label width on paper (about 3.7")
+  const HTML2CANVAS_SCALE = 1.5; // reasonable balance of clarity and size
+  const IMAGE_FORMAT = 'JPEG';
+  const IMAGE_QUALITY = 0.76; // 0..1 (higher => larger file)
+
+  // Grid layout to place 4 labels per A4 page (2 columns x 2 rows)
+  const GRID_COLUMNS = 2;
+  const GRID_ROWS = 2;
+  const CELL_GAP_MM = 4; // space between cells
+
+  // enable internal compression in jsPDF when possible
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   for (let i = 0; i < boxes.length; i++) {
     const html = buildHTML(boxes[i], i);
     // Create hidden iframe for isolated rendering
@@ -201,21 +225,42 @@ async function generateShipmentLabels(labelData) {
     await new Promise(res => setTimeout(res, 30)); // allow layout
     await waitForImages(doc);
     const bodyEl = doc.body;
-    const canvas = await html2canvas(bodyEl, { scale: 2, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/png');
-    // Calculate image sizing to preserve aspect ratio within A4 width
-    const pageWidth = A4_WIDTH_MM - 2 * PAGE_MARGIN_MM;
-    const pageHeight = A4_HEIGHT_MM - 2 * PAGE_MARGIN_MM;
+    const canvas = await html2canvas(bodyEl, { scale: HTML2CANVAS_SCALE, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
+
+    // Calculate grid cell size (available space minus margins and gaps)
+    const availableWidthMm = A4_WIDTH_MM - 2 * PAGE_MARGIN_MM - (GRID_COLUMNS - 1) * CELL_GAP_MM;
+    const availableHeightMm = A4_HEIGHT_MM - 2 * PAGE_MARGIN_MM - (GRID_ROWS - 1) * CELL_GAP_MM;
+    const cellWidthMm = availableWidthMm / GRID_COLUMNS;
+    const cellHeightMm = availableHeightMm / GRID_ROWS;
+
+    // Scale image to fit within a single cell while preserving aspect ratio
     const pxWidth = canvas.width;
     const pxHeight = canvas.height;
-    const mmPerPx = Math.min(pageWidth / pxWidth, pageHeight / pxHeight);
+    const mmPerPxByWidth = cellWidthMm / pxWidth;
+    const mmPerPxByHeight = cellHeightMm / pxHeight;
+    const mmPerPx = Math.min(mmPerPxByWidth, mmPerPxByHeight);
     const imgWidthMm = pxWidth * mmPerPx;
     const imgHeightMm = pxHeight * mmPerPx;
-    if (i > 0) pdf.addPage();
-    // Center horizontally, keep top margin
-    const x = (A4_WIDTH_MM - imgWidthMm) / 2;
-    const y = PAGE_MARGIN_MM;
-    pdf.addImage(imgData, 'PNG', x, y, imgWidthMm, imgHeightMm);
+
+    // Determine position within 2x2 grid on current page
+    const slot = i % (GRID_COLUMNS * GRID_ROWS);
+    const row = Math.floor(slot / GRID_COLUMNS);
+    const col = slot % GRID_COLUMNS;
+
+    // Add a new page for the first slot of each new page (except at i=0)
+    if (slot === 0 && i > 0) {
+      pdf.addPage();
+    }
+
+    const cellLeft = PAGE_MARGIN_MM + col * (cellWidthMm + CELL_GAP_MM);
+    const cellTop = PAGE_MARGIN_MM + row * (cellHeightMm + CELL_GAP_MM);
+
+    // Center image within the cell
+    const x = cellLeft + (cellWidthMm - imgWidthMm) / 2;
+    const y = cellTop + (cellHeightMm - imgHeightMm) / 2;
+
+    pdf.addImage(imgData, IMAGE_FORMAT, x, y, imgWidthMm, imgHeightMm);
     document.body.removeChild(iframe);
   }
   pdf.save(`labels_${labelData.SHIPMENT_REFERENCE_ID || 'shipment'}.pdf`);
@@ -1461,44 +1506,427 @@ const Card = ({ shipment, onRefresh }) => {
     )
   }
 
-const Listing = ({ step, setStep }) => {
-    const [shipments, setShipments] = useState([]);
-    const [pickup, setPickup] = useState(false);
-
-    // Fetch shipments using service
-    const fetchShipments = async () => {
-      try {
-        const data = await getAllInternationalShipmentsService();
-        setShipments(data || []);
-      } catch (err) {
-        toast.error(err.message || 'Failed to load shipments');
-      }
-    };
-
-    useEffect(() => {
-      fetchShipments();
-    }, []);
-
-    const refreshShipments = async () => {
-      await fetchShipments();
-    };
-
-    return (
-      <>
-        <div className={`w-full p-4 flex flex-col items-center space-y-6 ${step == 0 ? "" : "hidden"}`}> 
-          {pickup ? <PickupRequest setPickup={setPickup}/> : null}
-          <div className="w-full h-16 px-4  relative flex">
-            <div className="text-2xl font-medium">SHIPMENTS </div>
-          </div>
-          <div className="w-full">
-            {shipments.map((shipment, index) => (
-              <Card key={index} shipment={shipment} onRefresh={refreshShipments} />
-            ))}
-          </div>
-        </div>
-      </>
-    );
+// Pagination component (copied to match UpdateOrder.jsx styling exactly)
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const pages = [];
+  const addPageNumber = (pageNum) => {
+    pages.push({ number: pageNum, isCurrent: pageNum === currentPage });
   };
+  addPageNumber(1);
+  if (totalPages <= 7) {
+    for (let i = 2; i < totalPages; i++) addPageNumber(i);
+  } else {
+    if (currentPage <= 4) {
+      for (let i = 2; i <= 5; i++) addPageNumber(i);
+      pages.push({ number: '...' });
+    } else if (currentPage >= totalPages - 3) {
+      pages.push({ number: '...' });
+      for (let i = totalPages - 4; i < totalPages; i++) addPageNumber(i);
+    } else {
+      pages.push({ number: '...' });
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) addPageNumber(i);
+      pages.push({ number: '...' });
+    }
+  }
+  if (totalPages > 1) addPageNumber(totalPages);
+  return (
+    <div className="flex items-center justify-center space-x-1 sm:space-x-2 mt-4">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+      >
+        <span className="hidden sm:inline">Previous</span>
+        <span className="sm:hidden">Prev</span>
+      </button>
+      {pages.map((page, idx) => (
+        <button
+          key={idx}
+          onClick={() => page.number !== '...' && onPageChange(page.number)}
+          className={`min-w-[30px] px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${
+            page.number === '...' ? 'cursor-default' : page.isCurrent ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100 border'
+          }`}
+        >
+          {page.number}
+        </button>
+      ))}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${currentPage === totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+      >
+        <span className="hidden sm:inline">Next</span>
+        <span className="sm:hidden">Next</span>
+      </button>
+    </div>
+  );
+};
+
+// Lightweight modal to host ManageForm when using DataGrid rows
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose}></div>
+      <div className="relative z-[1000] bg-white rounded-lg w-[95%] max-w-6xl max-h-[90vh] overflow-y-auto p-4">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Helper to convert date-only to full-day UTC ISO range
+const convertToUTCISOString = (ts) => new Date(ts).toISOString();
+
+const Listing = ({ step, setStep }) => {
+  const [rows, setRows] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const BUCKET_URL = import.meta.env.VITE_APP_BUCKET_URL || '';
+  const [filters, setFilters] = useState({
+    orderId: '',
+    customer_name: '',
+    customer_email: '',
+    startDate: '',
+    endDate: ''
+  });
+  const [selectedShipment, setSelectedShipment] = useState(null);
+  const [isManageOpen, setIsManageOpen] = useState(false);
+  const [downloadAnchorEl, setDownloadAnchorEl] = useState(null); // anchor for download menu
+  const [downloadRowId, setDownloadRowId] = useState(null);
+  const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
+  const [shipLoading, setShipLoading] = useState({}); // id -> boolean
+
+  const handleGetLabel = async (orderId) => {
+    if (!orderId) { toast.error('Invalid order ID'); return; }
+    try {
+      const labelResponse = await getInternationalShipmentLabelService(orderId);
+      if (!labelResponse?.success) {
+        toast.error(labelResponse?.message || 'Failed to get label');
+        return;
+      }
+      const labelData = labelResponse.label;
+      if (!labelData) { toast.error('Label data missing'); return; }
+      const requiredTop = ['CONSIGNEE_NAME','CONSIGNEE_ADDRESS','CONSIGNEE_CITY','CONSIGNEE_COUNTRY','SHIPPER_NAME','SHIPPER_ADDRESS','SHIPMENT_REFERENCE_ID'];
+      const missing = requiredTop.filter(k => !labelData[k]);
+      if (missing.length) { toast.error('Missing label fields: ' + missing.join(', ')); return; }
+      if (!Array.isArray(labelData.BOXES) || !labelData.BOXES.length) { toast.error('No boxes found for label generation'); return; }
+      await generateShipmentLabels(labelData);
+      toast.success('Label PDF generated');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Failed to generate label PDF');
+    }
+  };
+
+  const getRowKey = (row) => row?.iid || row?.ord_id || row?.ref_id;
+
+  const handleOpenDownload = async (event, row) => {
+    const rowId = getRowKey(row);
+    setDownloadAnchorEl(event.currentTarget);
+    setDownloadRowId(rowId);
+    if (!vendorLabelsMap[rowId]) {
+      try {
+        const data = await getInternationalShipmentThirdPartyLabelService(row.iid);
+        const keys = Array.isArray(data) ? data : (Array.isArray(data?.labels) ? data.labels : []);
+        const unique = Array.from(new Set(keys.filter(Boolean)));
+        setVendorLabelsMap(prev => ({ ...prev, [rowId]: unique }));
+      } catch (e) {
+        console.error(e);
+        setVendorLabelsMap(prev => ({ ...prev, [rowId]: [] }));
+      }
+    }
+  };
+
+  const handleCloseDownload = () => {
+    setDownloadAnchorEl(null);
+    setDownloadRowId(null);
+  };
+
+  const handleGetInvoice = async (orderId) => {
+    if (!orderId) { toast.error('Invalid order ID'); return; }
+    try {
+      const invoiceData = await getInternationalShipmentInvoiceService(orderId);
+      if (!invoiceData) { toast.error('Invoice data missing'); return; }
+      if (!Array.isArray(invoiceData.BOXES) || !invoiceData.BOXES.length) { toast.error('No boxes found for invoice generation'); return; }
+      await generateInternationalShipmentInvoicePDF(invoiceData);
+      toast.success('Invoice PDF generated');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Failed to generate invoice PDF');
+    }
+  };
+
+  const handleShip = async (orderId) => {
+    if (!orderId) return;
+    const ensure = confirm('Are you sure you want to ship this shipment?');
+    if (!ensure) return;
+    try {
+      setShipLoading(prev => ({ ...prev, [orderId]: true }));
+      await createInternationalRequestShipmentService(orderId);
+      await fetchOrders();
+      toast.success('Shipment created successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to request shipment');
+    } finally {
+      setShipLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const fetchOrders = async () => {
+    setIsLoading(true);
+    try {
+      const startDate = filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : '';
+      const endDate = filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : '';
+      const data = await getInternationalOrdersPagedService({
+        orderId: filters.orderId,
+        customer_name: filters.customer_name,
+        customer_email: filters.customer_email,
+        page,
+        width: 360,
+        endDate,
+      });
+      setRows(Array.isArray(data?.orders) ? data.orders : []);
+      if (typeof data?.totalPages === 'number') setTotalPages(data.totalPages || 1);
+      if (typeof data?.page === 'number') setPage(Number(data.page) || 1);
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to load international orders');
+      setRows([]);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, filters.orderId, filters.customer_name, filters.customer_email, filters.startDate, filters.endDate]);
+
+  const columns = [
+    { field: 'iid', headerName: 'Order Id', width: 110, renderCell: (params) => params.row?.iid || params.row?.ord_id || '' },
+    { field: 'created_at', headerName: 'Date', width: 180, renderCell: (params) => new Date(params.value).toLocaleString() },
+    { field: 'consignee', headerName: 'Consignee', width: 200, renderCell: (params) => (
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 80 }}>
+          <div>{params.row.consignee_name}</div>
+          <div>{params.row.consignee_email}</div>
+          <div>{params.row.consignee_contact_no}</div>
+        </Box>
+    )},
+    {
+          field: 'shipping',
+          headerName: 'Shipping Details',
+          width: 300,
+          renderCell: (params) => {
+            const isShipped = Boolean(params.row.awb);
+            return (
+              <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 80 }}>
+                {isShipped ? (
+                  <>
+                    <div>{params.row.service_name}</div>
+                    <div>{params.row.vendor_name}</div>
+                    {params.row.ref_id && <div>Ref Id: {params.row.ref_id}</div>}
+                  </>
+                ) : (
+                  <div style={{ color: '#666' }}>No shipping details yet</div>
+                )}
+              </Box>
+            );
+          }
+        },
+    { field: 'status', headerName: 'Status', width: 150, renderCell: (params) => {
+        const r = params.row || {};
+        if (r.cancelled) return 'Cancelled';
+        if (r.is_manifested) return 'Manifested';
+        if (r.is_requested) return 'Requested';
+        return 'Created';
+      }
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 260,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const rowId = getRowKey(params.row);
+        const vendorKeys = vendorLabelsMap[rowId] || [];
+        return (
+          <Box display="flex" gap={1} alignItems={'center'} height={80}>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => { setSelectedShipment(params.row); setIsManageOpen(true); }}
+            >
+              <VisibilityIcon />
+            </Button>
+            {params.row.is_manifested && params.row.awb && !params.row.cancelled ? (
+              <>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={(e) => handleOpenDownload(e, params.row)}
+                >
+                  <DownloadIcon/>
+                </Button>
+              </>
+            ) : null}
+            {!params.row.is_requested && !params.row.is_manifested && !params.row.cancelled ? (
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  disabled={Boolean(shipLoading[params.row.iid])}
+                  onClick={() => handleShip(params.row.iid)}
+                >
+                  {shipLoading[params.row.iid] ? <HourglassTopIcon/> : <RocketLaunchIcon />}
+                </Button>
+            ) : null}
+            {/* Shared anchored Menu rendered once per grid, guarded by row match */}
+            <Menu
+              anchorEl={downloadAnchorEl}
+              open={Boolean(downloadAnchorEl) && downloadRowId === rowId}
+              onClose={handleCloseDownload}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              keepMounted
+            >
+              <MenuItem onClick={() => { handleCloseDownload(); handleGetLabel(params.row.iid); }}>Shipment Label</MenuItem>
+              <MenuItem onClick={() => { handleCloseDownload(); handleGetInvoice(params.row.iid); }}>Invoice</MenuItem>
+              {vendorKeys.length > 0 && (
+                <>
+                  <MenuItem disabled divider>Vendor Labels</MenuItem>
+                  {vendorKeys.map((key, idx) => (
+                    <MenuItem
+                      key={key + idx}
+                      onClick={() => {
+                        handleCloseDownload();
+                        const url = `${BUCKET_URL}${key}`;
+                        try { window.open(url, '_blank', 'noopener,noreferrer'); }
+                        catch {
+                          const a = document.createElement('a');
+                          a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                        }
+                      }}
+                    >
+                      {`Vendor Label ${idx + 1}`}
+                    </MenuItem>
+                  ))}
+                </>
+              )}
+            </Menu>
+          </Box>
+        );
+      }
+    }
+  ];
+
+  const getRowId = (row) => row?.iid;
+
+  return (
+    <div className={`w-full p-4 flex flex-col items-center space-y-6 ${step == 0 ? '' : 'hidden'}`}> 
+      <Paper sx={{ width: '100%', p: 2 }}>
+        <Box sx={{ mb: 3 }}>
+          <h2 className="text-2xl font-medium">International Shipments</h2>
+        </Box>
+
+        {/* Filter bar (modeled after NDR.jsx) */}
+        <Box
+          sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: 'primary.main',
+            borderRadius: 2,
+            '& .MuiTextField-root': { bgcolor: 'background.paper', borderRadius: 1 },
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': { display: 'none' },
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+          }}
+        >
+          <Box display="flex" gap={1} sx={{ minWidth: 'fit-content' }}>
+            <TextField
+              label="Order ID"
+              variant="outlined"
+              size="small"
+              name="orderId"
+              value={filters.orderId}
+              onChange={(e) => setFilters({ ...filters, orderId: e.target.value })}
+              sx={{ mr: 1, minWidth: '150px' }}
+              InputLabelProps={{ sx: { backgroundColor: 'white', px: 0.5, width: '100%', borderRadius: 1 } }}
+            />
+            <TextField
+              label="Customer Name"
+              variant="outlined"
+              size="small"
+              name="customer_name"
+              value={filters.customer_name}
+              onChange={(e) => setFilters({ ...filters, customer_name: e.target.value })}
+              sx={{ mr: 1, minWidth: '180px' }}
+              InputLabelProps={{ sx: { backgroundColor: 'white', px: 0.5, width: '100%', borderRadius: 1 } }}
+            />
+            <TextField
+              label="Customer Email"
+              variant="outlined"
+              size="small"
+              name="customer_email"
+              value={filters.customer_email}
+              onChange={(e) => setFilters({ ...filters, customer_email: e.target.value })}
+              sx={{ mr: 1, minWidth: '200px' }}
+              InputLabelProps={{ sx: { backgroundColor: 'white', px: 0.5, width: '100%', borderRadius: 1 } }}
+            />
+            <TextField
+              label="Start Date"
+              variant="outlined"
+              size="small"
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+              sx={{ mr: 1, minWidth: '150px' }}
+              InputLabelProps={{ sx: { backgroundColor: 'white', px: 0.5, width: '100%', borderRadius: 1 } }}
+            />
+            <TextField
+              label="End Date"
+              variant="outlined"
+              size="small"
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+              sx={{ mr: 1, minWidth: '150px' }}
+              InputLabelProps={{ sx: { backgroundColor: 'white', px: 0.5, width: '100%', borderRadius: 1 } }}
+            />
+          </Box>
+        </Box>
+
+        <Box sx={{ height: 600, width: '100%' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={isLoading}
+            hideFooter={true}
+            disableSelectionOnClick
+            rowHeight={80}
+            getRowId={getRowId}
+          />
+        </Box>
+
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={(newPage) => setPage(newPage)} />
+      </Paper>
+
+      <Modal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)}>
+        {selectedShipment && (
+          <ManageForm shipment={selectedShipment} />
+        )}
+      </Modal>
+    </div>
+  );
+};
 
 const UpdateOrderInternational = () => {
   const [step, setStep] = useState(0)
