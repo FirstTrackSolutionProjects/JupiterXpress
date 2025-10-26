@@ -265,7 +265,7 @@ async function generateShipmentLabels(labelData) {
   }
   pdf.save(`labels_${labelData.SHIPMENT_REFERENCE_ID || 'shipment'}.pdf`);
 }
-const ManageForm = ({ shipment}) => {
+const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
   // ---------------- State: Dockets & Items ----------------
 
   const [loading, setLoading] = useState(null);
@@ -738,7 +738,18 @@ const [items, setItems] = useState([
   const displayCountryName = formData.consigneeCountry && COUNTRIES[formData.consigneeCountry]?.name;
 
   return (
-    <div className="w-full p-4 flex flex-col items-center">
+    <div className="w-full p-4 flex flex-col items-center relative">
+      {/* {typeof setIsManage === 'function' && ( */}
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={() => setIsManage(false)}
+          className="absolute right-4 top-4 h-8 w-8 rounded-full border border-gray-300 hover:bg-gray-100 flex items-center justify-center text-lg leading-none"
+          title="Close"
+        >
+          X
+        </button>
+      {/* )} */}
       <div className="text-3xl font-medium text-center my-8">Update Shipping Details</div>
       <form onSubmit={handleSubmit} className="w-full max-w-7xl space-y-8">
         {/* Service Details Card */}
@@ -1089,9 +1100,11 @@ const [items, setItems] = useState([
           </div>
         </div>
 
-        <div className="pt-4">
-          <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
-        </div>
+        {!isShipped && (
+          <div className="pt-4">
+            <button type='submit' disabled={loading} className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">{loading || "Update"}</button>
+          </div>
+        )}
       </form>
       {activeHsnIndex !== null && hsnSuggestions[activeHsnIndex] && hsnSuggestions[activeHsnIndex].length > 0 && typeof document !== 'undefined' && createPortal(
         <div style={{ position: 'absolute', top: hsnPortalPos.top + 'px', left: hsnPortalPos.left + 'px', width: Math.max(240, hsnPortalPos.width) + 'px', zIndex: 1 }}>
@@ -1921,7 +1934,7 @@ const Listing = ({ step, setStep }) => {
 
       <Modal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)}>
         {selectedShipment && (
-          <ManageForm shipment={selectedShipment} />
+          <ManageForm shipment={selectedShipment} isManage={isManageOpen} setIsManage={setIsManageOpen} isShipped={selectedShipment.is_manifested} />
         )}
       </Modal>
     </div>
