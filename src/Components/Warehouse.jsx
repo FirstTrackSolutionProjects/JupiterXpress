@@ -10,6 +10,7 @@ const AddForm = ({ setMode }) => {
     phone: "",
     email: "",
     address: "",
+    international_address: "",
     pin: "",
     city: "",
     state: "",
@@ -20,7 +21,7 @@ const AddForm = ({ setMode }) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: name === 'international_address' ? (value || '').replace(/[^a-zA-Z0-9 ]+/g, '') : value,
     }));
   };
   const handleSubmit = async (e) => {
@@ -30,6 +31,7 @@ const AddForm = ({ setMode }) => {
       phone : formData.phone.trim(),
       email : formData.email.trim(),
       address : formData.address.trim(),
+      internationalAddress: (formData.international_address || "").replace(/[^a-zA-Z0-9 ]+/g, '').trim(),
       pin : formData.pin.trim(),
       city : formData.city.trim(),
       state : formData.state.trim(),
@@ -81,7 +83,7 @@ const AddForm = ({ setMode }) => {
         >
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="name">Warehouse Name</label>
+              <label htmlFor="name">Warehouse Name*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -96,7 +98,7 @@ const AddForm = ({ setMode }) => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="phone">Mobile Number</label>
+              <label htmlFor="phone">Mobile Number*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -110,7 +112,7 @@ const AddForm = ({ setMode }) => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -123,7 +125,7 @@ const AddForm = ({ setMode }) => {
             </div>
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="address">Address</label>
+            <label htmlFor="address">Address (For Domestic Shipments)*</label>
             <input required
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
@@ -135,9 +137,28 @@ const AddForm = ({ setMode }) => {
               onChange={handleChange}
             />
           </div>
+          <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
+            <label htmlFor="international_address">Address (For International Shipments)</label>
+            <input
+              className="w-full border py-2 px-4 rounded-3xl"
+              type="text"
+              id="international_address"
+              name="international_address"
+              maxLength={60}
+              placeholder="Only letters, numbers, and spaces are allowed"
+              value={formData.international_address}
+              onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { e.preventDefault(); return; }
+                if (e.key && e.key.length === 1 && !/[a-zA-Z0-9 ]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pin">Pincode</label>
+              <label htmlFor="pin">Pincode*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -151,7 +172,7 @@ const AddForm = ({ setMode }) => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">City*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -165,7 +186,7 @@ const AddForm = ({ setMode }) => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2 flex flex-col justify-center">
-              <label htmlFor="state">State</label>
+              <label htmlFor="state">State*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -177,7 +198,7 @@ const AddForm = ({ setMode }) => {
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="country">Country</label>
+              <label htmlFor="country">Country*</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
@@ -230,7 +251,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, city, st
     try {
       setSaving(true);
       const cleaned = (formData.international_address || "").replace(/[^a-zA-Z0-9 ]+/g, '').trim();
-      await updateWarehouseService(wid, { internationalAddress: cleaned });
+  await updateWarehouseService(wid, { international_address: cleaned });
       alert("Warehouse updated successfully");
       setIsManage(0);
     } catch (err) {
@@ -286,13 +307,13 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, city, st
             </div>
           </div>
           <div className="flex-1 mx-2 mb-2 min-w-[280px] space-y-2">
-            <label htmlFor="address">Address</label>
+            <label htmlFor="address">Address (For Domestic Shipments)</label>
             <TextField
               size="small"
               className="w-full border py-2 px-4 rounded-3xl"
               type="text"
               value={formData.address}
-              InputProps={{ readOnly: true }}
+              InputProps={{ readOnly: true, maxLength: 100 }}
             />
           </div>
           {/* Editable International Address */}
