@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid } from "@mui/x-data-grid";
 import getAllInternationalShipmentsService from "../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
+import { jwtDecode } from "jwt-decode";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -134,14 +135,24 @@ const Listing = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [filters, setFilters] = useState({
     awb: "",
-    ord_id: "",
+    iid: "",
     serviceId: "",
     startDate: "",
     endDate: "",
   });
   const [services, setServices] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Determine if current user is admin from JWT
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decoded = jwtDecode(token);
+        setIsAdmin(Boolean(decoded?.admin));
+      }
+    } catch (_) {}
+
     const fetchServices = async () => {
       try {
         const list = await getActiveInternationalServicesService();
@@ -158,7 +169,7 @@ const Listing = () => {
     try {
       const params = {
         awb: filters.awb || undefined,
-        ord_id: filters.ord_id || undefined,
+        iid: filters.iid || undefined,
         serviceId: filters.serviceId || undefined,
         startDate: filters.startDate || undefined,
         endDate: filters.endDate || undefined,
@@ -194,18 +205,19 @@ const Listing = () => {
   useEffect(() => {
     fetchReports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filters.awb, filters.ord_id, filters.serviceId, filters.startDate, filters.endDate]);
+  }, [page, filters.awb, filters.iid, filters.serviceId, filters.startDate, filters.endDate]);
 
+  const awbCol = { field: "awb", headerName: "AWB", width: 160 };
   const columns = [
     { field: "ref_id", headerName: "Reference ID", width: 140 },
-    { field: "ord_id", headerName: "Order ID", width: 130 },
+    { field: "iid", headerName: "Order ID", width: 130 },
     {
       field: "date",
       headerName: "Date",
       width: 180,
       renderCell: (params) => (params.value ? new Date(params.value).toLocaleString() : ""),
     },
-    { field: "awb", headerName: "AWB", width: 160 },
+    ...(isAdmin ? [awbCol] : []),
     { field: "service_name", headerName: "Service", width: 180 },
     { field: "status", headerName: "Status", width: 160 },
     {
@@ -231,7 +243,7 @@ const Listing = () => {
     },
   ];
 
-  const getRowId = (row) => row?.ref_id || row?.ord_id || row?.iid;
+  const getRowId = (row) => row?.ref_id || row?.iid || row?.iid;
 
   return (
     <div className="w-full p-4">
@@ -258,9 +270,9 @@ const Listing = () => {
               label="Order ID"
               variant="outlined"
               size="small"
-              name="ord_id"
-              value={filters.ord_id}
-              onChange={(e) => setFilters({ ...filters, ord_id: e.target.value })}
+              name="iid"
+              value={filters.iid}
+              onChange={(e) => setFilters({ ...filters, iid: e.target.value })}
               sx={{ mr: 1, minWidth: "150px" }}
               InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
             />
