@@ -1181,7 +1181,7 @@ const Card = ({ shipment, onRefresh }) => {
         await onRefresh();
         toast.success('Shipment created successfully!');
       } catch (err) {
-        toast.error(err.message || 'Failed to request shipment');
+        toast.error(err.message || 'Failed to create shipment');
       } finally {
         setIsRequesting(false);
       }
