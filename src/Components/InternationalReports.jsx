@@ -207,18 +207,61 @@ const Listing = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters.awb, filters.iid, filters.serviceId, filters.startDate, filters.endDate]);
 
-  const awbCol = { field: "awb", headerName: "AWB", width: 160 };
+  const merchantCol = {
+    field: 'merchant', 
+    headerName: 'Merchant', 
+    width: 200, 
+    renderCell: (params) => (
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <div>{params.row.fullName}</div>
+          <div>{params.row.email}</div>
+        </Box>
+    )
+  };
+  const consigneeCol = { 
+    field: 'consignee', 
+    headerName: 'Consignee', 
+    width: 200, 
+    renderCell: (params) => (
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <div>{params.row.consignee_name}</div>
+          <div>{params.row.consignee_email}</div>
+          <div>{params.row.consignee_contact_no}</div>
+        </Box>
+    )
+  };
   const columns = [
     { field: "ref_id", headerName: "Reference ID", width: 140 },
-    { field: "iid", headerName: "Order ID", width: 130 },
     {
       field: "date",
       headerName: "Date",
       width: 180,
       renderCell: (params) => (params.value ? new Date(params.value).toLocaleString() : ""),
     },
-    ...(isAdmin ? [awbCol] : []),
-    { field: "service_name", headerName: "Service", width: 180 },
+    ...(isAdmin ? [merchantCol] : []),
+    ...(!isAdmin ? [consigneeCol] : []),
+    {
+      field: 'shipping',
+      headerName: 'Shipping Details',
+      width: 300,
+      renderCell: (params) => {
+        const isShipped = Boolean(params.row.awb);
+        return (
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+            {isShipped ? (
+              <>
+                <div>{params.row.service_name}</div>
+                <div>{params.row.vendor_name}</div>
+                <div>Order Id: {params.row.iid}</div>
+                {(isAdmin && params.row.awb) ? <div>AWB : {params.row.awb}</div> : null}
+              </>
+            ) : (
+              <div style={{ color: '#666' }}>No shipping details yet</div>
+            )}
+          </Box>
+        );
+      }
+    },
     { field: "status", headerName: "Status", width: 160 },
     {
       field: "actions",
@@ -227,7 +270,7 @@ const Listing = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Box display="flex" gap={1}>
+        <Box display="flex" gap={1} height={90} alignItems={'center'}>
           <Button
             variant="contained"
             size="small"
@@ -338,6 +381,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
+            rowHeight={90}
             disableSelectionOnClick
             getRowId={getRowId}
           />
