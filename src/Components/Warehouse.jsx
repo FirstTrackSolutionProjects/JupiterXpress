@@ -251,7 +251,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, city, st
     try {
       setSaving(true);
       const cleaned = (formData.international_address || "").replace(/[^a-zA-Z0-9 ]+/g, '').trim();
-  await updateWarehouseService(wid, { international_address: cleaned });
+  await updateWarehouseService(wid, { internationalAddress: cleaned });
       alert("Warehouse updated successfully");
       setIsManage(0);
     } catch (err) {
