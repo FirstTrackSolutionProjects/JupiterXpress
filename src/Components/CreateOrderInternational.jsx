@@ -524,7 +524,7 @@ const FullDetails = () => {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact*</label>
+              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact (Without Country Code)*</label>
               <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
