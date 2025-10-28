@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid } from "@mui/x-data-grid";
 import getAllInternationalShipmentsService from "../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
+import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import { jwtDecode } from "jwt-decode";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
@@ -137,11 +138,17 @@ const Listing = () => {
     awb: "",
     iid: "",
     serviceId: "",
+    vendorId: "",
+    merchant_name: "",
+    merchant_email: "",
+    consignee_name: "",
+    consignee_email: "",
     startDate: "",
     endDate: "",
   });
   const [services, setServices] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [vendors, setVendors] = useState([]);
 
   useEffect(() => {
     // Determine if current user is admin from JWT
@@ -164,6 +171,31 @@ const Listing = () => {
     fetchServices();
   }, []);
 
+  // Load vendors when a service is selected; clear vendor filter when service changes
+  useEffect(() => {
+    const loadVendors = async () => {
+      try {
+        if (!filters.serviceId) {
+          setVendors([]);
+          setFilters((prev) => ({ ...prev, vendorId: "" }));
+          return;
+        }
+        const list = await getServicesActiveVendorsService(filters.serviceId);
+        setVendors(Array.isArray(list) ? list : []);
+        // If current vendorId is not in the new list, clear it
+        setFilters((prev) => ({
+          ...prev,
+          vendorId: list?.some(v => String(v.vendor_id) === String(prev.vendorId)) ? prev.vendorId : ""
+        }));
+      } catch (_) {
+        setVendors([]);
+        setFilters((prev) => ({ ...prev, vendorId: "" }));
+      }
+    };
+    loadVendors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.serviceId]);
+
   const fetchReports = async () => {
     setIsLoading(true);
     try {
@@ -171,6 +203,17 @@ const Listing = () => {
         awb: filters.awb || undefined,
         iid: filters.iid || undefined,
         serviceId: filters.serviceId || undefined,
+        vendorId: filters.vendorId || undefined,
+        // Admin vs merchant person filters
+        ...(isAdmin
+          ? {
+              merchant_name: filters.merchant_name || undefined,
+              merchant_email: filters.merchant_email || undefined,
+            }
+          : {
+              consignee_name: filters.consignee_name || undefined,
+              consignee_email: filters.consignee_email || undefined,
+            }),
         startDate: filters.startDate || undefined,
         endDate: filters.endDate || undefined,
         page,
@@ -205,20 +248,63 @@ const Listing = () => {
   useEffect(() => {
     fetchReports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filters.awb, filters.iid, filters.serviceId, filters.startDate, filters.endDate]);
+  }, [page, filters.awb, filters.iid, filters.serviceId, filters.vendorId, filters.merchant_name, filters.merchant_email, filters.consignee_name, filters.consignee_email, filters.startDate, filters.endDate]);
 
-  const awbCol = { field: "awb", headerName: "AWB", width: 160 };
+  const merchantCol = {
+    field: 'merchant', 
+    headerName: 'Merchant', 
+    width: 200, 
+    renderCell: (params) => (
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <div>{params.row.fullName}</div>
+          <div>{params.row.email}</div>
+        </Box>
+    )
+  };
+  const consigneeCol = { 
+    field: 'consignee', 
+    headerName: 'Consignee', 
+    width: 200, 
+    renderCell: (params) => (
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <div>{params.row.consignee_name}</div>
+          <div>{params.row.consignee_email}</div>
+          <div>{params.row.consignee_contact_no}</div>
+        </Box>
+    )
+  };
   const columns = [
     { field: "ref_id", headerName: "Reference ID", width: 140 },
-    { field: "iid", headerName: "Order ID", width: 130 },
     {
       field: "date",
       headerName: "Date",
       width: 180,
       renderCell: (params) => (params.value ? new Date(params.value).toLocaleString() : ""),
     },
-    ...(isAdmin ? [awbCol] : []),
-    { field: "service_name", headerName: "Service", width: 180 },
+    ...(isAdmin ? [merchantCol] : []),
+    ...(!isAdmin ? [consigneeCol] : []),
+    {
+      field: 'shipping',
+      headerName: 'Shipping Details',
+      width: 300,
+      renderCell: (params) => {
+        const isShipped = Boolean(params.row.awb);
+        return (
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+            {isShipped ? (
+              <>
+                <div>{params.row.service_name}</div>
+                <div>{params.row.vendor_name}</div>
+                <div>Order Id: {params.row.iid}</div>
+                {(isAdmin && params.row.awb) ? <div>AWB : {params.row.awb}</div> : null}
+              </>
+            ) : (
+              <div style={{ color: '#666' }}>No shipping details yet</div>
+            )}
+          </Box>
+        );
+      }
+    },
     { field: "status", headerName: "Status", width: 160 },
     {
       field: "actions",
@@ -227,7 +313,7 @@ const Listing = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Box display="flex" gap={1}>
+        <Box display="flex" gap={1} height={90} alignItems={'center'}>
           <Button
             variant="contained"
             size="small"
@@ -276,6 +362,54 @@ const Listing = () => {
               sx={{ mr: 1, minWidth: "150px" }}
               InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
             />
+            {/* Conditional name/email filters */}
+            {isAdmin ? (
+              <>
+                <TextField
+                  label="Merchant Name"
+                  variant="outlined"
+                  size="small"
+                  name="merchant_name"
+                  value={filters.merchant_name}
+                  onChange={(e) => setFilters({ ...filters, merchant_name: e.target.value })}
+                  sx={{ mr: 1, minWidth: "180px" }}
+                  InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
+                />
+                <TextField
+                  label="Merchant Email"
+                  variant="outlined"
+                  size="small"
+                  name="merchant_email"
+                  value={filters.merchant_email}
+                  onChange={(e) => setFilters({ ...filters, merchant_email: e.target.value })}
+                  sx={{ mr: 1, minWidth: "200px" }}
+                  InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
+                />
+              </>
+            ) : (
+              <>
+                <TextField
+                  label="Consignee Name"
+                  variant="outlined"
+                  size="small"
+                  name="consignee_name"
+                  value={filters.consignee_name}
+                  onChange={(e) => setFilters({ ...filters, consignee_name: e.target.value })}
+                  sx={{ mr: 1, minWidth: "180px" }}
+                  InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
+                />
+                <TextField
+                  label="Consignee Email"
+                  variant="outlined"
+                  size="small"
+                  name="consignee_email"
+                  value={filters.consignee_email}
+                  onChange={(e) => setFilters({ ...filters, consignee_email: e.target.value })}
+                  sx={{ mr: 1, minWidth: "200px" }}
+                  InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
+                />
+              </>
+            )}
             <TextField
               label="AWB"
               variant="outlined"
@@ -329,6 +463,27 @@ const Listing = () => {
                 ))}
               </Select>
             </FormControl>
+            <FormControl size="small" sx={{ minWidth: "180px", mr: 1 }} disabled={!filters.serviceId}>
+              <InputLabel id="vendor-select-label" className="bg-white w-full">
+                Vendor
+              </InputLabel>
+              <Select
+                labelId="vendor-select-label"
+                value={filters.vendorId}
+                onChange={(e) => setFilters({ ...filters, vendorId: e.target.value })}
+                label="Vendor"
+                sx={{ backgroundColor: !filters.serviceId ? "#f3f4f6" : "white", borderRadius: 1 }}
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                {vendors.map((v) => (
+                  <MenuItem key={v.id} value={v.id}>
+                    {v.vendor_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         </Box>
 
@@ -338,6 +493,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
+            rowHeight={90}
             disableSelectionOnClick
             getRowId={getRowId}
           />
