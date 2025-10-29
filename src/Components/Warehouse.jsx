@@ -19,11 +19,39 @@ const AddForm = ({ setMode }) => {
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Sanitize pin to digits-only and max length 6
+    if (name === 'pin') {
+      const digits = (value || '').replace(/\D/g, '').slice(0, 6);
+      setFormData((prevData) => ({ ...prevData, pin: digits }));
+      return;
+    }
     setFormData((prevData) => ({
       ...prevData,
       [name]: name === 'international_address' ? (value || '').replace(/[^a-zA-Z0-9 ]+/g, '') : value,
     }));
   };
+
+  // Auto-complete city/state based on 6-digit pincode
+  useEffect(() => {
+    const fillCityState = async () => {
+      try {
+        const resp = await fetch(`https://api.postalpincode.in/pincode/${formData.pin}`);
+        const data = await resp.json();
+        const status = data?.[0]?.Status;
+        const office = data?.[0]?.PostOffice?.[0];
+        if (status === 'Success' && office) {
+          const city = office.District || '';
+          const state = office.State || '';
+          setFormData((prev) => ({ ...prev, city, state }));
+        } else {
+          setFormData((prev) => ({ ...prev, city: '', state: '' }));
+        }
+      } catch (err) {
+        setFormData((prev) => ({ ...prev, city: '', state: '' }));
+      }
+    };
+    if ((formData.pin || '').length === 6) fillCityState();
+  }, [formData.pin]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validatedFormData = {
@@ -169,6 +197,15 @@ const AddForm = ({ setMode }) => {
                 placeholder="Enter Pincode"
                 value={formData.pin}
                 onChange={handleChange}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                onKeyDown={(e) => {
+                  const allowed = ['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End'];
+                  if (allowed.includes(e.key)) return;
+                  if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
