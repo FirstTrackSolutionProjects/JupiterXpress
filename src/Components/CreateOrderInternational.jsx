@@ -606,7 +606,6 @@ const FullDetails = () => {
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Dockets</h2>
-            <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
           </div>
           <div className="overflow-x-auto overflow-visible">
             <table className="w-full text-sm border-collapse">
@@ -646,12 +645,14 @@ const FullDetails = () => {
               </tbody>
             </table>
           </div>
+          <div className="flex justify-end">
+            <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
+          </div>
         </section>
         {/* Items Section */}
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Items</h2>
-            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
           <div className="overflow-x-auto overflow-visible">
             <table className="w-full text-sm border-collapse">
@@ -724,6 +725,9 @@ const FullDetails = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-end">
+            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
         </section>
         {/* Documents Section */}
