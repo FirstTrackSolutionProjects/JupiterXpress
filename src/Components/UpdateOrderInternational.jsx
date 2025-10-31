@@ -48,11 +48,11 @@ async function generateShipmentLabels(labelData) {
       reader.readAsDataURL(blob);
     });
   };
-  const reference = String(labelData.SHIPMENT_REFERENCE_ID || '');
+  const awb = String(labelData.SHIPMENT_AWB || '')
   // Use logo from the app's public folder
   const logoUrl = `/logo.webp`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(reference)}&size=80x80`;
-  const barcodeUrl = `https://barcodeapi.org/api/128/${encodeURIComponent(reference)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(awb)}&size=80x80`;
+  const barcodeUrl = `https://barcodeapi.org/api/128/${encodeURIComponent(awb)}`;
   const [qrDataUrl, barcodeDataUrl] = await Promise.all([
     fetchAsDataURL(qrUrl),
     fetchAsDataURL(barcodeUrl)
