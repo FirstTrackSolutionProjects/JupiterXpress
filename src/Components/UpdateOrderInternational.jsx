@@ -52,10 +52,31 @@ async function generateShipmentLabels(labelData) {
   // Use logo from the app's public folder
   const logoUrl = `/logo.webp`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(awb)}&size=80x80`;
-  const barcodeUrl = `https://barcodeapi.org/api/128/${encodeURIComponent(awb)}`;
+  // Generate barcode client-side using bwip-js
+  const { default: bwipjs } = await import('bwip-js');
+  const makeBarcodeDataUrl = async (text) => {
+    const canvas = document.createElement('canvas');
+    try {
+      bwipjs.toCanvas(canvas, {
+        bcid: 'code128',
+        text: text || '',
+        scale: 2,
+        height: 10,
+        includetext: false,
+        backgroundcolor: 'FFFFFF',
+        paddingwidth: 2,
+        paddingheight: 2,
+      });
+      return canvas.toDataURL('image/png');
+    } catch (err) {
+      console.error('Barcode generation failed:', err);
+      // Optional fallback (can be removed to avoid any external calls):
+      return await fetchAsDataURL(`https://barcodeapi.org/api/128/${encodeURIComponent(text || '')}`);
+    }
+  };
   const [qrDataUrl, barcodeDataUrl] = await Promise.all([
     fetchAsDataURL(qrUrl),
-    fetchAsDataURL(barcodeUrl)
+    makeBarcodeDataUrl(awb),
   ]);
 
   // Base HTML template function; placeholders replaced per box
