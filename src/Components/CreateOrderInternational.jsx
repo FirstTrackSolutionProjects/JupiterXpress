@@ -579,29 +579,6 @@ const FullDetails = () => {
           </div>
         </section>
 
-        {/** Shipment Meta Section */}
-        <div className="bg-white shadow rounded-2xl p-6 border">
-          <div className="text-lg font-semibold mb-4">Shipment Meta</div>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="flex flex-col space-y-2 md:col-span-1">
-              <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
-              <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
-              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} readOnly className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" title="Automatically calculated from Items (Rate * Qty)" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
-              <input id="gst" name="gst" value={formData.gst} onChange={handleChange} placeholder="GSTIN" className="border rounded-xl px-4 py-2" />
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
-              <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
-            </div>
-          </div>
-        </div>
-
         {/* Dockets Section */}
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -730,6 +707,30 @@ const FullDetails = () => {
             <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
           </div>
         </section>
+
+        {/** Shipment Meta Section */}
+        <div className="bg-white shadow rounded-2xl p-6 border">
+          <div className="text-lg font-semibold mb-4">Shipment Meta</div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex flex-col space-y-2 md:col-span-1">
+              <label htmlFor="contents" className="text-sm font-medium">Contents*</label>
+              <input id="contents" name="contents" required value={formData.contents} onChange={handleChange} placeholder="Ex. Books" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="shipmentValue" className="text-sm font-medium">Shipment Value*</label>
+              <input id="shipmentValue" name="shipmentValue" type="number" min={0} required value={formData.shipmentValue} readOnly className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" title="Automatically calculated from Items (Rate * Qty)" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="gst" className="text-sm font-medium">Seller GST</label>
+              <input id="gst" name="gst" value={formData.gst} onChange={handleChange} placeholder="GSTIN" className="border rounded-xl px-4 py-2" />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
+              <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+            </div>
+          </div>
+        </div>
+        
         {/* Documents Section */}
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
           <h2 className="text-lg font-semibold">KYC Document</h2>
