@@ -13,6 +13,14 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const FullDetails = () => {
   // Core form state
+
+  const [dockets, setDockets] = useState([
+    { box_no: 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }
+  ]);
+  const [items, setItems] = useState([
+    { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
+  ]);
+
   const [formData, setFormData] = useState({
     wid: "",
     service: "",
@@ -65,12 +73,16 @@ const FullDetails = () => {
     }));
   };
 
-  const [dockets, setDockets] = useState([
-    { box_no: 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }
-  ]);
-  const [items, setItems] = useState([
-    { box_no: 1, hscode: "", quantity: 1, rate: "10", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
-  ]);
+  useEffect(() => {
+    const totalWeight = dockets.reduce((acc, docket) => {
+      const weightInKg =
+        docket.docket_weight_unit === 'g'
+          ? docket.docket_weight / 1000
+          : docket.docket_weight;
+      return acc + weightInKg * docket.quantity;
+    }, 0).toFixed(3).toString()
+    setFormData((prev) => ({ ...prev, actualWeight: totalWeight }));
+  }, [dockets]);
 
   // HSN suggestions per item index (array of {c, n})
   const [hsnSuggestions, setHsnSuggestions] = useState({});
@@ -294,6 +306,13 @@ const FullDetails = () => {
     });
   }
 
+  // utils: convert weight to kg based on unit (supports 'kg' and 'g')
+  const toKg = (value, unit) => {
+    const n = parseFloat(value);
+    if (isNaN(n)) return 0;
+    return unit === 'g' ? n / 1000 : n;
+  };
+
   // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -317,10 +336,25 @@ const FullDetails = () => {
     setDockets(ds => ds.map((d, i) => i === index ? { ...d, [name]: value } : d));
   };
   const handleDeleteDocket = (index) => {
-    setDockets(ds => ds.filter((_, i) => i !== index).map((d, i2) => ({ ...d, box_no: i2 + 1 })));
+    const deletedBoxNo = index + 1;
+    // Reindex dockets
+    setDockets((ds) => ds.filter((_, i) => i !== index).map((d, i2) => ({ ...d, box_no: i2 + 1 })));
+    // Adjust items: remove those assigned to deleted docket, and shift higher box_no down by 1
+    setItems((prev) => {
+      const filtered = prev.filter((it) => parseInt(it.box_no) !== deletedBoxNo);
+      return filtered.map((it) => {
+        const bn = parseInt(it.box_no);
+        if (!isNaN(bn) && bn > deletedBoxNo) {
+          return { ...it, box_no: bn - 1 };
+        }
+        return it;
+      });
+    });
   };
   const handleAddDocket = () => {
-    setDockets(ds => [...ds, { box_no: ds.length + 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }]);
+    const docketLen = dockets.length;
+    setDockets(ds => [...ds, { box_no: docketLen + 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }]);
+    setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }]);
   };
   const handleItems = (index, e) => {
     const { name, value } = e.target;
@@ -337,9 +371,13 @@ const FullDetails = () => {
     }
     setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
   };
-  const addProduct = () => {
+  const addItemForBox = (boxNo) => {
     // Default rate set to '1' to satisfy > 0 rule
-    setItems(it => [...it, { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "", item_weight_unit: "kg" }]);
+    const bn = parseInt(boxNo) || 1;
+    setItems((it) => [
+      ...it,
+      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" },
+    ]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -391,6 +429,22 @@ const FullDetails = () => {
       else if (consigneeValidationErrors.city) document.getElementById('consigneeCity')?.focus();
       else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
       return;
+    }
+    // Validate per-docket weight: sum(item.unit_weight * qty) <= docket_weight (considering docket unit and docket quantity)
+    for (const d of dockets) {
+      const entries = items.filter((it) => String(it.box_no) === String(d.box_no));
+      const itemTotalKg = entries.reduce((sum, it) => {
+        const qty = parseFloat(it.quantity) || 0;
+        const unitW = parseFloat(it.unit_weight) || 0;
+        const unit = it.item_weight_unit || 'kg';
+        return sum + toKg(unitW, unit) * qty;
+      }, 0);
+      const docketQty = parseFloat(d.quantity) || 1;
+      const docketKg = toKg(d.docket_weight, d.docket_weight_unit || 'kg') * docketQty;
+      if (itemTotalKg > docketKg) {
+        toast.error(`Items total weight (${itemTotalKg.toFixed(3)} kg) exceeds Docket #${d.box_no} capacity (${docketKg.toFixed(3)} kg)`);
+        return;
+      }
     }
     // Validate item rates > 0 before any uploads/network
     const invalidRate = items.some(it => {
@@ -626,86 +680,132 @@ const FullDetails = () => {
             <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
           </div>
         </section>
-        {/* Items Section */}
-        <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Items</h2>
-          </div>
-          <div className="overflow-x-auto overflow-visible">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-blue-50 text-left">
-                  <th className="p-2">Box*</th>
-                  <th className="p-2">Description*</th>
-                  <th className="p-2">HS Code*</th>
-                  <th className="p-2">Qty*</th>
-                  <th className="p-2">Rate (₹)*</th>
-                  <th className="p-2">Weight* (kg)</th>
-                  <th className="p-2"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((it, i) => (
-                    <tr key={i} className="border-t">
-                    <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2">
-                      <input
-                        required
-                        name="description"
-                        value={it.description}
-                        onChange={(e)=>handleItems(i,e)}
-                        onFocus={() => {
-                          const list = filterDescriptions(items[i]?.description || '');
-                          setDescSuggestions(prev => ({ ...prev, [i]: list }));
-                          setDescOpenIndex(list.length ? i : null);
-                          // compute initial position for portal
-                          const el = descInputRefs.current[i];
-                          if (el) {
-                            const rect = el.getBoundingClientRect();
-                            setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
-                          }
-                        }}
-                        onBlur={() => {
-                          // give a tiny delay to allow click
-                          setTimeout(() => {
-                            setDescOpenIndex(prev => (prev === i ? null : prev));
-                          }, 120);
-                        }}
-                        className="w-56 border px-2 py-1 rounded"
-                        autoComplete="off"
-                        ref={(el) => descInputRefs.current[i] = el}
-                      />
-                    </td>
-                    <td className="p-2">
-                      <div className="relative">
-                        <input
-                          ref={(el) => hsnInputRefs.current[i] = el}
-                          required
-                          name="hscode"
-                          value={it.hscode}
-                          onChange={(e) => handleItems(i, e)}
-                          onFocus={() => setActiveHsnIndex(i)}
-                          className="w-28 border px-2 py-1 rounded"
-                          autoComplete="off"
-                        />
+        {/* Items Section (per Docket) */}
+        <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-6">
+          <h2 className="text-lg font-semibold">Items</h2>
+          {dockets.map((d, di) => {
+            const entries = items
+              .map((it, idx) => ({ it, idx }))
+              .filter((x) => String(x.it.box_no) === String(d.box_no));
+            return (
+              <div key={`docket-items-${d.box_no}`} className="border rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">Docket #{d.box_no}</div>
+                </div>
+                <div className="overflow-x-auto overflow-visible">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-blue-50 text-left">
+                        <th className="p-2">Description*</th>
+                        <th className="p-2">HS Code*</th>
+                        <th className="p-2">Qty*</th>
+                        <th className="p-2">Rate (₹)*</th>
+                        <th className="p-2">Weight* (kg)</th>
+                        <th className="p-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entries.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
+                        </tr>
+                      )}
+                      {entries.map(({ it, idx }) => (
+                        <tr key={idx} className="border-t">
+                          <td className="p-2">
+                            <input
+                              required
+                              name="description"
+                              value={it.description}
+                              onChange={(e) => handleItems(idx, e)}
+                              onFocus={() => {
+                                const list = filterDescriptions(items[idx]?.description || '');
+                                setDescSuggestions((prev) => ({ ...prev, [idx]: list }));
+                                setDescOpenIndex(list.length ? idx : null);
+                                const el = descInputRefs.current[idx];
+                                if (el) {
+                                  const rect = el.getBoundingClientRect();
+                                  setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+                                }
+                              }}
+                              onBlur={() => {
+                                setTimeout(() => {
+                                  setDescOpenIndex((prev) => (prev === idx ? null : prev));
+                                }, 120);
+                              }}
+                              className="w-56 border px-2 py-1 rounded"
+                              autoComplete="off"
+                              ref={(el) => (descInputRefs.current[idx] = el)}
+                            />
+                          </td>
+                          <td className="p-2">
+                            <div className="relative">
+                              <input
+                                ref={(el) => (hsnInputRefs.current[idx] = el)}
+                                required
+                                name="hscode"
+                                value={it.hscode}
+                                onChange={(e) => handleItems(idx, e)}
+                                onFocus={() => setActiveHsnIndex(idx)}
+                                className="w-28 border px-2 py-1 rounded"
+                                autoComplete="off"
+                              />
+                            </div>
+                          </td>
+                          <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e) => handleItems(idx, e)} className="w-16 border px-2 py-1 rounded" /></td>
+                          <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" /></td>
+                          <td className="p-2">
+                            <div className="flex space-x-1">
+                              <input required name="unit_weight" value={it.unit_weight} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" />
+                            </div>
+                          </td>
+                          <td className="p-2 text-right">
+                            {items.filter(item => item.box_no == d.box_no).length > 1 && (
+                              <button type="button" onClick={() => removeProduct(idx)} className="text-red-500 hover:underline">Remove</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Docket totals and add button at bottom */}
+                {(() => {
+                  const totalPrice = entries.reduce((sum, { it }) => sum + (parseFloat(it.rate) || 0) * (parseFloat(it.quantity) || 0), 0);
+                  const totalWeight = entries.reduce((sum, { it }) => {
+                    const qty = parseFloat(it.quantity) || 0;
+                    const unitW = parseFloat(it.unit_weight) || 0;
+                    const unit = it.item_weight_unit || 'kg';
+                    return sum + toKg(unitW, unit) * qty;
+                  }, 0);
+                  const docketQty = parseFloat(d.quantity) || 1;
+                  const docketCapacity = toKg(d.docket_weight, d.docket_weight_unit || 'kg') * docketQty;
+                  const exceeds = totalWeight > docketCapacity;
+                  return (
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2">
+                      <div className={`text-sm ${exceeds ? 'text-red-600' : 'text-gray-700'}`}>
+                        <span className="mr-4"><strong>Total Price:</strong> ₹{totalPrice.toFixed(2)}</span>
+                        <span className="mr-4"><strong>Total Weight:</strong> {totalWeight.toFixed(3)} kg</span>
+                        <span><strong>Capacity:</strong> {docketCapacity.toFixed(3)} kg</span>
+                        {exceeds && (
+                          <div className="text-xs mt-1">Total items weight exceeds docket capacity</div>
+                        )}
                       </div>
-                    </td>
-                    <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2">
-                      <div className="flex space-x-1">
-                        <input required name="unit_weight" value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => addItemForBox(d.box_no)}
+                          className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white"
+                        >
+                          Add Item
+                        </button>
                       </div>
-                    </td>
-                    <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-end">
-            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
-          </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })}
         </section>
 
         {/** Shipment Meta Section */}
@@ -726,11 +826,11 @@ const FullDetails = () => {
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
-              <input id="actualWeight" name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="actualWeight" readOnly name="actualWeight" type="text" required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" />
             </div>
           </div>
         </div>
-        
+
         {/* Documents Section */}
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-4">
           <h2 className="text-lg font-semibold">KYC Document</h2>
