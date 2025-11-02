@@ -499,6 +499,18 @@ const [items, setItems] = useState([
     });
   };
 
+  // Auto-calc shipment weight whenever docket change (sum of weight In Kg * quantity)
+  useEffect(() => {
+    const totalWeight = dockets.reduce((acc, docket) => {
+      const weightInKg =
+        docket.docket_weight_unit === 'g'
+          ? docket.docket_weight / 1000
+          : docket.docket_weight;
+      return acc + weightInKg * docket.quantity;
+    }, 0).toFixed(3).toString()
+    setFormData((prev) => ({ ...prev, actualWeight: totalWeight }));
+  }, [dockets]);
+
   // Auto-calc shipment value whenever items change (sum of rate * quantity)
   useEffect(() => {
     const total = items.reduce((sum, it) => {
@@ -1052,7 +1064,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="actualWeight" className="text-sm font-medium">Total Weight (Kg)*</label>
-              <input id="actualWeight" name="actualWeight" type="number" min={0} step={0.001} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2" />
+              <input id="actualWeight" name="actualWeight" type="number" min={0} step={0.001} required value={formData.actualWeight} onChange={handleChange} className="border rounded-xl px-4 py-2 bg-gray-100 cursor-not-allowed" />
             </div>
           </div>
         </div>
