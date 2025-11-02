@@ -1836,7 +1836,7 @@ const Listing = ({ step, setStep }) => {
         <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 80 }}>
           <div>{params.row.consignee_name}</div>
           <div>{params.row.consignee_email}</div>
-          <div>{params.row.consignee_contact_no}</div>
+          <div>{`${COUNTRIES[params.row.consignee_country_code]?.country_code}${params.row.consignee_contact_no}`}</div>
         </Box>
     )},
     {
