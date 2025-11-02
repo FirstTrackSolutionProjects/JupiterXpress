@@ -649,6 +649,7 @@ const FullDetails = () => {
                   <th className="p-2">W (cm)*</th>
                   <th className="p-2">H (cm)*</th>
                   <th className="p-2">Weight*</th>
+                  <th className="p-2">Vol. Weight (kg)</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
@@ -668,6 +669,15 @@ const FullDetails = () => {
                           <option value="kg">kg</option>
                         </select>
                       </div>
+                    </td>
+                    <td className="p-2">
+                      {(() => {
+                        const l = parseFloat(d.length) || 0;
+                        const b = parseFloat(d.breadth) || 0;
+                        const h = parseFloat(d.height) || 0;
+                        const volWeight = (l * b * h) / 5000;
+                        return volWeight.toFixed(3);
+                      })()}
                     </td>
                     <td className="p-2"><input name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">

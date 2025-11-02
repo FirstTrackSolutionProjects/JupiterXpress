@@ -946,6 +946,7 @@ const [items, setItems] = useState([
                   <th className="p-2">W*</th>
                   <th className="p-2">H*</th>
                   <th className="p-2">Weight*</th>
+                  <th className="p-2">Vol. Weight (kg)</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
@@ -965,6 +966,15 @@ const [items, setItems] = useState([
                           <option value="kg">kg</option>
                         </select>
                       </div>
+                    </td>
+                    <td className="p-2">
+                      {(() => {
+                        const l = parseFloat(d.length) || 0;
+                        const b = parseFloat(d.breadth) || 0;
+                        const h = parseFloat(d.height) || 0;
+                        const volWeight = (l * b * h) / 5000;
+                        return volWeight.toFixed(3);
+                      })()}
                     </td>
                     <td className="p-2"><input required name="quantity" value={d.quantity} onChange={(e)=>handleDocket(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
                     <td className="p-2 text-right">{dockets.length>1 && <button type="button" onClick={()=>handleDeleteDocket(i)} className="text-red-500 hover:underline">Remove</button>}</td>
