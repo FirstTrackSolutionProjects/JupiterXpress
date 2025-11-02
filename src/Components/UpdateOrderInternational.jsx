@@ -304,7 +304,9 @@ const handleDeleteDocket = (index) => {
   setDockets(newDockets);
 };
 const handleAddDocket = () => {
-  setDockets([...dockets, { box_no: dockets.length + 1, docket_weight: 1 , length: 10 , breadth : 10, height : 10, docket_weight_unit: 'kg', quantity: 1  }]);
+  const docketLen = dockets.length;
+  setDockets(ds => [...ds, { box_no: docketLen + 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }]);
+  setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }]);
 };
 const [items, setItems] = useState([
   { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
@@ -582,8 +584,13 @@ const [items, setItems] = useState([
     };
     fetchVend();
   }, [formData.service]);
-  const addProduct = () => {
-    setItems([...items, { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }]);
+  const addItemForBox = (boxNo) => {
+    // Default rate set to '1' to satisfy > 0 rule
+    const bn = parseInt(boxNo) || 1;
+    setItems((it) => [
+      ...it,
+      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" },
+    ]);
   };
   const removeProduct = (index) => {
     setItems(it => it.filter((_, i) => i !== index));
@@ -770,6 +777,12 @@ const [items, setItems] = useState([
   }, [formData.countryCode, formData.consigneeCountry]);
   const displayDialCode = formData.countryCode && COUNTRIES[formData.countryCode]?.country_code;
   const displayCountryName = formData.consigneeCountry && COUNTRIES[formData.consigneeCountry]?.name;
+
+  const toKg = (value, unit) => {
+    const n = parseFloat(value);
+    if (isNaN(n)) return 0;
+    return unit === 'g' ? n / 1000 : n;
+  };
 
   return (
     <div className="w-full p-4 flex flex-col items-center relative">
@@ -964,87 +977,133 @@ const [items, setItems] = useState([
             <button type="button" onClick={handleAddDocket} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Docket</button>
           </div>
         </div>
-        {/* Items */}
-        <div className="bg-white shadow rounded-2xl p-6 border space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-semibold">Items</div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-blue-50 text-left">
-                  <th className="p-2">Box*</th>
-                  <th className="p-2">HS Code*</th>
-                  <th className="p-2">Description*</th>
-                  <th className="p-2">Qty*</th>
-                  <th className="p-2">Rate*</th>
-                  <th className="p-2">Weight* (kg)</th>
-                  <th className="p-2"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((it, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-2"><input required name="box_no" value={it.box_no} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2">
-                      <div className="relative">
-                        <input
-                          ref={el => hsnInputRefs.current[i] = el}
-                          required
-                          name="hscode"
-                          value={it.hscode}
-                          onChange={(e)=>handleItems(i,e)}
-                          onFocus={() => setActiveHsnIndex(i)}
-                          className="w-28 border px-2 py-1 rounded"
-                          autoComplete="off"
-                        />
+        {/* Items Section (per Docket) */}
+        <section className="bg-white/70 backdrop-blur-sm rounded-2xl border p-6 shadow-sm space-y-6">
+          <h2 className="text-lg font-semibold">Items</h2>
+          {dockets.map((d, di) => {
+            const entries = items
+              .map((it, idx) => ({ it, idx }))
+              .filter((x) => String(x.it.box_no) === String(d.box_no));
+            return (
+              <div key={`docket-items-${d.box_no}`} className="border rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">Docket #{d.box_no}</div>
+                </div>
+                <div className="overflow-x-auto overflow-visible">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-blue-50 text-left">
+                        <th className="p-2">Description*</th>
+                        <th className="p-2">HS Code*</th>
+                        <th className="p-2">Qty*</th>
+                        <th className="p-2">Rate (₹)*</th>
+                        <th className="p-2">Weight* (kg)</th>
+                        <th className="p-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entries.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
+                        </tr>
+                      )}
+                      {entries.map(({ it, idx }) => (
+                        <tr key={idx} className="border-t">
+                          <td className="p-2">
+                            <input
+                              required
+                              name="description"
+                              value={it.description}
+                              onChange={(e) => handleItems(idx, e)}
+                              onFocus={() => {
+                                const list = filterDescriptions(items[idx]?.description || '');
+                                setDescSuggestions((prev) => ({ ...prev, [idx]: list }));
+                                setDescOpenIndex(list.length ? idx : null);
+                                const el = descInputRefs.current[idx];
+                                if (el) {
+                                  const rect = el.getBoundingClientRect();
+                                  setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+                                }
+                              }}
+                              onBlur={() => {
+                                setTimeout(() => {
+                                  setDescOpenIndex((prev) => (prev === idx ? null : prev));
+                                }, 120);
+                              }}
+                              className="w-56 border px-2 py-1 rounded"
+                              autoComplete="off"
+                              ref={(el) => (descInputRefs.current[idx] = el)}
+                            />
+                          </td>
+                          <td className="p-2">
+                            <div className="relative">
+                              <input
+                                ref={(el) => (hsnInputRefs.current[idx] = el)}
+                                required
+                                name="hscode"
+                                value={it.hscode}
+                                onChange={(e) => handleItems(idx, e)}
+                                onFocus={() => setActiveHsnIndex(idx)}
+                                className="w-28 border px-2 py-1 rounded"
+                                autoComplete="off"
+                              />
+                            </div>
+                          </td>
+                          <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e) => handleItems(idx, e)} className="w-16 border px-2 py-1 rounded" /></td>
+                          <td className="p-2"><input required type="text" name="rate" value={it.rate} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" /></td>
+                          <td className="p-2">
+                            <div className="flex space-x-1">
+                              <input required name="unit_weight" value={it.unit_weight} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" />
+                            </div>
+                          </td>
+                          <td className="p-2 text-right">
+                            {items.filter(item => item.box_no == d.box_no).length > 1 && (
+                              <button type="button" onClick={() => removeProduct(idx)} className="text-red-500 hover:underline">Remove</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Docket totals and add button at bottom */}
+                {(() => {
+                  const totalPrice = entries.reduce((sum, { it }) => sum + (parseFloat(it.rate) || 0) * (parseFloat(it.quantity) || 0), 0);
+                  const totalWeight = entries.reduce((sum, { it }) => {
+                    const qty = parseFloat(it.quantity) || 0;
+                    const unitW = parseFloat(it.unit_weight) || 0;
+                    const unit = it.item_weight_unit || 'kg';
+                    return sum + toKg(unitW, unit) * qty;
+                  }, 0);
+                  const docketQty = parseFloat(d.quantity) || 1;
+                  const docketCapacity = toKg(d.docket_weight, d.docket_weight_unit || 'kg') * docketQty;
+                  const exceeds = totalWeight > docketCapacity;
+                  return (
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2">
+                      <div className={`text-sm ${exceeds ? 'text-red-600' : 'text-gray-700'}`}>
+                        <span className="mr-4"><strong>Total Price:</strong> ₹{totalPrice.toFixed(2)}</span>
+                        <span className="mr-4"><strong>Total Weight:</strong> {totalWeight.toFixed(3)} kg</span>
+                        <span><strong>Capacity:</strong> {docketCapacity.toFixed(3)} kg</span>
+                        {exceeds && (
+                          <div className="text-xs mt-1">Total items weight exceeds docket capacity</div>
+                        )}
                       </div>
-                    </td>
-                    <td className="p-2">
-                      <input
-                        required
-                        name="description"
-                        value={it.description}
-                        onChange={(e)=>handleItems(i,e)}
-                        onFocus={() => {
-                          const list = filterDescriptions(items[i]?.description || '');
-                          setDescSuggestions(prev => ({ ...prev, [i]: list }));
-                          setDescOpenIndex(list.length ? i : null);
-                          // compute initial position for portal
-                          const el = descInputRefs.current[i];
-                          if (el) {
-                            const rect = el.getBoundingClientRect();
-                            setDescPortalPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
-                          }
-                        }}
-                        onBlur={() => {
-                          // small delay to allow click selection
-                          setTimeout(() => {
-                            setDescOpenIndex(prev => (prev === i ? null : prev));
-                          }, 120);
-                        }}
-                        className="w-56 border px-2 py-1 rounded"
-                        autoComplete="off"
-                        ref={(el) => descInputRefs.current[i] = el}
-                      />
-                    </td>
-                    <td className="p-2"><input required name="quantity" value={it.quantity} onChange={(e)=>handleItems(i,e)} className="w-16 border px-2 py-1 rounded" /></td>
-                    <td className="p-2"><input required name="rate" value={it.rate} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" /></td>
-                    <td className="p-2">
-                      <div className="flex space-x-1">
-                        <input name="unit_weight" required value={it.unit_weight} onChange={(e)=>handleItems(i,e)} className="w-20 border px-2 py-1 rounded" />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => addItemForBox(d.box_no)}
+                          className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white"
+                        >
+                          Add Item
+                        </button>
                       </div>
-                    </td>
-                    <td className="p-2 text-right">{items.length>1 && <button type="button" onClick={()=>removeProduct(i)} className="text-red-500 hover:underline">Remove</button>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-end">
-            <button type="button" onClick={addProduct} className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white">Add Item</button>
-          </div>
-        </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })}
+        </section>
 
         {/* Shipment Meta & Pricing */}
         <div className="bg-white shadow rounded-2xl p-6 border">
