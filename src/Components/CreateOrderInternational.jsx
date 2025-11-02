@@ -8,12 +8,13 @@ import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import {v4} from "uuid";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import {HS_CODES} from "../Constants"
+import { useNavigate } from "react-router-dom";
 // import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const FullDetails = () => {
   // Core form state
-
+  const navigate = useNavigate();
   const [dockets, setDockets] = useState([
     { box_no: 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }
   ]);
@@ -475,6 +476,7 @@ const FullDetails = () => {
       const data = await res.json();
       if (data?.success) {
         toast.success('Shipment created');
+        navigate('/dashboard/parcels/international');
       } else {
         toast.error(data?.message || 'Failed to create');
       }
