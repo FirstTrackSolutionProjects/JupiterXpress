@@ -27,6 +27,7 @@ import UpdateProfileRequest from '../Components/UpdateProfileRequest';
 import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestSubmissions';
 import CodRemittanceAdmin from "../Components/CodRemittance/CodRemittanceAdmin"
 import CodRemittanceMerchant from "../Components/CodRemittance/CodRemittanceMerchant"
+import InternationalWeightDisputes from "../Components/InternationalWeightDisputes"
 
 export const navItems = [
     {
@@ -162,10 +163,27 @@ export const menuItems = [
     {
         icon : "/logo.webp",
         name : "Weight Disputes",
-        isDropdown : false,
+        isDropdown : true,
         url : 'weight-disputes',
         component : WeightDisputes,
-        dropDownOptions : [{}]
+        dropDownOptions : [
+            {
+                icon : "/logo.webp",
+                name : "Domestic",
+                isDropdown : false,
+                url : 'domestic-weight-disputes',
+                component : WeightDisputes,
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "/logo.webp",
+                name : "International",
+                isDropdown : false,
+                url : 'international-weight-disputes',
+                component : InternationalWeightDisputes,
+                dropDownOptions : [{}]
+            },
+        ]
     },
     {
         icon : "/logo.webp",
