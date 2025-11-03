@@ -1,6 +1,9 @@
-import { useEffect , useState  } from 'react'
+import { useEffect , useMemo, useState  } from 'react'
+import { DataGrid } from '@mui/x-data-grid'
 import UserDiscountModal from './Modals/UserDiscountModal'
+// import MerchantInvoiceModal from './Modals/MerchantInvoiceModal'
 import formatDateAndTime from '../helpers/formatDateAndTime'
+import getVerifiedMerchantsService from '../services/merchantServices/getVerifiedMerchantsService'
 const API_URL = import.meta.env.VITE_APP_API_URL
 const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, setView, businessName, cin, aadhar_number, pan_number, address, city, state, pin, accountNumber, ifsc, bank}) => {
     const [isActivated, setIsActivated] = useState(isActive)
@@ -73,7 +76,7 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
                     <div className='w-full space-y-6'>
                         <div className='w-full flex items-center justify-center space-x-8'>
                             <div className='flex justify-center items-center w-32 h-32'>
-                                <img src={`${profilePhoto?profilePhoto:"user.webp"}`}/>
+                                <img src={`${profilePhoto?profilePhoto:"/user.webp"}`}/>
                             </div>
                             <div className=''>
                                 <p className='font-medium text-xl'>{businessName}</p>
@@ -106,7 +109,6 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
                             Discounts
                         </button>
                     </div>
-                
                 </div>
             </div>
             <UserDiscountModal open={openDiscountModal} onClose={closeDiscountModal} uid={uid} />
@@ -115,85 +117,202 @@ const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, s
 }
 
 
-const Card = ({merchant}) => {
-    const [view, setView] = useState(false)
+const MerchantManage =  () => {
+    // Data state
+    const [rows, setRows] = useState([])
+    const [rowCount, setRowCount] = useState(0)
+    const [loading, setLoading] = useState(false)
+    const [page, setPage] = useState(0) // 0-based for DataGrid; backend expects 1-based
+    const pageSize = 20 // backend is fixed to 20
+
+    // Filters
+    const [filters, setFilters] = useState({
+        merchant_name: '',
+        business_name: '',
+        merchant_email: '',
+        merchant_phone: ''
+    })
+
+    // View modal state
+    const [selectedMerchant, setSelectedMerchant] = useState(null)
+    const [showView, setShowView] = useState(false)
+    // const [showInvoice, setShowInvoice] = useState(false)
+
+    // Columns definition
+    const columns = useMemo(() => [
+        { field: 'uid', headerName: 'User ID', width: 100 },
+        { field: 'fullName', headerName: 'Name', flex: 1, minWidth: 150 },
+        { field: 'businessName', headerName: 'Business', flex: 1, minWidth: 160 },
+        { field: 'email', headerName: 'Email', flex: 1.2, minWidth: 200 },
+        { field: 'phone', headerName: 'Phone', width: 140 },
+        { field: 'balance', headerName: 'Balance', width: 120, renderCell: (p)=> p.value !== undefined && p.value !== null ? `₹${p.value}` : '₹0' },
+        { field: 'createdAt', headerName: 'Joined', width: 170, renderCell: (p)=> p.value ? formatDateAndTime(p.value) : '' },
+        { field: 'isActive', headerName: 'Status', width: 110, renderCell: (params)=> (
+            <span className={`px-2 py-1 rounded-2xl text-xs ${params.value ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {params.value ? 'Active' : 'Inactive'}
+            </span>
+        ) },
+        { field: 'actions', headerName: 'Actions', width: 220, sortable: false, filterable: false, renderCell: (params)=> (
+            <div className="flex items-center space-x-2">
+                <button
+                    className="px-3 py-1 bg-blue-500 text-white rounded-2xl text-sm"
+                    onClick={() => { setSelectedMerchant(params.row); setShowView(true); }}
+                >
+                    View
+                </button>
+                {/* <button
+                    className="px-3 py-1 bg-green-600 text-white rounded-2xl text-sm"
+                    onClick={() => { setSelectedMerchant(params.row); setShowInvoice(true); }}
+                >
+                    Invoice
+                </button> */}
+            </div>
+        ) }
+    ], [])
+
+    // Debounced fetch
+    useEffect(() => {
+        let active = true
+        const handler = setTimeout(async () => {
+            setLoading(true)
+            try {
+                const res = await getVerifiedMerchantsService({
+                    page: page + 1,
+                    ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== '' && v !== undefined && v !== null))
+                })
+                if (!active) return
+                const payload = res?.data
+                setRows(payload?.data || [])
+                setRowCount(payload?.totalCount || 0)
+            } catch (e) {
+                console.error(e)
+                setRows([])
+                setRowCount(0)
+            } finally {
+                if (active) setLoading(false)
+            }
+        }, 400) // debounce
+
+        return () => { active = false; clearTimeout(handler) }
+    }, [page, filters])
+
+    const handleFilterChange = (key) => (e) => {
+        const value = e.target.value
+        setFilters((prev) => ({ ...prev, [key]: value }))
+        setPage(0) // reset to first page on filter change
+    }
+
+    // Custom pagination bar (consistent with app buttons/look)
+    const totalPages = Math.max(1, Math.ceil((rowCount || 0) / pageSize))
+    const start = rowCount ? (page * pageSize) + 1 : 0
+    const end = rowCount ? Math.min((page + 1) * pageSize, rowCount) : 0
+
+    const PaginationBar = () => (
+        <div className="w-full h-16 bg-white relative items-center px-4 flex border-t rounded-b-xl">
+            <div className="text-sm text-gray-600">
+                {loading ? 'Loading…' : `Showing ${start}-${end} of ${rowCount}`}
+            </div>
+            <div className="ml-auto flex items-center space-x-2">
+                <button
+                    className={`px-3 py-1 bg-blue-500 rounded-3xl text-white ${page <= 0 || loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                    onClick={() => { if (page > 0 && !loading) setPage(page - 1) }}
+                    disabled={page <= 0 || loading}
+                >
+                    Prev
+                </button>
+                <div className="text-sm text-gray-700">
+                    Page {page + 1} of {totalPages}
+                </div>
+                <button
+                    className={`px-3 py-1 bg-blue-500 rounded-3xl text-white ${(page + 1) >= totalPages || loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                    onClick={() => { if ((page + 1) < totalPages && !loading) setPage(page + 1) }}
+                    disabled={(page + 1) >= totalPages || loading}
+                >
+                    Next
+                </button>
+            </div>
+        </div>
+    )
+
     return (
         <>
-            { view && <View {...merchant} merchant={merchant} setView={setView} />}
-            <div className='p-4 border' onClick={()=>setView(true)}>
-                <p>User Id : {merchant.uid}</p>
-                <p>Name : {merchant.fullName}</p>
-                <p>Business Name : {merchant.businessName}</p>
-                <p className='text-gray-400'>{formatDateAndTime(merchant.createdAt)}</p>
+            {showView && selectedMerchant && (
+                <View {...selectedMerchant} merchant={selectedMerchant} setView={setShowView} />
+            )}
+            {/* {showInvoice && selectedMerchant && (
+                <MerchantInvoiceModal
+                    open={showInvoice}
+                    onClose={() => setShowInvoice(false)}
+                    merchantId={selectedMerchant?.uid}
+                />
+            )} */}
+            <div className="py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
+                <div className='w-full max-w-[1200px] px-6 flex flex-col items-stretch space-y-6'>
+                    <div className='text-center text-3xl font-medium text-black'>Verified Merchants</div>
+
+                    {/* Filters */}
+                    <div className="w-full bg-white p-4 rounded-xl shadow-sm border">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input
+                                type="text"
+                                className="border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400"
+                                placeholder="Merchant Name"
+                                value={filters.merchant_name}
+                                onChange={handleFilterChange('merchant_name')}
+                            />
+                            <input
+                                type="text"
+                                className="border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400"
+                                placeholder="Business Name"
+                                value={filters.business_name}
+                                onChange={handleFilterChange('business_name')}
+                            />
+                            <input
+                                type="email"
+                                className="border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400"
+                                placeholder="Merchant Email"
+                                value={filters.merchant_email}
+                                onChange={handleFilterChange('merchant_email')}
+                            />
+                            <input
+                                type="text"
+                                className="border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400"
+                                placeholder="Merchant Phone"
+                                value={filters.merchant_phone}
+                                onChange={handleFilterChange('merchant_phone')}
+                            />
+                        </div>
+                    </div>
+
+                    {/* DataGrid */}
+                    <div className='w-full bg-white rounded-xl shadow-sm border overflow-hidden'>
+                        <div className='p-3' style={{ height: 540 }}>
+                        <DataGrid
+                            rows={rows}
+                            columns={columns}
+                            getRowId={(row) => row.uid}
+                            loading={loading}
+                            rowCount={rowCount}
+                            pageSizeOptions={[pageSize]}
+                            paginationMode="server"
+                            paginationModel={{ page, pageSize }}
+                            onPaginationModelChange={(model) => {
+                                if (model.page !== page) setPage(model.page)
+                            }}
+                            disableRowSelectionOnClick
+                            density="compact"
+                            disableColumnMenu
+                            hideFooter
+                            rowHeight={64}
+                            columnHeaderHeight={64}
+                        />
+                        </div>
+                        <PaginationBar />
+                    </div>
+                </div>
             </div>
         </>
     )
-}
-
-
-
-const MerchantManage =  () => {
-    const [merchants, setMerchants] = useState([    ])
-    const [email, setEmail] = useState('');
-    const [filteredMerchants, setFilteredMerchants] = useState([]);
-    useEffect(() => {
-        const getVerifiedMerchant = async () => {
-            const response = await fetch(`${API_URL}/merchant/verified`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-            const data = await response.json();
-            if (data.message.length){
-                setMerchants(data.message)
-                setFilteredMerchants(data.message)
-            }
-        }
-        getVerifiedMerchant();
-    },[]);
-    const handleEmailChange = (e) => {
-        const query = e.target.value;
-        setEmail(query);
-    }
-    useEffect(()=>{
-        if (email==""){
-            setFilteredMerchants(merchants)
-            return;
-        }
-        const filtered = merchants.filter(merchant => 
-            ((merchant.email).startsWith(email))
-          );
-      
-          setFilteredMerchants(filtered);
-    },[email])
-  return (
-    <>
-    <div className=" py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
-      <div className='w-full p-8 flex flex-col items-center space-y-8'>
-      <div className='text-center text-3xl font-medium text-black'>Verified Merchants</div>
-      <div className="flex space-x-4">
-      <input
-        type="email"
-        placeholder="Merchant Email"
-        value={email}
-        onChange={handleEmailChange}
-      />
-    </div>
-      <div className='w-full bg-white p-8'>
-        {filteredMerchants.length > 0 ? (
-        filteredMerchants.map(((merchant,index)=>(
-            <Card key={index}  merchant={merchant}/>
-        )))
-      ) : (
-        null
-      )}
-      </div>
-      </div>
-    </div>
-    </>
-  )
 }
 
 export default MerchantManage
