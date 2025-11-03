@@ -4,6 +4,9 @@ import UserDiscountModal from './Modals/UserDiscountModal'
 // import MerchantInvoiceModal from './Modals/MerchantInvoiceModal'
 import formatDateAndTime from '../helpers/formatDateAndTime'
 import getVerifiedMerchantsService from '../services/merchantServices/getVerifiedMerchantsService'
+import allowNegativeBalanceService from '../services/merchantServices/allowNegativeBalanceService'
+import revokeNegativeBalanceService from '../services/merchantServices/revokeNegativeBalanceService'
+import { toast } from 'react-toastify'
 const API_URL = import.meta.env.VITE_APP_API_URL
 const View = ({merchant, balance ,fullName, email, phone,isActive, uid  , gst, setView, businessName, cin, aadhar_number, pan_number, address, city, state, pin, accountNumber, ifsc, bank}) => {
     const [isActivated, setIsActivated] = useState(isActive)
@@ -138,6 +141,12 @@ const MerchantManage =  () => {
     const [showView, setShowView] = useState(false)
     // const [showInvoice, setShowInvoice] = useState(false)
 
+    // To Pay (Negative Limit) modal state
+    const [showToPay, setShowToPay] = useState(false)
+    const [selectedToPay, setSelectedToPay] = useState(null)
+    const [toPayForm, setToPayForm] = useState({ negative_limit: '' })
+    const [toPaySubmitting, setToPaySubmitting] = useState(false)
+
     // Columns definition
     const columns = useMemo(() => [
         { field: 'uid', headerName: 'User ID', width: 100 },
@@ -152,13 +161,24 @@ const MerchantManage =  () => {
                 {params.value ? 'Active' : 'Inactive'}
             </span>
         ) },
-        { field: 'actions', headerName: 'Actions', width: 220, sortable: false, filterable: false, renderCell: (params)=> (
+        { field: 'actions', headerName: 'Actions', width: 320, sortable: false, filterable: false, renderCell: (params)=> (
             <div className="flex items-center space-x-2">
                 <button
                     className="px-3 py-1 bg-blue-500 text-white rounded-2xl text-sm"
                     onClick={() => { setSelectedMerchant(params.row); setShowView(true); }}
                 >
                     View
+                </button>
+                <button
+                    className="px-3 py-1 bg-purple-600 text-white rounded-2xl text-sm"
+                    onClick={() => {
+                        setSelectedToPay(params.row);
+                        const defaultLimit = (params.row?.negative_value ?? params.row?.negative_limit);
+                        setToPayForm({ negative_limit: (defaultLimit ?? '') === null ? '' : String(defaultLimit ?? '') });
+                        setShowToPay(true);
+                    }}
+                >
+                    To Pay
                 </button>
                 {/* <button
                     className="px-3 py-1 bg-green-600 text-white rounded-2xl text-sm"
@@ -238,6 +258,88 @@ const MerchantManage =  () => {
         <>
             {showView && selectedMerchant && (
                 <View {...selectedMerchant} merchant={selectedMerchant} setView={setShowView} />
+            )}
+            {showToPay && selectedToPay && (
+                <div className='absolute inset-0 bg-[rgba(0,0,0,0.5)] z-50 flex justify-center items-center overflow-y-auto'>
+                    <div className='relative p-6 w-full max-w-[460px] bg-white rounded-2xl overflow-hidden space-y-4'>
+                        <p className='absolute top-4 right-5 cursor-pointer' onClick={() => { if (!toPaySubmitting) setShowToPay(false) }}>X</p>
+                        <p className='text-xl font-medium text-center'>To Pay</p>
+                        <div className='space-y-2'>
+                            <label className='text-sm font-medium'>Negative Limit (≤ 0)</label>
+                            <input
+                                type='number'
+                                max={0}
+                                step='0.01'
+                                className='border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400'
+                                placeholder='Enter negative limit (e.g., -5000)'
+                                value={toPayForm.negative_limit}
+                                onChange={(e) => setToPayForm({ negative_limit: e.target.value })}
+                                disabled={toPaySubmitting}
+                            />
+                            <p className='text-xs text-gray-500'>Set a negative spending limit for this merchant. Must be less than or equal to 0.</p>
+                        </div>
+                        <div className='flex items-center justify-between pt-2'>
+                            {(selectedToPay?.negative_limit !== undefined && selectedToPay?.negative_limit !== null) || (selectedToPay?.negative_value !== undefined && selectedToPay?.negative_value !== null) ? (
+                                <button
+                                    className={`px-3 py-2 rounded-2xl text-sm ${toPaySubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 text-white'}`}
+                                    onClick={async () => {
+                                        if (toPaySubmitting) return;
+                                        try {
+                                            setToPaySubmitting(true)
+                                            await revokeNegativeBalanceService(selectedToPay.uid)
+                                            toast.success('Negative limit removed')
+                                            // Update local rows
+                                            setRows(prev => prev.map(r => r.uid === selectedToPay.uid ? { ...r, negative_limit: null, negative_value: null } : r))
+                                            setShowToPay(false)
+                                        } catch (err) {
+                                            const msg = err instanceof Error ? err.message : 'Failed to remove negative limit'
+                                            toast.error(msg)
+                                        } finally {
+                                            setToPaySubmitting(false)
+                                        }
+                                    }}
+                                    disabled={toPaySubmitting}
+                                >
+                                    Remove Negative Limit
+                                </button>
+                            ) : <div />}
+                            <div className='flex items-center space-x-2'>
+                                <button
+                                    className={`px-3 py-2 rounded-2xl text-sm border ${toPaySubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    onClick={() => setShowToPay(false)}
+                                    disabled={toPaySubmitting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className={`px-3 py-2 rounded-2xl text-sm ${toPaySubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white'}`}
+                                    onClick={async () => {
+                                        if (toPaySubmitting) return;
+                                        const val = parseFloat(toPayForm.negative_limit)
+                                        if (isNaN(val)) { toast.error('Please enter a number'); return }
+                                        if (val > 0) { toast.error('Negative Limit must be less than or equal to 0'); return }
+                                        try {
+                                            setToPaySubmitting(true)
+                                            await allowNegativeBalanceService(selectedToPay.uid, { negative_limit: val })
+                                            toast.success('Negative limit updated successfully')
+                                            // Update local rows
+                                            setRows(prev => prev.map(r => r.uid === selectedToPay.uid ? { ...r, negative_limit: val, negative_value: val } : r))
+                                            setShowToPay(false)
+                                        } catch (err) {
+                                            const msg = err instanceof Error ? err.message : 'Failed to update negative limit'
+                                            toast.error(msg)
+                                        } finally {
+                                            setToPaySubmitting(false)
+                                        }
+                                    }}
+                                    disabled={toPaySubmitting}
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
             {/* {showInvoice && selectedMerchant && (
                 <MerchantInvoiceModal
