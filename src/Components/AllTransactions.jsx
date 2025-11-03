@@ -19,7 +19,7 @@ const columns = [
   { field: 'amount', headerName: 'Amount', flex: 1, renderCell: p => {
       const v = Number(p.value);
       if (isNaN(v)) return '';
-      const sign = p.row.type === 'expense' || p.row.type === 'dispute_charge' ? '-' : '+';
+      const sign = (p.row.type === 'expense' || p.row.type === 'dispute_charge' || p.row.type === 'extra') ? '-' : '+';
       const cls = sign === '+' ? 'text-green-600' : 'text-red-600';
       return <span className={cls}>{sign}{Math.abs(v)}</span>;
     } },
@@ -154,6 +154,7 @@ const AllTransactions = () => {
               <option value='expense'>Expense</option>
               <option value='refund'>Refund</option>
               <option value='dispute_charge'>Dispute Charge</option>
+              <option value='extra'>Extra Charge</option>
             </select>
             <input name='order_id' value={filters.order_id} onChange={handleFilterChange} placeholder='Order ID' className='p-2 rounded text-black'/>
             <input name='merchant_email' value={filters.merchant_email} onChange={handleFilterChange} placeholder='Merchant Email' className='p-2 rounded text-black'/>
