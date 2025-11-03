@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, IconButton, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid } from "@mui/x-data-grid";
 import getAllInternationalShipmentsService from "../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import { jwtDecode } from "jwt-decode";
+import deductInternationalExtraChargeService from "../services/shipmentServices/internationalShipmentServices/deductInternationalExtraChargeService";
+import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -134,6 +136,9 @@ const Listing = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isExtraOpen, setIsExtraOpen] = useState(false);
+  const [extraSubmitting, setExtraSubmitting] = useState(false);
+  const [extraForm, setExtraForm] = useState({ amount: "", reason: "" });
   const [filters, setFilters] = useState({
     awb: "",
     iid: "",
@@ -250,6 +255,41 @@ const Listing = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters.awb, filters.iid, filters.serviceId, filters.vendorId, filters.merchant_name, filters.merchant_email, filters.consignee_name, filters.consignee_email, filters.startDate, filters.endDate]);
 
+  const handleOpenExtra = (row) => {
+    setSelectedReport(row);
+    setExtraForm({ amount: "", reason: "" });
+    setIsExtraOpen(true);
+  };
+
+  const handleSubmitExtra = async () => {
+    try {
+      if (!selectedReport) return;
+      const amtNum = parseFloat(extraForm.amount);
+      if (isNaN(amtNum) || amtNum <= 0) {
+        toast.error("Amount must be a number greater than 0");
+        return;
+      }
+      if (!extraForm.reason || !extraForm.reason.trim()) {
+        toast.error("Reason is required");
+        return;
+      }
+      setExtraSubmitting(true);
+      // Assumption: orderId corresponds to iid; fallback to ref_id if missing
+      const orderId = selectedReport?.iid || selectedReport?.ref_id;
+      await deductInternationalExtraChargeService(orderId, { amount: amtNum, reason: extraForm.reason.trim() });
+      toast.success("Extra charge applied successfully");
+      setIsExtraOpen(false);
+      setExtraForm({ amount: "", reason: "" });
+      // Optionally refresh reports
+      fetchReports();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to apply extra charge";
+      toast.error(msg || "Failed to apply extra charge");
+    } finally {
+      setExtraSubmitting(false);
+    }
+  };
+
   const merchantCol = {
     field: 'merchant', 
     headerName: 'Merchant', 
@@ -322,8 +362,15 @@ const Listing = () => {
               setIsViewOpen(true);
             }}
           >
-            View Status
+            Status
           </Button>
+          {isAdmin ? <Button
+            variant="contained"
+            size="small"
+            onClick={() => handleOpenExtra(params.row)}
+          >
+            Charge
+          </Button> : null}
         </Box>
       ),
     },
@@ -503,6 +550,48 @@ const Listing = () => {
       </Paper>
 
       <ViewDialog isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} report={selectedReport} />
+
+      {/* Extra Charge Dialog */}
+      <Dialog open={isExtraOpen} onClose={() => !extraSubmitting && setIsExtraOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <div>Deduct Extra Charge</div>
+            <IconButton onClick={() => !extraSubmitting && setIsExtraOpen(false)} size="small" disabled={extraSubmitting}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <TextField
+              label="Amount"
+              type="number"
+              inputProps={{ min: 0, step: "0.01" }}
+              value={extraForm.amount}
+              onChange={(e) => setExtraForm((f) => ({ ...f, amount: e.target.value }))}
+              fullWidth
+              size="small"
+            />
+            <TextField
+              label="Reason"
+              multiline
+              minRows={2}
+              value={extraForm.reason}
+              onChange={(e) => setExtraForm((f) => ({ ...f, reason: e.target.value }))}
+              fullWidth
+              size="small"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setIsExtraOpen(false)} disabled={extraSubmitting} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmitExtra} disabled={extraSubmitting} variant="contained">
+            {extraSubmitting ? 'Submitting…' : 'Submit'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
