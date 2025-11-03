@@ -969,24 +969,24 @@ const ShipCard = ({ price, shipment, setIsShipped, setIsShip, getParcels }) => {
   
   const ship = async () => {
     setIsLoading(true);
-    const getBalance = await fetch(`${API_URL}/wallet/balance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': localStorage.getItem('token'),
-      }
-    });
-    const balanceData = await getBalance.json();
-    const balance = balanceData.balance;
+    // const getBalance = await fetch(`${API_URL}/wallet/balance`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Accept': 'application/json',
+    //     'Authorization': localStorage.getItem('token'),
+    //   }
+    // });
+    // const balanceData = await getBalance.json();
+    // const balance = balanceData.balance;
     
-    if ((parseFloat(balance) < (100 + parseFloat(price.price)))) {
-      if (shipment.pay_method !== "topay") {
-        alert('Your wallet must have over 100 rupees after shipment');
-        setIsLoading(false);
-        return;
-      }
-    }
+    // if ((parseFloat(balance) < (100 + parseFloat(price.price)))) {
+    //   if (shipment.pay_method !== "topay") {
+    //     alert('Your wallet must have over 100 rupees after shipment');
+    //     setIsLoading(false);
+    //     return;
+    //   }
+    // }
     
     fetch(`${API_URL}/shipment/domestic/create`, {
       method: 'POST',
