@@ -136,6 +136,7 @@ const TransactionHistory = () => {
                             <option value='expense'>Expense</option>
                             <option value='refund'>Refund</option>
                             <option value='dispute_charge'>Dispute Charge</option>
+                            <option value='extra'>Extra Charge</option>
                         </select>
                         <input type='text' name='order_id' value={filters.order_id} onChange={handleFilterChange} placeholder='Order ID' className='p-2 rounded text-black'/>
                         <input type='date' name='startDate' value={filters.startDate} onChange={handleFilterChange} className='p-2 rounded text-black'/>
