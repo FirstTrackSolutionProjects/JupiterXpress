@@ -133,7 +133,8 @@ const MerchantManage =  () => {
         merchant_name: '',
         business_name: '',
         merchant_email: '',
-        merchant_phone: ''
+        merchant_phone: '',
+        is_to_pay_merchant: '',
     })
 
     // View modal state
@@ -383,6 +384,15 @@ const MerchantManage =  () => {
                                 value={filters.merchant_phone}
                                 onChange={handleFilterChange('merchant_phone')}
                             />
+                            <select
+                                className="border rounded-lg px-3 py-2 w-full outline-none focus:ring-2 focus:ring-blue-400"
+                                value={filters.is_to_pay_merchant}
+                                onChange={handleFilterChange('is_to_pay_merchant')}
+                            >
+                                <option value=''>All Merchants</option>
+                                <option value='true'>To Pay Merchants</option>
+                                <option value='false'>Non To Pay Merchants</option>
+                            </select>
                         </div>
                     </div>
 
