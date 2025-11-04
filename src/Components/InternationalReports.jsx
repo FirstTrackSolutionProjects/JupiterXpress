@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid } from "@mui/x-data-grid";
 import getAllInternationalShipmentsService from "../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import { jwtDecode } from "jwt-decode";
 import deductInternationalExtraChargeService from "../services/shipmentServices/internationalShipmentServices/deductInternationalExtraChargeService";
+import allocateInternationalForwardingNumberService from "../services/shipmentServices/internationalShipmentServices/allocateInternationalForwardingNumberService";
 import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
@@ -139,6 +141,9 @@ const Listing = () => {
   const [isExtraOpen, setIsExtraOpen] = useState(false);
   const [extraSubmitting, setExtraSubmitting] = useState(false);
   const [extraForm, setExtraForm] = useState({ amount: "", reason: "" });
+  const [isForwardOpen, setIsForwardOpen] = useState(false);
+  const [forwardSubmitting, setForwardSubmitting] = useState(false);
+  const [forwardForm, setForwardForm] = useState({ forwarding_number: "", forwarding_service: "" });
   const [filters, setFilters] = useState({
     awb: "",
     iid: "",
@@ -290,6 +295,38 @@ const Listing = () => {
     }
   };
 
+  const handleOpenForward = (row) => {
+    setSelectedReport(row);
+    setForwardForm({
+      forwarding_number: row?.forwarding_number || "",
+      forwarding_service: row?.forwarding_service || "",
+    });
+    setIsForwardOpen(true);
+  };
+
+  const handleSubmitForward = async () => {
+    try {
+      if (!selectedReport) return;
+      const { forwarding_number, forwarding_service } = forwardForm;
+      if (!forwarding_number || !forwarding_service) {
+        toast.error("Both forwarding number and service are required");
+        return;
+      }
+      setForwardSubmitting(true);
+      const orderId = selectedReport?.iid || selectedReport?.ref_id;
+      await allocateInternationalForwardingNumberService(orderId, { forwarding_number, forwarding_service });
+      toast.success("Forwarding number saved");
+      setIsForwardOpen(false);
+      // Refresh list to reflect new values
+      fetchReports();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save forwarding info";
+      toast.error(msg);
+    } finally {
+      setForwardSubmitting(false);
+    }
+  };
+
   const merchantCol = {
     field: 'merchant', 
     headerName: 'Merchant', 
@@ -323,6 +360,28 @@ const Listing = () => {
     },
     ...(isAdmin ? [merchantCol] : []),
     ...(!isAdmin ? [consigneeCol] : []),
+    {
+      field: "forwarding_info",
+      headerName: "Forwarding Info",
+      width: 260,
+      renderCell: (params) => {
+        const content = (
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+            <div>Forwarding No: {params.row.forwarding_number || 'N/A'}</div>
+            <div>Service: {params.row.forwarding_service || 'N/A'}</div>
+          </Box>
+        );
+        if (!isAdmin) return content;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {content}
+            <IconButton size="small" onClick={() => handleOpenForward(params.row)} title="Edit forwarding info">
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        );
+      }
+    },
     {
       field: 'shipping',
       headerName: 'Shipping Details',
@@ -592,6 +651,40 @@ const Listing = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+        {/* Forwarding Info Dialog */}
+        <Dialog open={isForwardOpen} onClose={() => !forwardSubmitting && setIsForwardOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <div>Set Forwarding Info</div>
+              <IconButton onClick={() => !forwardSubmitting && setIsForwardOpen(false)} size="small" disabled={forwardSubmitting}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" gap={2} mt={1}>
+              <TextField
+                label="Forwarding Number"
+                value={forwardForm.forwarding_number}
+                onChange={(e) => setForwardForm((f) => ({ ...f, forwarding_number: e.target.value }))}
+                fullWidth
+                size="small"
+              />
+              <TextField
+                label="Forwarding Service"
+                value={forwardForm.forwarding_service}
+                onChange={(e) => setForwardForm((f) => ({ ...f, forwarding_service: e.target.value }))}
+                fullWidth
+                size="small"
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setIsForwardOpen(false)} disabled={forwardSubmitting} variant="outlined">Cancel</Button>
+            <Button onClick={handleSubmitForward} disabled={forwardSubmitting} variant="contained">{forwardSubmitting ? 'Saving…' : 'Save'}</Button>
+          </DialogActions>
+        </Dialog>
     </div>
   );
 };
