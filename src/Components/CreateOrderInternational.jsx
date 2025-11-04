@@ -649,7 +649,7 @@ const FullDetails = () => {
                   <th className="p-2">W (cm)*</th>
                   <th className="p-2">H (cm)*</th>
                   <th className="p-2">Weight*</th>
-                  <th className="p-2">Vol. Weight (kg)</th>
+                  <th className="p-2">Vol. Weight (kg/pc)</th>
                   <th className="p-2">Qty*</th>
                   <th className="p-2"></th>
                 </tr>
@@ -665,8 +665,8 @@ const FullDetails = () => {
                       <div className="flex space-x-1">
                         <input name="docket_weight" required value={d.docket_weight} onChange={(e)=>handleDocket(i,e)} className="w-20 border px-2 py-1 rounded" />
                         <select name="docket_weight_unit" required value={d.docket_weight_unit} onChange={(e)=>handleDocket(i,e)} className="border px-2 py-1 rounded">
-                          <option value="g">g</option>
-                          <option value="kg">kg</option>
+                          <option value="g">g/pc</option>
+                          <option value="kg">kg/pc</option>
                         </select>
                       </div>
                     </td>
@@ -711,8 +711,8 @@ const FullDetails = () => {
                         <th className="p-2">Description*</th>
                         <th className="p-2">HS Code*</th>
                         <th className="p-2">Qty*</th>
-                        <th className="p-2">Rate (₹)*</th>
-                        <th className="p-2">Weight* (kg)</th>
+                        <th className="p-2">Rate (₹/Pc)*</th>
+                        <th className="p-2">Weight* (kg/Pc)</th>
                         <th className="p-2"></th>
                       </tr>
                     </thead>
