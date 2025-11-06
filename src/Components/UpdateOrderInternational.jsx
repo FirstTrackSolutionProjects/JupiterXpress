@@ -345,6 +345,8 @@ const [items, setItems] = useState([
   }, []);
 
   const fetchHsnSuggestions = (index, description) => {
+    // Disabled for US – manual HS entry only
+    if (isUS) return;
     if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
     hsnTimersRef.current[index] = setTimeout(() => {
       try {
@@ -496,6 +498,11 @@ const [items, setItems] = useState([
     packageType: shipment.package_type || "NON-DOX",
   });
   const formDataRef = useRef(formData);
+  // United States flag for consigneeCountry
+  const isUS = formData.consigneeCountry && (
+    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
+    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+  );
   const updateForm = (patch) => {
     setFormData(prev => {
       const next = { ...prev, ...patch };
@@ -609,18 +616,30 @@ const [items, setItems] = useState([
   const handleItems = (index, e) => {
     const { name, value } = e.target;
     if (name === 'description') {
-      // update item and activate HSN suggestions near code input
-      setItemsAndActivate(index, { [name]: value });
-      // description autocomplete via HS_CODES (debounced)
-      if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
-      descTimersRef.current[index] = setTimeout(() => {
-        const list = filterDescriptions(value);
-        setDescSuggestions(prev => ({ ...prev, [index]: list }));
-        setDescOpenIndex(list.length ? index : null);
-      }, 150);
-      // also fetch HSN suggestions from backend based on description text
-      if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
-      else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+      if (isUS) {
+        // US: manual entry only, no suggestions
+        setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
+        setDescOpenIndex(null);
+        setActiveHsnIndex(null);
+      } else {
+        // update item and activate HSN suggestions near code input
+        setItemsAndActivate(index, { [name]: value });
+        // description autocomplete via HS_CODES (debounced)
+        if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
+        descTimersRef.current[index] = setTimeout(() => {
+          const list = filterDescriptions(value);
+          setDescSuggestions(prev => ({ ...prev, [index]: list }));
+          setDescOpenIndex(list.length ? index : null);
+        }, 150);
+        // also fetch HSN suggestions based on description text
+        if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
+        else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
+      }
+    } else if (name === 'hscode' && isUS) {
+      // US: enforce numeric-only and max 10 digits for HS code
+      const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
+      return;
     } else {
       setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
     }
@@ -667,6 +686,14 @@ const [items, setItems] = useState([
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // US-specific HS code validation: each HS code must be exactly 10 digits
+    if (isUS) {
+      const invalidHS = items.some(it => !/^\d{10}$/.test(String(it.hscode || '')));
+      if (invalidHS) {
+        toast.error('Each HS Code must be exactly 10 digits for United States shipments');
+        return;
+      }
+    }
     // Validate item rates > 0
     const invalidRate = items.some(it => {
       const r = parseFloat(it.rate);

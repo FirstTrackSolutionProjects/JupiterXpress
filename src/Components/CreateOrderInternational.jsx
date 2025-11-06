@@ -49,6 +49,11 @@ const FullDetails = () => {
     packageType: "NON-DOX",
   });
   const formDataRef = useRef(formData);
+  // Flag: United States selected for consigneeCountry (be generous in match)
+  const isUS = formData.consigneeCountry && (
+    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
+    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+  );
 
   const [files, setFiles] = useState({
     aadhaarDoc: null,
@@ -117,6 +122,8 @@ const FullDetails = () => {
   }, []);
 
   const fetchHsnSuggestions = (index, description) => {
+    // Disabled for US – manual entry only
+    if (isUS) return;
     if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
     hsnTimersRef.current[index] = setTimeout(async () => {
       try {
@@ -360,15 +367,26 @@ const FullDetails = () => {
   const handleItems = (index, e) => {
     const { name, value } = e.target;
     if (name === 'description') {
-      // show HS_CODES suggestions (debounced)
-      if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
-      descTimersRef.current[index] = setTimeout(() => {
-        const list = filterDescriptions(value);
-        setDescSuggestions(prev => ({ ...prev, [index]: list }));
-        setDescOpenIndex(list.length ? index : null);
-      }, 150);
-      // existing: fetch HSN code suggestion based on description text
-      fetchHsnSuggestions(index, value);
+      if (!isUS) {
+        // show HS_CODES suggestions (debounced) only if not US
+        if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
+        descTimersRef.current[index] = setTimeout(() => {
+          const list = filterDescriptions(value);
+          setDescSuggestions(prev => ({ ...prev, [index]: list }));
+          setDescOpenIndex(list.length ? index : null);
+        }, 150);
+        // fetch HSN code suggestion based on description text (disabled for US)
+        fetchHsnSuggestions(index, value);
+      } else {
+        // US: ensure suggestions closed
+        setDescOpenIndex(null);
+      }
+    }
+    if (name === 'hscode' && isUS) {
+      // Enforce numeric only and max 10 digits for US
+      const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
+      return;
     }
     setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
   };
@@ -430,6 +448,14 @@ const FullDetails = () => {
       else if (consigneeValidationErrors.city) document.getElementById('consigneeCity')?.focus();
       else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
       return;
+    }
+    // US-specific HS code validation: each HS code must be exactly 10 digits
+    if (isUS) {
+      const invalidHS = items.some(it => !/^\d{10}$/.test(it.hscode));
+      if (invalidHS) {
+        toast.error('Each HS Code must be exactly 10 digits for United States shipments');
+        return;
+      }
     }
     // Validate per-docket weight: sum(item.unit_weight * qty) <= docket_weight (considering docket unit and docket quantity)
     for (const d of dockets) {
@@ -500,6 +526,13 @@ const FullDetails = () => {
       if (matchKey) patch.consigneeCountry = matchKey;
     }
     if (Object.keys(patch).length) updateForm(patch);
+    // If switching to US, clear suggestion timers & portals
+    if (isUS) {
+      setDescOpenIndex(null);
+      setActiveHsnIndex(null);
+      Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
+      Object.values(descTimersRef.current || {}).forEach(t => clearTimeout(t));
+    }
   }, [formData.countryCode, formData.consigneeCountry]);
 
   return (
