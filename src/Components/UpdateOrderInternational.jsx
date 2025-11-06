@@ -29,6 +29,7 @@ import getInternationalShipmentInvoiceService from "../services/shipmentServices
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
 import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -1717,6 +1718,7 @@ const Listing = ({ step, setStep }) => {
   const [shipLoading, setShipLoading] = useState({}); // id -> boolean
   const [cloneLoading, setCloneLoading] = useState({}); // id -> boolean
   const [deleteLoading, setDeleteLoading] = useState({}); // id -> boolean
+  const [cancelLoading, setCancelLoading] = useState({}); // id -> boolean
 
   const handleGetLabel = async (orderId) => {
     if (!orderId) { toast.error('Invalid order ID'); return; }
@@ -1811,6 +1813,23 @@ const Listing = ({ step, setStep }) => {
     }
   };
 
+  const handleCancel = async (orderId) => {
+    if (!orderId) return;
+    const ensure = window.confirm('Cancel this shipment? This cannot be undone.');
+    if (!ensure) return;
+    try {
+      setCancelLoading(prev => ({ ...prev, [orderId]: true }));
+      await cancelInternationalShipmentService(orderId);
+      toast.success('Shipment cancelled');
+      await fetchOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to cancel shipment');
+    } finally {
+      setCancelLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const handleDelete = async (orderId) => {
     if (!orderId) return;
     const ensure = window.confirm('Delete this international order? This action cannot be undone.');
@@ -1901,7 +1920,7 @@ const Listing = ({ step, setStep }) => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 400,
+      width: 460,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -1932,6 +1951,16 @@ const Listing = ({ step, setStep }) => {
                   onClick={(e) => handleOpenDownload(e, params.row)}
                 >
                   <DownloadIcon/>
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  disabled={Boolean(cancelLoading[params.row.iid])}
+                  onClick={() => handleCancel(params.row.iid)}
+                  title="Cancel shipment"
+                >
+                  {cancelLoading[params.row.iid] ? <HourglassTopIcon /> : <CloseIcon />}
                 </Button>
               </>
             ) : null}
