@@ -12,6 +12,8 @@ import allocateInternationalForwardingNumberService from "../services/shipmentSe
 import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
+import DownloadIcon from '@mui/icons-material/Download';
+import getAllInternationalShipmentReportsDataService from '../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentReportsDataService';
 
 // Tracking cards (unchanged functional rendering)
 const WorldFirstCourierTrackingCard = ({ scan }) => (
@@ -220,6 +222,49 @@ const Listing = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.serviceId]);
 
+  // Export current dataset to CSV
+  const exportToCSV = (rows, filename = 'international_reports.csv') => {
+    try {
+      const arr = Array.isArray(rows) ? rows : [];
+      if (!arr.length) throw new Error('No data to export');
+      const headers = Array.from(new Set(arr.flatMap(obj => Object.keys(obj || {}))));
+      const esc = (v) => {
+        if (v === null || v === undefined) return '';
+        const s = String(v);
+        if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      };
+      const lines = [headers.join(',')].concat(
+        arr.map(obj => headers.map(h => esc(obj[h])).join(','))
+      );
+      const csv = lines.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      toast.error(e.message || 'Failed to export CSV');
+    }
+  };
+
+  // Trigger server-side fetch of full reports dataset based on current filters
+  const handleDownload = async () => {
+    try {
+      const params = { ...filters };
+      const data = await getAllInternationalShipmentReportsDataService(params);
+      exportToCSV(data || [], 'international_reports.csv');
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to download reports');
+    }
+  };
+
   const fetchReports = async () => {
     setIsLoading(true);
     try {
@@ -242,6 +287,7 @@ const Listing = () => {
         endDate: filters.endDate || undefined,
         page,
       };
+
       const data = await getAllInternationalShipmentsService(params);
       // Support both array and paginated object shapes
       if (Array.isArray(data)) {
@@ -471,7 +517,7 @@ const Listing = () => {
             scrollbarWidth: "none",
           }}
         >
-          <Box display="flex" gap={1} sx={{ minWidth: "fit-content" }}>
+          <Box display="flex" gap={1} sx={{ minWidth: "fit-content", alignItems: 'flex-end' }}>
             <TextField
               label="Order ID"
               variant="outlined"
@@ -604,6 +650,21 @@ const Listing = () => {
                 ))}
               </Select>
             </FormControl>
+
+            {/* Download reports button */}
+            <IconButton
+              onClick={handleDownload}
+              sx={{ 
+                backgroundColor: 'white',
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: 'grey.100',
+                },
+                minWidth: '40px'
+              }}
+            >
+              <DownloadIcon />
+            </IconButton>
           </Box>
         </Box>
 
