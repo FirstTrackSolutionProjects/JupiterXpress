@@ -26,6 +26,18 @@ const WorldFirstCourierTrackingCard = ({ scan }) => (
   </div>
 );
 
+const ICLCourierTrackingCard = ({ scan }) => (
+  <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+    <div className="flex flex-col items-center justify-center">
+      <div className="font-bold">{scan?.Status}</div>
+      <div>{scan.Location}</div>
+      <div>
+        {scan.EventDate1} {scan.EventTime1}
+      </div>
+    </div>
+  </div>
+);
+
 const FlightGoCard = ({ scan }) => (
   <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
     <div>{scan.event_at}</div>
@@ -108,6 +120,8 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
         return status?.[0]?.docket_events?.map((scan, i) => <QuickShipNowCard key={i} scan={scan} />);
       case 13:
         return status?.[0]?.docket_events?.map((scan, i) => <QuickShipNow2Card key={i} scan={scan} />);
+      case 14:
+        return status?.length ? status.map((scan, i) => <ICLCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
       default:
         return <div>No Tracking Events Available</div>;
     }

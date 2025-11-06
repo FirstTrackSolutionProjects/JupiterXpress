@@ -251,6 +251,20 @@ const WorldFirstCourierTrackingCard = ({ scan }) => {
     )
 }
 
+const ICLCourierTrackingCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+                <div className='flex flex-col items-center justify-center'>
+                    <div className='font-bold'>{scan?.Status}</div>
+                    <div>{scan.Location}</div>
+                    <div>{scan.EventDate1} {scan.EventTime1}</div>
+                </div>
+            </div>
+        </>
+    )
+}
+
 const Result = ({ data }) => {
     useEffect(() => {
         console.log(data)
@@ -298,6 +312,9 @@ const Result = ({ data }) => {
                 )) : null}
                 {data?.id == 13? data?.data.map((scan, index) => (
                     <QuickShipNow2Card key={index} scan={scan} />
+                )) : null}
+                {data?.id == 14? data?.data.map((scan, index) => (
+                    <ICLCourierTrackingCard key={index} scan={scan} />
                 )) : null}
             </div>
 
