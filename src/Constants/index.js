@@ -23,6 +23,8 @@ import InternationalReports from "../Components/InternationalReports"
 import WeightDisputes from "../Components/WeightDisputes"
 import PendingCancellations from "../Components/PendingCancellations/PendingCancellations"
 import PendingRefunds from "../Components/PendingRefunds/PendingRefunds"
+import InternationalPendingCancellations from "../Components/PendingCancellations/InternationalPendingCancellations"
+import InternationalPendingRefunds from "../Components/PendingRefunds/InternationalPendingRefunds";
 import UpdateProfileRequest from '../Components/UpdateProfileRequest';
 import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestSubmissions';
 import CodRemittanceAdmin from "../Components/CodRemittance/CodRemittanceAdmin"
@@ -214,18 +216,52 @@ export const menuItems = [
             {
                 icon : "/logo.webp",
                 name : "Pending Cancellations",
-                isDropdown : false,
+                isDropdown : true,
                 url : 'pending-cancellations',
                 component : PendingCancellations,
-                dropDownOptions : [{}]
+                dropDownOptions : [
+                    {
+                        icon : "/logo.webp",
+                        name : "Domestic",
+                        isDropdown : false,
+                        url : 'pending-cancellations/domestic',
+                        component : PendingCancellations,
+                        dropDownOptions : [{}]
+                    },
+                    {
+                        icon : "/logo.webp",
+                        name : "International",
+                        isDropdown : false,
+                        url : 'pending-cancellations/international',
+                        component : InternationalPendingCancellations,
+                        dropDownOptions : [{}]
+                    },
+                ]
             },
             {
                 icon : "/logo.webp",
                 name : "Pending Refunds",
-                isDropdown : false,
+                isDropdown : true,
                 url : 'pending-refunds',
                 component : PendingRefunds,
-                dropDownOptions : [{}]
+                dropDownOptions : [
+                    {
+                        icon : "/logo.webp",
+                        name : "Domestic",
+                        isDropdown : false,
+                        url : 'pending-refunds/domestic',
+                        component : PendingRefunds,
+                        dropDownOptions : [{}]
+                    },
+                    {
+                        icon : "/logo.webp",
+                        name : "International",
+                        isDropdown : false,
+                        url : 'pending-refunds/international',
+                        component : InternationalPendingRefunds,
+                        dropDownOptions : [{}]
+                    },
+                ]
             }
         ]
     },

@@ -23,10 +23,13 @@ import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import cancelInternationalShipmentService from "../services/shipmentServices/internationalShipmentServices/cancelInternationalShipmentService";
 import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
 const API_URL = import.meta.env.VITE_APP_API_URL
+import DeleteIcon from '@mui/icons-material/Delete';
+import deleteInternationalOrderService from '../services/orderServices/internationalOrderServices/deleteInternationalOrderService';
 import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
 import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -1714,6 +1717,8 @@ const Listing = ({ step, setStep }) => {
   const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
   const [shipLoading, setShipLoading] = useState({}); // id -> boolean
   const [cloneLoading, setCloneLoading] = useState({}); // id -> boolean
+  const [deleteLoading, setDeleteLoading] = useState({}); // id -> boolean
+  const [cancelLoading, setCancelLoading] = useState({}); // id -> boolean
 
   const handleGetLabel = async (orderId) => {
     if (!orderId) { toast.error('Invalid order ID'); return; }
@@ -1808,6 +1813,40 @@ const Listing = ({ step, setStep }) => {
     }
   };
 
+  const handleCancel = async (orderId) => {
+    if (!orderId) return;
+    const ensure = window.confirm('Cancel this shipment? This cannot be undone.');
+    if (!ensure) return;
+    try {
+      setCancelLoading(prev => ({ ...prev, [orderId]: true }));
+      await cancelInternationalShipmentService(orderId);
+      toast.success('Shipment cancelled');
+      await fetchOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to cancel shipment');
+    } finally {
+      setCancelLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const handleDelete = async (orderId) => {
+    if (!orderId) return;
+    const ensure = window.confirm('Delete this international order? This action cannot be undone.');
+    if (!ensure) return;
+    try {
+      setDeleteLoading(prev => ({ ...prev, [orderId]: true }));
+      await deleteInternationalOrderService(orderId);
+      toast.success('Order deleted');
+      await fetchOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to delete order');
+    } finally {
+      setDeleteLoading(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
@@ -1881,7 +1920,7 @@ const Listing = ({ step, setStep }) => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 340,
+      width: 460,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -1913,6 +1952,16 @@ const Listing = ({ step, setStep }) => {
                 >
                   <DownloadIcon/>
                 </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  disabled={Boolean(cancelLoading[params.row.iid])}
+                  onClick={() => handleCancel(params.row.iid)}
+                  title="Cancel shipment"
+                >
+                  {cancelLoading[params.row.iid] ? <HourglassTopIcon /> : <CloseIcon />}
+                </Button>
               </>
             ) : null}
             {!params.row.is_requested && !params.row.is_manifested && !params.row.cancelled ? (
@@ -1925,6 +1974,18 @@ const Listing = ({ step, setStep }) => {
                 >
                   {shipLoading[params.row.iid] ? <HourglassTopIcon/> : <RocketLaunchIcon />}
                 </Button>
+            ) : null}
+            {!params.row.is_manifested ? (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                disabled={Boolean(deleteLoading[params.row.iid])}
+                onClick={() => handleDelete(params.row.iid)}
+                title="Delete order"
+              >
+                {deleteLoading[params.row.iid] ? 'Deleting...' : <DeleteIcon />}
+              </Button>
             ) : null}
             {/* Shared anchored Menu rendered once per grid, guarded by row match */}
             <Menu

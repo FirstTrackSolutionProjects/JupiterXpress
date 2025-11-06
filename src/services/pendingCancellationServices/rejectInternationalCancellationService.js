@@ -1,9 +1,9 @@
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 
-const cancelInternationalShipmentService = async (orderId) => {
+const rejectInternationalCancellationService = async (ordId) => {
     try {
-        const response = await fetch(`${API_URL}/shipment/international/cancel/${orderId}`, {
+        const response = await fetch(`${API_URL}/pending-cancellations/international/${ordId}/reject`, {
             method: 'PATCH',
             headers: {
                 'Authorization': localStorage.getItem('token'),
@@ -16,13 +16,16 @@ const cancelInternationalShipmentService = async (orderId) => {
         } catch {
             throw new Error("Something went wrong");
         }
+
         if (!data?.success) {
             throw new Error(data?.message);
-        };
+        }
+
+        return data?.data;
     } catch (error) {
         console.error(error);
         throw error instanceof Error ? error : new Error("An unexpected error occurred");
     }
 }
 
-export default cancelInternationalShipmentService;
+export default rejectInternationalCancellationService;
