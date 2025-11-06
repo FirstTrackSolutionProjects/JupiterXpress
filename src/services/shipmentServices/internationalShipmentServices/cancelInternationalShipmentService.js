@@ -16,7 +16,6 @@ const cancelInternationalShipmentService = async (orderId) => {
         } catch {
             throw new Error("Something went wrong");
         }
-
         if (!data?.success) {
             throw new Error(data?.message);
         };

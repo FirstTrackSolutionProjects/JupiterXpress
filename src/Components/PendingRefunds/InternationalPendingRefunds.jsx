@@ -40,7 +40,7 @@ const InternationalPendingRefunds = () => {
   };
 
   const columns = [
-    { field: 'ord_id', headerName: 'Order ID', flex: 1 },
+    { field: 'iid', headerName: 'Order ID', flex: 1 },
     { field: 'fullName', headerName: 'Merchant', flex: 1 },
     { field: 'awb', headerName: 'AWB', flex: 1 },
     { field: 'service_name', headerName: 'Service', flex: 2 },
@@ -56,10 +56,10 @@ const InternationalPendingRefunds = () => {
             variant="contained"
             color="success"
             size="small"
-            disabled={!!actionLoading[params.row.ord_id]}
-            onClick={() => handleRefund(params.row.ord_id)}
+            disabled={!!actionLoading[params.row.iid]}
+            onClick={() => handleRefund(params.row.iid)}
           >
-            {actionLoading[params.row.ord_id] ? <CircularProgress size={18} /> : 'Refund'}
+            {actionLoading[params.row.iid] ? <CircularProgress size={18} /> : 'Refund'}
           </Button>
         </Box>
       ),
@@ -73,7 +73,7 @@ const InternationalPendingRefunds = () => {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row) => row.ord_id}
+          getRowId={(row) => row.iid}
           loading={loading}
           disableSelectionOnClick
           pageSize={20}
