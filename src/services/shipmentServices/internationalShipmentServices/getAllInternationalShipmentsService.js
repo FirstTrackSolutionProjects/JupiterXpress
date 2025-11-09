@@ -18,7 +18,7 @@ const getAllInternationalShipmentsService = async (params = {}) => {
   if (!res.ok || !data?.success) {
     throw new Error(data?.message || 'Failed to fetch international orders');
   }
-  return data?.data;
+  return data;
 };
 
 export default getAllInternationalShipmentsService;
