@@ -288,16 +288,14 @@ const Listing = () => {
         page,
       };
 
-      const data = await getAllInternationalShipmentsService(params);
+      const response = await getAllInternationalShipmentsService(params);
+      const data = response?.data;
       // Support both array and paginated object shapes
       if (Array.isArray(data)) {
         const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date)).reverse();
         setAllReports(sorted);
-        const total = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-        setTotalPages(total);
-        const start = (page - 1) * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        setReports(sorted.slice(start, end));
+        setTotalPages(response?.totalPages);
+        setReports(sorted);
       } else if (data && typeof data === "object") {
         const rows = data.reports || data.rows || data.orders || data.data || [];
         setReports(rows);
