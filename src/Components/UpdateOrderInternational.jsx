@@ -503,6 +503,10 @@ const [items, setItems] = useState([
     COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
     (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
   );
+  // Canada flag for consigneeCountry
+  const isCA = formData.consigneeCountry && (
+    formData.consigneeCountry === 'Canada'
+  );
   const updateForm = (patch) => {
     setFormData(prev => {
       const next = { ...prev, ...patch };
@@ -647,7 +651,12 @@ const [items, setItems] = useState([
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    updateForm({ [name]: value });
+    if (name === 'consigneeState' && isCA) {
+      const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '');
+      updateForm({ [name]: alphaOnly.slice(0, 2) });
+    } else {
+      updateForm({ [name]: value });
+    }
   };
 
   const uploadFile = async (file) => {
@@ -686,6 +695,15 @@ const [items, setItems] = useState([
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Canada-specific: State/province code must not exceed 2 characters
+    if (isCA) {
+      const st = String(formData.consigneeState || '').trim();
+      if (st.length !== 2) {
+        toast.error('For Canada, State/Province must be 2 characters');
+        document.getElementById('consigneeState')?.focus();
+        return;
+      }
+    }
     // US-specific HS code validation: each HS code must be exactly 10 digits
     if (isUS) {
       const invalidHS = items.some(it => !/^\d{10}$/.test(String(it.hscode || '')));
@@ -814,6 +832,12 @@ const [items, setItems] = useState([
     return unit === 'g' ? n / 1000 : n;
   };
 
+  useEffect(()=>{
+    if (formData.consigneeCountry === "Canada"){
+      updateForm({ consigneeState: formData.consigneeState.replace(/[^A-Za-z]/g, '').slice(0,2).toUpperCase() } );
+    }
+  }, [formData.consigneeCountry])
+
   return (
     <div className="w-full p-4 flex flex-col items-center relative">
       {/* {typeof setIsManage === 'function' && ( */}
@@ -930,7 +954,7 @@ const [items, setItems] = useState([
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
-              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={isCA ? 2 : undefined} minLength={isCA ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Country*</label>

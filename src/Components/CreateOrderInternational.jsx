@@ -54,6 +54,10 @@ const FullDetails = () => {
     COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
     (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
   );
+  // Flag: Canada selected for consigneeCountry
+  const isCA = formData.consigneeCountry && (
+    formData.consigneeCountry === 'Canada'
+  );
 
   const [files, setFiles] = useState({
     aadhaarDoc: null,
@@ -334,7 +338,14 @@ const FullDetails = () => {
       // map field name to error key
       const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
       setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
-      updateForm({ [name]: sanitized });
+      // If Canada selected, restrict consigneeState to max 2 characters
+      if (name === 'consigneeState' && isCA) {
+        //Allow only A-Z
+        const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '');
+        updateForm({ [name]: alphaOnly.slice(0, 2) });
+      } else {
+        updateForm({ [name]: sanitized });
+      }
     } else {
       updateForm({ [name]: value });
     }
@@ -449,6 +460,15 @@ const FullDetails = () => {
       else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
       return;
     }
+    // Canada-specific: State/province code must not exceed 2 characters
+    if (isCA) {
+      const st = String(formData.consigneeState || '').trim();
+      if (st.length !== 2) {
+        toast.error('For Canada, State/Province must be 2 characters');
+        document.getElementById('consigneeState')?.focus();
+        return;
+      }
+    }
     // US-specific HS code validation: each HS code must be exactly 10 digits
     if (isUS) {
       const invalidHS = items.some(it => !/^\d{10}$/.test(it.hscode));
@@ -534,6 +554,12 @@ const FullDetails = () => {
       Object.values(descTimersRef.current || {}).forEach(t => clearTimeout(t));
     }
   }, [formData.countryCode, formData.consigneeCountry]);
+
+  useEffect(()=>{
+    if (formData.consigneeCountry === "Canada"){
+      updateForm({ consigneeState: formData.consigneeState.replace(/[^A-Za-z]/g, '').slice(0,2).toUpperCase() } );
+    }
+  }, [formData.consigneeCountry])
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 flex flex-col items-center">
@@ -636,7 +662,7 @@ const FullDetails = () => {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
-              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={isCA ? 2 : undefined} minLength={isCA ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
               {consigneeValidationErrors.state && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.state}</div>}
             </div>
             <div className="space-y-1">
