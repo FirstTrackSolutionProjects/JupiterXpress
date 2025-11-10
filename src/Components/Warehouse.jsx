@@ -27,7 +27,7 @@ const AddForm = ({ setMode }) => {
     }
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === 'international_address' ? (value || '').replace(/[^a-zA-Z0-9 ]+/g, '') : value,
+      [name]: name === 'international_address' ? (value || '').replace(/[^A-Za-z0-9\s,.\-'/]/g, '') : value,
     }));
   };
 
@@ -59,7 +59,7 @@ const AddForm = ({ setMode }) => {
       phone : formData.phone.trim(),
       email : formData.email.trim(),
       address : formData.address.trim(),
-      internationalAddress: (formData.international_address || "").replace(/[^a-zA-Z0-9 ]+/g, '').trim(),
+      internationalAddress: (formData.international_address || "").replace(/[^A-Za-z0-9\s,.\-'/]/g, '').trim(),
       pin : formData.pin.trim(),
       city : formData.city.trim(),
       state : formData.state.trim(),
@@ -173,12 +173,13 @@ const AddForm = ({ setMode }) => {
               id="international_address"
               name="international_address"
               maxLength={60}
-              placeholder="Only letters, numbers, and spaces are allowed"
+              placeholder="Allowed symbols are , . - ' /"
               value={formData.international_address}
               onChange={handleChange}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') { e.preventDefault(); return; }
-                if (e.key && e.key.length === 1 && !/[a-zA-Z0-9 ]/.test(e.key)) {
+                // Block only characters NOT in the allowed set; let allowed ones pass
+                if (e.key && e.key.length === 1 && /[^A-Za-z0-9\s,.\-'/]/.test(e.key)) {
                   e.preventDefault();
                 }
               }}
@@ -287,7 +288,7 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, city, st
   const handleUpdate = async () => {
     try {
       setSaving(true);
-      const cleaned = (formData.international_address || "").replace(/[^a-zA-Z0-9 ]+/g, '').trim();
+      const cleaned = (formData.international_address || "").replace(/[^A-Za-z0-9\s,.\-'/]/g, '').trim();
   await updateWarehouseService(wid, { internationalAddress: cleaned });
       alert("Warehouse updated successfully");
       setIsManage(0);
@@ -364,16 +365,17 @@ const ManageForm = ({ isManage, setIsManage, name, address, pin, phone, city, st
               value={formData.international_address}
               onChange={(e) => {
                 const raw = e.target.value || '';
-                const cleaned = raw.replace(/[^a-zA-Z0-9 ]+/g, '');
+                const cleaned = raw.replace(/[^A-Za-z0-9\s,.\-'/]/g, '');
                 setFormData((prev) => ({...prev, international_address: cleaned}));
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') { e.preventDefault(); return; }
-                if (e.key && e.key.length === 1 && !/[a-zA-Z0-9 ]/.test(e.key)) {
+                // Block only characters NOT in the allowed set; let allowed ones pass
+                if (e.key && e.key.length === 1 && /[^A-Za-z0-9\s,.\-'/]/.test(e.key)) {
                   e.preventDefault();
                 }
               }}
-              placeholder="Only letters, numbers, and spaces are allowed"
+              placeholder="Allowed symbols are , . - ' /"
               inputProps={{ maxLength: 60 }}
             />
           </div>
