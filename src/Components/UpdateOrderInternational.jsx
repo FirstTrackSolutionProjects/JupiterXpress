@@ -309,10 +309,10 @@ const handleDeleteDocket = (index) => {
 const handleAddDocket = () => {
   const docketLen = dockets.length;
   setDockets(ds => [...ds, { box_no: docketLen + 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }]);
-  setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }]);
+  setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" }]);
 };
 const [items, setItems] = useState([
-  { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0 }
+  { hscode: '' , box_no: '' , quantity: 1 , rate: 1 , description: '' , unit: 'Pc', unit_weight: 0, item_weight_unit: 'kg', igst_amount : 0, manufacturer_name: '', manufacturer_address: '' }
 ]);
   // HSN suggestions per item index (array of {c, n})
   const [hsnSuggestions, setHsnSuggestions] = useState({});
@@ -336,6 +336,9 @@ const [items, setItems] = useState([
     return Object.keys(HS_CODES).filter(s => s && s.toLowerCase().includes(query)).slice(0, 20);
   };
 
+  // Consignee field validation errors (address, city, state) – disallow symbols
+  const [consigneeValidationErrors, setConsigneeValidationErrors] = useState({ address: '', city: '', state: '' });
+
   // Clear any timers on unmount
   useEffect(() => {
     return () => {
@@ -346,7 +349,7 @@ const [items, setItems] = useState([
 
   const fetchHsnSuggestions = (index, description) => {
     // Disabled for US – manual HS entry only
-    if (isUS) return;
+    // if (isUS) return;
     if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
     hsnTimersRef.current[index] = setTimeout(() => {
       try {
@@ -499,10 +502,10 @@ const [items, setItems] = useState([
   });
   const formDataRef = useRef(formData);
   // United States flag for consigneeCountry
-  const isUS = formData.consigneeCountry && (
-    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
-    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
-  );
+  // const isUS = formData.consigneeCountry && (
+  //   COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
+  //   (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+  // );
   // Canada flag for consigneeCountry
   const isCA = formData.consigneeCountry && (
     formData.consigneeCountry === 'Canada'
@@ -603,7 +606,7 @@ const [items, setItems] = useState([
     const bn = parseInt(boxNo) || 1;
     setItems((it) => [
       ...it,
-      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" },
+      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" },
     ]);
   };
   const removeProduct = (index) => {
@@ -620,12 +623,12 @@ const [items, setItems] = useState([
   const handleItems = (index, e) => {
     const { name, value } = e.target;
     if (name === 'description') {
-      if (isUS) {
-        // US: manual entry only, no suggestions
-        setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
-        setDescOpenIndex(null);
-        setActiveHsnIndex(null);
-      } else {
+      // if (isUS) {
+      //   // US: manual entry only, no suggestions
+      //   setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
+      //   setDescOpenIndex(null);
+      //   setActiveHsnIndex(null);
+      // } else {
         // update item and activate HSN suggestions near code input
         setItemsAndActivate(index, { [name]: value });
         // description autocomplete via HS_CODES (debounced)
@@ -638,12 +641,12 @@ const [items, setItems] = useState([
         // also fetch HSN suggestions based on description text
         if (value.trim().length >= 3) fetchHsnSuggestions(index, value);
         else setHsnSuggestions(prev => ({ ...prev, [index]: [] }));
-      }
-    } else if (name === 'hscode' && isUS) {
-      // US: enforce numeric-only and max 10 digits for HS code
-      const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
-      setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
-      return;
+      // }
+    // } else if (name === 'hscode' && isUS) {
+    //   // US: enforce numeric-only and max 10 digits for HS code
+    //   const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
+    //   setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
+    //   return;
     } else {
       setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
     }
@@ -651,9 +654,20 @@ const [items, setItems] = useState([
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'consigneeState' && isCA) {
-      const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '');
-      updateForm({ [name]: alphaOnly.slice(0, 2) });
+    const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
+    if (consigneeFields.includes(name)) {
+      const invalidRegex = /[^A-Za-z0-9\s,.\-'/]/; // any symbol not allowed
+      const hasInvalid = invalidRegex.test(value || '');
+      const sanitized = String(value || '').replace(/[^A-Za-z0-9\s,.\-'/]/g, '');
+      const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
+      setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
+      if (name === 'consigneeState' && isCA) {
+        // Canada: restrict to 2 letters (uppercase)
+        const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '').slice(0,2);
+        updateForm({ [name]: alphaOnly });
+      } else if (name === 'consigneeAddress') {
+        updateForm({ [name]: sanitized });
+      }
     } else {
       updateForm({ [name]: value });
     }
@@ -695,6 +709,15 @@ const [items, setItems] = useState([
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Block submit if consignee validation errors exist
+    const hasConsigneeErrors = Object.values(consigneeValidationErrors).some(Boolean);
+    if (hasConsigneeErrors) {
+      toast.error('Please fix validation errors in consignee details before submitting');
+      if (consigneeValidationErrors.address) document.getElementById('consigneeAddress')?.focus();
+      else if (consigneeValidationErrors.city) document.getElementById('consigneeCity')?.focus();
+      else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
+      return;
+    }
     // Canada-specific: State/province code must not exceed 2 characters
     if (isCA) {
       const st = String(formData.consigneeState || '').trim();
@@ -705,10 +728,18 @@ const [items, setItems] = useState([
       }
     }
     // US-specific HS code validation: each HS code must be exactly 10 digits
-    if (isUS) {
-      const invalidHS = items.some(it => !/^\d{10}$/.test(String(it.hscode || '')));
-      if (invalidHS) {
-        toast.error('Each HS Code must be exactly 10 digits for United States shipments');
+    // if (isUS) {
+    //   const invalidHS = items.some(it => !/^\d{10}$/.test(String(it.hscode || '')));
+    //   if (invalidHS) {
+    //     toast.error('Each HS Code must be exactly 10 digits for United States shipments');
+    //     return;
+    //   }
+    // }
+    // Service 14 manufacturer validation (non-empty)
+    if (String(formData.service) === '14') {
+      const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
+      if (manufacturerInvalid) {
+        toast.error('Manufacturer Name and Address are required for all items for this service');
         return;
       }
     }
@@ -724,7 +755,17 @@ const [items, setItems] = useState([
     if (!(await handleUpload())) return;
     try{
       setLoading("Updating Order...")
-      const formData = {...formDataRef.current, dockets, items};
+      const formData = {
+        ...formDataRef.current,
+        dockets,
+        items: String(formDataRef.current.service) === '14'
+          ? items.map(it => ({
+              ...it,
+              manufacturer_name: (it.manufacturer_name || '').trim(),
+              manufacturer_address: (it.manufacturer_address || '').trim()
+            }))
+          : items.map(({ manufacturer_name, manufacturer_address, ...rest }) => rest)
+      };
     let docketFlag = 0
     for (let i = 0; i < formData.dockets.length; i++) {
       for (let j = 0; j < formData.items.length; j++) {
@@ -943,6 +984,7 @@ const [items, setItems] = useState([
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
               <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.address && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.address}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
@@ -951,10 +993,12 @@ const [items, setItems] = useState([
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
               <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.city && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.city}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
               <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={isCA ? 2 : undefined} minLength={isCA ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.state && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.state}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Country*</label>
@@ -1062,13 +1106,19 @@ const [items, setItems] = useState([
                         <th className="p-2">Qty*</th>
                         <th className="p-2">Rate (₹/Pc)*</th>
                         <th className="p-2">Weight* (kg/Pc)</th>
+                        {String(formData.service) === '14' && (
+                          <>
+                            <th className="p-2">Manufacturer Name*</th>
+                            <th className="p-2">Manufacturer Address*</th>
+                          </>
+                        )}
                         <th className="p-2"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {entries.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
+                          <td colSpan={String(formData.service) === '14' ? 8 : 6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
                         </tr>
                       )}
                       {entries.map(({ it, idx }) => (
@@ -1120,6 +1170,31 @@ const [items, setItems] = useState([
                               <input required name="unit_weight" value={it.unit_weight} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" />
                             </div>
                           </td>
+                          {String(formData.service) === '14' && (
+                            <>
+                              <td className="p-2">
+                                <input
+                                  required
+                                  name="manufacturer_name"
+                                  value={it.manufacturer_name || ''}
+                                  onChange={(e) => handleItems(idx, e)}
+                                  className="w-40 border px-2 py-1 rounded"
+                                  placeholder="Ex. ABC Corp"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  required
+                                  name="manufacturer_address"
+                                  value={it.manufacturer_address || ''}
+                                  onChange={(e) => handleItems(idx, e)}
+                                  className="w-56 border px-2 py-1 rounded"
+                                  placeholder="Address"
+                                  maxLength={100}
+                                />
+                              </td>
+                            </>
+                          )}
                           <td className="p-2 text-right">
                             {items.filter(item => item.box_no == d.box_no).length > 1 && (
                               <button type="button" onClick={() => removeProduct(idx)} className="text-red-500 hover:underline">Remove</button>
