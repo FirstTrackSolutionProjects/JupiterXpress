@@ -332,9 +332,9 @@ const FullDetails = () => {
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
     if (consigneeFields.includes(name)) {
       // allow only letters, numbers and spaces
-      const invalidRegex = /[^A-Za-z0-9\s]/;
+      const invalidRegex = /[^A-Za-z0-9\s,.\-'/]/;
       const hasInvalid = invalidRegex.test(value);
-      const sanitized = value.replace(/[^A-Za-z0-9\s]/g, '');
+      const sanitized = value.replace(/[^A-Za-z0-9\s,.\-'/]/g, '');
       // map field name to error key
       const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
       setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));

@@ -336,6 +336,9 @@ const [items, setItems] = useState([
     return Object.keys(HS_CODES).filter(s => s && s.toLowerCase().includes(query)).slice(0, 20);
   };
 
+  // Consignee field validation errors (address, city, state) – disallow symbols
+  const [consigneeValidationErrors, setConsigneeValidationErrors] = useState({ address: '', city: '', state: '' });
+
   // Clear any timers on unmount
   useEffect(() => {
     return () => {
@@ -651,9 +654,20 @@ const [items, setItems] = useState([
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'consigneeState' && isCA) {
-      const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '');
-      updateForm({ [name]: alphaOnly.slice(0, 2) });
+    const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
+    if (consigneeFields.includes(name)) {
+      const invalidRegex = /[^A-Za-z0-9\s,.\-'/]/; // any symbol not allowed
+      const hasInvalid = invalidRegex.test(value || '');
+      const sanitized = String(value || '').replace(/[^A-Za-z0-9\s,.\-'/]/g, '');
+      const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
+      setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
+      if (name === 'consigneeState' && isCA) {
+        // Canada: restrict to 2 letters (uppercase)
+        const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '').slice(0,2);
+        updateForm({ [name]: alphaOnly });
+      } else if (name === 'consigneeAddress') {
+        updateForm({ [name]: sanitized });
+      }
     } else {
       updateForm({ [name]: value });
     }
@@ -695,6 +709,15 @@ const [items, setItems] = useState([
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Block submit if consignee validation errors exist
+    const hasConsigneeErrors = Object.values(consigneeValidationErrors).some(Boolean);
+    if (hasConsigneeErrors) {
+      toast.error('Please fix validation errors in consignee details before submitting');
+      if (consigneeValidationErrors.address) document.getElementById('consigneeAddress')?.focus();
+      else if (consigneeValidationErrors.city) document.getElementById('consigneeCity')?.focus();
+      else if (consigneeValidationErrors.state) document.getElementById('consigneeState')?.focus();
+      return;
+    }
     // Canada-specific: State/province code must not exceed 2 characters
     if (isCA) {
       const st = String(formData.consigneeState || '').trim();
@@ -943,6 +966,7 @@ const [items, setItems] = useState([
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="consigneeAddress">Address*</label>
               <input id="consigneeAddress" name="consigneeAddress" required value={formData.consigneeAddress} onChange={handleChange} maxLength={60} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.address && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.address}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeZipCode">Zip Code*</label>
@@ -951,10 +975,12 @@ const [items, setItems] = useState([
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeCity">City*</label>
               <input id="consigneeCity" name="consigneeCity" required value={formData.consigneeCity} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.city && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.city}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
               <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={isCA ? 2 : undefined} minLength={isCA ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
+              {consigneeValidationErrors.state && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.state}</div>}
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Country*</label>
