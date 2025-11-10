@@ -50,10 +50,10 @@ const FullDetails = () => {
   });
   const formDataRef = useRef(formData);
   // Flag: United States selected for consigneeCountry (be generous in match)
-  const isUS = formData.consigneeCountry && (
-    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
-    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
-  );
+  // const isUS = formData.consigneeCountry && (
+  //   COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
+  //   (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+  // );
   // Flag: Canada selected for consigneeCountry
   const isCA = formData.consigneeCountry && (
     formData.consigneeCountry === 'Canada'
@@ -127,7 +127,7 @@ const FullDetails = () => {
 
   const fetchHsnSuggestions = (index, description) => {
     // Disabled for US – manual entry only
-    if (isUS) return;
+    // if (isUS) return;
     if (hsnTimersRef.current[index]) clearTimeout(hsnTimersRef.current[index]);
     hsnTimersRef.current[index] = setTimeout(async () => {
       try {
@@ -378,7 +378,7 @@ const FullDetails = () => {
   const handleItems = (index, e) => {
     const { name, value } = e.target;
     if (name === 'description') {
-      if (!isUS) {
+      // if (!isUS) {
         // show HS_CODES suggestions (debounced) only if not US
         if (descTimersRef.current[index]) clearTimeout(descTimersRef.current[index]);
         descTimersRef.current[index] = setTimeout(() => {
@@ -388,17 +388,17 @@ const FullDetails = () => {
         }, 150);
         // fetch HSN code suggestion based on description text (disabled for US)
         fetchHsnSuggestions(index, value);
-      } else {
+      // } else {
         // US: ensure suggestions closed
-        setDescOpenIndex(null);
-      }
+        // setDescOpenIndex(null);
+      // }
     }
-    if (name === 'hscode' && isUS) {
-      // Enforce numeric only and max 10 digits for US
-      const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
-      setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
-      return;
-    }
+    // if (name === 'hscode' && isUS) {
+    //   // Enforce numeric only and max 10 digits for US
+    //   const digits = value.replace(/[^0-9]/g, '').slice(0, 10);
+    //   setItems(it => it.map((item, i) => i === index ? { ...item, hscode: digits } : item));
+    //   return;
+    // }
     setItems(it => it.map((item, i) => i === index ? { ...item, [name]: value } : item));
   };
   const addItemForBox = (boxNo) => {
@@ -470,13 +470,13 @@ const FullDetails = () => {
       }
     }
     // US-specific HS code validation: each HS code must be exactly 10 digits
-    if (isUS) {
-      const invalidHS = items.some(it => !/^\d{10}$/.test(it.hscode));
-      if (invalidHS) {
-        toast.error('Each HS Code must be exactly 10 digits for United States shipments');
-        return;
-      }
-    }
+    // if (isUS) {
+    //   const invalidHS = items.some(it => !/^\d{10}$/.test(it.hscode));
+    //   if (invalidHS) {
+    //     toast.error('Each HS Code must be exactly 10 digits for United States shipments');
+    //     return;
+    //   }
+    // }
     // Service 14 manufacturer validation (non-empty)
     if (String(formData.service) === '14') {
       const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
@@ -561,12 +561,12 @@ const FullDetails = () => {
     }
     if (Object.keys(patch).length) updateForm(patch);
     // If switching to US, clear suggestion timers & portals
-    if (isUS) {
-      setDescOpenIndex(null);
-      setActiveHsnIndex(null);
-      Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
-      Object.values(descTimersRef.current || {}).forEach(t => clearTimeout(t));
-    }
+    // if (isUS) {
+    //   setDescOpenIndex(null);
+    //   setActiveHsnIndex(null);
+    //   Object.values(hsnTimersRef.current || {}).forEach(t => clearTimeout(t));
+    //   Object.values(descTimersRef.current || {}).forEach(t => clearTimeout(t));
+    // }
   }, [formData.countryCode, formData.consigneeCountry]);
 
   useEffect(()=>{
