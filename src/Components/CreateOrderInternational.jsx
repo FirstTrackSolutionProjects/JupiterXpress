@@ -50,10 +50,10 @@ const FullDetails = () => {
   });
   const formDataRef = useRef(formData);
   // Flag: United States selected for consigneeCountry (be generous in match)
-  // const isUS = formData.consigneeCountry && (
-  //   COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
-  //   (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
-  // );
+  const isUS = formData.consigneeCountry && (
+    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
+    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+  );
   // Flag: Canada selected for consigneeCountry
   const isCA = formData.consigneeCountry && (
     formData.consigneeCountry === 'Canada'
@@ -339,7 +339,7 @@ const FullDetails = () => {
       const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
       setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
       // If Canada selected, restrict consigneeState to max 2 characters
-      if (name === 'consigneeState' && isCA) {
+      if (name === 'consigneeState' && (isCA || isUS)) {
         //Allow only A-Z
         const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '');
         updateForm({ [name]: alphaOnly.slice(0, 2) });
@@ -461,7 +461,7 @@ const FullDetails = () => {
       return;
     }
     // Canada-specific: State/province code must not exceed 2 characters
-    if (isCA) {
+    if (isCA || isUS) {
       const st = String(formData.consigneeState || '').trim();
       if (st.length !== 2) {
         toast.error('For Canada, State/Province must be 2 characters');
@@ -676,7 +676,7 @@ const FullDetails = () => {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="consigneeState">State*</label>
-              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={isCA ? 2 : undefined} minLength={isCA ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="consigneeState" name="consigneeState" required value={formData.consigneeState} onChange={handleChange} maxLength={(isCA || isUS) ? 2 : undefined} minLength={(isCA || isUS) ? 2 : undefined} className="w-full border py-2 px-3 rounded-xl" />
               {consigneeValidationErrors.state && <div className="text-xs text-red-600 mt-1">{consigneeValidationErrors.state}</div>}
             </div>
             <div className="space-y-1">
