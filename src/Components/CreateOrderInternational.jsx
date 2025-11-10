@@ -19,7 +19,7 @@ const FullDetails = () => {
     { box_no: 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }
   ]);
   const [items, setItems] = useState([
-    { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }
+    { box_no: 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" }
   ]);
 
   const [formData, setFormData] = useState({
@@ -373,7 +373,7 @@ const FullDetails = () => {
   const handleAddDocket = () => {
     const docketLen = dockets.length;
     setDockets(ds => [...ds, { box_no: docketLen + 1, docket_weight: 1, docket_weight_unit: "kg", length: 10, breadth: 10, height: 10, quantity: 1 }]);
-    setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" }]);
+    setItems((it) => [...it, { box_no: docketLen + 1, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" }]);
   };
   const handleItems = (index, e) => {
     const { name, value } = e.target;
@@ -406,7 +406,7 @@ const FullDetails = () => {
     const bn = parseInt(boxNo) || 1;
     setItems((it) => [
       ...it,
-      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" },
+      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" },
     ]);
   };
   const removeProduct = (index) => {
@@ -477,6 +477,14 @@ const FullDetails = () => {
         return;
       }
     }
+    // Service 14 manufacturer validation (non-empty)
+    if (String(formData.service) === '14') {
+      const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
+      if (manufacturerInvalid) {
+        toast.error('Manufacturer Name and Address are required for all items for this service');
+        return;
+      }
+    }
     // Validate per-docket weight: sum(item.unit_weight * qty) <= docket_weight (considering docket unit and docket quantity)
     for (const d of dockets) {
       const entries = items.filter((it) => String(it.box_no) === String(d.box_no));
@@ -507,7 +515,13 @@ const FullDetails = () => {
     const payload = {
       ...formDataRef.current,
       dockets: dockets,
-      items
+      items: String(formDataRef.current.service) === '14'
+        ? items.map(it => ({
+            ...it,
+            manufacturer_name: (it.manufacturer_name || '').trim(),
+            manufacturer_address: (it.manufacturer_address || '').trim()
+          }))
+        : items.map(({ manufacturer_name, manufacturer_address, ...rest }) => rest)
     };
     try {
       const res = await fetch(`${API_URL}/order/international/create`, {
@@ -772,13 +786,19 @@ const FullDetails = () => {
                         <th className="p-2">Qty*</th>
                         <th className="p-2">Rate (₹/Pc)*</th>
                         <th className="p-2">Weight* (kg/Pc)</th>
+                        {String(formData.service) === '14' && (
+                          <>
+                            <th className="p-2">Manufacturer Name*</th>
+                            <th className="p-2">Manufacturer Address*</th>
+                          </>
+                        )}
                         <th className="p-2"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {entries.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
+                          <td colSpan={String(formData.service) === '14' ? 8 : 6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
                         </tr>
                       )}
                       {entries.map(({ it, idx }) => (
@@ -830,6 +850,31 @@ const FullDetails = () => {
                               <input required name="unit_weight" value={it.unit_weight} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" />
                             </div>
                           </td>
+                          {String(formData.service) === '14' && (
+                            <>
+                              <td className="p-2">
+                                <input
+                                  required
+                                  name="manufacturer_name"
+                                  value={it.manufacturer_name || ''}
+                                  onChange={(e) => handleItems(idx, e)}
+                                  className="w-40 border px-2 py-1 rounded"
+                                  placeholder="Ex. ABC Corp"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <input
+                                  required
+                                  name="manufacturer_address"
+                                  value={it.manufacturer_address || ''}
+                                  onChange={(e) => handleItems(idx, e)}
+                                  className="w-56 border px-2 py-1 rounded"
+                                  placeholder="Address"
+                                  maxLength={100}
+                                />
+                              </td>
+                            </>
+                          )}
                           <td className="p-2 text-right">
                             {items.filter(item => item.box_no == d.box_no).length > 1 && (
                               <button type="button" onClick={() => removeProduct(idx)} className="text-red-500 hover:underline">Remove</button>
