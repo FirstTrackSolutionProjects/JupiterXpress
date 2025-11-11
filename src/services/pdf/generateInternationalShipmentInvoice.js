@@ -53,11 +53,13 @@ function buildPageHTML({invoiceData, box, boxIndex, total, amountWords}){
     const qty = Number(it.QUANTITY||0);
     const rate = Number(it.RATE||0);
     const amt = (qty*rate).toFixed(2);
-    return `<tr>\n<td class="center">${i+1}</td>\n<td class="description">${escapeHtml(it.DESCRIPTION)}</td>\n<td class="center">${escapeHtml(it.HSCODE)}</td>\n<td class="center">${escapeHtml((it.UNIT||'').toUpperCase())}</td>\n<td class="center">${qty}</td>\n<td class="center">${rate.toFixed(2)}</td>\n<td class="center">${amt}</td>\n</tr>`;
+    const manufacturerName = it.MANUFACTURER_NAME || '';
+    const manufacturerAddress = it.MANUFACTURER_ADDRESS || '';
+    return `<tr>\n<td class="center">${i+1}</td>\n<td class="description">${escapeHtml(it.DESCRIPTION)}</td>\n<td class="center">${escapeHtml(manufacturerName)}</td>\n<td class="center">${escapeHtml(manufacturerAddress)}</td>\n<td class="center">${escapeHtml(it.HSCODE)}</td>\n<td class="center">${escapeHtml((it.UNIT||'').toUpperCase())}</td>\n<td class="center">${qty}</td>\n<td class="center">${rate.toFixed(2)}</td>\n<td class="center">${amt}</td>\n</tr>`;
   }).join('\n');
-  // Pad to at least 10 rows for layout consistency
+  // Pad to at least 10 rows for layout consistency (now 9 columns)
   let empty='';
-  for(let i=items.length;i<10;i++) empty+='<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+  for(let i=items.length;i<10;i++) empty+='<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
   return `<!doctype html><html><head><meta charset='utf-8'/><style>
     :root{--border:#000;--text:#000;--page-width:900px;--font-family:"Segoe UI",Arial,Helvetica,sans-serif;}
     body{margin:0;background:#fff;font-family:var(--font-family);color:var(--text);} .invoice-wrap{width:var(--page-width);background:#fff;border:2px solid var(--border);box-sizing:border-box;padding:0;}
@@ -105,7 +107,17 @@ function buildPageHTML({invoiceData, box, boxIndex, total, amountWords}){
     <div class='box-number'>BOX NO: ${boxIndex+1}</div>
     <div style='padding:6px 8px 0 8px;'>
       <table class='table items' aria-label='Invoice items'>
-        <thead><tr><th style='width:5%;'>SR.<br/>NO.</th><th style='width:48%;text-align:left;'>DESCRIPTION</th><th style='width:12%;'>HS<br/>CODE</th><th style='width:8%;'>UNIT<br/>TYPE</th><th style='width:8%;'>QUANTITY</th><th style='width:10%;'>UNIT<br/>RATES</th><th style='width:9%;'>AMOUNT</th></tr></thead>
+        <thead><tr>
+          <th style='width:5%;'>SR.<br/>NO.</th>
+          <th style='width:30%;text-align:left;'>DESCRIPTION</th>
+          <th style='width:11%;'>MANUF.<br/>NAME</th>
+          <th style='width:14%;'>MANUF.<br/>ADDRESS</th>
+          <th style='width:10%;'>HS<br/>CODE</th>
+          <th style='width:6%;'>UNIT</th>
+          <th style='width:6%;'>QTY</th>
+          <th style='width:8%;'>UNIT<br/>RATE</th>
+          <th style='width:10%;'>AMOUNT</th>
+        </tr></thead>
         <tbody>${rows}${empty}</tbody>
       </table>
     </div>
