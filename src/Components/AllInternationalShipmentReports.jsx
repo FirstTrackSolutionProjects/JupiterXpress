@@ -406,6 +406,8 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
     });
   };
 
+  const isUS = (formData.consigneeCountry) ? COUNTRIES[formData.consigneeCountry]?.iso_code2 === 'US' : false;
+
   useEffect(() => {
     const totalWeight = dockets.reduce((acc, docket) => {
       const weightInKg =
@@ -559,7 +561,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // If service 14, require manufacturer fields
-    if (String(formData.service) === '14') {
+    if (String(formData.service) === '14' && isUS) {
       const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
       if (manufacturerInvalid) {
         toast.error('Manufacturer Name and Address are required for all items for this service');
@@ -580,7 +582,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
       const payload = {
         ...formDataRef.current,
         dockets,
-        items: String(formDataRef.current.service) === '14'
+        items: (String(formDataRef.current.service) === '14' && isUS)
           ? items.map(it => ({
               ...it,
               manufacturer_name: (it.manufacturer_name || '').trim(),
@@ -931,8 +933,8 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                     <thead>
                       <tr className="bg-blue-50 text-left">
                         <th className="p-2">Description*</th>
-                        {String(formData.service) === '14' && <th className="p-2">Manufacturer Name*</th>}
-                        {String(formData.service) === '14' && <th className="p-2">Manufacturer Address*</th>}
+                        {(String(formData.service) === '14' && isUS) && <th className="p-2">Manufacturer Name*</th>}
+                        {(String(formData.service) === '14' && isUS) && <th className="p-2">Manufacturer Address*</th>}
                         <th className="p-2">HS Code*</th>
                         <th className="p-2">Qty*</th>
                         <th className="p-2">Rate (₹/Pc)*</th>
@@ -974,7 +976,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                               ref={(el) => (descInputRefs.current[idx] = el)}
                             />
                           </td>
-                          {String(formData.service) === '14' && (
+                          {(String(formData.service) === '14' && isUS) && (
                             <td className="p-2">
                               <input
                                 required
@@ -986,7 +988,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                               />
                             </td>
                           )}
-                          {String(formData.service) === '14' && (
+                          {(String(formData.service) === '14' && isUS) && (
                             <td className="p-2">
                               <input
                                 required
