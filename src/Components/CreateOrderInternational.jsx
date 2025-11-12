@@ -478,7 +478,7 @@ const FullDetails = () => {
     //   }
     // }
     // Service 14 manufacturer validation (non-empty)
-    if (String(formData.service) === '14') {
+    if (String(formData.service) === '14' && isUS) {
       const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
       if (manufacturerInvalid) {
         toast.error('Manufacturer Name and Address are required for all items for this service');
@@ -515,7 +515,7 @@ const FullDetails = () => {
     const payload = {
       ...formDataRef.current,
       dockets: dockets,
-      items: String(formDataRef.current.service) === '14'
+      items: (String(formDataRef.current.service) === '14' && isUS)
         ? items.map(it => ({
             ...it,
             manufacturer_name: (it.manufacturer_name || '').trim(),
@@ -786,7 +786,7 @@ const FullDetails = () => {
                         <th className="p-2">Qty*</th>
                         <th className="p-2">Rate (₹/Pc)*</th>
                         <th className="p-2">Weight* (kg/Pc)</th>
-                        {String(formData.service) === '14' && (
+                        {(String(formData.service) === '14' && isUS) && (
                           <>
                             <th className="p-2">Manufacturer Name*</th>
                             <th className="p-2">Manufacturer Address*</th>
@@ -850,7 +850,7 @@ const FullDetails = () => {
                               <input required name="unit_weight" value={it.unit_weight} onChange={(e) => handleItems(idx, e)} className="w-20 border px-2 py-1 rounded" />
                             </div>
                           </td>
-                          {String(formData.service) === '14' && (
+                          {(String(formData.service) === '14' && isUS) && (
                             <>
                               <td className="p-2">
                                 <input
