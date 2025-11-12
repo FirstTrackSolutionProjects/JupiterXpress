@@ -1,7 +1,7 @@
 import { useEffect , useMemo, useState  } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import UserDiscountModal from './Modals/UserDiscountModal'
-// import MerchantInvoiceModal from './Modals/MerchantInvoiceModal'
+import MerchantInvoiceModal from './Modals/MerchantInvoiceModal'
 import formatDateAndTime from '../helpers/formatDateAndTime'
 import getVerifiedMerchantsService from '../services/merchantServices/getVerifiedMerchantsService'
 import allowNegativeBalanceService from '../services/merchantServices/allowNegativeBalanceService'
@@ -140,7 +140,7 @@ const MerchantManage =  () => {
     // View modal state
     const [selectedMerchant, setSelectedMerchant] = useState(null)
     const [showView, setShowView] = useState(false)
-    // const [showInvoice, setShowInvoice] = useState(false)
+    const [showInvoice, setShowInvoice] = useState(false)
 
     // To Pay (Negative Limit) modal state
     const [showToPay, setShowToPay] = useState(false)
@@ -181,12 +181,12 @@ const MerchantManage =  () => {
                 >
                     To Pay
                 </button>
-                {/* <button
+                <button
                     className="px-3 py-1 bg-green-600 text-white rounded-2xl text-sm"
                     onClick={() => { setSelectedMerchant(params.row); setShowInvoice(true); }}
                 >
                     Invoice
-                </button> */}
+                </button>
             </div>
         ) }
     ], [])
@@ -342,13 +342,13 @@ const MerchantManage =  () => {
                     </div>
                 </div>
             )}
-            {/* {showInvoice && selectedMerchant && (
+            {showInvoice && selectedMerchant && (
                 <MerchantInvoiceModal
                     open={showInvoice}
                     onClose={() => setShowInvoice(false)}
                     merchantId={selectedMerchant?.uid}
                 />
-            )} */}
+            )}
             <div className="py-16 w-full h-full flex flex-col items-center overflow-x-hidden overflow-y-auto">
                 <div className='w-full max-w-[1200px] px-6 flex flex-col items-stretch space-y-6'>
                     <div className='text-center text-3xl font-medium text-black'>Verified Merchants</div>

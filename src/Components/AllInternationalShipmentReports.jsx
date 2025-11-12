@@ -229,7 +229,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
     ]);
   };
   const [items, setItems] = useState([
-    { hscode: "", box_no: "", quantity: 1, rate: 1, description: "", unit: "Pc", unit_weight: 0, item_weight_unit: "kg", igst_amount: 0 },
+    { hscode: "", box_no: "", quantity: 1, rate: 1, description: "", unit: "Pc", unit_weight: 0, item_weight_unit: "kg", igst_amount: 0, manufacturer_name: "", manufacturer_address: "" },
   ]);
   const [hsnSuggestions, setHsnSuggestions] = useState({});
   const hsnTimersRef = useRef({});
@@ -489,7 +489,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
     const bn = parseInt(boxNo) || 1;
     setItems((it) => [
       ...it,
-      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg" },
+      { box_no: bn, hscode: "", quantity: 1, rate: "1", description: "", unit: "Pc", unit_weight: "1", item_weight_unit: "kg", manufacturer_name: "", manufacturer_address: "" },
     ]);
   };
   const removeProduct = (index) => {
@@ -558,6 +558,14 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // If service 14, require manufacturer fields
+    if (String(formData.service) === '14') {
+      const manufacturerInvalid = items.some(it => !it.manufacturer_name?.trim() || !it.manufacturer_address?.trim());
+      if (manufacturerInvalid) {
+        toast.error('Manufacturer Name and Address are required for all items for this service');
+        return;
+      }
+    }
     const invalidRate = items.some((it) => {
       const r = parseFloat(it.rate);
       return isNaN(r) || r <= 0;
@@ -569,7 +577,17 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
     if (!(await handleUpload())) return;
     try {
       setLoading("Updating Order...");
-      const payload = { ...formDataRef.current, dockets, items };
+      const payload = {
+        ...formDataRef.current,
+        dockets,
+        items: String(formDataRef.current.service) === '14'
+          ? items.map(it => ({
+              ...it,
+              manufacturer_name: (it.manufacturer_name || '').trim(),
+              manufacturer_address: (it.manufacturer_address || '').trim()
+            }))
+          : items.map(({ manufacturer_name, manufacturer_address, ...rest }) => rest)
+      };
 
       let docketFlag = 0;
       for (let i = 0; i < payload.dockets.length; i++) {
@@ -913,6 +931,8 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                     <thead>
                       <tr className="bg-blue-50 text-left">
                         <th className="p-2">Description*</th>
+                        {String(formData.service) === '14' && <th className="p-2">Manufacturer Name*</th>}
+                        {String(formData.service) === '14' && <th className="p-2">Manufacturer Address*</th>}
                         <th className="p-2">HS Code*</th>
                         <th className="p-2">Qty*</th>
                         <th className="p-2">Rate (₹/Pc)*</th>
@@ -923,7 +943,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                     <tbody>
                       {entries.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
+                          <td colSpan={String(formData.service) === '14' ? 8 : 6} className="p-3 text-center text-gray-500">No items added for this docket.</td>
                         </tr>
                       )}
                       {entries.map(({ it, idx }) => (
@@ -954,6 +974,31 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
                               ref={(el) => (descInputRefs.current[idx] = el)}
                             />
                           </td>
+                          {String(formData.service) === '14' && (
+                            <td className="p-2">
+                              <input
+                                required
+                                name="manufacturer_name"
+                                value={it.manufacturer_name || ''}
+                                onChange={(e) => handleItems(idx, e)}
+                                className="w-40 border px-2 py-1 rounded"
+                                placeholder="Ex. ABC Corp"
+                              />
+                            </td>
+                          )}
+                          {String(formData.service) === '14' && (
+                            <td className="p-2">
+                              <input
+                                required
+                                name="manufacturer_address"
+                                value={it.manufacturer_address || ''}
+                                onChange={(e) => handleItems(idx, e)}
+                                className="w-56 border px-2 py-1 rounded"
+                                placeholder="Address"
+                                maxLength={100}
+                              />
+                            </td>
+                          )}
                           <td className="p-2">
                             <div className="relative">
                               <input
