@@ -1842,6 +1842,7 @@ const Listing = ({ step, setStep }) => {
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
   const [shipLoading, setShipLoading] = useState({}); // id -> boolean
+  const shipLoadingRef = useRef({}); // mutable ref to prevent racey double-clicks
   const [cloneLoading, setCloneLoading] = useState({}); // id -> boolean
   const [deleteLoading, setDeleteLoading] = useState({}); // id -> boolean
   const [cancelLoading, setCancelLoading] = useState({}); // id -> boolean
@@ -1908,9 +1909,12 @@ const Listing = ({ step, setStep }) => {
 
   const handleShip = async (orderId) => {
     if (!orderId) return;
+    // prevent duplicate in-flight requests for the same order
+    if (shipLoadingRef.current[orderId]) return;
     const ensure = confirm('Are you sure you want to ship this shipment?');
     if (!ensure) return;
     try {
+      shipLoadingRef.current[orderId] = true;
       setShipLoading(prev => ({ ...prev, [orderId]: true }));
       await createInternationalRequestShipmentService(orderId);
       await fetchOrders();
@@ -1919,6 +1923,7 @@ const Listing = ({ step, setStep }) => {
       console.error(err);
       toast.error(err?.message || 'Failed to request shipment');
     } finally {
+      shipLoadingRef.current[orderId] = false;
       setShipLoading(prev => ({ ...prev, [orderId]: false }));
     }
   };
