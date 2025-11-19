@@ -327,7 +327,10 @@ const FullDetails = () => {
 
   // Handlers
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'aadhaarNumber') {
+      value = value.replace(/[^0-9]/g, '').slice(0, 12);
+    }
     // Fields that should not contain symbols
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
     if (consigneeFields.includes(name)) {
@@ -953,7 +956,7 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="aadhaarNumber">Aadhaar Number*</label>
-              <input id="aadhaarNumber" required name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXXXXXXXXXX" className="w-full border py-2 px-3 rounded-xl" />
+              <input id="aadhaarNumber" minLength={12} maxLength={12} required name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXXXXXXXXXX" className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="aadhaarDoc">Aadhaar Document (PDF/Image)*</label>
