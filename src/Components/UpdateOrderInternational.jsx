@@ -653,7 +653,10 @@ const [items, setItems] = useState([
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'aadhaarNumber') {
+      value = String(value || '').replace(/[^0-9]/g, '').slice(0, 12);
+    }
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
     if (consigneeFields.includes(name)) {
       const invalidRegex = /[^A-Za-z0-9\s,.\-'/]/; // any symbol not allowed
@@ -1273,7 +1276,7 @@ const [items, setItems] = useState([
           <div className="grid gap-4 md:grid-cols-4">
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="aadhaarNumber" className="text-sm font-medium">Aadhaar Number*</label>
-              <input id="aadhaarNumber" name="aadhaarNumber" required value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
+              <input id="aadhaarNumber" minLength={12} maxLength={12} name="aadhaarNumber" required value={formData.aadhaarNumber} onChange={handleChange} placeholder="XXXX-XXXX-XXXX" className="border rounded-xl px-4 py-2" />
             </div>
             <div className="flex flex-col space-y-2 md:col-span-2">
               <label htmlFor="aadhaarDoc" className="text-sm font-medium">Aadhaar Document (PDF/Image)</label>
