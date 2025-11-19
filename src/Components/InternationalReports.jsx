@@ -80,6 +80,20 @@ const DillikingCard = ({ scan }) => {
   );
 };
 
+const M5CCard = ({ scan }) => {
+    return (
+    <>
+        <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+            <div className='flex flex-col items-center justify-center'>
+                <div className='font-bold'>{scan?.EventDescription}</div>
+                <div>{scan.Location}</div>
+                <div>{scan.EventDate.substr(0,10)} {scan.EventTime}</div>
+            </div>
+        </div>
+    </>
+    )
+}
+
 // View dialog (MUI) using existing tracking render logic
 const ViewDialog = ({ isOpen, onClose, report }) => {
   const [status, setStatus] = useState(null);
@@ -116,6 +130,8 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
         return status?.[0]?.docket_events?.map((scan, i) => <FlightGoCard key={i} scan={scan} />);
       case 8:
         return status?.length ? status.map((scan, i) => <DillikingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
+      case 9:
+        return status?.length ? status.map((scan, i) => <M5CCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
       case 11:
         return status?.length ? status.map((scan, i) => <WorldFirstCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
       case 12:
