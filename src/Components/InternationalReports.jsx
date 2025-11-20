@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 import DownloadIcon from '@mui/icons-material/Download';
 import getAllInternationalShipmentReportsDataService from '../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentReportsDataService';
+import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 // Tracking cards (unchanged functional rendering)
 const WorldFirstCourierTrackingCard = ({ scan }) => (
@@ -272,7 +273,24 @@ const Listing = () => {
   // Trigger server-side fetch of full reports dataset based on current filters
   const handleDownload = async () => {
     try {
-      const params = { ...filters };
+      const params = {
+        awb: filters.awb || undefined,
+        iid: filters.iid || undefined,
+        serviceId: filters.serviceId || undefined,
+        vendorId: filters.vendorId || undefined,
+        // Admin vs merchant person filters
+        ...(isAdmin
+          ? {
+              merchant_name: filters.merchant_name || undefined,
+              merchant_email: filters.merchant_email || undefined,
+            }
+          : {
+              consignee_name: filters.consignee_name || undefined,
+              consignee_email: filters.consignee_email || undefined,
+            }),
+        startDate: filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : undefined,
+        endDate: filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : undefined,
+      };
       const data = await getAllInternationalShipmentReportsDataService(params);
       exportToCSV(data || [], 'international_reports.csv');
     } catch (err) {
@@ -299,8 +317,8 @@ const Listing = () => {
               consignee_name: filters.consignee_name || undefined,
               consignee_email: filters.consignee_email || undefined,
             }),
-        startDate: filters.startDate || undefined,
-        endDate: filters.endDate || undefined,
+        startDate: filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : undefined,
+        endDate: filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : undefined,
         page,
       };
 
