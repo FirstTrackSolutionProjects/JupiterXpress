@@ -57,11 +57,11 @@ const ViewInternationalWeightDisputePopup = ({ open, onClose, disputeId }) => {
                     formData?.iid && formData?.dispute_boxes?.length > 0 ? 
                     <div className="flex flex-col space-y-2">
                         <div className="flex flex-col">
-                        <label htmlFor="ord_id" className="font-semibold">Order Id</label>
+                        <label htmlFor="iid" className="font-semibold">Order Id</label>
                         <input 
                             type="text"
-                            id="ord_id"
-                            name="ord_id"
+                            id="iid"
+                            name="iid"
                             className="w-full px-2 py-1 rounded-lg border border-black"
                             value={formData.iid}
                             disabled
