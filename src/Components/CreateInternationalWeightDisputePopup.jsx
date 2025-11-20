@@ -293,7 +293,7 @@ const CreateInternationalWeightDisputePopup = ({ open, onClose, onSubmit }) => {
 
                 
                 
-                <button type="submit" disabled={!(formData?.ord_id && formData?.dispute_deduction) || submitting} className="w-full px-4 py-2 mt-4 rounded-full disabled:bg-gray-400 text-white bg-blue-500 hover:bg-blue-700">
+                <button type="submit" disabled={!(formData?.iid && formData?.dispute_deduction) || submitting} className="w-full px-4 py-2 mt-4 rounded-full disabled:bg-gray-400 text-white bg-blue-500 hover:bg-blue-700">
                   {submitting ? "Submitting..." : "Submit"}
                 </button>
             </form>
