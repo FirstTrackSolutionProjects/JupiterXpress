@@ -503,12 +503,11 @@ const [items, setItems] = useState([
   const formDataRef = useRef(formData);
   // United States flag for consigneeCountry
   const isUS = formData.consigneeCountry && (
-    COUNTRIES[formData.consigneeCountry]?.name === 'United States' ||
-    (COUNTRIES[formData.consigneeCountry]?.name || '').includes('United States')
+    COUNTRIES[formData.consigneeCountry]?.iso_code2 === 'US'
   );
   // Canada flag for consigneeCountry
   const isCA = formData.consigneeCountry && (
-    formData.consigneeCountry === 'Canada'
+    COUNTRIES[formData.consigneeCountry]?.iso_code2 === 'CA'
   );
   const updateForm = (patch) => {
     setFormData(prev => {
@@ -664,11 +663,17 @@ const [items, setItems] = useState([
       const sanitized = String(value || '').replace(/[^A-Za-z0-9\s,.\-'/]/g, '');
       const key = name === 'consigneeAddress' ? 'address' : name === 'consigneeCity' ? 'city' : 'state';
       setConsigneeValidationErrors(prev => ({ ...prev, [key]: hasInvalid ? 'Symbols are not allowed' : '' }));
-      if (name === 'consigneeState' && (isCA || isUS)) {
-        // Canada: restrict to 2 letters (uppercase)
-        const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '').slice(0,2);
-        updateForm({ [name]: alphaOnly });
-      } else if (name === 'consigneeAddress') {
+      if (name === 'consigneeState') {
+        if (isCA || isUS) {
+          // CA/US: restrict to 2 letters (uppercase)
+          const alphaOnly = sanitized.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+          updateForm({ [name]: alphaOnly });
+        } else {
+          // Other countries: allow full sanitized input
+          updateForm({ [name]: sanitized });
+        }
+      } else {
+        // consigneeAddress or consigneeCity
         updateForm({ [name]: sanitized });
       }
     } else {
