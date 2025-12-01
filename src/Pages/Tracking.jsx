@@ -237,6 +237,20 @@ const AtlanticCourierCard = ({ scan }) => {
     )
 }
 
+const CourierJourneyCourierTrackingCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
+                <div className='flex flex-col items-center justify-center'>
+                    <div className='font-bold'>{scan?.Status}</div>
+                    <div>{scan.Location}</div>
+                    <div>{scan.EventDate1} {scan.EventTime1}</div>
+                </div>
+            </div>
+        </>
+    )
+}
+
 const WorldFirstCourierTrackingCard = ({ scan }) => {
     return (
         <>
@@ -315,6 +329,9 @@ const Result = ({ data }) => {
                 )) : null}
                 {data?.id == 14? data?.data.map((scan, index) => (
                     <ICLCourierTrackingCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 15? data?.data.map((scan, index) => (
+                    <CourierJourneyCourierTrackingCard key={index} scan={scan} />
                 )) : null}
             </div>
 
