@@ -156,10 +156,12 @@ export async function generateInternationalShipmentInvoicePDF(invoiceData, optio
   // compress: true uses internal compression for streams
   const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4', compress: true });
   const A4_WIDTH_MM = 210; const A4_HEIGHT_MM = 297; const MARGIN = 5;
+  const perBoxTotals = [];
 
   for(let i=0;i<invoiceData.BOXES.length;i++){
     const box = invoiceData.BOXES[i];
     const total = (box.ITEMS||[]).reduce((s,it)=> s + (Number(it.RATE||0)*Number(it.QUANTITY||0)), 0);
+    perBoxTotals.push(Number(total) || 0);
     const amountWords = amountInWordsINR(total);
     const html = buildPageHTML({ invoiceData, box, boxIndex:i, total, amountWords });
     const iframe = document.createElement('iframe');
@@ -187,6 +189,73 @@ export async function generateInternationalShipmentInvoicePDF(invoiceData, optio
     const usableWidth = A4_WIDTH_MM - 2*MARGIN;
     const imgHeight = (canvas.height / canvas.width) * usableWidth;
   pdf.addImage(imgData,'JPEG', MARGIN, MARGIN, usableWidth, Math.min(imgHeight, A4_HEIGHT_MM - 2*MARGIN));
+    document.body.removeChild(iframe);
+  }
+
+  // Add a final summary page listing totals per box and grand total
+  if (perBoxTotals.length) {
+    const grandTotal = perBoxTotals.reduce((a,b)=> a + (Number(b)||0), 0);
+    const buildSummaryHTML = () => {
+      const rows = perBoxTotals.map((amt, idx) => `
+        <tr>
+          <td class="center">${idx + 1}</td>
+          <td class="right">${Number(amt).toFixed(2)} INR</td>
+        </tr>
+      `).join('');
+      return `<!doctype html><html><head><meta charset='utf-8'/><style>
+        :root{--border:#000;--text:#000;--page-width:900px;--font-family:"Segoe UI",Arial,Helvetica,sans-serif;}
+        body{margin:0;background:#fff;font-family:var(--font-family);color:var(--text);} .invoice-wrap{width:var(--page-width);background:#fff;border:2px solid var(--border);box-sizing:border-box;padding:0;}
+        .title{text-align:center;font-weight:700;font-size:20px;padding:10px 0;border-bottom:2px solid var(--border);} 
+        table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;} th,td{border:1px solid var(--border);padding:8px;vertical-align:top;} th{text-align:center;font-weight:700;} .center{text-align:center;} .right{text-align:right;}
+        .footer-note{font-size:12px;padding:8px;border-top:1px solid var(--border);text-align:center;}
+      </style></head><body>
+        <div class='invoice-wrap' role='document' aria-label='Invoice Summary'>
+          <div class='title'>TOTAL SUMMARY</div>
+          <div style='padding:8px;'>
+            <table aria-label='Totals by box'>
+              <thead>
+                <tr>
+                  <th style='width:20%;'>BOX NO.</th>
+                  <th style='width:80%;'>AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+                <tr>
+                  <td class='center' style='font-weight:700;'>GRAND TOTAL</td>
+                  <td class='right' style='font-weight:900;'>${grandTotal.toFixed(2)} INR</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class='footer-note'>(Summary of all boxes and grand total)</div>
+        </div>
+      </body></html>`;
+    };
+
+    const summaryHTML = buildSummaryHTML();
+    const iframe = document.createElement('iframe');
+    iframe.style.position='absolute'; iframe.style.left='-9999px'; iframe.style.top='0';
+    document.body.appendChild(iframe);
+    const idoc = iframe.contentDocument;
+    idoc.open(); idoc.write(summaryHTML); idoc.close();
+    await new Promise(r=>setTimeout(r,40));
+    const wrap = idoc.querySelector('.invoice-wrap');
+    let canvas = await html2canvas(wrap, { scale: renderScale, backgroundColor:'#ffffff' });
+    if (canvas.width > maxRenderWidth) {
+      const scaleFactor = maxRenderWidth / canvas.width;
+      const tmp = document.createElement('canvas');
+      tmp.width = maxRenderWidth;
+      tmp.height = Math.round(canvas.height * scaleFactor);
+      const ctx = tmp.getContext('2d');
+      ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+      canvas = tmp;
+    }
+    const imgData = canvas.toDataURL('image/jpeg', jpegQuality);
+    pdf.addPage();
+    const usableWidth = A4_WIDTH_MM - 2*MARGIN;
+    const imgHeight = (canvas.height / canvas.width) * usableWidth;
+    pdf.addImage(imgData,'JPEG', MARGIN, MARGIN, usableWidth, Math.min(imgHeight, A4_HEIGHT_MM - 2*MARGIN));
     document.body.removeChild(iframe);
   }
   pdf.save(`invoice_${invoiceData.INVOICE_NO || 'shipment'}.pdf`);
