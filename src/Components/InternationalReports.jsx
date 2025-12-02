@@ -107,6 +107,14 @@ const M5CCard = ({ scan }) => {
     )
 }
 
+const RHLEXPCourierCard = ({ scan }) => (
+  <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
+    <div>{scan.event_at}</div>
+    <div>{scan.event_location}</div>
+    <div>{scan.event_description}</div>
+  </div>
+);
+
 // View dialog (MUI) using existing tracking render logic
 const ViewDialog = ({ isOpen, onClose, report }) => {
   const [status, setStatus] = useState(null);
@@ -155,6 +163,8 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
         return status?.length ? status.map((scan, i) => <ICLCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
       case 15:
         return status?.length ? status.map((scan, i) => <CourierJourneyCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
+      case 16:
+        return status?.[0]?.docket_events?.map((scan, i) => <RHLEXPCourierCard key={i} scan={scan} />);
       default:
         return <div>No Tracking Events Available</div>;
     }

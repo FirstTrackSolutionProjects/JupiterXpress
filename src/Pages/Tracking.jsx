@@ -209,6 +209,18 @@ const M5CCard = ({ scan }) => {
     )
 }
 
+const RHLEXPCourierTrackingCard = ({ scan }) => {
+    return (
+        <>
+            <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
+                <div>{scan.event_at}</div>
+                <div>{scan.event_location}</div>
+                <div>{scan.event_description}</div>
+            </div>
+        </>
+    )
+}
+
 const EnviaCard = ({ scan }) => {
     return (
     <>
@@ -332,6 +344,12 @@ const Result = ({ data }) => {
                 )) : null}
                 {data?.id == 15? data?.data.map((scan, index) => (
                     <CourierJourneyCourierTrackingCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 12? data?.data.map((scan, index) => (
+                    <QuickShipNowCard key={index} scan={scan} />
+                )) : null}
+                {data?.id == 16? data?.data.map((scan, index) => (
+                    <RHLEXPCourierTrackingCard key={index} scan={scan} />
                 )) : null}
             </div>
 
