@@ -9,6 +9,7 @@ import {v4} from "uuid";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import {HS_CODES} from "../Constants"
 import { useNavigate } from "react-router-dom";
+import WarehouseSelect from "./ui/WarehouseSelect";
 // import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -588,10 +589,7 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="wid">Pickup Warehouse*</label>
-              <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl">
-                <option value="">Select Warehouse</option>
-                {warehouses.map(w => <option key={w.wid} value={w.wid}>{w.warehouseName}</option>)}
-              </select>
+              <WarehouseSelect warehouses={warehouses} onChange={(value) => updateForm({ wid: value.wid })} isInternational={true} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="service">Service*</label>

@@ -30,6 +30,7 @@ import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generat
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
 import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
 import CloseIcon from "@mui/icons-material/Close";
+import WarehouseSelect from "./ui/WarehouseSelect";
 
 // Helper: Generate multi-page A4 PDF (one label per box) from labelData
 async function generateShipmentLabels(labelData) {
@@ -912,10 +913,7 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
-              <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="border rounded-xl px-4 py-2">
-                <option value="">Select Warehouse</option>
-                {warehouses.map(w => (<option key={w.wid} value={w.wid}>{w.warehouseName}</option>))}
-              </select>
+              <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} isInternational={true} />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="service" className="text-sm font-medium">Service*</label>

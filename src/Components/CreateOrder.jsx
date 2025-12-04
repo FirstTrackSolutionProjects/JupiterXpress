@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import WarehouseSelect from './ui/WarehouseSelect';
 const API_URL = import.meta.env.VITE_APP_API_URL
 
 const getTodaysDate = () => {
@@ -317,18 +318,7 @@ const FullDetails = () => {
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="wid">Pickup Warehouse Name</label>
-            <select
-              className="w-full border py-2 px-4 rounded-3xl"
-              id="wid"
-              {...register("wid")}
-            >
-              <option value="">Select Warehouse</option>
-              {warehouses.length ?
-                warehouses.map((warehouse, index) => (
-                  <option key={index} value={warehouse.wid}>{warehouse.warehouseName}</option>
-                )) : null
-              }
-            </select>
+            <WarehouseSelect warehouses={warehouses} onChange={(value) => setValue('wid', value)} />
             {errors.wid && <span className='text-red-500'>{errors.wid.message}</span>}
           </div>
         </div>
