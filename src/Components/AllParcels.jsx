@@ -19,6 +19,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
 import convertToUTCISOString from "../helpers/convertToUTCISOString";
+import WarehouseSelect from "./ui/WarehouseSelect";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
@@ -359,21 +360,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
             <FormControl fullWidth sx={{ minWidth: 300 }}>
-              <InputLabel>Pickup Warehouse Name</InputLabel>
-              <Select
-                value={formData.wid}
-                onChange={handleChange}
-                size="small"
-                name="wid"
-                label="Pickup Warehouse Name"
-              >
-                <MenuItem value="">Select Warehouse</MenuItem>
-                {warehouses.map((warehouse) => (
-                  <MenuItem key={warehouse.wid} value={warehouse.wid}>
-                    {warehouse.warehouseName}
-                  </MenuItem>
-                ))}
-              </Select>
+              <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })} />
             </FormControl>
             <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField

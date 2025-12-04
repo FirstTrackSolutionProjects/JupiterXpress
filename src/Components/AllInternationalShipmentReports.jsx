@@ -17,6 +17,7 @@ import getActiveInternationalServicesService from "../services/serviceServices/g
 import getS3PutUrlService from "../services/s3Services/getS3PutUrlService";
 import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import { COUNTRIES, HS_CODES } from "../Constants";
+import WarehouseSelect from "./ui/WarehouseSelect";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 const BUCKET_URL = import.meta.env.VITE_APP_BUCKET_URL || "";
@@ -719,14 +720,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
-              <select id="wid" name="wid" required value={formData.wid} onChange={handleChange} className="border rounded-xl px-4 py-2">
-                <option value="">Select Warehouse</option>
-                {warehouses.map((w) => (
-                  <option key={w.wid} value={w.wid}>
-                    {w.warehouseName}
-                  </option>
-                ))}
-              </select>
+              <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} isInternational={true} />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="service" className="text-sm font-medium">Service*</label>
