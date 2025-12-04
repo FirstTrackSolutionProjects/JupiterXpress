@@ -360,7 +360,11 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, my: 2 }}>
             <FormControl fullWidth sx={{ minWidth: 300 }}>
-              <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })} />
+              <WarehouseSelect 
+                warehouses={warehouses} 
+                onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })} 
+                value={formData.wid}
+              />
             </FormControl>
             <FormControl sx={{ minWidth: 300, flex: 1 }}>
               <TextField

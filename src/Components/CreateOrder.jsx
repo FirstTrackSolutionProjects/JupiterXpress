@@ -318,7 +318,7 @@ const FullDetails = () => {
         <div className="w-full flex mb-2 flex-wrap">
           <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
             <label htmlFor="wid">Pickup Warehouse Name</label>
-            <WarehouseSelect warehouses={warehouses} onChange={(value) => setValue('wid', value)} />
+            <WarehouseSelect warehouses={warehouses} onChange={(value) => setValue('wid', String(value))} />
             {errors.wid && <span className='text-red-500'>{errors.wid.message}</span>}
           </div>
         </div>
