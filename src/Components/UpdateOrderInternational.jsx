@@ -913,7 +913,12 @@ const [items, setItems] = useState([
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
-              <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} isInternational={true} />
+              <WarehouseSelect 
+                warehouses={warehouses} 
+                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} 
+                isInternational={true} 
+                value={formData.wid}
+              />
             </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="service" className="text-sm font-medium">Service*</label>

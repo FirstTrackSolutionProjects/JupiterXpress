@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
-const WarehouseSelect = ({ warehouses = [], onChange, isInternational=false }) => {
+const WarehouseSelect = ({ warehouses = [], onChange, isInternational=false, value }) => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState("");
@@ -14,15 +14,25 @@ const WarehouseSelect = ({ warehouses = [], onChange, isInternational=false }) =
   const selectItem = (warehouse) => {
     setSelected(warehouse);
     setOpen(false);
-    onChange && onChange(warehouse);
+    // By default, return the warehouse id to parent for form binding
+    onChange && onChange(warehouse?.wid ?? warehouse);
   };
+
+  useEffect(() => {
+    if (value == null || value === "") {
+      setSelected(null);
+      return;
+    }
+    const match = warehouses.find(w => String(w.wid) === String(value)) || null;
+    setSelected(match);
+  }, [value, warehouses]);
 
   return (
     <div className="relative">
       {/* Selected box */}
       <div
         className="border p-2 rounded cursor-pointer bg-white"
-        onClick={() => setOpen(!open)}
+        onClick={() => { setOpen(!open); if (!open) setQuery(""); }}
       >
         {selected ? (
           <div>
