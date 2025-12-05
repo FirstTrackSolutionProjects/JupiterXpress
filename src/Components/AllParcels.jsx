@@ -362,7 +362,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <FormControl fullWidth sx={{ minWidth: 300 }}>
               <WarehouseSelect 
                 warehouses={warehouses} 
-                onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })} 
+                onChange={(warehouse) => setFormData({ ...formData, wid: warehouse })} 
                 value={formData.wid}
               />
             </FormControl>

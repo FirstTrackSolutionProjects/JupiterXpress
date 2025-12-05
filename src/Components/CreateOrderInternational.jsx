@@ -589,7 +589,7 @@ const FullDetails = () => {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="wid">Pickup Warehouse*</label>
-              <WarehouseSelect warehouses={warehouses} onChange={(value) => updateForm({ wid: value.wid })} isInternational={true} />
+              <WarehouseSelect warehouses={warehouses} onChange={(value) => updateForm({ wid: value })} isInternational={true} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="service">Service*</label>

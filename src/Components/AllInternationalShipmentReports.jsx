@@ -722,7 +722,7 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
               <WarehouseSelect 
                 warehouses={warehouses} 
-                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} 
+                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse }))} 
                 isInternational={true} 
                 value={formData.wid}
               />

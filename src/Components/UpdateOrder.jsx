@@ -405,7 +405,7 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
             <FormControl fullWidth sx={{ minWidth: 300 }}>
               <WarehouseSelect 
                 warehouses={warehouses} 
-                onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })}
+                onChange={(warehouse) => setFormData({ ...formData, wid: warehouse })}
                 value={formData.wid}
               />
             </FormControl>
@@ -1195,7 +1195,7 @@ const PickupRequest = ({ setPickup }) => {
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <FormControl fullWidth required>
-            <WarehouseSelect warehouses={warehouses} onChange={(warehouse) => setFormData({ ...formData, wid: warehouse.wid })} />
+            <WarehouseSelect warehouses={warehouses} onChange={(wid) => setFormData((prev) => ({ ...prev, wid: wid }))} />
           </FormControl>
           
           <FormControl fullWidth required>
