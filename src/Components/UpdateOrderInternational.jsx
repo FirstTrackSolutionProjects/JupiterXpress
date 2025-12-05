@@ -915,7 +915,7 @@ const [items, setItems] = useState([
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
               <WarehouseSelect 
                 warehouses={warehouses} 
-                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse.wid }))} 
+                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse }))} 
                 isInternational={true} 
                 value={formData.wid}
               />
