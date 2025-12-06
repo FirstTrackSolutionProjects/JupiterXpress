@@ -656,6 +656,8 @@ const [items, setItems] = useState([
     let { name, value } = e.target;
     if (name === 'aadhaarNumber') {
       value = String(value || '').replace(/[^0-9]/g, '').slice(0, 12);
+    } else if (name === 'consigneeContact') {
+      value = value.replace(/[^0-9+]/g, '');
     }
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
     if (consigneeFields.includes(name)) {
@@ -2000,6 +2002,7 @@ const Listing = ({ step, setStep }) => {
         customer_email: filters.customer_email,
         page,
         width: 360,
+        startDate,
         endDate,
       });
       setRows(Array.isArray(data?.orders) ? data.orders : []);

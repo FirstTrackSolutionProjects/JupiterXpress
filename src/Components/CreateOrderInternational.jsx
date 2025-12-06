@@ -331,6 +331,8 @@ const FullDetails = () => {
     let { name, value } = e.target;
     if (name === 'aadhaarNumber') {
       value = value.replace(/[^0-9]/g, '').slice(0, 12);
+    } else if (name === 'consigneeContact') {
+      value = value.replace(/[^0-9+]/g, '');
     }
     // Fields that should not contain symbols
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
@@ -654,7 +656,7 @@ const FullDetails = () => {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact (Without Country Code)*</label>
+              <label className="text-sm font-medium" htmlFor="consigneeContact">Contact Number (Without Country Code)*</label>
               <input id="consigneeContact" name="consigneeContact" required value={formData.consigneeContact} onChange={handleChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
             <div className="space-y-1">
