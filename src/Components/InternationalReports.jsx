@@ -488,13 +488,15 @@ const Listing = () => {
           >
             Status
           </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleOpenManual(params.row)}
-          >
-            Add Event
-          </Button>
+          {isAdmin ? (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleOpenManual(params.row)}
+            >
+              Add Event
+            </Button>
+            ) : null}
           {isAdmin ? (
             <Button
               variant="contained"
