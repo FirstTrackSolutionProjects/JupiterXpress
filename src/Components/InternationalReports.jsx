@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem, Autocomplete } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid } from "@mui/x-data-grid";
@@ -10,6 +10,7 @@ import { jwtDecode } from "jwt-decode";
 import deductInternationalExtraChargeService from "../services/shipmentServices/internationalShipmentServices/deductInternationalExtraChargeService";
 import allocateInternationalForwardingNumberService from "../services/shipmentServices/internationalShipmentServices/allocateInternationalForwardingNumberService";
 import { toast } from "react-toastify";
+import manualTrackingEventEntryService from "../services/shipmentServices/internationalShipmentServices/manualTrackingEventEntryService";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 import DownloadIcon from '@mui/icons-material/Download';
@@ -17,101 +18,14 @@ import getAllInternationalShipmentReportsDataService from '../services/shipmentS
 import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 // Tracking cards (unchanged functional rendering)
-const CourierJourneyCourierTrackingCard = ({ scan }) => (
+const ReportCard = ({ scan }) => (
   <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
     <div className="flex flex-col items-center justify-center">
-      <div className="font-bold">{scan?.Status}</div>
-      <div>{scan.Location}</div>
-      <div>
-        {scan.EventDate1} {scan.EventTime1}
-      </div>
+      <div className="font-bold">{scan?.status}</div>
+      {scan?.description && <div>{scan.description}</div>}
+      {scan?.location && <div>{scan.location}</div>}
+      <div>{scan.timestamp}</div>
     </div>
-  </div>
-);
-
-const WorldFirstCourierTrackingCard = ({ scan }) => (
-  <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
-    <div className="flex flex-col items-center justify-center">
-      <div className="font-bold">{scan?.Status}</div>
-      <div>{scan.Location}</div>
-      <div>
-        {scan.EventDate1} {scan.EventTime1}
-      </div>
-    </div>
-  </div>
-);
-
-const ICLCourierTrackingCard = ({ scan }) => (
-  <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
-    <div className="flex flex-col items-center justify-center">
-      <div className="font-bold">{scan?.Status}</div>
-      <div>{scan.Location}</div>
-      <div>
-        {scan.EventDate1} {scan.EventTime1}
-      </div>
-    </div>
-  </div>
-);
-
-const FlightGoCard = ({ scan }) => (
-  <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
-    <div>{scan.event_at}</div>
-    <div>{scan.event_location}</div>
-    <div>{scan.event_description}</div>
-  </div>
-);
-
-const QuickShipNowCard = ({ scan }) => (
-  <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
-    <div>{scan.event_at}</div>
-    <div>{scan.event_location}</div>
-    <div>{scan.event_description}</div>
-  </div>
-);
-
-const QuickShipNow2Card = ({ scan }) => (
-  <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
-    <div>{scan.event_at}</div>
-    <div>{scan.event_location}</div>
-    <div>{scan.event_description}</div>
-  </div>
-);
-
-const DillikingCard = ({ scan }) => {
-  const date = scan.event_date;
-  const time = scan.event_time;
-  const formattedDate = `${date.substr(0, 4)}/${date.substr(2, 2)}/${date.substr(6, 2)}`;
-  const formattedTime = `${time.substr(0, 2)}:${time.substr(2, 2)}`;
-  return (
-    <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
-      <div className="flex flex-col items-center justify-center">
-        <div className="font-bold">{scan.remark}</div>
-        <div>{scan.location}</div>
-        <div>{`${formattedDate} ${formattedTime}`}</div>
-      </div>
-    </div>
-  );
-};
-
-const M5CCard = ({ scan }) => {
-    return (
-    <>
-        <div className="w-full py-3 bg-white relative items-center justify-center px-8 flex border-b space-x-4">
-            <div className='flex flex-col items-center justify-center'>
-                <div className='font-bold'>{scan?.EventDescription}</div>
-                <div>{scan.Location}</div>
-                <div>{scan.EventDate.substr(0,10)} {scan.EventTime}</div>
-            </div>
-        </div>
-    </>
-    )
-}
-
-const RHLEXPCourierCard = ({ scan }) => (
-  <div className="w-full bg-white relative items-center px-8 py-2 flex-col border-b">
-    <div>{scan.event_at}</div>
-    <div>{scan.event_location}</div>
-    <div>{scan.event_description}</div>
   </div>
 );
 
@@ -146,28 +60,7 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
   const renderStatus = () => {
     if (isLoading) return <div>Loading...</div>;
     if (!status) return <div>No Tracking Events Available</div>;
-    switch (report?.service) {
-      case 7:
-        return status?.[0]?.docket_events?.map((scan, i) => <FlightGoCard key={i} scan={scan} />);
-      case 8:
-        return status?.length ? status.map((scan, i) => <DillikingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
-      case 9:
-        return status?.length ? status.map((scan, i) => <M5CCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
-      case 11:
-        return status?.length ? status.map((scan, i) => <WorldFirstCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
-      case 12:
-        return status?.[0]?.docket_events?.map((scan, i) => <QuickShipNowCard key={i} scan={scan} />);
-      case 13:
-        return status?.[0]?.docket_events?.map((scan, i) => <QuickShipNow2Card key={i} scan={scan} />);
-      case 14:
-        return status?.length ? status.map((scan, i) => <ICLCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
-      case 15:
-        return status?.length ? status.map((scan, i) => <CourierJourneyCourierTrackingCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
-      case 16:
-        return status?.[0]?.docket_events?.map((scan, i) => <RHLEXPCourierCard key={i} scan={scan} />);
-      default:
-        return <div>No Tracking Events Available</div>;
-    }
+    return status?.length ? status.map((scan, i) => <ReportCard key={i} scan={scan} />) : <div>No Tracking Events Available</div>;
   };
 
   return (
@@ -187,6 +80,13 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
 
 const PAGE_SIZE = 50;
 
+const MANUAL_STATUS_OPTIONS = [
+  "PICKED UP",
+  "SHIPMENT IS UNDER PROCESS",
+  "READY FOR DISPATCH",
+  "HANDOVER TO AIRLINES",
+];
+
 const Listing = () => {
   const [reports, setReports] = useState([]);
   const [allReports, setAllReports] = useState(null); // set when API returns full array (no pagination)
@@ -201,6 +101,9 @@ const Listing = () => {
   const [isForwardOpen, setIsForwardOpen] = useState(false);
   const [forwardSubmitting, setForwardSubmitting] = useState(false);
   const [forwardForm, setForwardForm] = useState({ forwarding_number: "", forwarding_service: "" });
+  const [isManualOpen, setIsManualOpen] = useState(false);
+  const [manualSubmitting, setManualSubmitting] = useState(false);
+  const [manualForm, setManualForm] = useState({ status: "", description: "", location: "", timestampDate: "", timestampTime: "" });
   const [filters, setFilters] = useState({
     awb: "",
     iid: "",
@@ -420,6 +323,12 @@ const Listing = () => {
     setIsForwardOpen(true);
   };
 
+  const handleOpenManual = (row) => {
+    setSelectedReport(row);
+    setManualForm({ status: "", description: "", location: "", timestampDate: "", timestampTime: "" });
+    setIsManualOpen(true);
+  };
+
   const handleSubmitForward = async () => {
     try {
       if (!selectedReport) return;
@@ -440,6 +349,46 @@ const Listing = () => {
       toast.error(msg);
     } finally {
       setForwardSubmitting(false);
+    }
+  };
+
+  const handleSubmitManual = async () => {
+    try {
+      if (!selectedReport) return;
+      const { status, description, location, timestampDate, timestampTime } = manualForm;
+      if (!status || !status.trim()) {
+        toast.error("Status is required");
+        return;
+      }
+      if (!description || !description.trim()) {
+        toast.error("Description is required");
+        return;
+      }
+      if (!location || !location.trim()) {
+        toast.error("Location is required");
+        return;
+      }
+      if (!timestampDate || !timestampTime) {
+        toast.error("Both date and time are required for timestamp");
+        return;
+      }
+      setManualSubmitting(true);
+      const timestamp = `${timestampDate} ${timestampTime}`;
+      const refId = selectedReport?.ref_id || selectedReport?.iid || selectedReport?.awb;
+      await manualTrackingEventEntryService(refId, {
+        status: status.trim(),
+        description: description.trim(),
+        location: location.trim(),
+        timestamp,
+      });
+      toast.success("Tracking event added");
+      setIsManualOpen(false);
+      setManualForm({ status: "", description: "", location: "", timestampDate: "", timestampTime: "" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to add tracking event";
+      toast.error(msg);
+    } finally {
+      setManualSubmitting(false);
     }
   };
 
@@ -524,7 +473,7 @@ const Listing = () => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 180,
+      width: 260,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -539,13 +488,24 @@ const Listing = () => {
           >
             Status
           </Button>
-          {isAdmin ? <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleOpenExtra(params.row)}
-          >
-            Charge
-          </Button> : null}
+          {isAdmin ? (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleOpenManual(params.row)}
+            >
+              Add Event
+            </Button>
+            ) : null}
+          {isAdmin ? (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleOpenExtra(params.row)}
+            >
+              Charge
+            </Button>
+          ) : null}
         </Box>
       ),
     },
@@ -814,6 +774,81 @@ const Listing = () => {
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setIsForwardOpen(false)} disabled={forwardSubmitting} variant="outlined">Cancel</Button>
             <Button onClick={handleSubmitForward} disabled={forwardSubmitting} variant="contained">{forwardSubmitting ? 'Saving…' : 'Save'}</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Manual Tracking Event Dialog */}
+        <Dialog open={isManualOpen} onClose={() => !manualSubmitting && setIsManualOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <div>Add Manual Tracking Event</div>
+              <IconButton onClick={() => !manualSubmitting && setIsManualOpen(false)} size="small" disabled={manualSubmitting}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" gap={2} mt={1}>
+              <Autocomplete
+                freeSolo
+                options={MANUAL_STATUS_OPTIONS}
+                value={manualForm.status}
+                onChange={(_, newValue) =>
+                  setManualForm((f) => ({ ...f, status: newValue || "" }))
+                }
+                onInputChange={(_, newInputValue) =>
+                  setManualForm((f) => ({ ...f, status: newInputValue || "" }))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Status"
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
+              <TextField
+                label="Description"
+                multiline
+                minRows={2}
+                value={manualForm.description}
+                onChange={(e) => setManualForm((f) => ({ ...f, description: e.target.value }))}
+                fullWidth
+                size="small"
+              />
+              <TextField
+                label="Location"
+                value={manualForm.location}
+                onChange={(e) => setManualForm((f) => ({ ...f, location: e.target.value }))}
+                fullWidth
+                size="small"
+              />
+              <Box display="flex" gap={2}>
+                <TextField
+                  label="Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={manualForm.timestampDate}
+                  onChange={(e) => setManualForm((f) => ({ ...f, timestampDate: e.target.value }))}
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Time"
+                  type="time"
+                  InputLabelProps={{ shrink: true }}
+                  value={manualForm.timestampTime}
+                  onChange={(e) => setManualForm((f) => ({ ...f, timestampTime: e.target.value }))}
+                  fullWidth
+                  size="small"
+                />
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setIsManualOpen(false)} disabled={manualSubmitting} variant="outlined">Cancel</Button>
+            <Button onClick={handleSubmitManual} disabled={manualSubmitting} variant="contained">{manualSubmitting ? 'Submitting…' : 'Submit'}</Button>
           </DialogActions>
         </Dialog>
     </div>

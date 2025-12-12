@@ -22,108 +22,25 @@ import convertToUTCISOString from "../helpers/convertToUTCISOString";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
-const timestampToDate = (timestamp) => {
-  const date = new Date(timestamp);
-  const formattedTimestamp = date.getFullYear() + "-" +
-    String(date.getMonth() + 1).padStart(2, '0') + "-" +
-    String(date.getDate()).padStart(2, '0') + " " +
-    String(date.getHours()).padStart(2, '0') + ":" +
-    String(date.getMinutes()).padStart(2, '0');
-  return formattedTimestamp;
-}
-
-const DelhiveryStatusCard = ({ report, status }) => {
-  return (
-    <div>
-      <p>AWB : {report.awb}</p>
-      <p>Ref Id: {report.ref_id}</p>
-      <p>Status : {status.Status.Status}</p>
-      {
-        (status.Scans).map((scan, index) => {
-          const timestamp = scan.ScanDetail.ScanDateTime;
-          const formattedTimestamp = timestampToDate(timestamp);
-          return (
-            <div>{formattedTimestamp} | {scan.ScanDetail.ScannedLocation} | {scan.ScanDetail.Instructions} </div>
-          )
-        })
-      }
-    </div>
-  )
-}
-
-const MovinStatusCard = ({ report, status }) => {
-  return (
-    <div className="flex flex-col">
-      <p className="mt-5">AWB : {report.awb}</p>
-      {status.scans?.length ? <p className="mb-5">Currently At : {status?.latestLocation}</p> : null}
-      {status.scans?.length ?
-        (status.scans).reverse().map((scan, index) => {
-          const date = scan.timestamp
-          const formattedTimestamp = timestampToDate(date);
-          return (
-            <div className="flex space-x-5">
-              <div>{formattedTimestamp}</div>
-              <div>{scan.package_status}</div>
-            </div>
-          )
-        }) : "Shipment is not yet picked up"
-      }
-    </div>
-  )
-}
-
-const PickrrStatusCard = ({ report, status }) => {
-  return (
-    <div className="flex flex-col">
-      <p className="mt-5">AWB : {report.awb}</p>
-
-      {status.length ?
-        (status).reverse().map((scan, index) => {
-          const date = scan.timestamp
-          const formattedTimestamp = timestampToDate(date);
-          return (
-            <div>{formattedTimestamp} | {scan.location} | {scan.remarks} </div>
-          )
-        }) : "Shipment is not yet picked up"
-      }
-    </div>
-  )
-}
-
-const ShiprocketStatusCard = ({ report, status }) => {
-  return (
-    <div className="flex flex-col">
-      <p className="mt-5">AWB : {report.awb}</p>
-
-      {status.length ?
-        (status).reverse().map((scan, index) => {
-          return (
-            <div className='flex flex-col justify-center'>
-              <div className='font-bold'>{scan["sr-status-label"]}</div>
-              <div>{scan.location}</div>
-              <div>{scan.date}</div>
-            </div>
-          )
-        }) : "Shipment is not yet picked up"
-      }
-    </div>
-  )
-}
-
-const EnviaCard = ({ report, status }) => {
+const ReportCard = ({ report, status }) => {
   return (
   <>
       <div className="flex flex-col">
       <p className="mt-5">AWB : {report.awb}</p>
-
+      {report?.lrn ? <p>LRN : {report.lrn}</p> : null}
+      <div className="my-4 border-b"> </div>
       {status.length ?
-        (status).reverse().map((scan, index) => {
+        (status).map((scan, index) => {
           return (
+            <>
             <div className='flex flex-col justify-center'>
-              <div className='font-bold'>{scan.description}</div>
-              <div>{scan.location}</div>
-              <div>{scan.date}</div>
+              <div className='font-bold'>{scan.status}</div>
+              {scan?.description ? <div>{scan.description}</div> : null}
+              {scan?.location ? <div>{scan.location}</div> : null}
+              <div>{scan.timestamp}</div>
             </div>
+            <div key={index} className="my-4 border-b" ></div>
+            </>
           )
         }) : "Shipment is not yet picked up"
       }
@@ -177,22 +94,7 @@ const ViewDialog = ({ isOpen, onClose, report }) => {
 
   const renderStatus = () => {
     if (isLoading) return <Box p={2}>Loading...</Box>;
-    
-    switch(report?.serviceId) {
-      case 1:
-      case 2:
-        return <DelhiveryStatusCard report={report} status={status} />;
-      case 3:
-        return <MovinStatusCard report={report} status={status} />;
-      case 4:
-        return <PickrrStatusCard report={report} status={status} />;
-      case 5:
-        return <ShiprocketStatusCard report={report} status={status} />;
-      case 6:
-        return <EnviaCard report={report} status={status} />;
-      default:
-        return null;
-    }
+    return <ReportCard report={report} status={status} />;
   };
 
   return (
