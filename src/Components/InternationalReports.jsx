@@ -87,6 +87,21 @@ const MANUAL_STATUS_OPTIONS = [
   "HANDOVER TO AIRLINES",
 ];
 
+const FORWARDING_SERVICE_OPTIONS = [
+  "UPS",
+  "FEDEX",
+  "DHL",
+  "ARAMEX",
+  "PUROLATOR",
+  "COURIER PLEASE",
+  "CANPER",
+  "DPD",
+  "NEW ZEALAND POST",
+  "AUSTRALIA POST",
+  "CANADA POST",
+  "USPS",
+];
+
 const Listing = () => {
   const [reports, setReports] = useState([]);
   const [allReports, setAllReports] = useState(null); // set when API returns full array (no pagination)
@@ -762,12 +777,24 @@ const Listing = () => {
                 fullWidth
                 size="small"
               />
-              <TextField
-                label="Forwarding Service"
+              <Autocomplete
+                freeSolo
+                options={FORWARDING_SERVICE_OPTIONS}
                 value={forwardForm.forwarding_service}
-                onChange={(e) => setForwardForm((f) => ({ ...f, forwarding_service: e.target.value }))}
-                fullWidth
-                size="small"
+                onChange={(_, newValue) =>
+                  setForwardForm((f) => ({ ...f, forwarding_service: newValue || "" }))
+                }
+                onInputChange={(_, newInputValue) =>
+                  setForwardForm((f) => ({ ...f, forwarding_service: newInputValue || "" }))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Forwarding Service"
+                    fullWidth
+                    size="small"
+                  />
+                )}
               />
             </Box>
           </DialogContent>
