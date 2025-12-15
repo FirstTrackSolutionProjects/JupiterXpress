@@ -469,13 +469,14 @@ const Listing = () => {
       renderCell: (params) => {
         const isShipped = Boolean(params.row.awb);
         return (
-          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 100 }}>
             {isShipped ? (
               <>
                 <div>{params.row.service_name}</div>
                 <div>{params.row.vendor_name}</div>
                 <div>Order Id: {params.row.iid}</div>
                 {(isAdmin && params.row.awb) ? <div>AWB : {params.row.awb}</div> : null}
+                {(isAdmin && params.row.cost_price) ? <div>Cost: ₹{Number(params.row.cost_price).toFixed(2)}</div> : null}
               </>
             ) : (
               <div style={{ color: '#666' }}>No shipping details yet</div>
@@ -705,7 +706,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
-            rowHeight={90}
+            rowHeight={100}
             disableSelectionOnClick
             getRowId={getRowId}
           />
