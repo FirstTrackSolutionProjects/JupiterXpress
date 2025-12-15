@@ -97,12 +97,18 @@ const generateMonthlyInvoiceHtml = (data) => {
     const dt = escapeHtml(o.DATE)
     const orderId = escapeHtml(o.ORDER_ID)
     const qty = escapeHtml(o.QUANTITY)
+    const shipCost = Number(o.SHIPPING_COST || 0).toFixed(2)
+    const dispute = Number(o.DISPUTE_CHARGE || 0).toFixed(2)
+    const extra = Number(o.EXTRA_CHARGE || 0).toFixed(2)
     const amt = Number(o.TOTAL_AMOUNT || 0).toFixed(2)
     return `<tr>
             <td>${idx + 1}</td>
             <td>${dt}</td>
             <td>${orderId}</td>
             <td class="text-right">${qty}</td>
+            <td class="text-right">${shipCost}</td>
+            <td class="text-right">${dispute}</td>
+            <td class="text-right">${extra}</td>
             <td class="text-right">${amt}</td>
           </tr>`
   }).join('')
@@ -206,6 +212,9 @@ const generateMonthlyInvoiceHtml = (data) => {
             <th style="width:120px">Date</th>
             <th>Order ID / Consignment</th>
             <th style="width:70px" class="text-right">Qty</th>
+            <th style="width:110px" class="text-right">Shipping Cost (Rs)</th>
+            <th style="width:110px" class="text-right">Dispute Charge (Rs)</th>
+            <th style="width:110px" class="text-right">Extra Charge (Rs)</th>
             <th style="width:110px" class="text-right">Total Amount (Rs)</th>
           </tr>
         </thead>
