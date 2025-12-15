@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Box, Paper, TextField, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Paper, TextField, Button, Menu, MenuItem } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import DownloadIcon from "@mui/icons-material/Download";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { toast } from "react-toastify";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { v4 } from "uuid";
@@ -12,7 +11,6 @@ import getInternationalOrdersPagedService from "../services/orderServices/intern
 import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
 import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
-import assignCostPriceInternationalService from "../services/shipmentServices/internationalShipmentServices/assignCostPriceInternationalService";
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 import getServicesActiveVendorsService from "../services/serviceServices/getServicesActiveVendorsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
@@ -1227,9 +1225,6 @@ const AllInternationalShipmentReports = () => {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({});
-  const [costDialogOpen, setCostDialogOpen] = useState(false);
-  const [costDialogRow, setCostDialogRow] = useState(null);
-  const [costDialogValue, setCostDialogValue] = useState("");
 
   const getRowId = (row) => row?.iid;
   const getRowKey = (row) => row?.iid || row?.ord_id || row?.ref_id;
@@ -1294,45 +1289,6 @@ const AllInternationalShipmentReports = () => {
     } catch (err) {
       console.error(err);
       toast.error(err.message || "Failed to generate invoice PDF");
-    }
-  };
-  const openAssignCostDialog = (row) => {
-    const ordId = row?.iid;
-    if (!ordId) {
-      toast.error("Invalid order ID");
-      return;
-    }
-    const existing = row?.cost_price;
-    const initial = existing != null && existing !== "" ? String(existing) : "";
-    setCostDialogRow(row);
-    setCostDialogValue(initial);
-    setCostDialogOpen(true);
-  };
-
-  const handleAssignCostPrice = async () => {
-    const row = costDialogRow;
-    const ordId = row?.iid;
-    if (!ordId) {
-      toast.error("Invalid order ID");
-      setCostDialogOpen(false);
-      return;
-    }
-
-    const value = parseFloat(costDialogValue);
-    if (!Number.isFinite(value) || value <= 0) {
-      toast.error("Please enter a valid cost price greater than 0");
-      return;
-    }
-
-    try {
-      await assignCostPriceInternationalService(ordId, { cost_price: value });
-      toast.success("Cost price assigned successfully");
-      setCostDialogOpen(false);
-      setCostDialogRow(null);
-      await fetchOrders();
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.message || "Failed to assign cost price");
     }
   };
 
@@ -1428,14 +1384,6 @@ const AllInternationalShipmentReports = () => {
               }}
             >
               <VisibilityIcon />
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => openAssignCostDialog(row)}
-              title="Assign Cost Price"
-            >
-              <MonetizationOnIcon />
             </Button>
             {hasAwb && (
               <>
@@ -1589,26 +1537,6 @@ const AllInternationalShipmentReports = () => {
 
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={(newPage) => setPage(newPage)} />
       </Paper>
-
-        <Dialog open={costDialogOpen} onClose={() => setCostDialogOpen(false)}>
-          <DialogTitle>Assign Cost Price</DialogTitle>
-          <DialogContent sx={{ pt: 2 }}>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Cost Price (₹)"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={costDialogValue}
-              onChange={(e) => setCostDialogValue(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCostDialogOpen(false)}>Cancel</Button>
-            <Button variant="contained" onClick={handleAssignCostPrice}>Save</Button>
-          </DialogActions>
-        </Dialog>
 
       <Modal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)}>
         {selectedShipment && (
