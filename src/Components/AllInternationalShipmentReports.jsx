@@ -1346,6 +1346,7 @@ const AllInternationalShipmentReports = () => {
           <span>{p.row.vendor_name || "-"}</span>
           {!!p.row.ref_id && <span>Ref Id: {p.row.ref_id}</span>}
           {!!p.row.awb && <span>AWB: {p.row.awb}</span>}
+          {!!p.row.cost_price && <span>Cost: ₹{Number(p.row.cost_price).toFixed(2)}</span>}
         </Box>
       ),
     },

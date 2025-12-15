@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem, Autocomplete } from "@mui/material";
+import { Box, Paper, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem, Autocomplete, Menu } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { DataGrid } from "@mui/x-data-grid";
 import getAllInternationalShipmentsService from "../services/shipmentServices/internationalShipmentServices/getAllInternationalShipmentsService";
 import getActiveInternationalServicesService from "../services/serviceServices/getActiveInternationalServicesService";
@@ -11,6 +13,7 @@ import deductInternationalExtraChargeService from "../services/shipmentServices/
 import allocateInternationalForwardingNumberService from "../services/shipmentServices/internationalShipmentServices/allocateInternationalForwardingNumberService";
 import { toast } from "react-toastify";
 import manualTrackingEventEntryService from "../services/shipmentServices/internationalShipmentServices/manualTrackingEventEntryService";
+import assignCostPriceInternationalService from "../services/shipmentServices/internationalShipmentServices/assignCostPriceInternationalService";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 import DownloadIcon from '@mui/icons-material/Download';
@@ -119,6 +122,11 @@ const Listing = () => {
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [manualSubmitting, setManualSubmitting] = useState(false);
   const [manualForm, setManualForm] = useState({ status: "", description: "", location: "", timestampDate: "", timestampTime: "" });
+  const [isCostOpen, setIsCostOpen] = useState(false);
+  const [costSubmitting, setCostSubmitting] = useState(false);
+  const [costValue, setCostValue] = useState("");
+  const [actionsAnchorEl, setActionsAnchorEl] = useState(null);
+  const [actionsRow, setActionsRow] = useState(null);
   const [filters, setFilters] = useState({
     awb: "",
     iid: "",
@@ -344,6 +352,14 @@ const Listing = () => {
     setIsManualOpen(true);
   };
 
+  const handleOpenCost = (row) => {
+    setSelectedReport(row);
+    const existing = row?.cost_price;
+    const initial = existing != null && existing !== "" ? String(existing) : "";
+    setCostValue(initial);
+    setIsCostOpen(true);
+  };
+
   const handleSubmitForward = async () => {
     try {
       if (!selectedReport) return;
@@ -404,6 +420,33 @@ const Listing = () => {
       toast.error(msg);
     } finally {
       setManualSubmitting(false);
+    }
+  };
+
+  const handleSubmitCost = async () => {
+    try {
+      if (!selectedReport) return;
+      const val = parseFloat(costValue);
+      if (!Number.isFinite(val) || val <= 0) {
+        toast.error("Please enter a valid cost price greater than 0");
+        return;
+      }
+      setCostSubmitting(true);
+      const orderId = selectedReport?.iid || selectedReport?.ref_id;
+      if (!orderId) {
+        toast.error("Invalid order ID");
+        return;
+      }
+      await assignCostPriceInternationalService(orderId, { cost_price: val });
+      toast.success("Cost price assigned successfully");
+      setIsCostOpen(false);
+      setCostValue("");
+      await fetchReports();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to assign cost price";
+      toast.error(msg || "Failed to assign cost price");
+    } finally {
+      setCostSubmitting(false);
     }
   };
 
@@ -469,13 +512,14 @@ const Listing = () => {
       renderCell: (params) => {
         const isShipped = Boolean(params.row.awb);
         return (
-          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 100 }}>
             {isShipped ? (
               <>
                 <div>{params.row.service_name}</div>
                 <div>{params.row.vendor_name}</div>
                 <div>Order Id: {params.row.iid}</div>
                 {(isAdmin && params.row.awb) ? <div>AWB : {params.row.awb}</div> : null}
+                {(isAdmin && params.row.cost_price) ? <div>Cost: ₹{Number(params.row.cost_price).toFixed(2)}</div> : null}
               </>
             ) : (
               <div style={{ color: '#666' }}>No shipping details yet</div>
@@ -504,22 +548,16 @@ const Listing = () => {
             Status
           </Button>
           {isAdmin ? (
-            <Button
-              variant="outlined"
+            <IconButton
               size="small"
-              onClick={() => handleOpenManual(params.row)}
+              onClick={(e) => {
+                setActionsAnchorEl(e.currentTarget);
+                setActionsRow(params.row);
+              }}
+              title="More actions"
             >
-              Add Event
-            </Button>
-            ) : null}
-          {isAdmin ? (
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => handleOpenExtra(params.row)}
-            >
-              Charge
-            </Button>
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
           ) : null}
         </Box>
       ),
@@ -705,7 +743,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
-            rowHeight={90}
+            rowHeight={100}
             disableSelectionOnClick
             getRowId={getRowId}
           />
@@ -715,6 +753,49 @@ const Listing = () => {
       </Paper>
 
       <ViewDialog isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} report={selectedReport} />
+
+      {/* Admin actions dropdown menu */}
+      {isAdmin && (
+        <Menu
+          anchorEl={actionsAnchorEl}
+          open={Boolean(actionsAnchorEl)}
+          onClose={() => {
+            setActionsAnchorEl(null);
+            setActionsRow(null);
+          }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem
+            onClick={() => {
+              if (actionsRow) handleOpenManual(actionsRow);
+              setActionsAnchorEl(null);
+              setActionsRow(null);
+            }}
+          >
+            Add Event
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (actionsRow) handleOpenExtra(actionsRow);
+              setActionsAnchorEl(null);
+              setActionsRow(null);
+            }}
+          >
+            Extra Charge
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (actionsRow) handleOpenCost(actionsRow);
+              setActionsAnchorEl(null);
+              setActionsRow(null);
+            }}
+          >
+            <MonetizationOnIcon fontSize="small" style={{ marginRight: 8 }} />
+            Assign Cost Price
+          </MenuItem>
+        </Menu>
+      )}
 
       {/* Extra Charge Dialog */}
       <Dialog open={isExtraOpen} onClose={() => !extraSubmitting && setIsExtraOpen(false)} maxWidth="sm" fullWidth>
@@ -754,6 +835,39 @@ const Listing = () => {
           </Button>
           <Button onClick={handleSubmitExtra} disabled={extraSubmitting} variant="contained">
             {extraSubmitting ? 'Submitting…' : 'Submit'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Assign Cost Price Dialog (Admin only) */}
+      <Dialog open={isCostOpen} onClose={() => !costSubmitting && setIsCostOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <div>Assign Cost Price</div>
+            <IconButton onClick={() => !costSubmitting && setIsCostOpen(false)} size="small" disabled={costSubmitting}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <TextField
+              label="Cost Price (₹)"
+              type="number"
+              inputProps={{ min: 0, step: "0.01" }}
+              value={costValue}
+              onChange={(e) => setCostValue(e.target.value)}
+              fullWidth
+              size="small"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setIsCostOpen(false)} disabled={costSubmitting} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmitCost} disabled={costSubmitting} variant="contained">
+            {costSubmitting ? "Saving…" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
