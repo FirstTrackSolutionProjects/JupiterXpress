@@ -18,7 +18,7 @@ export default function MaintenancePage() {
           to
         </p>
         <p className="text-md text-gray-800">
-          27-12-2025 02:00 AM IST
+          27-12-2025 03:00 AM IST
         </p>
         <div className="mt-6 text-gray-500 text-sm">
           Thank you for your patience.
