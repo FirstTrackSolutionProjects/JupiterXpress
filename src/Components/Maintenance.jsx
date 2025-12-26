@@ -12,13 +12,13 @@ export default function MaintenancePage() {
           Maintenance Time:
         </p>
         <p className="text-md text-gray-800">
-          08-05-2025 11:30 PM IST
+          26-12-2025 11:30 PM IST
         </p>
         <p className="text-md text-gray-800">
           to
         </p>
         <p className="text-md text-gray-800">
-          09-05-2025 04:00 AM IST
+          27-12-2025 02:00 AM IST
         </p>
         <div className="mt-6 text-gray-500 text-sm">
           Thank you for your patience.
