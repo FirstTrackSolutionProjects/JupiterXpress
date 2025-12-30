@@ -391,10 +391,10 @@ const Listing = () => {
         toast.error("Status is required");
         return;
       }
-      if (!description || !description.trim()) {
-        toast.error("Description is required");
-        return;
-      }
+      // if (!description || !description.trim()) {
+      //   toast.error("Description is required");
+      //   return;
+      // }
       if (!location || !location.trim()) {
         toast.error("Location is required");
         return;
@@ -408,7 +408,7 @@ const Listing = () => {
       const refId = selectedReport?.ref_id || selectedReport?.iid || selectedReport?.awb;
       await manualTrackingEventEntryService(refId, {
         status: status.trim(),
-        description: description.trim(),
+        description: description?.trim() || "",
         location: location.trim(),
         timestamp,
       });
