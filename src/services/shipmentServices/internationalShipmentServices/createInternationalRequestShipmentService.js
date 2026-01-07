@@ -8,6 +8,7 @@ const createInternationalRequestShipmentService = async ({orderId, shipmentId, o
             headers: {
                 'Authorization': localStorage.getItem('token'),
                 'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({shipmentId, otp})
         });

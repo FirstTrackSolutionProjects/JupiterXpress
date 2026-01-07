@@ -1932,7 +1932,7 @@ const Listing = ({ step, setStep }) => {
       const response = await createInternationalRequestShipmentService({ orderId });
       if (response.otpRequired) {
         const refId = response.refId;
-        const userOtp = window.prompt('An OTP has been sent to your registered mobile number. Please enter the OTP to proceed:');
+        const userOtp = window.prompt('An OTP has been sent to your warehouse mobile number. Please enter the OTP to proceed:');
         if (!userOtp) {
           throw new Error('OTP is required to proceed with shipment creation.');
         }
