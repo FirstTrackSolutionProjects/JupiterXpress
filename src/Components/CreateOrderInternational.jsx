@@ -10,6 +10,7 @@ import s3FileUploadService from "../services/s3Services/s3FileUploadService";
 import {HS_CODES} from "../Constants"
 import { useNavigate } from "react-router-dom";
 import WarehouseSelect from "./ui/WarehouseSelect";
+import geocodingGoogleMapsService from "../services/google_maps/geocoding.google_maps.service";
 // import getHsnCodesByDescService from "../services/hsnCodeServices/getHsnCodesByDescService";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -107,6 +108,8 @@ const FullDetails = () => {
   const descTimersRef = useRef({});
   const descInputRefs = useRef([]);
   const [descPortalPos, setDescPortalPos] = useState({ top: 0, left: 0, width: 0 });
+  const zipGeoTimerRef = useRef(null);
+  const zipEditedRef = useRef(false);
   const filterDescriptions = (q) => {
     if (!q) return [];
     const query = String(q).toLowerCase().trim();
@@ -326,6 +329,55 @@ const FullDetails = () => {
     return unit === 'g' ? n / 1000 : n;
   };
 
+  // Auto-complete consignee city/state/country from zip/pin using Google Maps
+  useEffect(() => {
+    const zip = (formData.consigneeZipCode || '').trim();
+    // Do not query for very short inputs
+    // Only auto-complete when user has manually edited the zip
+    if (!zipEditedRef.current) return;
+    if (!zip || zip.length < 3) return;
+
+    if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+
+    zipGeoTimerRef.current = setTimeout(async () => {
+      try {
+        const result = await geocodingGoogleMapsService(zip);
+        if (!result) return;
+        const { country, countryCode, state, stateCode, city } = result;
+
+        // Map ISO2 country code to COUNTRIES key
+        let destKey = null;
+        if (countryCode) {
+          destKey = Object.keys(COUNTRIES).find(
+            (key) => COUNTRIES[key]?.iso_code2 === countryCode
+          ) || null;
+        }
+
+        const current = formDataRef.current;
+        const isUSLike = countryCode === 'US' || countryCode === 'CA';
+        const inferredState = isUSLike ? (stateCode || state) : (state || stateCode);
+
+        const patch = {};
+        if (city) patch.consigneeCity = city;
+        if (inferredState) patch.consigneeState = inferredState;
+        if (destKey) patch.consigneeCountry = destKey;
+        // Keep dialing country code in sync with detected destination
+        if (destKey) patch.countryCode = destKey;
+
+        if (Object.keys(patch).length) {
+          updateForm(patch);
+        }
+      } catch (err) {
+        console.error('Geocoding from Zip/PIN failed', err);
+        toast.error('Unable to auto-detect address from Zip / PIN');
+      }
+    }, 600);
+
+    return () => {
+      if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+    };
+  }, [formData.consigneeZipCode]);
+
   // Handlers
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -333,6 +385,8 @@ const FullDetails = () => {
       value = value.replace(/[^0-9]/g, '').slice(0, 12);
     } else if (name === 'consigneeContact') {
       value = value.replace(/[^0-9+]/g, '');
+    } else if (name === 'consigneeZipCode') {
+      zipEditedRef.current = true;
     }
     // Fields that should not contain symbols
     const consigneeFields = ['consigneeAddress', 'consigneeCity', 'consigneeState'];
