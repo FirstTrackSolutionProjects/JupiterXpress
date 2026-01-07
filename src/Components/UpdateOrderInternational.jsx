@@ -1929,12 +1929,20 @@ const Listing = ({ step, setStep }) => {
     try {
       shipLoadingRef.current[orderId] = true;
       setShipLoading(prev => ({ ...prev, [orderId]: true }));
-      await createInternationalRequestShipmentService(orderId);
+      const response = await createInternationalRequestShipmentService({ orderId });
+      if (response.otpRequired) {
+        const refId = response.refId;
+        const userOtp = window.prompt('An OTP has been sent to your registered mobile number. Please enter the OTP to proceed:');
+        if (!userOtp) {
+          throw new Error('OTP is required to proceed with shipment creation.');
+        }
+        await createInternationalRequestShipmentService({ orderId, otp: userOtp, shipmentId: refId });
+      }
       await fetchOrders();
       toast.success('Shipment created successfully!');
     } catch (err) {
       console.error(err);
-      toast.error(err?.message || 'Failed to request shipment');
+      toast.error(err?.message || 'Failed to create shipment');
     } finally {
       shipLoadingRef.current[orderId] = false;
       setShipLoading(prev => ({ ...prev, [orderId]: false }));
