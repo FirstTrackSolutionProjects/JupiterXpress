@@ -1981,7 +1981,7 @@ const Listing = ({ step, setStep }) => {
       shipLoadingRef.current[orderId] = true;
       setShipLoading(prev => ({ ...prev, [orderId]: true }));
       const response = await createInternationalRequestShipmentService({ orderId });
-      if (response.otpRequired) {
+      if (response?.otpRequired) {
         const refId = response.refId;
         const userOtp = window.prompt('An OTP has been sent to your warehouse mobile number. Please enter the OTP to proceed:');
         if (!userOtp) {
