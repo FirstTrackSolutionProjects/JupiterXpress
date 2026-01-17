@@ -292,7 +292,7 @@ async function generateShipmentLabels(labelData) {
   }
   pdf.save(`labels_${labelData.SHIPMENT_REFERENCE_ID || 'shipment'}.pdf`);
 }
-const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
+const ManageForm = ({ shipment, isManage, setIsManage, isShipped, onUpdated }) => {
   // ---------------- State: Dockets & Items ----------------
 
   const [loading, setLoading] = useState(null);
@@ -530,7 +530,7 @@ const [items, setItems] = useState([
           : docket.docket_weight;
       return acc + weightInKg * docket.quantity;
     }, 0).toFixed(3).toString()
-    setFormData((prev) => ({ ...prev, actualWeight: totalWeight }));
+    updateForm({ actualWeight: totalWeight });
   }, [dockets]);
 
   // Auto-calc shipment value whenever items change (sum of rate * quantity)
@@ -821,7 +821,13 @@ const [items, setItems] = useState([
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          alert('Order Updated successfully')
+          toast.success('Order Updated successfully')
+          if (typeof setIsManage === 'function') {
+            setIsManage(false);
+          }
+          if (typeof onUpdated === 'function') {
+            onUpdated();
+          }
         } else {
           alert('Something Went Wrong, please try again')
         }
@@ -968,7 +974,7 @@ const [items, setItems] = useState([
               <label htmlFor="wid" className="text-sm font-medium">Pickup Warehouse*</label>
               <WarehouseSelect 
                 warehouses={warehouses} 
-                onChange={(warehouse) => setFormData(prev => ({ ...prev, wid: warehouse }))} 
+                onChange={(wid) => updateForm({ wid })} 
                 isInternational={true} 
                 value={formData.wid}
               />
@@ -1689,7 +1695,7 @@ const Card = ({ shipment, onRefresh }) => {
               <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-not-allowed">Cancelled</div>
             ): null} </div>
         </div>
-        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={hasAwb} />}
+        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={hasAwb} onUpdated={onRefresh} />}
       </>
     );
   };
@@ -2327,7 +2333,13 @@ const Listing = ({ step, setStep }) => {
 
       <Modal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)}>
         {selectedShipment && (
-          <ManageForm shipment={selectedShipment} isManage={isManageOpen} setIsManage={setIsManageOpen} isShipped={selectedShipment.is_manifested} />
+          <ManageForm
+            shipment={selectedShipment}
+            isManage={isManageOpen}
+            setIsManage={setIsManageOpen}
+            isShipped={selectedShipment.is_manifested}
+            onUpdated={fetchOrders}
+          />
         )}
       </Modal>
     </div>
