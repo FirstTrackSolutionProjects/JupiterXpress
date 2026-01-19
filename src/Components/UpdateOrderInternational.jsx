@@ -28,6 +28,7 @@ import deleteInternationalOrderService from '../services/orderServices/internati
 import getInternationalShipmentInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentInvoiceService";
 import { generateInternationalShipmentInvoicePDF } from "../services/pdf/generateInternationalShipmentInvoice";
 import getInternationalShipmentThirdPartyLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyLabelService";
+import getInternationalShipmentThirdPartyInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyInvoiceService";
 import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
 import CloseIcon from "@mui/icons-material/Close";
 import WarehouseSelect from "./ui/WarehouseSelect";
@@ -1463,364 +1464,6 @@ const [items, setItems] = useState([
   );
 };
 
-const Card = ({ shipment, onRefresh }) => {
-    const [isManage, setIsManage] = useState(false);
-    const [isCancelling, setIsCancelling] = useState(false);
-    const [isRequesting, setIsRequesting] = useState(false);
-  const [labelsOpen, setLabelsOpen] = useState(false);
-  const [vendorLabels, setVendorLabels] = useState([]); // array of S3 keys
-    const labelsMenuRef = useRef(null);
-
-
-    // Action handlers
-    const handleRequest = async (orderId) => {
-      setIsRequesting(true);
-      try {
-        const ensure = confirm('Are you sure you want to ship this shipment?');
-        if (!ensure) return;
-        await createInternationalRequestShipmentService(orderId);
-        await onRefresh();
-        toast.success('Shipment created successfully!');
-      } catch (err) {
-        toast.error(err.message || 'Failed to create shipment');
-      } finally {
-        setIsRequesting(false);
-      }
-    };
-    const handleCancelRequest = async (orderId) => {
-      const ensure = confirm('Are you sure you want to cancel this shipment request?');
-      if (!ensure) return;
-      setIsCancelling(true);
-      try {
-        await cancelInternationalRequestShipmentService(orderId);
-        await onRefresh();
-        toast.success('Shipment request cancelled');
-      } catch (err) {
-        toast.error(err.message || 'Failed to cancel request');
-      } finally {
-        setIsCancelling(false);
-      }
-    };
-    // Placeholder for cancel shipment (manifested)
-    const handleCancelShipment = async (orderId) => {
-      if (!orderId) {
-        toast.error('Invalid order ID');
-        return;
-      }
-      const ensure = confirm('Are you sure you want to cancel this shipment? This action cannot be undone.');
-      if (!ensure) return;
-      try{
-        setIsCancelling(true);
-        await cancelInternationalShipmentService(orderId);
-        await onRefresh();
-        toast.success('Shipment cancelled successfully');
-      } catch (err){
-        toast.error(err.message || 'Failed to cancel shipment');
-      } finally {
-        setIsCancelling(false);
-      }
-    };
-
-    const handleGetLabel = async (orderId) => {
-      if (!orderId) {
-        toast.error('Invalid order ID');
-        return;
-      }
-      try{
-        const labelResponse = await getInternationalShipmentLabelService(orderId);
-        if (!labelResponse?.success) {
-          toast.error(labelResponse?.message || 'Failed to get label');
-          return;
-        }
-        const labelData = labelResponse.label;
-        if (!labelData) {
-          toast.error('Label data missing');
-          return;
-        }
-        // Basic field validation
-        const requiredTop = ['CONSIGNEE_NAME','CONSIGNEE_ADDRESS','CONSIGNEE_CITY','CONSIGNEE_COUNTRY','SHIPPER_NAME','SHIPPER_ADDRESS','SHIPMENT_REFERENCE_ID'];
-        const missing = requiredTop.filter(k => !labelData[k]);
-        if (missing.length) {
-          toast.error('Missing label fields: ' + missing.join(', '));
-          return;
-        }
-        if (!Array.isArray(labelData.BOXES) || !labelData.BOXES.length) {
-          toast.error('No boxes found for label generation');
-          return;
-        }
-        await generateShipmentLabels(labelData);
-        toast.success('Label PDF generated');
-      } catch (err){
-        console.error(err);
-        toast.error(err.message || 'Failed to generate label PDF');
-      }
-    }
-
-    const handleGetInvoice = async (orderId) => {
-      if (!orderId) {
-        toast.error('Invalid order ID');
-        return;
-      }
-      try {
-        const invoiceData = await getInternationalShipmentInvoiceService(orderId);
-        if (!invoiceData) {
-          toast.error('Invoice data missing');
-          return;
-        }
-        if (!Array.isArray(invoiceData.BOXES) || !invoiceData.BOXES.length) {
-          toast.error('No boxes found for invoice generation');
-          return;
-        }
-        await generateInternationalShipmentInvoicePDF(invoiceData);
-        toast.success('Invoice PDF generated');
-      } catch (err) {
-        console.error(err);
-        toast.error(err.message || 'Failed to generate invoice PDF');
-      }
-    };
-
-    // Load vendor/third-party labels from service when dropdown opens
-    useEffect(() => {
-      let canceled = false;
-      if (!labelsOpen) return;
-      const load = async () => {
-        try {
-          const data = await getInternationalShipmentThirdPartyLabelService(shipment.iid);
-          if (canceled) return;
-          // Expect an array of S3 key strings; fallback to data.labels if API returns object
-          const keys = Array.isArray(data) ? data : (Array.isArray(data?.labels) ? data.labels : []);
-          const unique = Array.from(new Set(keys.filter(Boolean)));
-          setVendorLabels(unique);
-        } catch (e) {
-          console.error(e);
-          if (!canceled) setVendorLabels([]);
-        }
-      };
-      load();
-      return () => { canceled = true; };
-    }, [labelsOpen, shipment.iid]);
-
-    // close labels dropdown on outside click
-    useEffect(() => {
-      const onDocClick = (e) => {
-        if (labelsMenuRef.current && !labelsMenuRef.current.contains(e.target)) {
-          setLabelsOpen(false);
-        }
-      };
-      document.addEventListener('mousedown', onDocClick);
-      return () => document.removeEventListener('mousedown', onDocClick);
-    }, []);
-
-    // UI logic
-    const isRequested = shipment.is_requested;
-    const isManifested = shipment.is_manifested;
-    const isCancelled = shipment.cancelled;
-    const hasAwb = !!shipment.awb;
-    const BUCKET_URL = import.meta.env.VITE_APP_BUCKET_URL || '';
-
-    return (
-      <>
-        <div className="w-full py-2 bg-white relative items-center px-4 sm:px-8 flex border-b">
-          <div className="text-sm">
-            <div className="font-bold">{shipment.iid}</div>
-            <div>{shipment.consignee_name}</div>
-            <div>{shipment.ref_id ? `Ref No : ${shipment.ref_id}` : null}</div>
-            <div>{shipment.created_at ? shipment.created_at.toString().split('T')[0] + ' ' + shipment.created_at.toString().split('T')[1].split('.')[0] : null}</div>
-          </div>
-          <div className="absolute right-4 sm:right-8 flex space-x-2">
-            <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={() => setIsManage(!isManage)}>{!isManage ? hasAwb ? "View" : "Manage" : "X"}</div>
-            {/* Manifested: show label and cancel shipment */}
-            {(isManifested && hasAwb && !isCancelled) ? (
-              <>
-                <div className="relative" ref={labelsMenuRef}>
-                  <button type="button" className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer flex items-center gap-1" onClick={() => setLabelsOpen((o) => !o)}>
-                    Download
-                    <span>▾</span>
-                  </button>
-                  {labelsOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border rounded-xl shadow-lg z-10 overflow-hidden">
-                      <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetLabel(shipment.iid); }}>
-                        Shipment Label
-                      </button>
-                      <button type="button" className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm" onClick={() => { setLabelsOpen(false); handleGetInvoice(shipment.iid); }}>
-                        Invoice
-                      </button>
-                      {vendorLabels && vendorLabels.length > 0 && (
-                        <>
-                          <div className="px-3 py-1 text-xs text-gray-500 border-t">Vendor Labels</div>
-                          {vendorLabels.map((key, idx) => (
-                            <button
-                              key={key + idx}
-                              type="button"
-                              className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm"
-                              onClick={() => {
-                                setLabelsOpen(false);
-                                const url = `${BUCKET_URL}${key}`;
-                                try {
-                                  window.open(url, '_blank', 'noopener,noreferrer');
-                                } catch (e) {
-                                  // fallback link navigation
-                                  const a = document.createElement('a');
-                                  a.href = url;
-                                  a.target = '_blank';
-                                  a.rel = 'noopener noreferrer';
-                                  document.body.appendChild(a);
-                                  a.click();
-                                  document.body.removeChild(a);
-                                }
-                              }}
-                            >
-                              {`Vendor Label ${idx + 1}`}
-                            </button>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelShipment(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Shipment"}</div>
-              </>
-            ): null}
-            {/* Not requested: show request button */}
-            {!isRequested && !isManifested ? (
-              <div className="px-3 py-1 bg-blue-500 rounded-3xl text-white cursor-pointer" onClick={isRequesting ? () => {} : () => handleRequest(shipment.iid)}>{isRequesting ? "Shipping..." : "Ship"}</div>
-            ): null}
-            {/* Requested: show cancel request button */}
-            {isRequested ? (
-              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-pointer" onClick={isCancelling ? () => {} : () => handleCancelRequest(shipment.iid)}>{isCancelling ? "Cancelling..." : "Cancel Request"}</div>
- ): null}
-         
-            {/* Cancelled: show message */}
-            {isCancelled ? (
-              <div className="px-3 py-1 bg-red-500 rounded-3xl text-white cursor-not-allowed">Cancelled</div>
-            ): null} </div>
-        </div>
-        {isManage && <ManageForm isManage={isManage} setIsManage={setIsManage} shipment={shipment} isShipped={hasAwb} onUpdated={onRefresh} />}
-      </>
-    );
-  };
-  const PickupRequest = ({setPickup}) => {
-    const [warehouses, setWarehouses] = useState([]);
-    useEffect(() => {
-      const getWarehouses = async () => {
-        const response = await fetch(`${API_URL}/warehouse/warehouses`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('token'),
-          }
-        });
-        const result = await response.json();
-        setWarehouses(result.rows);
-      };
-      getWarehouses();
-    }, []);
-    const [formData, setFormData] = useState({
-      wid : "",
-      pickDate : "",
-      pickTime : "",
-      packages : ""
-    })
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      await fetch(`${API_URL}/shipment/domestic/pickup/request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem('token')
-        },
-        body: JSON.stringify(formData)
-      }).then(response => response.json()).then(result => {
-        if (result.schedule.incoming_center_name){
-          alert("Pickup request sent successfully")
-        }
-        else if (result.schedule.prepaid){
-          alert("Pickup request failed due to low balance of owner")
-        }
-        else if (result.schedule.pr_exist){
-          alert("This time slot is already booked")
-        }
-        else {
-          alert("Please enter a valid date and time in future")
-        }
-      })
-    }
-    const handleChange =  (e) => {
-      const {name, value} = e.target;
-      setFormData({...formData, [name]: value });
-    }
-    return (
-      <>
-        <div className="fixed z-50 bg-[rgba(0,0,0,0.5)] inset-0 flex justify-center items-center">
-          <div className="relative p-8 bg-white">
-              <div className="absolute right-3 top-3" onClick={()=>setPickup(false)}>
-                x
-              </div>
-              <form action="" onSubmit={handleSubmit}>
-              <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-            <label htmlFor="wid">Pickup Warehouse Name</label>
-              <select
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="wid"
-                name="wid"
-                placeholder="Warehouse Name"
-                value={formData.wid}
-                onChange={handleChange}
-              >
-                <option value="">Select Warehouse</option>
-                { warehouses.length ?
-                  warehouses.map((warehouse, index) => (
-                    <option value={warehouse.wid} >{warehouse.warehouseName}</option>
-                  ) ) : null
-                } 
-              </select>
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickDate">Pickup Date</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="pickDate"
-                name="pickDate"
-                placeholder="YYYY-MM-DD"
-                value={formData.pickDate}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="pickTime">Pickup Time</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="text"
-                id="pickTime"
-                name="pickTime"
-                placeholder="HH:MM:SS (In 24 Hour Format)"
-                value={formData.pickTime}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="packages">No of packages</label>
-              <input
-                className="w-full border py-2 px-4 rounded-3xl"
-                type="number"
-                id="packages"
-                name="packages"
-                placeholder=""
-                value={formData.packages}
-                onChange={handleChange}
-              />
-            </div>
-            <button className="px-5 py-1 mx-2 bg-blue-500  rounded-3xl text-white cursor-pointer" type="submit">Submit</button>
-              </form>
-          </div>
-        </div>
-      </>
-    )
-  }
-
 // Pagination component (copied to match UpdateOrder.jsx styling exactly)
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
@@ -1911,6 +1554,7 @@ const Listing = ({ step, setStep }) => {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null); // anchor for download menu
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
+  const [vendorInvoicesMap, setVendorInvoicesMap] = useState({}); // id -> [keys]
   const [shipLoading, setShipLoading] = useState({}); // id -> boolean
   const shipLoadingRef = useRef({}); // mutable ref to prevent racey double-clicks
   const [cloneLoading, setCloneLoading] = useState({}); // id -> boolean
@@ -1945,15 +1589,39 @@ const Listing = ({ step, setStep }) => {
     const rowId = getRowKey(row);
     setDownloadAnchorEl(event.currentTarget);
     setDownloadRowId(rowId);
-    if (!vendorLabelsMap[rowId]) {
-      try {
-        const data = await getInternationalShipmentThirdPartyLabelService(row.iid);
-        const keys = Array.isArray(data) ? data : (Array.isArray(data?.labels) ? data.labels : []);
-        const unique = Array.from(new Set(keys.filter(Boolean)));
-        setVendorLabelsMap(prev => ({ ...prev, [rowId]: unique }));
-      } catch (e) {
-        console.error(e);
+    const needLabels = !vendorLabelsMap[rowId];
+    const needInvoices = !vendorInvoicesMap[rowId];
+
+    if (!needLabels && !needInvoices) return;
+
+    try {
+      const [labelData, invoiceData] = await Promise.all([
+        needLabels ? getInternationalShipmentThirdPartyLabelService(row.iid) : Promise.resolve(null),
+        needInvoices ? getInternationalShipmentThirdPartyInvoiceService(row.iid) : Promise.resolve(null),
+      ]);
+
+      if (needLabels) {
+        const labelKeys = Array.isArray(labelData)
+          ? labelData
+          : (Array.isArray(labelData?.labels) ? labelData.labels : []);
+        const uniqueLabels = Array.from(new Set(labelKeys.filter(Boolean)));
+        setVendorLabelsMap(prev => ({ ...prev, [rowId]: uniqueLabels }));
+      }
+
+      if (needInvoices) {
+        const invoiceKeys = Array.isArray(invoiceData)
+          ? invoiceData
+          : (Array.isArray(invoiceData?.invoices) ? invoiceData.invoices : []);
+        const uniqueInvoices = Array.from(new Set(invoiceKeys.filter(Boolean)));
+        setVendorInvoicesMap(prev => ({ ...prev, [rowId]: uniqueInvoices }));
+      }
+    } catch (e) {
+      console.error(e);
+      if (needLabels) {
         setVendorLabelsMap(prev => ({ ...prev, [rowId]: [] }));
+      }
+      if (needInvoices) {
+        setVendorInvoicesMap(prev => ({ ...prev, [rowId]: [] }));
       }
     }
   };
@@ -2135,7 +1803,8 @@ const Listing = ({ step, setStep }) => {
       filterable: false,
       renderCell: (params) => {
         const rowId = getRowKey(params.row);
-        const vendorKeys = vendorLabelsMap[rowId] || [];
+        const vendorLabelKeys = vendorLabelsMap[rowId] || [];
+        const vendorInvoiceKeys = vendorInvoicesMap[rowId] || [];
         return (
           <Box display="flex" gap={1} alignItems={'center'} height={80}>
             <Button
@@ -2208,10 +1877,10 @@ const Listing = ({ step, setStep }) => {
             >
               <MenuItem onClick={() => { handleCloseDownload(); handleGetLabel(params.row.iid); }}>Shipment Label</MenuItem>
               <MenuItem onClick={() => { handleCloseDownload(); handleGetInvoice(params.row.iid); }}>Invoice</MenuItem>
-              {vendorKeys.length > 0 && (
+              {vendorLabelKeys.length > 0 && (
                 <>
                   <MenuItem disabled divider>Vendor Labels</MenuItem>
-                  {vendorKeys.map((key, idx) => (
+                  {vendorLabelKeys.map((key, idx) => (
                     <MenuItem
                       key={key + idx}
                       onClick={() => {
@@ -2226,6 +1895,28 @@ const Listing = ({ step, setStep }) => {
                       }}
                     >
                       {`Vendor Label ${idx + 1}`}
+                    </MenuItem>
+                  ))}
+                </>
+              )}
+              {vendorInvoiceKeys.length > 0 && (
+                <>
+                  <MenuItem disabled divider>Vendor Invoices</MenuItem>
+                  {vendorInvoiceKeys.map((key, idx) => (
+                    <MenuItem
+                      key={key + idx}
+                      onClick={() => {
+                        handleCloseDownload();
+                        const url = `${BUCKET_URL}${key}`;
+                        try { window.open(url, '_blank', 'noopener,noreferrer'); }
+                        catch {
+                          const a = document.createElement('a');
+                          a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                        }
+                      }}
+                    >
+                      {`Vendor Invoice ${idx + 1}`}
                     </MenuItem>
                   ))}
                 </>
