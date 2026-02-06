@@ -1595,10 +1595,13 @@ const Listing = ({ step, setStep }) => {
     if (!needLabels && !needInvoices) return;
 
     try {
-      const [labelData, invoiceData] = await Promise.all([
+      let [labelData, invoiceData] = await Promise.allSettled([
         needLabels ? getInternationalShipmentThirdPartyLabelService(row.iid) : Promise.resolve(null),
         needInvoices ? getInternationalShipmentThirdPartyInvoiceService(row.iid) : Promise.resolve(null),
       ]);
+
+      labelData = labelData?.status === 'fulfilled' ? labelData.value : null;
+      invoiceData = invoiceData?.status === 'fulfilled' ? invoiceData.value : null;
 
       if (needLabels) {
         const labelKeys = Array.isArray(labelData)
