@@ -1752,7 +1752,7 @@ const Listing = ({ step, setStep }) => {
             ) : null}
             
             {/* Label Button - only for shipped, non-cancelled, specific services */}
-            {(isShipped && !isProcessing && !isCancelled && ![6].includes(serviceId)) ? (
+            {(isShipped && !isProcessing && !isCancelled && (serviceId == 6 && params.row.aggregatorServiceId == 'ekart')) ? (
               <Button
                 variant="contained"
                 size="small"
