@@ -307,7 +307,12 @@ const handleDeleteDocket = (index) => {
     ...docket,
     box_no: i + 1,
   }));
+  const newItems = items.filter((_, i) => i !== index).map((item, i) => ({
+    ...item,
+    box_no: i + 1,
+  }));
   setDockets(newDockets);
+  setItems(newItems);
 };
 const handleAddDocket = () => {
   const docketLen = dockets.length;
