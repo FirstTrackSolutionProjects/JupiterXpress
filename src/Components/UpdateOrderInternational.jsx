@@ -303,16 +303,33 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped, onUpdated }) =
   ]);
   
 const handleDeleteDocket = (index) => {
-  const newDockets = dockets.filter((_, i) => i !== index).map((docket, i) => ({
-    ...docket,
-    box_no: i + 1,
-  }));
-  const newItems = items.filter((_, i) => i !== index).map((item, i) => ({
-    ...item,
-    box_no: i + 1,
-  }));
-  setDockets(newDockets);
-  setItems(newItems);
+  const deletedBoxNo = index + 1;
+
+  setDockets((prev) =>
+    prev
+      .filter((_, i) => i !== index)
+      .map((docket, i) => ({
+        ...docket,
+        box_no: i + 1,
+      }))
+  );
+
+  // Remove items belonging to the deleted box.
+  // For remaining items, shift box numbers down by 1 only if they were after the deleted box.
+  setItems((prev) =>
+    prev
+      .filter((it) => {
+        const bn = parseInt(it.box_no, 10);
+        return !(Number.isFinite(bn) && bn === deletedBoxNo);
+      })
+      .map((it) => {
+        const bn = parseInt(it.box_no, 10);
+        if (Number.isFinite(bn) && bn > deletedBoxNo) {
+          return { ...it, box_no: bn - 1 };
+        }
+        return it;
+      })
+  );
 };
 const handleAddDocket = () => {
   const docketLen = dockets.length;

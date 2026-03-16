@@ -218,10 +218,28 @@ const ManageForm = ({ shipment, isManage, setIsManage, isShipped }) => {
     { box_no: 1, docket_weight: 0, docket_weight_unit: "kg", length: 0, breadth: 0, height: 0, quantity: 1 },
   ]);
   const handleDeleteDocket = (index) => {
-    const newDockets = dockets
-      .filter((_, i) => i !== index)
-      .map((docket, i) => ({ ...docket, box_no: i + 1 }));
-    setDockets(newDockets);
+    const deletedBoxNo = index + 1;
+
+    setDockets((prev) =>
+      prev
+        .filter((_, i) => i !== index)
+        .map((docket, i) => ({ ...docket, box_no: i + 1 }))
+    );
+
+    setItems((prev) =>
+      prev
+        .filter((it) => {
+          const bn = parseInt(it.box_no, 10);
+          return !(Number.isFinite(bn) && bn === deletedBoxNo);
+        })
+        .map((it) => {
+          const bn = parseInt(it.box_no, 10);
+          if (Number.isFinite(bn) && bn > deletedBoxNo) {
+            return { ...it, box_no: bn - 1 };
+          }
+          return it;
+        })
+    );
   };
   const handleAddDocket = () => {
     setDockets([
