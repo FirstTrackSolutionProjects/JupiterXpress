@@ -1437,20 +1437,21 @@ const AllInternationalShipmentReports = () => {
                   {(vendorLabelsMap[rowId] || []).map((key, idx) => (
                     <MenuItem
                       key={key + idx}
-                      onClick={() => {
+                      onClick={async () => {
                         handleCloseDownload();
                         const url = `${BUCKET_URL}${key}`;
-                        try {
-                          window.open(url, "_blank", "noopener,noreferrer");
-                        } catch {
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.target = "_blank";
-                          a.rel = "noopener noreferrer";
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                        }
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = blobUrl;
+                        let ext = "pdf";
+                        if (key.toLowerCase().endsWith(".jpg") || key.toLowerCase().endsWith(".jpeg")) ext = "jpg";
+                        else if (key.toLowerCase().endsWith(".png")) ext = "png";
+                        a.download = `Vendor_Label_${row.iid}_${idx + 1}.${ext}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
                       }}
                     >
                       {`Vendor Label ${idx + 1}`}
