@@ -53,13 +53,16 @@ const Dashboard = () => {
       if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin)) {
         return [];
       }
-      const routes = [
-        <Route
-          key={item.url || `route-${index}`}
-          path={item.url}
-          element={item.component ? createElement(item.component) : null}
-        />
-      ];
+      const routes = [];
+      if (item.component) {
+        routes.push(
+          <Route
+            key={item.url || `route-${index}`}
+            path={item.url}
+            element={createElement(item.component)}
+          />
+        );
+      }
       if (item.dropDownOptions && item.dropDownOptions.length > 0) {
         routes.push(...generateRoutes(item.dropDownOptions, isAdmin));
       }
@@ -82,7 +85,7 @@ const Dashboard = () => {
               </div>
               <div className={`relative  ${isOpen?'w-[300px] min-w-[300px]':'w-0'} block md:hidden  h-full  bg-white  pt-12`}>
               {isOpen? <XIcon className="absolute h-8 z-[1] top-3 left-3" onClick={()=>setIsOpen(false)} /> : <MenuIcon className="absolute h-8 z-50 top-3 left-3" onClick={()=>setIsOpen(true)}  />}
-                <div className={`relative w-full block md:hidden  h-full  bg-white overflow-y-auto overflow-x-hidden`}>
+                <div className={`relative w-full block md:hidden  h-full  bg-white overflow-y-auto overflow-x-hidden pb-32`}>
                 {menuItems.map((item,index) =>{
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
@@ -93,7 +96,7 @@ const Dashboard = () => {
            
               </div>
               {showRecharge ? <Recharge setShowRecharge={setShowRecharge}/> : null}
-              <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden">
+              <div className="relative w-full bg-gray-100 overflow-y-auto overflow-x-hidden pb-32 md:pb-0">
                 <Routes>
                   {generateRoutes(menuItems, isAdmin)}
                 </Routes>

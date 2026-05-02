@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge}) => {
+const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge, hidden}) => {
+  if (hidden) return null;
   const location = useLocation()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(0)
@@ -20,7 +21,7 @@ const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge
     </div>
     {isDropdown ? <div className={`  ${isOpen?``:"hidden"}`}>
         {dropDownOptions.map((subitem,index) => (
-            <MenuItem key={index} icon="" name={subitem.name} url={subitem.url} isDropdown={subitem.isDropdown} dropDownOptions={subitem.dropDownOptions} />
+            <MenuItem key={index} icon="" name={subitem.name} url={subitem.url} isDropdown={subitem.isDropdown} dropDownOptions={subitem.dropDownOptions} hidden={subitem.hidden} />
         ))}
     </div> : null}
       </>

@@ -98,8 +98,8 @@ const Menu = ({spaceTheme, setSpaceTheme} ) => {
           </div>
         )}
         {navItems.map((item, index) =>(
-          <div onClick={item.isDropdown?()=>{}:()=>toggleMenu()} className='w-full text-3xl text-medium text-center'>
-            <NavItem key={index} name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} toggleMenu={toggleMenu}  />
+          <div key={index} onClick={item.isDropdown?()=>{}:()=>toggleMenu()} className='w-full text-3xl text-medium text-center'>
+            <NavItem name={item.name} url={item.url} isDropdown={item.isDropdown} options={item.options} toggleMenu={toggleMenu}  />
           </div>
         ))}
         {username && (
