@@ -30,6 +30,11 @@ import UpdateProfileRequestSubmissions from '../Components/UpdateProfileRequestS
 import CodRemittanceAdmin from "../Components/CodRemittance/CodRemittanceAdmin"
 import CodRemittanceMerchant from "../Components/CodRemittance/CodRemittanceMerchant"
 import InternationalWeightDisputes from "../Components/InternationalWeightDisputes"
+import Support from "../Pages/Support"
+import TicketDetail from "../Pages/TicketDetail"
+import AdminSupport from "../Pages/AdminSupport"
+import AdminTicketDetail from "../Pages/AdminTicketDetail"
+import AdminAnalytics from "../Pages/AdminAnalytics"
 
 export const navItems = [
     {
@@ -423,6 +428,59 @@ export const menuItems = [
         url : 'manual-recharge',
         component : ManualRecharge,
         dropDownOptions : [{}]
+    },
+    {
+        icon : "/logo.webp",
+        name : "Support",
+        isDropdown : true,
+        admin : true,
+        url : 'admin/support',
+        dropDownOptions : [
+            {
+                icon : "/logo.webp",
+                name : "Ticket Overview",
+                isDropdown : false,
+                url : 'admin/support',
+                component : AdminSupport,
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "/logo.webp",
+                name : "Support Analytics",
+                isDropdown : false,
+                url : 'admin/support/analytics',
+                component : AdminAnalytics,
+                dropDownOptions : [{}]
+            },
+            {
+                icon : "/logo.webp",
+                name : "Ticket Detail",
+                isDropdown : false,
+                url : 'admin/support/:id',
+                component : AdminTicketDetail,
+                dropDownOptions : [{}],
+                hidden: true
+            }
+        ]
+    },
+    {
+        icon : "/logo.webp",
+        name : "Support",
+        isDropdown : false,
+        merchantOnly : true,
+        url : 'support',
+        component : Support,
+        dropDownOptions : [
+            {
+                icon : "/logo.webp",
+                name : "Ticket Detail",
+                isDropdown : false,
+                url : 'support/:id',
+                component : TicketDetail,
+                dropDownOptions : [{}],
+                hidden: true
+            }
+        ]
     },
     {
         icon : "/logo.webp",

@@ -14,8 +14,11 @@ const Index = ({spaceTheme, setSpaceTheme}) => {
     <>
       <Header setLoggedIn={setLoggedIn} spaceTheme={spaceTheme} setSpaceTheme={setSpaceTheme} />
       {
-        spaceTheme? <WelcomeSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn}  /> : <div className={{
-          backgroundColor: spaceTheme ? null : 'bg-indigo-200'}}> <NonSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn} /></div>
+        spaceTheme ? (
+          <WelcomeSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+        ) : (
+          <NonSpaceTheme loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+        )
       }
       <ChooseUs/>
       <LandingInfo/>

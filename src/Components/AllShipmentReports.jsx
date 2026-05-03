@@ -12,15 +12,319 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
+  Tooltip,
+  Typography,
+  Divider,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import * as XLSX from 'xlsx';
 import DownloadIcon from '@mui/icons-material/Download';
 import { toast } from "react-toastify";
 import convertToUTCISOString from "../helpers/convertToUTCISOString";
+import TrackingShareDialog from './TrackingShareDialog';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
+
+const OrderDetailsDialog = ({ isOpen, onClose, orderId, shipment }) => {
+  const [boxes, setBoxes] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isOpen || !orderId || !shipment) return;
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const [ordRes, boxRes] = await Promise.all([
+          fetch(`${API_URL}/order/domestic`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('token') },
+            body: JSON.stringify({ order: orderId }),
+          }).then(res => res.json()),
+          fetch(`${API_URL}/order/domestic/boxes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('token') },
+            body: JSON.stringify({ order: orderId }),
+          }).then(res => res.json())
+        ]);
+        if (ordRes.success) setItems(ordRes.order);
+        if (boxRes.success) setBoxes(boxRes.order);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, [isOpen, orderId]);
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED': return 'success';
+      case 'CANCELLED': return 'error';
+      case 'RTO':
+      case 'RTO DELIVERED': return 'warning';
+      default: return 'primary';
+    }
+  };
+
+  return (
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose} 
+      maxWidth="md" 
+      fullWidth
+      PaperProps={{
+        sx: { 
+          borderRadius: { xs: 2, sm: 3 }, 
+          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          m: { xs: 1, sm: 2 },
+          width: { xs: 'calc(100% - 16px)', sm: 'auto' }
+        }
+      }}
+    >
+      <DialogTitle sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Typography variant="h6" fontWeight="700" color="text.primary" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+              Order Details - {orderId}
+            </Typography>
+            <Chip 
+              label={shipment?.status || 'PENDING'} 
+              color={getStatusColor(shipment?.status)} 
+              size="small" 
+              sx={{ fontWeight: 600, px: 1, height: 20, fontSize: '0.65rem' }}
+            />
+          </Box>
+          <IconButton onClick={onClose} sx={{ '&:hover': { color: 'error.main', bgcolor: 'error.light' }, p: 0.5 }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mt: 2 }} />
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: { xs: 2, sm: 3 }, pt: 0 }}>
+        {loading ? (
+          <Box p={8} textAlign="center" display="flex" flexDirection="column" alignItems="center" gap={2}>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-800"></div>
+            <Typography color="text.secondary">Fetching order details...</Typography>
+          </Box>
+        ) : (
+          <Box className="space-y-6 md:space-y-8">
+            <Box className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, bgcolor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                <Typography variant="subtitle2" color="text.secondary" fontWeight="700" sx={{ letterSpacing: '0.05em', fontSize: '0.7rem' }} gutterBottom>
+                  CONTACT INFORMATION
+                </Typography>
+                <Box className="grid grid-cols-2 gap-x-3 gap-y-4 mt-4">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Merchant</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.fullName}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.email}</Typography>
+                    <Typography variant="caption" color="text.secondary">{shipment.phone}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Customer</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.customer_name}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.customer_email}</Typography>
+                    <Typography variant="caption" color="text.secondary">{shipment.customer_mobile}</Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, bgcolor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                <Typography variant="subtitle2" color="text.secondary" fontWeight="700" sx={{ letterSpacing: '0.05em', fontSize: '0.7rem' }} gutterBottom>
+                  SHIPMENT INFO
+                </Typography>
+                <Box className="grid grid-cols-2 gap-x-2 gap-y-4 mt-4">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Service Type</Typography>
+                    <Chip label={shipment.is_b2b ? "B2B" : "B2C"} size="small" color="default" sx={{ mt: 0.5, fontWeight: 700, height: 20 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Courier Service</Typography>
+                    <Typography variant="body2" fontWeight="600" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.service_name} {shipment.shipping_mode ? `(${shipment.shipping_mode})` : ''}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Payment Mode</Typography>
+                    <Typography variant="body2" fontWeight="700" color={shipment.pay_method === "COD" ? "error.main" : "success.main"} sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.pay_method} 
+                      {shipment.pay_method === "COD" && <span> (₹{parseInt(shipment.cod_amount)})</span>}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Warehouse</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'}, wordBreak: 'break-word' }}>{shipment.warehouseName || 'N/A'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Shipping Charge</Typography>
+                    <Typography variant="body2" fontWeight="700" color="error.main" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.shipping_charge ? `- ₹${parseFloat(shipment.shipping_charge).toFixed(2)}` : 'N/A'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ gridColumn: 'span 2' }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">AWB Number</Typography>
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <Typography variant="body2" fontWeight="800" color="primary.main" sx={{ wordBreak: 'break-all', fontSize: {xs: '0.85rem', sm: '1rem'} }}>{shipment.awb || 'N/A'}</Typography>
+                      {shipment.awb && (
+                        <Tooltip title="Copy AWB">
+                          <IconButton size="small" onClick={() => handleCopy(shipment.awb)} sx={{ p: 0.5 }}>
+                            <ContentCopyIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+
+            <Box className="grid grid-cols-1 md:grid-cols-2 gap-6 px-1">
+              <Box>
+                <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary" sx={{ fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                  <Box sx={{ width: 6, height: 18, bgcolor: 'primary.main', borderRadius: 0.5 }} />
+                  ORIGIN
+                </Typography>
+                <Box sx={{ pl: 2.5 }}>
+                  <Typography variant="body2" fontWeight="700" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                    {shipment.warehouse_city}, {shipment.warehouse_state}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                    {shipment.warehouse_country} — {shipment.warehouse_pin}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary" sx={{ fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                  <Box sx={{ width: 6, height: 18, bgcolor: 'error.main', borderRadius: 0.5 }} />
+                  DESTINATION
+                </Typography>
+                <Box sx={{ pl: 2.5 }}>
+                  <Typography variant="body2" fontWeight="700" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                    {shipment.shipping_city}, {shipment.shipping_state}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                    {shipment.shipping_country} — {shipment.shipping_postcode}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary">
+                <InventoryIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                PACKAGES ({boxes.length})
+              </Typography>
+              <Paper variant="outlined" sx={{ overflowX: 'auto', borderRadius: 2, border: '1px solid #E5E7EB' }}>
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Box #</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Dimensions (L×B×H cm)</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-right">Weight</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-center">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {boxes.map((b, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm font-semibold text-gray-700">{b.box_no}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600">{b.length} × {b.breadth} × {b.height}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-900 font-bold text-right">{b.weight} {b.weight_unit}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 text-center font-medium">{b.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Paper>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary">
+                <ListAltIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                ITEM DETAILS
+              </Typography>
+              <Paper variant="outlined" sx={{ overflowX: 'auto', borderRadius: 2, border: '1px solid #E5E7EB' }}>
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Box #</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Product Name</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-center">Qty</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-right">Unit Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((it, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm font-semibold text-gray-700">{it.box_no}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 font-medium" style={{ wordBreak: 'break-word' }}>{it.product_name}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 text-center font-bold">{it.product_quantity}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-900 font-bold text-right">₹{parseFloat(it.selling_price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Paper>
+            </Box>
+
+            <Box display="flex" justifyContent="flex-end" pt={2} pb={2}>
+              <Paper 
+                variant="elevation" 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 2, sm: 3 }, 
+                  borderRadius: 3, 
+                  minWidth: { xs: '100%', sm: 280 }, 
+                  bgcolor: '#F3F4F6',
+                  border: '1px solid #E5E7EB'
+                }}
+              >
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total Items</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    {items.reduce((acc, item) => acc + parseInt(item.product_quantity), 0)}
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total dead weight</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    {boxes.reduce((acc, box) => acc + (parseFloat(box.weight) * parseInt(box.quantity || 1)), 0).toFixed(3)} {boxes[0]?.weight_unit || 'kg'}
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total volumetric weight</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    {(boxes.reduce((acc, box) => acc + (parseFloat(box.length) * parseFloat(box.breadth) * parseFloat(box.height) * parseInt(box.quantity || 1)), 0) / (shipment?.is_b2b ? 4500 : 5000)).toFixed(3)} kg
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 2, borderColor: '#D1D5DB' }} />
+                <Box display="flex" justifyContent="space-between" alignItems="baseline">
+                  <Typography variant="subtitle1" fontWeight="800" color="text.primary">Total Amount</Typography>
+                  <Typography variant="h6" fontWeight="900" color="primary.main">
+                    ₹{items.reduce((acc, item) => acc + (parseFloat(item.selling_price) * parseInt(item.product_quantity)), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Box>
+          </Box>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const ReportCard = ({ report, status }) => {
   return (
@@ -211,6 +515,9 @@ const Listing = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isTrackingShareOpen, setIsTrackingShareOpen] = useState(false);
+  const [currentTrackingShareData, setCurrentTrackingShareData] = useState(null);
   const [filters, setFilters] = useState({
     merchant_email: "",
     merchant_name: "",
@@ -274,6 +581,21 @@ const Listing = () => {
     }
   };
 
+  const handleTrackAndShare = async (reportRow) => {
+    if (!reportRow?.awb) return toast.error("AWB missing");
+    setSelectedReport(reportRow);
+    setIsTrackingShareOpen(true);
+    try {
+      const response = await fetch(`${API_URL}/shipment/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ awb: reportRow.awb })
+      });
+      const result = await response.json();
+      setCurrentTrackingShareData(result);
+    } catch (error) { setCurrentTrackingShareData({ success: false }); }
+  };
+
   const handleCancel = async (row) => {
     const cancel = confirm('Do you want to cancel this shipment?');
     if (!cancel) return;
@@ -299,21 +621,51 @@ const Listing = () => {
 
   const columns = [
     { field: 'ref_id', headerName: 'Reference ID', width: 130 },
-    { field: 'ord_id', headerName: 'Order ID', width: 130 },
-    { 
-      field: 'date', 
-      headerName: 'Date', 
-      width: 180,
-      renderCell: (params) => 
-        params.value ? new Date(params.value).toLocaleString() : ''
+    { field: 'merchant_details', headerName: 'Merchant Details', width: 250,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', whiteSpace: 'normal', lineHeight: 1.3, height: 130, justifyContent: 'center' }}>
+          <div className="font-bold">{params.row.fullName}</div>
+          <div>{params.row.email}</div>
+          <div>{params.row.phone}</div>
+        </Box>
+      )
     },
-    { field: 'fullName', headerName: 'Merchant Name', width: 180 },
-    { field: 'email', headerName: 'Merchant Email', width: 200 },
-    { field: 'awb', headerName: 'AWB', width: 150 },
-    { 
-      field: 'service_name', 
-      headerName: 'Service', 
-      width: 150
+    { field: 'customer_details', headerName: 'Customer Details', width: 250,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', whiteSpace: 'normal', lineHeight: 1.3, height: 130, justifyContent: 'center' }}>
+          <div className="font-bold">{params.row.customer_name}</div>
+          <div>{params.row.customer_email}</div>
+          <div>{params.row.customer_mobile}</div>
+        </Box>
+      )
+    },
+    {
+      field: 'from_to', headerName: 'Origin', width: 200,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', whiteSpace: 'normal', lineHeight: 1.3, height: 130, justifyContent: 'center' }}>
+          <div>{params.row.warehouse_city}, {params.row.warehouse_state}</div>
+          <div>{params.row.warehouse_country} - {params.row.warehouse_pin}</div>
+        </Box>
+      )
+    },
+    { field: 'to_address', headerName: 'Destination', width: 200,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', whiteSpace: 'normal', lineHeight: 1.3, height: 130, justifyContent: 'center' }}>
+          <div>{params.row.shipping_city}, {params.row.shipping_state}</div>
+          <div>{params.row.shipping_country} - {params.row.shipping_postcode}</div>
+        </Box>
+      )
+    },
+    { field: 'shipment_details', headerName: 'Shipment Details', width: 300,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexDirection: 'column', whiteSpace: 'normal', lineHeight: 1.3, justifyContent: 'center', height: 130 }}>
+          <div>Pay Method: {params.row.pay_method} {params.row.pay_method === "COD" ? ` - ₹${parseInt(params.row.cod_amount)}` : ''}</div>
+          <div>Service: {params.row.service_name} {params.row.shipping_mode ? `(${params.row.shipping_mode})` : ''}</div>
+          <div>AWB: {params.row.awb}</div>
+          <div>Order ID: {params.row.ord_id}</div>
+          <div>{params.row.date ? new Date(params.row.date).toLocaleString() : ''}</div>
+        </Box>
+      )
     },
     {
       field: 'status',
@@ -323,21 +675,30 @@ const Listing = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      width: 320,
       renderCell: (params) => (
-        <Box display="flex h-16" gap={1}>
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', gap: 1, flexWrap: 'wrap' }}>
           <Button
-            variant="contained"
+            variant="outlined"
             size="small"
-            sx={{ mr: 1 }}
             onClick={() => {
               setSelectedReport(params.row);
-              setIsViewOpen(true);
+              setIsDetailsOpen(true);
             }}
           >
-            View Status
+            Details
           </Button>
-          {!params.row.cancelled && [1,2,6].includes(params.row.serviceId) && (
+          {params.row.awb && (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={() => handleTrackAndShare(params.row)}
+            >
+              Track
+            </Button>
+          )}
+          {!params.row.cancelled && (
             <Button
               variant="contained"
               color="error"
@@ -569,6 +930,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
+            rowHeight={130}
             disableSelectionOnClick
             getRowId={(row) => row.ref_id}
           />
@@ -585,6 +947,22 @@ const Listing = () => {
       <ViewDialog
         isOpen={isViewOpen}
         onClose={() => setIsViewOpen(false)}
+        report={selectedReport}
+      />
+
+      {selectedReport && (
+        <OrderDetailsDialog
+          isOpen={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          orderId={selectedReport.ord_id}
+          shipment={selectedReport}
+        />
+      )}
+
+      <TrackingShareDialog
+        isOpen={isTrackingShareOpen}
+        onClose={() => setIsTrackingShareOpen(false)}
+        trackingData={currentTrackingShareData}
         report={selectedReport}
       />
     </div>
