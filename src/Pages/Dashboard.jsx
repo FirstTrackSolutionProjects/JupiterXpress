@@ -74,8 +74,8 @@ const Dashboard = () => {
   return (
      <>
         <>
-            <div className="absolute inset-0 flex  pt-16">
-              <div className="min-w-[250px]  md:block hidden  h-full relative bg-blue-100 overflow-y-auto overflow-x-hidden">
+            <div className="absolute inset-0 flex pt-16">
+              <div className="min-w-[250px] md:block hidden h-full relative bg-slate-900 text-white overflow-y-auto overflow-x-hidden border-r border-slate-800 shadow-xl">
                 {menuItems.map((item,index) =>{
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
@@ -83,9 +83,9 @@ const Dashboard = () => {
                   <MenuItem key={index} setShowRecharge={setShowRecharge} icon={item.icon} name={item.name} url={item.url} isDropdown={item.isDropdown} dropDownOptions={item.dropDownOptions} />
                   )})}
               </div>
-              <div className={`relative  ${isOpen?'w-[300px] min-w-[300px]':'w-0'} block md:hidden  h-full  bg-white  pt-12`}>
-              {isOpen? <XIcon className="absolute h-8 z-[1] top-3 left-3" onClick={()=>setIsOpen(false)} /> : <MenuIcon className="absolute h-8 z-50 top-3 left-3" onClick={()=>setIsOpen(true)}  />}
-                <div className={`relative w-full block md:hidden  h-full  bg-white overflow-y-auto overflow-x-hidden pb-32`}>
+              <div className={`relative ${isOpen?'w-[280px] min-w-[280px]':'w-0'} block md:hidden h-full bg-slate-900 pt-12 transition-all duration-300 border-r border-slate-800 shadow-2xl`}>
+              {isOpen? <XIcon className="absolute h-8 z-[60] top-3 left-3 text-white cursor-pointer" onClick={()=>setIsOpen(false)} /> : <MenuIcon className="absolute h-8 z-50 top-3 left-3 text-slate-900 cursor-pointer" onClick={()=>setIsOpen(true)}  />}
+                <div className={`relative w-full block md:hidden h-full bg-slate-900 overflow-y-auto overflow-x-hidden pb-40`}>
                 {menuItems.map((item,index) =>{
                   if ((item.admin && !isAdmin) || (item.merchantOnly && isAdmin))
                     return;
