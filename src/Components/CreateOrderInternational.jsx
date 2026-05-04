@@ -79,9 +79,24 @@ const FullDetails = () => {
 
   const handleFileChange = (e) => {
     const { name, files: newFiles } = e.target;
+    const file = newFiles[0];
+
+    if (name === "aadhaarDoc" && file) {
+      const allowedTypes = ["application/pdf", "image/jpeg"];
+      const fileName = (file.name || "").toLowerCase();
+      const isAllowedType = allowedTypes.includes(file.type);
+      const isAllowedExtension = fileName.endsWith(".pdf") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg");
+
+      if (!isAllowedType && !isAllowedExtension) {
+        toast.error("Aadhaar document must be a JPG, JPEG, or PDF file");
+        e.target.value = "";
+        return;
+      }
+    }
+
     setFiles((prev) => ({
       ...prev,
-      [name]: newFiles[0]
+      [name]: file
     }));
   };
 
@@ -1014,7 +1029,7 @@ const FullDetails = () => {
             </div>
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium" htmlFor="aadhaarDoc">Aadhaar Document (PDF/Image)*</label>
-              <input id="aadhaarDoc" required name="aadhaarDoc" type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="w-full border py-2 px-3 rounded-xl" />
+              <input id="aadhaarDoc" required name="aadhaarDoc" type="file" accept=".jpg,.jpeg,.pdf,application/pdf,image/jpeg" onChange={handleFileChange} className="w-full border py-2 px-3 rounded-xl" />
             </div>
           </div>
         </section>
