@@ -12,14 +12,14 @@ const MenuItem = ({icon, name, url, isDropdown, dropDownOptions, setShowRecharge
   },[navigate])
   return (
     <>
-    <div onClick={isDropdown?()=>setIsOpen(!isOpen):(name==="Wallet Recharge"?()=>setShowRecharge(true):()=>navigate(url))} className={` cursor-pointer px-2 w-full h-12 ${isCurrentMenu?'bg-[rgba(37,168,229,0.6)]':'bg-white'} transition-all duration-300 hover:bg-[rgba(37,168,229,0.6)] relative flex items-center border-r-2 border-b-2`}>
-      <img src={icon} alt="" className='w-12' />
-      <p className=''>{name}</p>
-      {isDropdown ? <p className={`absolute transition-transform duration-300 ${isOpen?"rotate-90":""} right-1`}>
+    <div onClick={isDropdown?()=>setIsOpen(!isOpen):(name==="Wallet Recharge"?()=>setShowRecharge(true):()=>navigate(url))} className={` cursor-pointer px-4 w-full min-h-[48px] py-2 ${isCurrentMenu?'bg-blue-600/90 text-white shadow-inner':'bg-slate-900 text-slate-300'} transition-all duration-300 hover:bg-slate-800 hover:text-white relative flex items-center border-b border-slate-800/40`}>
+      {icon && <img src={icon} alt="" className={`w-6 h-6 mr-3 object-contain ${isCurrentMenu ? 'brightness-0 invert' : 'opacity-70 group-hover:opacity-100 brightness-0 invert'}`} />}
+      <p className='text-sm font-medium truncate'>{name}</p>
+      {isDropdown ? <p className={`ml-auto text-xs transition-transform duration-300 ${isOpen?"rotate-90":""}`}>
         &#9656;	
       </p> : null}
     </div>
-    {isDropdown ? <div className={`  ${isOpen?``:"hidden"}`}>
+    {isDropdown ? <div className={` bg-slate-950/50 ${isOpen?``:"hidden"}`}>
         {dropDownOptions.map((subitem,index) => (
             <MenuItem key={index} icon="" name={subitem.name} url={subitem.url} isDropdown={subitem.isDropdown} dropDownOptions={subitem.dropDownOptions} hidden={subitem.hidden} />
         ))}
