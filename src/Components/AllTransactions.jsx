@@ -16,6 +16,8 @@ const columns = [
   { field: 'date', headerName: 'Date', flex: 1, valueGetter: p => p?.row?.date, renderCell: p => new Date(p.row.date).toLocaleString() },
   { field: 'type', headerName: 'Type', flex: 1 },
   { field: 'order_id', headerName: 'Order ID', flex: 1 },
+  { field: 'awb', headerName: 'AWB', flex: 1 },
+  { field: 'ref_id', headerName: 'Ref ID', flex: 1 },
   { field: 'payment_id', headerName: 'Payment ID', flex: 1, hide: true },
   { field: 'fullName', headerName: 'Merchant Name', flex: 1 },
   { field: 'email', headerName: 'Email', flex: 1 },
@@ -44,6 +46,8 @@ const AllTransactions = () => {
   const [filters, setFilters] = useState({
     type: 'all',
     order_id: '',
+    awb: '',
+    ref_id: '',
     merchant_email: '',
     merchant_name: '',
     merchant_business_name: '',
@@ -73,6 +77,8 @@ const AllTransactions = () => {
         startDate: convertToUTCISOString(`${debouncedFilters.startDate}T00:00:00`),
         endDate: convertToUTCISOString(`${debouncedFilters.endDate}T23:59:59.999`),
         order_id: debouncedFilters.order_id,
+        awb: debouncedFilters.awb,
+        ref_id: debouncedFilters.ref_id,
         merchant_email: debouncedFilters.merchant_email,
         merchant_name: debouncedFilters.merchant_name,
         merchant_business_name: debouncedFilters.merchant_business_name,
@@ -151,7 +157,7 @@ const AllTransactions = () => {
       <div className='w-full max-w-7xl px-4 flex flex-col gap-4'>
         <h1 className='text-2xl font-semibold text-center'>Admin Transactions</h1>
         <div className='bg-blue-500 text-white p-4 rounded-lg space-y-4'>
-          <div className='grid md:grid-cols-8 gap-3'>
+          <div className='grid md:grid-cols-5 gap-3'>
             <select name='type' value={filters.type} onChange={handleFilterChange} className='p-2 rounded text-black'>
               <option value='all'>All Types</option>
               <option value='recharge'>Recharge</option>
@@ -162,6 +168,8 @@ const AllTransactions = () => {
               <option value='extra'>Extra Charge</option>
             </select>
             <input name='order_id' value={filters.order_id} onChange={handleFilterChange} placeholder='Order ID' className='p-2 rounded text-black'/>
+            <input name='awb' value={filters.awb} onChange={handleFilterChange} placeholder='AWB' className='p-2 rounded text-black'/>
+            <input name='ref_id' value={filters.ref_id} onChange={handleFilterChange} placeholder='Ref ID' className='p-2 rounded text-black'/>
             <input name='merchant_email' value={filters.merchant_email} onChange={handleFilterChange} placeholder='Merchant Email' className='p-2 rounded text-black'/>
             <input name='merchant_name' value={filters.merchant_name} onChange={handleFilterChange} placeholder='Merchant Name' className='p-2 rounded text-black'/>
             <input name='merchant_business_name' value={filters.merchant_business_name} onChange={handleFilterChange} placeholder='Business Name' className='p-2 rounded text-black'/>
@@ -173,6 +181,8 @@ const AllTransactions = () => {
                   const payload = {
                     type: filters.type,
                     order_id: filters.order_id,
+                    awb: filters.awb,
+                    ref_id: filters.ref_id,
                     merchant_email: filters.merchant_email,
                     merchant_name: filters.merchant_name,
                     merchant_business_name: filters.merchant_business_name,

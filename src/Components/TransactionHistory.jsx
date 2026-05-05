@@ -16,6 +16,8 @@ const columns = [
     { field: 'date', headerName: 'Date', flex: 1, renderCell: (p) => new Date(p?.row?.date).toLocaleString() },
     { field: 'type', headerName: 'Type', flex: 1 },
     { field: 'order_id', headerName: 'Order ID', flex: 1 },
+    { field: 'awb', headerName: 'AWB', flex: 1 },
+    { field: 'ref_id', headerName: 'Ref ID', flex: 1 },
     { field: 'payment_id', headerName: 'Payment ID', flex: 1, hide: true },
     { field: 'service_name', headerName: 'Service', flex: 1 },
     { field: 'amount', headerName: 'Amount', flex: 1, renderCell: (p)=> p.value != null ? Number(p.value) : '' },
@@ -31,6 +33,8 @@ const TransactionHistory = () => {
     const [filters, setFilters] = useState({
         type: 'all',
         order_id: '',
+        awb: '',
+        ref_id: '',
         startDate: getFilterStartDate(),
         endDate: getTodaysDate()
     });
@@ -55,6 +59,8 @@ const TransactionHistory = () => {
                 startDate: convertToUTCISOString(`${debouncedFilters.startDate}T00:00:00`),
                 endDate: convertToUTCISOString(`${debouncedFilters.endDate}T23:59:59.999`),
                 order_id: debouncedFilters.order_id,
+                awb: debouncedFilters.awb,
+                ref_id: debouncedFilters.ref_id,
                 type: debouncedFilters.type
             });
             // Build a stable unique id; order_id can repeat across different types (e.g. expense & refund for same order)
@@ -133,7 +139,7 @@ const TransactionHistory = () => {
             <div className='w-full max-w-7xl px-4 flex flex-col gap-4'>
                 <h1 className='text-2xl font-semibold text-center'>Transaction History</h1>
                 <div className='bg-blue-500 text-white p-4 rounded-lg space-y-4'>
-                    <div className='grid md:grid-cols-5 gap-3'>
+                    <div className='grid md:grid-cols-6 gap-3'>
                         <select name='type' value={filters.type} onChange={handleFilterChange} className='p-2 rounded text-black'>
                             <option value='all'>All Types</option>
                             <option value='recharge'>Recharge</option>
@@ -144,6 +150,8 @@ const TransactionHistory = () => {
                             <option value='extra'>Extra Charge</option>
                         </select>
                         <input type='text' name='order_id' value={filters.order_id} onChange={handleFilterChange} placeholder='Order ID' className='p-2 rounded text-black'/>
+                        <input type='text' name='awb' value={filters.awb} onChange={handleFilterChange} placeholder='AWB' className='p-2 rounded text-black'/>
+                        <input type='text' name='ref_id' value={filters.ref_id} onChange={handleFilterChange} placeholder='Ref ID' className='p-2 rounded text-black'/>
                         <input type='date' name='startDate' value={filters.startDate} onChange={handleFilterChange} className='p-2 rounded text-black'/>
                         <input type='date' name='endDate' value={filters.endDate} onChange={handleFilterChange} className='p-2 rounded text-black'/>
                         <IconButton
@@ -152,6 +160,8 @@ const TransactionHistory = () => {
                                 const payload = {
                                   type: filters.type,
                                   order_id: filters.order_id,
+                                  awb: filters.awb,
+                                  ref_id: filters.ref_id,
                                   startDate: filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : '',
                                   endDate: filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : ''
                                 }
