@@ -62,7 +62,7 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
   }, [isOpen, trackingData]);
 
   const getTrackingLink = () => {
-    return report?.awb ? `${window.location.origin}/track?awb=${report.awb}` : '';
+    return report?.ref_id ? `${window.location.origin}/track?awb=${report.ref_id}` : '';
   };
 
   const generateTrackingMessage = () => {
@@ -70,8 +70,8 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
 
     let message = `*🚚 JupiterXpress - Shipment Tracking Update 🚚*\n\n`;
     message += `*----- Shipment Details ----*\n`;
-    message += `📦 *AWB:* ${report.awb || 'N/A'}\n`;
-    message += `🛒 *Order ID:* ${report.ord_id || 'N/A'}\n`;
+    // message += `📦 *AWB:* ${report.awb || 'N/A'}\n`;
+    message += `🛒 *AWB:* ${report.ref_id || 'N/A'}\n`;
     message += `👤 *Customer:* ${report.customer_name || 'N/A'}\n`;
     if (report.shipping_city) {
       message += `📍 *Destination:* ${report.shipping_city}, ${report.shipping_state || ''} - ${report.shipping_postcode || ''}\n`;
