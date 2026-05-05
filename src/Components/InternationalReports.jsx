@@ -991,16 +991,17 @@ const Listing = () => {
                 />
               </>
             )}
-            <TextField
-              label="AWB"
-              variant="outlined"
-              size="small"
-              name="awb"
-              value={filters.awb}
+            {isAdmin && (
+              <TextField
+                label="AWB"
+                variant="outlined"
+                size="small"
+                name="awb"
+                value={filters.awb}
               onChange={(e) => setFilters({ ...filters, awb: e.target.value })}
               sx={{ mr: 1, minWidth: "150px" }}
               InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
-            />
+            />)}
             <TextField
               label="Start Date"
               variant="outlined"
