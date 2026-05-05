@@ -843,7 +843,7 @@ const Listing = () => {
                 <div>{params.row.service_name}</div>
                 <div>{params.row.vendor_name}</div>
                 <div>Order Id: {params.row.iid}</div>
-                {params.row.awb && <div>AWB : {params.row.awb}</div>}
+                {isAdmin && params.row.awb && <div>AWB : {params.row.awb}</div>}
                 {params.row.shipping_charge && <div style={{ color: '#d32f2f', fontWeight: 'bold' }}>Charge: - ₹{Number(params.row.shipping_charge).toFixed(2)}</div>}
                 {(isAdmin && params.row.cost_price) ? <div style={{ color: '#6b7280' }}>Cost: ₹{Number(params.row.cost_price).toFixed(2)}</div> : null}
               </>
