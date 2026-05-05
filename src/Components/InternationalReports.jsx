@@ -799,7 +799,7 @@ const Listing = () => {
     )
   };
   const columns = [
-    { field: "ref_id", headerName: "Reference ID", width: 140 },
+    { field: "ref_id", headerName: `${isAdmin ? "Reference ID" : "AWB"}`, width: 140 },
     {
       field: "date",
       headerName: "Date",
@@ -934,7 +934,7 @@ const Listing = () => {
               InputLabelProps={{ sx: { backgroundColor: "white", px: 0.5, width: "100%", borderRadius: 1 } }}
             />
             <TextField
-              label="Reference ID"
+              label={isAdmin ? "Reference ID" : "AWB"}
               variant="outlined"
               size="small"
               name="ref_id"
