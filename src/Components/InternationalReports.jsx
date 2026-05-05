@@ -172,7 +172,7 @@ const InternationalOrderDetailsDialog = ({ isOpen, onClose, orderId, shipment, i
                       </Typography>
                     </Box>
                   )}
-                  <Box sx={{ gridColumn: 'span 2' }}>
+                  {isAdmin && <Box sx={{ gridColumn: 'span 2' }}>
                     <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">AWB Number</Typography>
                     <Box display="flex" alignItems="center" gap={0.5}>
                       <Typography variant="body2" fontWeight="800" color="primary.main" sx={{ wordBreak: 'break-all', fontSize: {xs: '0.85rem', sm: '1rem'} }}>{shipment.awb || 'N/A'}</Typography>
@@ -184,7 +184,7 @@ const InternationalOrderDetailsDialog = ({ isOpen, onClose, orderId, shipment, i
                         </Tooltip>
                       )}
                     </Box>
-                  </Box>
+                  </Box>}
                 </Box>
               </Paper>
             </Box>
