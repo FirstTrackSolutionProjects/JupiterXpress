@@ -203,7 +203,7 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
       <DialogTitle sx={{ p: { xs: 2, sm: 3 } }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
           <Typography variant="h6" fontWeight="700" color="text.primary">
-            Track Shipment: {report?.awb || 'N/A'}
+            Track Shipment: {report?.ref_id || 'N/A'}
           </Typography>
           <IconButton onClick={onClose} sx={{ '&:hover': { bgcolor: 'grey.100' } }}>
             <CloseIcon fontSize="small" />
