@@ -515,6 +515,7 @@ const Listing = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedReport, setSelectedReport] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isTrackingShareOpen, setIsTrackingShareOpen] = useState(false);
   const [currentTrackingShareData, setCurrentTrackingShareData] = useState(null);
   const [filters, setFilters] = useState({

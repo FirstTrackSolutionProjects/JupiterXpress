@@ -862,7 +862,7 @@ const Listing = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Box display="flex" gap={1} height={90} alignItems={'center'}>
+        <Box display="flex" gap={1} height={90} alignItems={'center'} flexWrap="wrap" py={1}>
           <Button
             variant="outlined"
             size="small"

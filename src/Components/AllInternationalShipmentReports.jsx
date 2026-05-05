@@ -137,14 +137,14 @@ const InternationalOrderDetailsDialog = ({ isOpen, onClose, orderId, shipment, i
                 <Box className="grid grid-cols-2 gap-x-3 gap-y-4 mt-4">
                   <Box>
                     <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Merchant</Typography>
-                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.fullName}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.email}</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.fullName || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.email || 'N/A'}</Typography>
                   </Box>
                   <Box>
                     <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Consignee</Typography>
-                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.consignee_name || shipment.customer_name}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.consignee_email || shipment.customer_email}</Typography>
-                    <Typography variant="caption" color="text.secondary">{shipment.consignee_contact_no || shipment.customer_mobile}</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.consignee_name || shipment.customer_name || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.consignee_email || shipment.customer_email || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{shipment.consignee_contact_no || shipment.customer_mobile || 'N/A'}</Typography>
                   </Box>
                 </Box>
               </Paper>
@@ -1713,7 +1713,7 @@ const AllInternationalShipmentReports = () => {
         const rowId = getRowKey(row);
         const isMenuOpen = downloadRowId === rowId;
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, height: 90 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, height: 90, flexWrap: 'wrap', py: 1 }}>
             <Button
               size="small"
               variant="outlined"
