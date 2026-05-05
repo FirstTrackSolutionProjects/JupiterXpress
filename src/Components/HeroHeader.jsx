@@ -54,58 +54,7 @@ const HeroHeader = ({spaceTheme, setSpaceTheme}) => {
           </div>
         )}
         {/*<button onClick={()=>setSpaceTheme((prev)=>!prev)}>{spaceTheme?"Switch to non-space":"Switch to space"}</button>*/}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-      <label style={{
-        position: 'relative',
-        display: 'inline-block',
-        width: '35px',
-        height: '20px',
-        marginRight: '10px',
-      }}>
-        <input 
-          type="checkbox" 
-          checked={spaceTheme} 
-          onChange={() => {setSpaceTheme((prev)=>{localStorage.setItem('theme', !prev?'space':'non-space'); return !prev }); }} 
-          style={{ display: 'none' }} // Hides the default checkbox
-        />
-        <span style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: spaceTheme ? 'blue' : 'gray',
-          borderRadius: '30px',
-          cursor: 'pointer',
-          transition: '0.4s',
-        }}></span>
-        <span style={{
-          position: 'absolute',
-          content: '""',
-          height: '12px',
-          width: '12px',
-          left: spaceTheme ? '20px' : '2px',
-          bottom: '4px',
-          backgroundColor: 'white',
-          borderRadius: '50%',
-          transition: '0.4s',
-        }}></span>
-      </label>
-      {/*<button 
-        onClick={() => setSpaceTheme((prev) => !prev)}
-        style={{
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '5px',
-          backgroundColor: spaceTheme ? 'blue' : 'white',
-          color: spaceTheme ? 'white' : 'black',
-          cursor: 'pointer',
-          transition: '0.3s',
-        }}
-      >
-        {spaceTheme ? "Switch to non-space" : "Switch to space"}
-      </button> */}
-    </div>
+
       </nav>
     </div>
     </>

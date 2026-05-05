@@ -523,6 +523,7 @@ const Listing = () => {
     merchant_name: "",
     awb: "",
     ord_id: "",
+    ref_id: "",
     serviceId: "",
     startDate: "",
     endDate: ""
@@ -558,6 +559,7 @@ const Listing = () => {
       merchant_name: filters.merchant_name,
       awb: filters.awb,
       ord_id: filters.ord_id,
+      ref_id: filters.ref_id,
       serviceId: filters.serviceId,
       startDate: startDate,
       endDate: endDate
@@ -796,6 +798,23 @@ const Listing = () => {
               }}
             />
             <TextField
+              label="Reference ID"
+              variant="outlined"
+              size="small"
+              name="ref_id"
+              value={filters.ref_id}
+              onChange={(e) => setFilters({ ...filters, ref_id: e.target.value })}
+              sx={{ mr: 1, minWidth: '150px' }}
+              InputLabelProps={{
+                sx: {
+                  backgroundColor: 'white',
+                  px: 0.5,
+                  width: '100%',
+                  borderRadius: 1,
+                },
+              }}
+            />
+            <TextField
               label="AWB"
               variant="outlined"
               size="small"
@@ -881,6 +900,7 @@ const Listing = () => {
                     merchant_name: filters.merchant_name,
                     awb: filters.awb,
                     ord_id: filters.ord_id,
+                    ref_id: filters.ref_id,
                     serviceId: filters.serviceId,
                     startDate: filters.startDate ? convertToUTCISOString(new Date(filters.startDate).setHours(0,0,0,0)) : '',
                     endDate: filters.endDate ? convertToUTCISOString(new Date(filters.endDate).setHours(23,59,59,999)) : ''

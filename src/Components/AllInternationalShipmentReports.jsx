@@ -1,11 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Box, Paper, TextField, Button, Menu, MenuItem } from "@mui/material";
+import { Box, Paper, TextField, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, Typography, Chip, IconButton, Divider, Tooltip } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import DownloadIcon from "@mui/icons-material/Download";
 import { toast } from "react-toastify";
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { v4 } from "uuid";
+import TrackingShareDialog from './TrackingShareDialog';
 
 import getInternationalOrdersPagedService from "../services/orderServices/internationalOrderServices/getInternationalOrdersPagedService";
 import getInternationalShipmentLabelService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentLabel";
@@ -35,6 +40,303 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 const convertToUTCISOString = (ts) => new Date(ts).toISOString();
+
+const InternationalOrderDetailsDialog = ({ isOpen, onClose, orderId, shipment, isAdmin }) => {
+  const [dockets, setDockets] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isOpen || !orderId || !shipment) return;
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const [dockRes, itemRes] = await Promise.all([
+          fetch(`${API_URL}/order/international/dockets`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: localStorage.getItem("token") },
+            body: JSON.stringify({ iid: orderId }),
+          }).then(res => res.json()),
+          fetch(`${API_URL}/order/international/items`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: localStorage.getItem("token") },
+            body: JSON.stringify({ iid: orderId }),
+          }).then(res => res.json())
+        ]);
+        if (dockRes.dockets) setDockets(dockRes.dockets);
+        if (itemRes.dockets) setItems(itemRes.dockets);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, [isOpen, orderId, shipment]);
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
+  };
+
+  const getStatusColor = (status) => {
+    if (shipment?.cancelled) return 'error';
+    if (shipment?.awb) return 'success';
+    if (shipment?.is_requested) return 'warning';
+    return 'primary';
+  };
+
+  return (
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose} 
+      maxWidth="md" 
+      fullWidth
+      PaperProps={{
+        sx: { 
+          borderRadius: { xs: 2, sm: 3 }, 
+          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+          m: { xs: 1, sm: 2 },
+          width: { xs: 'calc(100% - 16px)', sm: 'auto' }
+        }
+      }}
+    >
+      <DialogTitle sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Typography variant="h6" fontWeight="700" color="text.primary" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+              Order Details - {orderId}
+            </Typography>
+            <Chip 
+              label={shipment?.cancelled ? 'CANCELLED' : shipment?.awb ? 'MANIFESTED' : shipment?.is_requested ? 'REQUESTED' : 'PENDING'} 
+              color={getStatusColor()} 
+              size="small" 
+              sx={{ fontWeight: 600, px: 1, height: 20, fontSize: '0.65rem' }}
+            />
+          </Box>
+          <IconButton onClick={onClose} sx={{ '&:hover': { color: 'error.main', bgcolor: 'error.light' }, p: 0.5 }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mt: 2 }} />
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: { xs: 2, sm: 3 }, pt: 0 }}>
+        {loading ? (
+          <Box p={8} textAlign="center" display="flex" flexDirection="column" alignItems="center" gap={2}>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-800"></div>
+            <Typography color="text.secondary">Fetching order details...</Typography>
+          </Box>
+        ) : (
+          <Box className="space-y-6 md:space-y-8">
+            <Box className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, bgcolor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                <Typography variant="subtitle2" color="text.secondary" fontWeight="700" sx={{ letterSpacing: '0.05em', fontSize: '0.7rem' }} gutterBottom>
+                  CONTACT INFORMATION
+                </Typography>
+                <Box className="grid grid-cols-2 gap-x-3 gap-y-4 mt-4">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Merchant</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.fullName || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.email || 'N/A'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Consignee</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ wordBreak: 'break-word' }}>{shipment.consignee_name || shipment.customer_name || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', mt: 0.5, display: 'block', lineHeight: 1.1 }}>{shipment.consignee_email || shipment.customer_email || 'N/A'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{shipment.consignee_contact_no || shipment.customer_mobile || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, bgcolor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                <Typography variant="subtitle2" color="text.secondary" fontWeight="700" sx={{ letterSpacing: '0.05em', fontSize: '0.7rem' }} gutterBottom>
+                  SHIPMENT INFO
+                </Typography>
+                <Box className="grid grid-cols-2 gap-x-2 gap-y-4 mt-4">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Service Type</Typography>
+                    <Chip label={shipment.package_type || "N/A"} size="small" color="default" sx={{ mt: 0.5, fontWeight: 700, height: 20 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Courier / Vendor</Typography>
+                    <Typography variant="body2" fontWeight="600" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.service_name} / {shipment.vendor_name}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Ref ID</Typography>
+                    <Typography variant="body2" fontWeight="700" color="primary.main" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.ref_id || 'N/A'}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Warehouse</Typography>
+                    <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'}, wordBreak: 'break-word' }}>{shipment.warehouseName || 'N/A'}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Shipping Charge</Typography>
+                    <Typography variant="body2" fontWeight="700" color="error.main" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.shipping_charge ? `- ₹${parseFloat(shipment.shipping_charge).toFixed(2)}` : 'N/A'}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">Cost Price (Admin)</Typography>
+                    <Typography variant="body2" fontWeight="700" color="text.secondary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                      {shipment.cost_price ? `₹${parseFloat(shipment.cost_price).toFixed(2)}` : 'N/A'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ gridColumn: 'span 2' }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight="600" display="block">AWB Number</Typography>
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <Typography variant="body2" fontWeight="800" color="primary.main" sx={{ wordBreak: 'break-all', fontSize: {xs: '0.85rem', sm: '1rem'} }}>{shipment.awb || 'N/A'}</Typography>
+                      {shipment.awb && (
+                        <Tooltip title="Copy AWB">
+                          <IconButton size="small" onClick={() => handleCopy(shipment.awb)} sx={{ p: 0.5 }}>
+                            <ContentCopyIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+
+            <Box className="grid grid-cols-1 md:grid-cols-2 gap-6 px-1">
+              <Box>
+                <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary" sx={{ fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                  <Box sx={{ width: 6, height: 18, bgcolor: 'primary.main', borderRadius: 0.5 }} />
+                  ORIGIN
+                </Typography>
+                <Box sx={{ pl: 2.5 }}>
+                  <Typography variant="body2" fontWeight="700" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                    {shipment.warehouse_city}, {shipment.warehouse_state}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                    {shipment.warehouse_country} — {shipment.warehouse_pin}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary" sx={{ fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                  <Box sx={{ width: 6, height: 18, bgcolor: 'error.main', borderRadius: 0.5 }} />
+                  DESTINATION
+                </Typography>
+                <Box sx={{ pl: 2.5 }}>
+                  <Typography variant="body2" fontWeight="700" color="text.primary" sx={{ fontSize: {xs: '0.8rem', sm: '0.875rem'} }}>
+                    {shipment.consignee_city}, {shipment.consignee_state}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: {xs: '0.75rem', sm: '0.875rem'} }}>
+                    {COUNTRIES[shipment.consignee_country]?.name || shipment.consignee_country} — {shipment.consignee_zip_code}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary">
+                <InventoryIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                DOCKETS ({dockets.length})
+              </Typography>
+              <Paper variant="outlined" sx={{ overflowX: 'auto', borderRadius: 2, border: '1px solid #E5E7EB' }}>
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Box #</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Dimensions (L×B×H cm)</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-right">Weight</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-center">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dockets.map((b, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm font-semibold text-gray-700">{b.box_no}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600">{b.length} × {b.breadth} × {b.height}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-900 font-bold text-right">{b.docket_weight} {b.docket_weight_unit}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 text-center font-medium">{b.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Paper>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" fontWeight="800" display="flex" alignItems="center" gap={1.5} mb={2} color="text.primary">
+                <ListAltIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                ITEM DETAILS
+              </Typography>
+              <Paper variant="outlined" sx={{ overflowX: 'auto', borderRadius: 2, border: '1px solid #E5E7EB' }}>
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Box #</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest">Product Name</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-center">Qty</th>
+                      <th className="p-3 sm:p-4 font-bold text-gray-600 text-[10px] uppercase tracking-widest text-right">Unit Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((it, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm font-semibold text-gray-700">{it.box_no}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 font-medium" style={{ wordBreak: 'break-word' }}>{it.description}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-600 text-center font-bold">{it.quantity}</td>
+                        <td className="p-3 sm:p-4 text-xs sm:text-sm text-gray-900 font-bold text-right">₹{parseFloat(it.rate).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Paper>
+            </Box>
+
+            <Box display="flex" justifyContent="flex-end" pt={2} pb={2}>
+              <Paper 
+                variant="elevation" 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 2, sm: 3 }, 
+                  borderRadius: 3, 
+                  minWidth: { xs: '100%', sm: 280 }, 
+                  bgcolor: '#F3F4F6',
+                  border: '1px solid #E5E7EB'
+                }}
+              >
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total Items</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    {items.reduce((acc, item) => acc + parseInt(item.quantity), 0)}
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total Value</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    ₹{items.reduce((acc, item) => acc + (parseFloat(item.rate) * parseInt(item.quantity)), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between" mb={1.5}>
+                  <Typography variant="body2" fontWeight="600" color="text.secondary">Total volumetric weight</Typography>
+                  <Typography variant="body2" fontWeight="800" color="text.primary">
+                    {(dockets.reduce((acc, box) => acc + (parseFloat(box.length) * parseFloat(box.breadth) * parseFloat(box.height) * parseInt(box.quantity || 1)), 0) / 5000).toFixed(3)} kg
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 2, borderColor: '#D1D5DB' }} />
+                <Box display="flex" justifyContent="space-between" alignItems="baseline">
+                  <Typography variant="subtitle1" fontWeight="800" color="text.primary">Actual Weight</Typography>
+                  <Typography variant="h6" fontWeight="900" color="primary.main">
+                    {shipment.actual_weight} Kg
+                  </Typography>
+                </Box>
+              </Paper>
+            </Box>
+          </Box>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 async function generateShipmentLabels(labelData) {
   if (!labelData) throw new Error("No label data provided");
@@ -1240,6 +1542,9 @@ const AllInternationalShipmentReports = () => {
   });
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isManageOpen, setIsManageOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isTrackingShareOpen, setIsTrackingShareOpen] = useState(false);
+  const [currentTrackingShareData, setCurrentTrackingShareData] = useState(null);
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({});
@@ -1265,6 +1570,21 @@ const AllInternationalShipmentReports = () => {
   const handleCloseDownload = () => {
     setDownloadAnchorEl(null);
     setDownloadRowId(null);
+  };
+
+  const handleTrackAndShare = async (reportRow) => {
+    if (!reportRow?.awb) return toast.error("AWB missing");
+    setSelectedShipment(reportRow);
+    setIsTrackingShareOpen(true);
+    try {
+      const response = await fetch(`${API_URL}/shipment/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ awb: reportRow.awb })
+      });
+      const result = await response.json();
+      setCurrentTrackingShareData(result);
+    } catch (error) { setCurrentTrackingShareData({ success: false }); }
   };
 
   const handleGetLabel = async (orderId) => {
@@ -1364,7 +1684,8 @@ const AllInternationalShipmentReports = () => {
           <span>{p.row.vendor_name || "-"}</span>
           {!!p.row.ref_id && <span>Ref Id: {p.row.ref_id}</span>}
           {!!p.row.awb && <span>AWB: {p.row.awb}</span>}
-          {!!p.row.cost_price && <span>Cost: ₹{Number(p.row.cost_price).toFixed(2)}</span>}
+          {!!p.row.shipping_charge && <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>Charge: - ₹{Number(p.row.shipping_charge).toFixed(2)}</span>}
+          {!!p.row.cost_price && <span style={{ color: '#6b7280' }}>Cost: ₹{Number(p.row.cost_price).toFixed(2)}</span>}
         </Box>
       ),
     },
@@ -1383,7 +1704,7 @@ const AllInternationalShipmentReports = () => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 260,
+      width: 420,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -1392,7 +1713,17 @@ const AllInternationalShipmentReports = () => {
         const rowId = getRowKey(row);
         const isMenuOpen = downloadRowId === rowId;
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, height: 90 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, height: 90, flexWrap: 'wrap', py: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                setSelectedShipment(row);
+                setIsDetailsOpen(true);
+              }}
+            >
+              Details
+            </Button>
             <Button
               size="small"
               variant="contained"
@@ -1405,6 +1736,14 @@ const AllInternationalShipmentReports = () => {
             </Button>
             {hasAwb && (
               <>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleTrackAndShare(row)}
+                >
+                  Track
+                </Button>
                 <Button size="small" variant="outlined" onClick={(e) => handleOpenDownload(e, row)}>
                   <DownloadIcon />
                 </Button>
@@ -1562,6 +1901,22 @@ const AllInternationalShipmentReports = () => {
           <ManageForm shipment={selectedShipment} isShipped={!!selectedShipment?.awb} isManage={true} setIsManage={setIsManageOpen} />
         )}
       </Modal>
+
+      {selectedShipment && (
+        <InternationalOrderDetailsDialog
+          isOpen={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          orderId={selectedShipment.iid}
+          shipment={selectedShipment}
+        />
+      )}
+
+      <TrackingShareDialog
+        isOpen={isTrackingShareOpen}
+        onClose={() => setIsTrackingShareOpen(false)}
+        trackingData={currentTrackingShareData}
+        report={selectedShipment}
+      />
     </div>
   );
 };
