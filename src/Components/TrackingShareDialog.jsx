@@ -96,7 +96,7 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
     message += `👤 *Customer:* ${customerName}\n`;
     message += `📍 *Destination:* ${destinationAddress}\n`;
     if (!isInternational && report.service_name) { // Show Courier/Vendor for domestic shipments
-      message += `🚚 *Courier:* ${report.service_name}\n`;
+      message += `🚚 *Courier Service:* ${report.service_name}\n`;
     }
     message += `*----------------------------*\n\n`;
 
