@@ -15,16 +15,12 @@ const OPTIONS = {
       "Pickup cancelled by courier",
       "Pickup reschedule request",
     ],
-    replies: {
-      "Pickup not attempted":
-        "We’re checking why the pickup was not attempted and will update you shortly.",
-      "Pickup delayed":
-        "We apologize for the delay. We’re coordinating with the courier partner.",
-      "Pickup cancelled by courier":
-        "We’re reviewing the pickup cancellation and will assist you further.",
-      "Pickup reschedule request":
-        "Sure. We’ll help you reschedule the pickup at the earliest.",
-    },
+    prompts: {
+      "Pickup not attempted": "Please provide the Order ID/AWB and confirm the pickup address.",
+      "Pickup delayed": "Please provide the Order ID/AWB.",
+      "Pickup cancelled by courier": "Please provide the Order ID/AWB and any reason provided by the rider.",
+      "Pickup reschedule request": "Please provide the Order ID/AWB and your preferred new date and time slot.",
+    }
   },
 
   "Delivery Delay": {
@@ -34,16 +30,12 @@ const OPTIONS = {
       "Delivery attempt unsuccessful",
       "Delivery reschedule request",
     ],
-    replies: {
-      "Delivery delayed beyond SLA":
-        "We’re sorry for the delay. We’re checking the shipment status.",
-      "Shipment pending at delivery center":
-        "Your shipment is being reviewed at the delivery center.",
-      "Delivery attempt unsuccessful":
-        "We’ll coordinate with the courier to reattempt delivery.",
-      "Delivery reschedule request":
-        "We’ll assist you in rescheduling the delivery.",
-    },
+    prompts: {
+      "Delivery delayed beyond SLA": "Please provide the Order ID/AWB.",
+      "Shipment pending at delivery center": "Please provide the Order ID/AWB.",
+      "Delivery attempt unsuccessful": "Please provide the Order ID/AWB and the consignee's active contact number.",
+      "Delivery reschedule request": "Please provide the Order ID/AWB and the preferred delivery date.",
+    }
   },
 
   "COD / Payment Issue": {
@@ -53,16 +45,12 @@ const OPTIONS = {
       "COD not received for delivered order",
       "Payment issue with cancelled shipment",
     ],
-    replies: {
-      "COD amount mismatch":
-        "We’ll verify the COD amount details for your shipment.",
-      "COD remittance pending":
-        "COD remittance is under review. We’ll update you shortly.",
-      "COD not received for delivered order":
-        "We’re checking the delivery and payment confirmation.",
-      "Payment issue with cancelled shipment":
-        "We’ll verify the payment status for the cancelled shipment.",
-    },
+    prompts: {
+      "COD amount mismatch": "Please provide the Order ID/AWB and the amount discrepancy details (Expected vs Received).",
+      "COD remittance pending": "Please provide the Date range and the total pending amount.",
+      "COD not received for delivered order": "Please provide the Order ID/AWB and proof of delivery if available.",
+      "Payment issue with cancelled shipment": "Please provide the Order ID/AWB and the amount to be refunded.",
+    }
   },
 
   "Wallet Recharge Issue": {
@@ -72,16 +60,12 @@ const OPTIONS = {
       "Incorrect wallet balance",
       "Wallet transaction statement required",
     ],
-    replies: {
-      "Wallet recharge failed":
-        "We’re checking the wallet recharge status.",
-      "Recharge successful but balance not updated":
-        "We’ll verify the transaction and update your wallet balance.",
-      "Incorrect wallet balance":
-        "We’re reviewing your wallet transactions.",
-      "Wallet transaction statement required":
-        "We’ll help you with the wallet transaction details.",
-    },
+    prompts: {
+      "Wallet recharge failed": "Please provide the Transaction ID, Amount, and Date of attempt.",
+      "Recharge successful but balance not updated": "Please provide the Transaction ID and Amount.",
+      "Incorrect wallet balance": "Please provide details of the discrepancy you noticed.",
+      "Wallet transaction statement required": "Please specify the start and end dates for the statement.",
+    }
   },
 
   "Weight Dispute": {
@@ -91,16 +75,12 @@ const OPTIONS = {
       "Weight dispute for delivered shipment",
       "Request weight verification",
     ],
-    replies: {
-      "Incorrect charged weight":
-        "We’ll verify the charged weight for your shipment.",
-      "Weight updated after pickup":
-        "We’re checking the weight update details with the courier.",
-      "Weight dispute for delivered shipment":
-        "We’re reviewing the applied weight charges.",
-      "Request weight verification":
-        "We’ll initiate a weight verification request.",
-    },
+    prompts: {
+      "Incorrect charged weight": "Please provide the Order ID/AWB, Actual weight (kg), and Charged weight (kg).",
+      "Weight updated after pickup": "Please provide the Order ID/AWB.",
+      "Weight dispute for delivered shipment": "Please provide the Order ID/AWB.",
+      "Request weight verification": "Please provide the Order ID/AWB and confirm the package is available for re-weighing.",
+    }
   },
 
   "Pricing / Tracking Issue": {
@@ -110,16 +90,12 @@ const OPTIONS = {
       "Tracking not updated",
       "Tracking details incorrect",
     ],
-    replies: {
-      "Unexpected shipment charges":
-        "We’ll review the charges applied to your shipment.",
-      "Rate calculation incorrect":
-        "We’re verifying the rate calculation.",
-      "Tracking not updated":
-        "We’re checking the latest tracking status.",
-      "Tracking details incorrect":
-        "We’ll review and correct the tracking details.",
-    },
+    prompts: {
+      "Unexpected shipment charges": "Please provide the Order ID/AWB and details of the charge you're disputing.",
+      "Rate calculation incorrect": "Please provide the Origin/Destination pincodes and shipment weight.",
+      "Tracking not updated": "Please provide the Order ID/AWB.",
+      "Tracking details incorrect": "Please provide the Order ID/AWB and the correct status/location.",
+    }
   },
 };
 
@@ -153,7 +129,7 @@ export default function TicketChatbot({ onClose }) {
     setTimeout(() => {
       addBot("👋 Welcome to JupiterXpress Support!");
       setTimeout(() => {
-        addBot("How can I help you?");
+        addBot("Please select the category of your issue to raise a ticket:");
         setCurrentOptions([
           "Pickup Issue",
           "Delivery Delay",
@@ -198,15 +174,6 @@ export default function TicketChatbot({ onClose }) {
     }
   };
 
-  const askSolved = () => {
-    setTimeout(() => {
-      addBot("Is your issue resolved?");
-      setCurrentOptions(["Yes", "No"]);
-      setStep("SOLVED");
-    }, BOT_DELAY);
-  };
-
-
   const handleOption = (option) => {
     if (isLoading) return; 
     addUser(option);
@@ -221,30 +188,18 @@ export default function TicketChatbot({ onClose }) {
           setShowInput(true);
         } else {
           setCurrentCategory(option);
-          addBot("Please select one option:");
+          addBot("Please select the specific issue:");
           setCurrentOptions(OPTIONS[option].options);
           setStep("SUB");
         }
       } else if (step === "SUB") {
-        setCurrentSubCategory(option); 
-        addBot(OPTIONS[currentCategory].replies[option]);
-        askSolved(); 
-      } else if (step === "SOLVED") {
-        handleSolved(option);
+        setCurrentSubCategory(option);
+        const prompt = OPTIONS[currentCategory].prompts[option];
+        addBot(prompt);
+        setStep("DETAILS");
+        setShowInput(true);
       }
     }, BOT_DELAY);
-  };
-
-  const handleSolved = (answer) => {
-    if (answer === "Yes") {
-      addBot("🙏 Thank you for contacting JupiterXpress Support!");
-      // Use onClose instead of navigate
-      setTimeout(() => onClose(), 2000); 
-    } else {
-      addBot("Please provide a detailed description for our team to create the ticket:");
-      setStep("DETAILS"); 
-      setShowInput(true);
-    }
   };
 
   const submitDetails = () => {
@@ -298,7 +253,7 @@ export default function TicketChatbot({ onClose }) {
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Describe your issue here..."
+                placeholder="Enter details here..."
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-sky-950 focus:border-transparent outline-none text-sm resize-none shadow-inner min-h-[80px]"
                 disabled={isLoading}
                 rows={2}

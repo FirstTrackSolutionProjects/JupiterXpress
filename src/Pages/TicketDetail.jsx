@@ -147,16 +147,16 @@ export default function TicketDetail() {
                     <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Type your reply here..."
+                        placeholder={ticket.status === 'CLOSED' ? "Cannot reply to a closed ticket." : "Type your reply here..."}
                         rows="3"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-950 focus:border-sky-950"
-                        disabled={submitting}
+                        disabled={submitting || ticket.status === 'CLOSED'}
                     />
                     <div className="flex justify-end mt-2">
                         <button
                             type="submit"
                             className="bg-sky-950 text-white py-2 px-6 rounded-lg font-semibold hover:bg-sky-900 transition disabled:opacity-50"
-                            disabled={submitting}
+                            disabled={submitting || ticket.status === 'CLOSED'}
                         >
                             {submitting ? 'Sending...' : 'Send Reply'}
                         </button>

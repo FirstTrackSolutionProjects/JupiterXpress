@@ -4,8 +4,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; 
 import { fetchAllTickets, updateTicketStatus } from '../services/ticketServices/adminTicketService';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
 const STATUS_OPTIONS = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+const FILTER_OPTIONS = ['ALL', ...STATUS_OPTIONS]; // Add 'ALL' for filtering
 
 // Helper function (same as Phase 1 components)
 const getStatusClasses = (status) => {
@@ -27,25 +29,26 @@ export default function AdminSupport() {
     const navigate = useNavigate();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filterStatus, setFilterStatus] = useState('ALL'); // New state for filter
 
     const loadTickets = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await fetchAllTickets();
+            const filters = filterStatus === 'ALL' ? {} : { status: filterStatus };
+            const data = await fetchAllTickets(filters); // Pass filters to service
             setTickets(data);
         } catch (error) {
             toast.error(error.message);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [filterStatus]); // Depend on filterStatus
 
     useEffect(() => {
         loadTickets();
     }, [loadTickets]);
 
     const handleViewTicket = (ticketId) => {
-        // Navigates to the admin conversation page
         navigate(`/dashboard/admin/support/${ticketId}`);
     };
 
@@ -55,10 +58,7 @@ export default function AdminSupport() {
         try {
             await updateTicketStatus(ticketId, newStatus);
             toast.success(`Ticket #${ticketId} status set to ${newStatus}.`);
-            // Optimistically update UI or refresh
-            setTickets(prev => prev.map(t => 
-                t.ticket_id === ticketId ? { ...t, status: newStatus } : t
-            ));
+            loadTickets(); // Reload tickets to reflect changes and applied filters
         } catch (error) {
             toast.error(error.message);
         }
@@ -75,10 +75,26 @@ export default function AdminSupport() {
                 <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Support Overview</h1>
                 <p className="text-sm text-gray-500 mt-1">Manage and respond to merchant inquiries</p>
               </div>
-              <div className="bg-gray-50 px-5 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-purple-700 animate-pulse"></span>
-                <span className="text-sm font-bold text-gray-600">Active Tickets: {tickets.length}</span>
-              </div>
+              <Box display="flex" alignItems="center" gap={2}> {/* Container for filter and active tickets */}
+                <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Filter by Status</InputLabel>
+                  <Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    label="Filter by Status"
+                  >
+                    {FILTER_OPTIONS.map((status) => (
+                      <MenuItem key={status} value={status}>
+                        {status.replace('_', ' ')}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <div className="bg-gray-50 px-5 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-700 animate-pulse"></span>
+                  <span className="text-sm font-bold text-gray-600">Active Tickets: {tickets.length}</span>
+                </div>
+              </Box>
             </div>
 
             <div className="overflow-x-auto -mx-4 md:mx-0 rounded-xl border border-gray-100">
@@ -98,7 +114,7 @@ export default function AdminSupport() {
                             <tr 
                                 key={ticket.ticket_id}
                                 className="cursor-pointer hover:bg-gray-50 transition" 
-                                onClick={() => handleViewTicket(ticket.ticket_id)} // <--- CLICK HANDLER ADDED
+                                onClick={() => handleViewTicket(ticket.ticket_id)}
                             >
                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     #{ticket.ticket_id}
@@ -109,7 +125,6 @@ export default function AdminSupport() {
                                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {ticket.category}
                                 </td>
-                                {/* Note: We stop propagation on the select box */}
                                 <td className="px-4 py-4 max-w-xs truncate text-sm text-gray-500" title={ticket.description}>
                                     {ticket.description}
                                 </td>
@@ -122,7 +137,6 @@ export default function AdminSupport() {
                                     <select
                                         className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                         value={ticket.status}
-                                        // Stop propagation so clicking the dropdown doesn't trigger the row navigation
                                         onChange={(e) => { 
                                             e.stopPropagation();
                                             handleStatusChange(ticket.ticket_id, e.target.value);

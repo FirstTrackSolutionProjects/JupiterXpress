@@ -62,20 +62,37 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
   }, [isOpen, trackingData]);
 
   const getTrackingLink = () => {
-    return report?.ref_id ? `${window.location.origin}/track?awb=${report.ref_id}` : '';
+    return report?.awb ? `${window.location.origin}/track?awb=${report.awb}` : '';
   };
 
   const generateTrackingMessage = () => {
     if (!report) return "No shipment details available.";
 
+    // Determine values based on available properties (domestic vs. international)
+    const isInternational = !!report.iid; // Check for international order ID property
+    const awbNumber = report.awb || 'N/A';
+    const orderId = isInternational ? report.iid || 'N/A' : report.ord_id || 'N/A';
+    const customerName = isInternational ? report.consignee_name || 'N/A' : report.customer_name || 'N/A';
+
+    let destinationAddress = 'N/A';
+    if (isInternational) {
+      if (report.consignee_city) {
+        destinationAddress = `${report.consignee_city}, ${report.consignee_state || ''}`;
+        if (report.consignee_zip_code) destinationAddress += ` - ${report.consignee_zip_code}`;
+      }
+    } else { // Domestic
+      if (report.shipping_city) {
+        destinationAddress = `${report.shipping_city}, ${report.shipping_state || ''}`;
+        if (report.shipping_postcode) destinationAddress += ` - ${report.shipping_postcode}`;
+      }
+    }
+
     let message = `*🚚 JupiterXpress - Shipment Tracking Update 🚚*\n\n`;
     message += `*----- Shipment Details ----*\n`;
-    // message += `📦 *AWB:* ${report.awb || 'N/A'}\n`;
-    message += `🛒 *AWB:* ${report.ref_id || 'N/A'}\n`;
-    message += `👤 *Customer:* ${report.customer_name || 'N/A'}\n`;
-    if (report.shipping_city) {
-      message += `📍 *Destination:* ${report.shipping_city}, ${report.shipping_state || ''} - ${report.shipping_postcode || ''}\n`;
-    }
+    message += `📦 *AWB:* ${awbNumber}\n`;
+    message += `🛒 *Order ID:* ${orderId}\n`;
+    message += `👤 *Customer:* ${customerName}\n`;
+    message += `📍 *Destination:* ${destinationAddress}\n`;
     message += `*----------------------------*\n\n`;
 
     if (loading || !trackingData || !trackingData.success) {
@@ -95,16 +112,16 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
         let time = '';
         const sId = Number(trackingData.id);
 
-        if (sId === 1) {
+        if (sId === 1) { // Delhivery B2B (example service ID)
           status = scan.scan_remark || 'N/A';
           loc = scan.location || '';
           time = timestampToDate(scan.scan_timestamp);
-        } else if (sId === 2 || sId === 3) {
+        } else if (sId === 2 || sId === 3) { // Delhivery (other types, assuming based on original code)
           const d = scan.ScanDetail ?? scan;
           status = d.Instructions || d.Scan || 'N/A';
           loc = d.ScannedLocation || '';
           time = timestampToDate(d.ScanDateTime);
-        } else {
+        } else { // Generic / Other International
           status = scan.status || 'N/A';
           loc = scan.location || '';
           time = timestampToDate(scan.timestamp);
