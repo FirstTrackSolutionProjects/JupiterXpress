@@ -13,14 +13,13 @@ const getAuthHeaders = () => {
     };
 };
 
-export const fetchAllTickets = async () => {
-    // --- ADDED ENVIRONMENT VARIABLE LOOKUP ---
+export const fetchAllTickets = async (filters = {}) => {
     const VITE_APP_API_URL = import.meta.env.VITE_APP_API_URL;
-    // -----------------------------------------
     try {
+        const params = new URLSearchParams(filters).toString();
+        const url = `${VITE_APP_API_URL}/support/admin/tickets${params ? `?${params}` : ''}`;
         const response = await axios.get(
-            // --- UPDATED URL ---
-            `${VITE_APP_API_URL}/support/admin/tickets`,
+            url,
             { headers: getAuthHeaders() }
         );
         return response.data.tickets;
@@ -31,12 +30,9 @@ export const fetchAllTickets = async () => {
 };
 
 export const updateTicketStatus = async (ticketId, newStatus) => {
-    // --- ADDED ENVIRONMENT VARIABLE LOOKUP ---
     const VITE_APP_API_URL = import.meta.env.VITE_APP_API_URL;
-    // -----------------------------------------
     try {
         const response = await axios.patch(
-            // --- UPDATED URL ---
             `${VITE_APP_API_URL}/support/admin/tickets/${ticketId}/status`,
             { status: newStatus },
             { headers: getAuthHeaders() }
@@ -47,8 +43,6 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
         throw new Error(error.response?.data?.message || "Failed to update ticket status.");
     }
 };
-
-// --- NEW CONVERSATION FUNCTIONS ---
 
 export const adminFetchTicketMessages = async (ticketId) => {
     const VITE_APP_API_URL = import.meta.env.VITE_APP_API_URL;
@@ -78,8 +72,6 @@ export const adminSubmitReply = async (ticketId, message, newStatus) => {
         throw new Error(error.response?.data?.message || `Failed to send admin reply.`);
     }
 };
-
-// --- NEW ANALYTICS FUNCTION ---
 
 export const fetchTicketAnalytics = async () => {
     const VITE_APP_API_URL = import.meta.env.VITE_APP_API_URL;
