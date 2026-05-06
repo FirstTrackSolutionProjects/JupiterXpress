@@ -62,7 +62,7 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
   }, [isOpen, trackingData]);
 
   const getTrackingLink = () => {
-    return report?.awb ? `${window.location.origin}/track?awb=${report.awb}` : '';
+    return report?.ref_id ? `${window.location.origin}/track?awb=${report.ref_id}` : '';
   };
 
   const generateTrackingMessage = () => {
@@ -70,7 +70,7 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
 
     // Determine values based on available properties (domestic vs. international)
     const isInternational = !!report.iid; // Check for international order ID property
-    const awbNumber = report.awb || 'N/A';
+    const awbNumber = isInternational ? report.ref_id || 'N/A' : report.awb || 'N/A';
     const orderId = isInternational ? report.iid || 'N/A' : report.ord_id || 'N/A';
     const customerName = isInternational ? report.consignee_name || 'N/A' : report.customer_name || 'N/A';
 
@@ -90,9 +90,14 @@ const TrackingShareDialog = ({ isOpen, onClose, trackingData, report }) => {
     let message = `*🚚 JupiterXpress - Shipment Tracking Update 🚚*\n\n`;
     message += `*----- Shipment Details ----*\n`;
     message += `📦 *AWB:* ${awbNumber}\n`;
-    message += `🛒 *Order ID:* ${orderId}\n`;
+    if (!isInternational) { // Show Order ID only for domestic shipments
+      message += `🛒 *Order ID:* ${orderId}\n`;
+    }
     message += `👤 *Customer:* ${customerName}\n`;
     message += `📍 *Destination:* ${destinationAddress}\n`;
+    if (!isInternational && report.service_name) { // Show Courier/Vendor for domestic shipments
+      message += `🚚 *Courier:* ${report.service_name}\n`;
+    }
     message += `*----------------------------*\n\n`;
 
     if (loading || !trackingData || !trackingData.success) {
