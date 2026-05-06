@@ -775,12 +775,14 @@ const Listing = () => {
     }
   };
 
+  const ROW_HEIGHT=150;
+  
   const merchantCol = {
     field: 'merchant', 
     headerName: 'Merchant', 
     width: 200, 
     renderCell: (params) => (
-        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: ROW_HEIGHT }}>
           <div>{params.row.fullName}</div>
           <div>{params.row.email}</div>
         </Box>
@@ -791,13 +793,14 @@ const Listing = () => {
     headerName: 'Consignee', 
     width: 200, 
     renderCell: (params) => (
-        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+        <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: ROW_HEIGHT }}>
           <div>{params.row.consignee_name}</div>
           <div>{params.row.consignee_email}</div>
           <div>{params.row.consignee_contact_no}</div>
         </Box>
     )
   };
+
   const columns = [
     { field: "ref_id", headerName: `${isAdmin ? "Reference ID" : "AWB"}`, width: 140 },
     {
@@ -814,7 +817,7 @@ const Listing = () => {
       width: 260,
       renderCell: (params) => {
         const content = (
-          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 90 }}>
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: ROW_HEIGHT }}>
             <div>Forwarding No: {params.row.forwarding_number || 'N/A'}</div>
             <div>Service: {params.row.forwarding_service || 'N/A'}</div>
           </Box>
@@ -837,7 +840,7 @@ const Listing = () => {
       renderCell: (params) => {
         const isShipped = Boolean(params.row.awb);
         return (
-          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: 100 }}>
+          <Box sx={{ whiteSpace: 'normal', lineHeight: 1.5, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: ROW_HEIGHT }}>
             {isShipped ? (
               <>
                 <div>{params.row.service_name}</div>
@@ -862,7 +865,7 @@ const Listing = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Box display="flex" gap={1} height={90} alignItems={'center'} flexWrap="wrap" py={1}>
+        <Box display="flex" gap={1} height={ROW_HEIGHT} alignItems={'center'} flexWrap="wrap" py={1}>
           <Button
             variant="outlined"
             size="small"
@@ -1090,7 +1093,7 @@ const Listing = () => {
             columns={columns}
             loading={isLoading}
             hideFooter={true}
-            rowHeight={100}
+            rowHeight={ROW_HEIGHT}
             disableSelectionOnClick
             getRowId={getRowId}
           />
