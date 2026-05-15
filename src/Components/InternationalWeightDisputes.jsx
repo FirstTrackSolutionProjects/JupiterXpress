@@ -68,12 +68,14 @@ const Listing = () => {
   }, []);
 
   useEffect(() => {
-    if (!reports.length) {
+    if (!reports) {
+      setFilteredReports([]);
       return;
     }
     const filteredData = reports.filter((report) => {
+      const rid = report.iid || "";
       return (
-        (filters.orderId === "" || (report.iid.toLowerCase() == filters.iid.toLowerCase()))
+        (filters.orderId === "" || (rid.toLowerCase().includes(filters.orderId.toLowerCase())))
       );
     });
     setFilteredReports(filteredData)

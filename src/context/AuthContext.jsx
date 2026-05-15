@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     username: localStorage.getItem('username'),
     token: localStorage.getItem('token'),
     verified: false,
+    admin: false,
   });
 
   // Helper function to check token validity without modifying state directly
@@ -31,7 +32,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', token);
     // Assuming token is valid here, decode to update auth state
     const decoded = jwtDecode(token); 
-    setAuth({ username: decoded.business_name || decoded.name || username, token: token, verified: !!decoded.verified });
+    setAuth({ 
+      username: decoded.business_name || decoded.name || username, 
+      token: token, 
+      verified: !!decoded.verified,
+      admin: !!decoded.admin
+    });
   };
 
   const logout = () => {
@@ -51,7 +57,8 @@ export const AuthProvider = ({ children }) => {
       setAuth({ 
         username: decoded.business_name || decoded.name || localStorage.getItem('username'), 
         token: storedToken,
-        verified: !!decoded.verified
+        verified: !!decoded.verified,
+        admin: !!decoded.admin
       });
     }
   }, []); // Runs once on mount

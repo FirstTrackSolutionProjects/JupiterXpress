@@ -31,6 +31,7 @@ import getInternationalShipmentThirdPartyLabelService from "../services/shipment
 import getInternationalShipmentThirdPartyInvoiceService from "../services/shipmentServices/internationalShipmentServices/getInternationalShipmentThirdPartyInvoiceService";
 import cloneInternationalOrderService from "../services/orderServices/internationalOrderServices/cloneInternationalOrderService";
 import CloseIcon from "@mui/icons-material/Close";
+import TrackingShareDialog from './TrackingShareDialog';
 import WarehouseSelect from "./ui/WarehouseSelect";
 import geocodingGoogleMapsService from "../services/google_maps/geocoding.google_maps.service";
 
@@ -1573,6 +1574,25 @@ const Listing = ({ step, setStep }) => {
   });
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isManageOpen, setIsManageOpen] = useState(false);
+  const [isTrackingShareOpen, setIsTrackingShareOpen] = useState(false);
+  const [currentTrackingShareData, setCurrentTrackingShareData] = useState(null);
+
+  const handleTrackAndShare = async (reportRow) => {
+    // For international, track by ref_id or awb
+    const trackingNo = reportRow.ref_id || reportRow.awb;
+    if (!trackingNo) return toast.error("Tracking number missing");
+    setSelectedShipment(reportRow);
+    setIsTrackingShareOpen(true);
+    try {
+      const response = await fetch(`${API_URL}/shipment/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ awb: trackingNo })
+      });
+      const result = await response.json();
+      setCurrentTrackingShareData(result);
+    } catch (error) { setCurrentTrackingShareData({ success: false }); }
+  };
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null); // anchor for download menu
   const [downloadRowId, setDownloadRowId] = useState(null);
   const [vendorLabelsMap, setVendorLabelsMap] = useState({}); // id -> [keys]
@@ -1833,17 +1853,30 @@ const Listing = ({ step, setStep }) => {
         return (
           <Box display="flex" gap={1} alignItems={'center'} height={80}>
             <Button
-              variant="contained"
+              variant="outlined"
               size="small"
               onClick={() => { setSelectedShipment(params.row); setIsManageOpen(true); }}
+              sx={{ borderRadius: '24px' }}
             >
-              <VisibilityIcon />
+              Details
             </Button>
+            {(params.row.awb || params.row.ref_id) && (
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={() => handleTrackAndShare(params.row)}
+                sx={{ borderRadius: '24px' }}
+              >
+                Track
+              </Button>
+            )}
             <Button
               variant="contained"
               size="small"
               onClick={() => handleClone(params.row.iid)}
               disabled={Boolean(cloneLoading[params.row.iid])}
+              sx={{ borderRadius: '24px' }}
             >
               {cloneLoading[params.row.iid] ? 'Cloning...' : 'Clone'}
             </Button>
@@ -2070,6 +2103,13 @@ const Listing = ({ step, setStep }) => {
           />
         )}
       </Modal>
+
+      <TrackingShareDialog
+        isOpen={isTrackingShareOpen}
+        onClose={() => setIsTrackingShareOpen(false)}
+        trackingData={currentTrackingShareData}
+        report={selectedShipment}
+      />
     </div>
   );
 };
