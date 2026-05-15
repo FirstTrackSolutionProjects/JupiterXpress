@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import convertToUTCISOString from "../helpers/convertToUTCISOString";
 import WarehouseSelect from "./ui/WarehouseSelect";
 import { Chip, Tooltip, Typography, Divider } from "@mui/material";
+import TrackingShareDialog from './TrackingShareDialog';
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 
@@ -1387,6 +1388,23 @@ const Listing = ({ step, setStep }) => {
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [isManageOpen, setIsManageOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isTrackingShareOpen, setIsTrackingShareOpen] = useState(false);
+  const [currentTrackingShareData, setCurrentTrackingShareData] = useState(null);
+
+  const handleTrackAndShare = async (reportRow) => {
+    if (!reportRow?.awb) return toast.error("AWB missing");
+    setSelectedShipment(reportRow);
+    setIsTrackingShareOpen(true);
+    try {
+      const response = await fetch(`${API_URL}/shipment/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ awb: reportRow.awb })
+      });
+      const result = await response.json();
+      setCurrentTrackingShareData(result);
+    } catch (error) { setCurrentTrackingShareData({ success: false }); }
+  };
   // Debounce filter changes
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -1546,6 +1564,17 @@ const Listing = ({ step, setStep }) => {
             >
               {isShipped ? 'View' : 'Manage'}
             </Button>
+            {isShipped && (
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={() => handleTrackAndShare(params.row)}
+                sx={{ borderRadius: '24px' }}
+              >
+                Track
+              </Button>
+            )}
           </Box>
         );
       }
@@ -1642,6 +1671,13 @@ const Listing = ({ step, setStep }) => {
           shipment={selectedShipment}
         />
       )}
+
+      <TrackingShareDialog
+        isOpen={isTrackingShareOpen}
+        onClose={() => setIsTrackingShareOpen(false)}
+        trackingData={currentTrackingShareData}
+        report={selectedShipment}
+      />
     </div>
   );
 };
