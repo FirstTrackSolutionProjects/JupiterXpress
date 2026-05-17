@@ -20,7 +20,14 @@ const columns = [
     { field: 'ref_id', headerName: 'Ref ID', flex: 1 },
     { field: 'payment_id', headerName: 'Payment ID', flex: 1, hide: true },
     { field: 'service_name', headerName: 'Service', flex: 1 },
-    { field: 'amount', headerName: 'Amount', flex: 1, renderCell: (p)=> p.value != null ? Number(p.value) : '' },
+    { field: 'amount', headerName: 'Amount', flex: 1, renderCell: p => {
+        const v = Number(p.value);
+        if (isNaN(v)) return '';
+        const sign = (p.row.type === 'expense' || p.row.type === 'dispute_charge' || p.row.type === 'extra' || (p.row.type === 'manual' && v < 0)) ? '-' : '+';
+        const cls = sign === '+' ? 'text-green-600' : 'text-red-600';
+        return <span className={cls}>{sign}{Math.abs(v)}</span>;
+    } },
+    { field: 'remaining_balance', headerName: 'Balance After', flex: 1, renderCell: p => p.value != null ? Number(p.value) : '' },
     { field: 'reason', headerName: 'Reason', flex: 1 }
 ];
 
