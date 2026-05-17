@@ -23,7 +23,7 @@ const columns = [
     { field: 'amount', headerName: 'Amount', flex: 1, renderCell: p => {
         const v = Number(p.value);
         if (isNaN(v)) return '';
-        const sign = (p.row.type === 'expense' || p.row.type === 'dispute_charge' || p.row.type === 'extra') ? '-' : '+';
+        const sign = (p.row.type === 'expense' || p.row.type === 'dispute_charge' || p.row.type === 'extra' || (p.row.type === 'manual' && v < 0)) ? '-' : '+';
         const cls = sign === '+' ? 'text-green-600' : 'text-red-600';
         return <span className={cls}>{sign}{Math.abs(v)}</span>;
     } },
