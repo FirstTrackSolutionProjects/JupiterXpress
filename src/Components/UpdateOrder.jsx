@@ -570,8 +570,14 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
       return;
     }
     const invoiceUuid = uuidv4();
-    const key = `invoice/${invoiceUuid}`;
     const filetype = invoice.type;
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(filetype)) {
+      toast.error('Invalid file type. Please upload a PDF, JPEG, or PNG file.');
+      return;
+    }
+    const fileExtension = invoice.name.split('.').pop();
+    const key = `invoice/${invoiceUuid}${fileExtension ? `.${fileExtension}` : ''}`;
 
     const putUrlReq = await fetch(`${API_URL}/s3/putUrl`, {
       method: "POST",
