@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import WarehouseSelect from './ui/WarehouseSelect';
+import { toast } from 'react-toastify';
+import geocodingGoogleMapsService from '../services/google_maps/geocoding.google_maps.service';
 const API_URL = import.meta.env.VITE_APP_API_URL
 
 const getTodaysDate = () => {
@@ -149,43 +151,68 @@ const FullDetails = () => {
     control,
     name: 'boxes'
   });
+  const zipGeoTimerRef = useRef(null);
+  // const zipEditedRef = useRef(false);
   useEffect(() => {
+    const zip = (watch('postcode') || '').trim();
+    // Do not query for very short inputs
+    // Only auto-complete when user has manually edited the zip
+    // if (!zipEditedRef.current) return;
+    if (!zip || zip.length !== 6) return;
 
-    const pinToAdd = async () => {
+    if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+
+    zipGeoTimerRef.current = setTimeout(async () => {
       try {
-        await fetch(`https://api.postalpincode.in/pincode/${watch('postcode')}`)
-          .then(response => response.json())
-          .then(result => {
-            const city = result[0].PostOffice[0].District
-            const state = result[0].PostOffice[0].State
-            setValue('city', city)
-            setValue('state', state)
-          })
-      } catch (e) {
-        setValue('city', '')
-        setValue('state', '')
+        const result = await geocodingGoogleMapsService(`${zip}, India`);
+        if (!result) return;
+        const { state, stateCode, city } = result;
+
+        const inferredState = (state || stateCode);
+
+        if (city) setValue('city', city);
+        if (inferredState) setValue('state', inferredState);
+
+      } catch (err) {
+        console.error('Geocoding from Zip/PIN failed', err);
+        toast.error('Unable to auto-detect address from Zip / PIN');
       }
-    }
-    if (watch('postcode').length == 6) pinToAdd()
-  }, [watch('postcode')])
+    }, 600);
+
+    return () => {
+      if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+    };
+  }, [watch('postcode')]);
   useEffect(() => {
-    const pinToAdd = async () => {
+    const zip = (watch('Bpostcode') || '').trim();
+    // Do not query for very short inputs
+    // Only auto-complete when user has manually edited the zip
+    // if (!zipEditedRef.current) return;
+    if (!zip || zip.length !== 6) return;
+
+    if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+
+    zipGeoTimerRef.current = setTimeout(async () => {
       try {
-        await fetch(`https://api.postalpincode.in/pincode/${watch('Bpostcode')}`)
-          .then(response => response.json())
-          .then(result => {
-            const city = result[0].PostOffice[0].District
-            const state = result[0].PostOffice[0].State
-            setValue('Bcity', city)
-            setValue('Bstate', state)
-          })
-      } catch (e) {
-        setValue('Bcity', '')
-        setValue('Bstate', '')
+        const result = await geocodingGoogleMapsService(`${zip}, India`);
+        if (!result) return;
+        const { state, stateCode, city } = result;
+
+        const inferredState = (state || stateCode);
+
+        if (city) setValue('Bcity', city);
+        if (inferredState) setValue('Bstate', inferredState);
+
+      } catch (err) {
+        console.error('Geocoding from Zip/PIN failed', err);
+        toast.error('Unable to auto-detect address from Zip / PIN');
       }
-    }
-    if (watch('Bpostcode').length == 6) pinToAdd()
-  }, [watch('Bpostcode')])
+    }, 600);
+
+    return () => {
+      if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+    };
+  }, [watch('Bpostcode')]);
 
   useEffect(() => {
     const getWarehouses = async () => {

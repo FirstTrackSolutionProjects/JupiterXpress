@@ -1,5 +1,5 @@
 import cloneOrderService from "../services/orderServices/cloneOrderService";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { 
@@ -28,6 +28,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import TrackingShareDialog from './TrackingShareDialog';
+import geocodingGoogleMapsService from "../services/google_maps/geocoding.google_maps.service";
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 
@@ -449,55 +450,82 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
     customer_reference_number: shipment?.customer_reference_number
   })
 
+  const zipGeoTimerRef = useRef(null);
+  const zipEditedRef = useRef(false);
   useEffect(() => {
-    const pinToAdd = async () => {
+    const zip = (formData.postcode || '').trim();
+    // Do not query for very short inputs
+    // Only auto-complete when user has manually edited the zip
+    if (!zipEditedRef.current) return;
+    if (!zip || zip.length !== 6) return;
+
+    if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+
+    zipGeoTimerRef.current = setTimeout(async () => {
       try {
-        await fetch(`https://api.postalpincode.in/pincode/${formData.postcode}`)
-          .then(response => response.json())
-          .then(result => {
-            const city = result[0].PostOffice[0].District
-            const state = result[0].PostOffice[0].State
-            setFormData((prev) => ({
-              ...prev,
-              city: city,
-              state: state
-            }))
-          })
-      } catch (e) {
-        setFormData((prev) => ({
+        const result = await geocodingGoogleMapsService(`${zip}, India`);
+        if (!result) return;
+        const { state, stateCode, city } = result;
+
+        const inferredState = (state || stateCode);
+
+        if (city) setFormData((prev) => ({
           ...prev,
-          city: '',
-          state: ''
-        }))
+          city: city
+        }));
+        if (inferredState) setFormData((prev) => ({
+          ...prev,
+          state: inferredState
+        }));
+
+      } catch (err) {
+        console.error('Geocoding from Zip/PIN failed', err);
+        toast.error('Unable to auto-detect address from Zip / PIN');
       }
-    }
-    if (formData.postcode.length == 6) pinToAdd()
-  }, [formData.postcode])
-  
+    }, 600);
+
+    return () => {
+      if (zipGeoTimerRef.current) clearTimeout(zipGeoTimerRef.current);
+    };
+  }, [formData.postcode]);
+  const bZipGeoTimerRef = useRef(null);
+  const bZipEditedRef = useRef(false);
   useEffect(() => {
-    const pinToAdd = async () => {
+    const zip = (formData.Bpostcode || '').trim();
+    // Do not query for very short inputs
+    // Only auto-complete when user has manually edited the zip
+    if (!bZipEditedRef.current) return;
+    if (!zip || zip.length !== 6) return;
+
+    if (bZipGeoTimerRef.current) clearTimeout(bZipGeoTimerRef.current);
+
+    bZipGeoTimerRef.current = setTimeout(async () => {
       try {
-        await fetch(`https://api.postalpincode.in/pincode/${formData.Bpostcode}`)
-          .then(response => response.json())
-          .then(result => {
-            const city = result[0].PostOffice[0].District
-            const state = result[0].PostOffice[0].State
-            setFormData((prev) => ({
-              ...prev,
-              Bcity: city,
-              Bstate: state
-            }))
-          })
-      } catch (e) {
-        setFormData((prev) => ({
+        const result = await geocodingGoogleMapsService(`${zip}, India`);
+        if (!result) return;
+        const { state, stateCode, city } = result;
+
+        const inferredState = (state || stateCode);
+
+        if (city) setFormData((prev) => ({
           ...prev,
-          Bcity: '',
-          Bstate: ''
+          Bcity: city
         }))
+        if (inferredState) setFormData((prev) => ({
+          ...prev,
+          Bstate: inferredState
+        }));
+
+      } catch (err) {
+        console.error('Geocoding from Zip/PIN failed', err);
+        toast.error('Unable to auto-detect address from Zip / PIN');
       }
-    }
-    if (formData.Bpostcode.length == 6) pinToAdd()
-  }, [formData.Bpostcode])
+    }, 600);
+
+    return () => {
+      if (bZipGeoTimerRef.current) clearTimeout(bZipGeoTimerRef.current);
+    };
+  }, [formData.Bpostcode]);
 
   const addProduct = () => {
     setOrders([...orders, { box_no: 1, product_name: '', product_quantity: 0, selling_price: 0, tax_in_percentage: '' }]);
@@ -553,6 +581,12 @@ const ManageForm = ({ isManage, setIsManage, shipment, isShipped }) => {
   
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'postcode'){
+      zipEditedRef.current = true;
+    }
+    if (name === 'Bpostcode'){
+      bZipEditedRef.current = true;
+    }
     setFormData((prevData) => ({
       ...prevData,
       [name]: type === 'checkbox' ? checked : value
