@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const timestampToDate = (timestamp) => {
   if (!timestamp) return 'N/A';
   const date = new Date(timestamp);
-  if (isNaN(date.getTime())) return 'Invalid Date';
+  if (isNaN(date.getTime())) return timestamp; // Return original if invalid date
   return date.getFullYear() + "-" +
     String(date.getMonth() + 1).padStart(2, '0') + "-" +
     String(date.getDate()).padStart(2, '0') + " " +
