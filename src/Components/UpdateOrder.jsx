@@ -1837,7 +1837,7 @@ const Listing = ({ step, setStep }) => {
       if (result.success) {
         getParcels(); // Refresh data to show updated AWB
       } else {
-        alert("Your shipment is still under processing, please wait...");
+        alert(result.message || "Your shipment is still under processing, please wait...");
       }
     } catch (error) {
       console.error(error);
