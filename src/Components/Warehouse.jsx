@@ -128,7 +128,7 @@ const AddForm = ({ setMode }) => {
           </div>
           <div className="w-full flex mb-2 flex-wrap ">
             <div className="flex-1 mx-2 mb-2 min-w-[300px] space-y-2">
-              <label htmlFor="sender_name">Sender Name*</label>
+              <label htmlFor="sender_name">Sender Name* (Same as on Aadhaar)</label>
               <input required
                 className="w-full border py-2 px-4 rounded-3xl"
                 type="text"
